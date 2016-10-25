@@ -11,6 +11,7 @@
 Example [CMD_KEY]createquest "Mega Mouse" "Battle a" "1.9" "1.4" "30" "1.5" "None" "20" "http://i.imgur.com/B0EvfDF.jpg"
 Adds new quest to the server
 Note: Put "None" for no weapon. Spawn chance is one out of the given number of messages (20 in the example) after cool down. 
+Note (advanced): [Server ID]:[Remote Weapon Name] can also be used as the [Weapon Name]
 
 [CMD_KEY]createweapon "[Icon]" "[Name]" "[Damage]" "[Hit Chance]" "[Use Text]" "[Melee(True/False)]" "[Icon Image URL]"
 Example: [CMD_KEY]createweapon "!" "Knife" "5" "10" "stabs" "true" "http://i.imgur.com/kYh0BGT.png"
