@@ -187,7 +187,7 @@ def get_weapon_for_server(server_id,weapon_name):
             
 def owns_weapon_name(player,wname):
     for weapon in player.owned_weps:
-        if(get_weapon_from_id(weapon[0]).name.lower == wname.lower()):
+        if(get_weapon_from_id(weapon[0]).name.lower() == wname.lower()):
             return True;
     return False;
     
@@ -314,7 +314,7 @@ async def battle_quest_on_message(message):
         if(p.benfont):
             await client.send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
-    elif message.content.lower().startswith(command_key + 'createquest') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
          messageArg = message.content.replace(command_key + "createquest ", "", 1);  # DO DO CREAT QUWEST
          Worked = False;
          Strs = util_due.get_strings(messageArg);
@@ -339,10 +339,15 @@ async def battle_quest_on_message(message):
                          nquest.bwinings = (((nquest.baseattack + nquest.basestrg + nquest.baseshooting) / 20) / 0.0883);
                          nquest.bwinings = nquest.bwinings + (((nquest.bwinings * nquest.basehp)) / 20) / 0.75;
                          nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
-                         if(does_weapon_exist(message.server.id, Strs[6].lower())):
-                             weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
-                             if(weap.server == message.server.id or weap.server == "all"):
-                                 nquest.wID = weap.wID;
+                         if(len(Strs[6]) <= 18):
+                            if(does_weapon_exist(message.server.id, Strs[6].lower())):
+                                weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
+                                if(weap.server == message.server.id or weap.server == "all"):
+                                    nquest.wID = weap.wID;
+                         else:
+                            attempt_id = Strs[6].lower();
+                            attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
+                            nquest.wID = get_weapon_from_id(attempt_id).wID;
                          nquest.questServer = message.server.id;
                          nquest.spawnchance = abs(int(Strs[7]));
                          nquest.image_url = Strs[8];
@@ -372,7 +377,7 @@ async def battle_quest_on_message(message):
              if(message.content.lower().count('"') % 2 == 1):
                 await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
-    elif message.content.lower().startswith(command_key + 'serverquests') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
             text = "```\n" + message.server.name + " Quests\nSquare brackets indicate quest name.\n";
             number = 0;
             if(message.server.id in ServersQuests):
@@ -384,10 +389,10 @@ async def battle_quest_on_message(message):
             text = text + "```";
             await client.send_message(message.channel, text);
             return True;
-    elif message.content.lower().startswith(command_key + 'removequest') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
         messageArg = message.content.replace(command_key + "removequest ", "", 1);
         try:
-            questName = messageArg.strip().lower();
+            questName = messageArg.strip().lower().strip();
             if(message.server.id in ServersQuests):
                 #print(questName);
                 if(questName in ServersQuests[message.server.id]):
@@ -406,7 +411,7 @@ async def battle_quest_on_message(message):
         except:
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
-    elif message.content.lower().startswith(command_key + 'createweapon') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
          messageArg = message.content.replace(command_key + "createweapon ", "", 1);
          Worked = False;
          Strs = util_due.get_strings(messageArg);
@@ -509,8 +514,8 @@ async def battle_quest_on_message(message):
         else:
             await client.send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
         return True;
-    elif message.content.lower().startswith(command_key + 'removeweapon')  and message.author.permissions_in(message.channel).manage_server:
-        messageArg = message.content.replace(command_key + "removeweapon ", "", 1);
+    elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+        messageArg = message.content.replace(command_key + "removeweapon ", "", 1).strip();
         try:
             weapon = get_weapon_for_server(message.server.id, messageArg.lower());
             if(weapon != None):
@@ -529,7 +534,7 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'buy '):
-        messageArg = message.content.replace(command_key + "buy ", "", 1);
+        messageArg = message.content.replace(command_key + "buy ", "", 1).strip();
         Found = False;
         try:
             weapon = get_weapon_for_server(message.server.id, messageArg.lower());
@@ -541,19 +546,20 @@ async def battle_quest_on_message(message):
                         return True;
                     if((player.money - weapon.price) >= 0):
                         if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
-                            await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
                             if(player.wID == no_weapon_id):
                                 player.wID = weapon.wID;
                                 out=  ["penis","dick","cock","dong"];
                                 if any([x in weapon.name.lower() for x in out]):
                                     await give_award(message, player, 12, "For Harambe.");
                                 player.wep_sum = get_weapon_sum(weapon.wID)
+                                await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
                             else:
-                                if(not owns_weapon_name(player,weapon.lower())):
+                                if not owns_weapon_name(player,weapon.name.lower()):
                                     player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
+                                    await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
                                     await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipwep "+weapon.name.lower()+"**.");
                                 else:
-                                    await client.send_message(message.channel, ":bangbang: **You already have "+weapon.name+" stored!**");
+                                    await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
                             player.money = player.money - weapon.price;
                             savePlayer(player);             
                             await give_award(message, player, 4, "License to kill.");
@@ -567,7 +573,11 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, "Weapon not found!");
         return True;
     elif message.content.lower().startswith(command_key + 'sellweapon'):
-        await sell(message, message.author.id,False);
+        weapon_name = message.content.lower().replace(command_key+'sellweapon',"",1).strip();
+        if(len(weapon_name)  == 0):
+            await sell(message,message.author.id,False);
+        else:
+            await sell_weapon(message,message.author.id,False,weapon_name);
         return True;
     elif message.content.lower().startswith(command_key + 'resetme'):
         player = findPlayer(message.author.id);
@@ -741,7 +751,7 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower().startswith(command_key + 'setbg '):
         player = findPlayer(message.author.id);
-        background_name = message.content.lower().replace(command_key + 'setbg ', "").title();
+        background_name = message.content.lower().replace(command_key + 'setbg ', "").strip().title();
         if(background_name in Backgrounds.keys()):
             player.background = Backgrounds[background_name];
             await client.send_message(message.channel, "Your personal background has been set to **" + background_name + "**!"); 
@@ -774,7 +784,7 @@ async def battle_quest_on_message(message):
             bgs = bgs + "Do " + command_key + "listbgs " + str(page + 2) + " to see more.";
         bgs = bgs + "```";
         await client.send_message(message.channel, bgs);    
-    elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (message.author.id in util_due.DueUtilAdmins)):
+    elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util_due.is_mod_or_admin(message.author.id))):
         loadBackgrounds();
         await client.send_message(message.channel, "Custom backgrounds reloaded.");   
         return True; 
@@ -824,8 +834,8 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'myweapons'):
         await show_weapons(message,findPlayer(message.author.id));
         return True;
-    elif message.content.lower().startswith(command_key + 'equipweap'):
-        await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweap ", "", 1));
+    elif message.content.lower().startswith(command_key + 'equipweapon'):
+        await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
         return True;
     else:
         found = False;
@@ -865,33 +875,67 @@ async def equip_weapon(message,player,wname):
             await client.send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!");
         else:
             await client.send_message(message.channel, ":white_check_mark: equiped!");
+        savePlayer(player);
     else:
         await client.send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
         
-#def validate_weapon_store():
-    #for
+async def validate_weapon_store(message,player):
+    weapon_sums = [];
+    for ws in player.owned_weps:
+        if(ws[1] != get_weapon_sum(ws[0])):
+            weapon_sums.append(ws[1]);
+            del player.owned_weps[player.owned_weps.index(ws)];
+    print(weapon_sums);
+    if len(weapon_sums) > 0:
+        await mass_recall(message,player,weapon_sums);        
 
 async def sell(message, uID, recall):
-    sell_weapon(message,uID,recall,None);
+    await sell_weapon(message,uID,recall,None); 
+
+async def mass_recall(message, player, weapon_sums):
+    refund = 0;
+    for sum in weapon_sums:
+        refund = refund + int(util_due.get_strings(sum)[0]);
+    player.money = player.money + refund;
+    await client.send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util_due.to_money(refund) + " refund.");
+    savePlayer(player);
     
-async def sell_weapon(message, uID, recall,weapon_id):
+async def sell_weapon(message, uID, recall,weapon_name):
     global Players;
     global Weapons;
     player = findPlayer(uID);
     if (player == None):
         return True;
-    if (player.wID != no_weapon_id):
-        weapon = get_weapon_from_id(player.wID);
+    weapon_id= no_weapon_id;
+    if(weapon_name == None):
+        weapon_id = player.wID;
+    else:
+        weapon_data = remove_weapon_from_store(player,weapon_name);
+        if(weapon_data == None):
+            if(get_weapon_from_id(player.wID).name.lower() == weapon_name):
+                weapon_name = None;
+                weapon_id = player.wID;
+            if(weapon_name != None):
+                await client.send_message(message.channel, ":bangbang: **Weapon not found!**");
+                return;
+        if(weapon_data != None):
+            weapon_id = weapon_data[0];
+    if (weapon_id != no_weapon_id):
+        weapon = get_weapon_from_id(weapon_id);
         price = int(((1 / weapon.chance) * weapon.attack) / 0.04375);
         sellPrice = int(price - (price / 4));
         if(not recall):
             await client.send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util_due.to_money(sellPrice)+ "!");
         else:
-            sellPrice = int(util_due.get_strings(player.wep_sum)[0]);
+            if(weapon_name == None):
+                sellPrice = int(util_due.get_strings(player.wep_sum)[0]);
+            else:
+                sellPrice = int(util_due.get_strings(weapon_data[1])[0]);
             #print(util_due.get_strings(player.wep_sum));
             await client.send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util_due.to_money(sellPrice) + " refund.");
-        player.wID = no_weapon_id;
-        player.wep_sum = get_weapon_sum(no_weapon_id)
+        if(weapon_name == None):
+            player.wID = no_weapon_id;
+            player.wep_sum = get_weapon_sum(no_weapon_id)
         player.money = player.money + sellPrice;
         savePlayer(player);
     else:
@@ -913,7 +957,10 @@ async def show_weapons(message,player):
             accy = round((1/weap.chance)*100,2);
             output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
-    output = output+"Type equipweap [Weapon Name] to equip a stored weapon!```";
+    if(len(player.owned_weps) == 0):
+        output = output + "You don't have any weapons stored!```";
+    else:
+        output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweap [Weapon Name] to equip a stored weapon!```";
     await client.send_message(message.channel, output);
      
 def load(discord_client):
@@ -980,6 +1027,9 @@ def load_awards():
     load_award("awards/givecash.png","Sugar Daddy\nGive another player over or $50"); # 17
     load_award("awards/potato.png","Bringer Of Potatoes\nGive a potato"); # 18
     load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 19
+    load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
+    load_award("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
+    load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
     
 def load_award(icon_path,name):
     global AwardsIcons;
@@ -1490,6 +1540,7 @@ async def playerProgress(message):
         if(gplayer.wID != no_weapon_id):
             if(gplayer.wep_sum != get_weapon_sum(gplayer.wID)):
                 await sell(message,gplayer.userid,True);
+        await validate_weapon_store(message,gplayer);
         Found = True;
         if((time.time() - gplayer.last_progress) >= 60):
             #print(gplayer.name.encode('ascii','replace').decode() + " Progressed!");

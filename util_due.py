@@ -17,6 +17,7 @@ import jsonpickle;
 import json;
 loaded = False;
 DueUtilAdmins=[];
+DueUtilMods=[];
 AutoReplys = [];
 mutedchan = [];
 basicMode = False;
@@ -85,6 +86,11 @@ def get_page_with_replace(data,page,key,server):
 def get_page(data,page):
 	return get_page_with_replace(data,page,None,None);
     
+def is_admin(id):
+    return id in DueUtilAdmins;
+def is_mod_or_admin(id):
+    return id in DueUtilAdmins or id in DueUtilMods;
+    
 async def on_util_message(message):
     global servers;
     global serverKeys;
@@ -92,24 +98,17 @@ async def on_util_message(message):
     global basicMode;
     global AutoReplys;
     global DueUtilAdmins
+    global DueUtilMods
     found = True;
     command_key = get_server_cmd_key(message.server);
     basicMode = servers.setdefault(message.server,False);
-    if ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins)) and message.content.lower().startswith(command_key+'addadmin'):
-        admin = userMentions(message);
-        if(len(admin)==1):
-            if(not (admin[0] in DueUtilAdmins)):
-                DueUtilAdmins.append(admin[0]);
-                await client.send_message(message.channel,"**"+get_server_name(message, admin[0])+"** is now a DueUtil admin!");
-                print("Admin "+admin[0]+" added by "+message.author.id);
-                #pickle.dump(DueUtilAdmins,open ("saves/admins.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
-                saveGeneric(DueUtilAdmins, "due_admins");
-            else:
-                await client.send_message(message.channel,"**"+get_server_name(message, admin[0])+"** is already an admin!");
-        else:
-            await client.send_message(message.channel,":bangbang: **Mention one user you would like to promote!**");
-        return True;
-    elif ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins)) and message.content.lower().startswith(command_key+'givecash'):
+    if ('addadmin' in message.content.lower() or 'removeadmin' in message.content.lower()):
+        DueUtilAdmins = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
+        saveGeneric(DueUtilAdmins, "due_admins");
+    elif ('addmod' in message.content.lower() or 'removemod' in message.content.lower()):
+        DueUtilMods = await mod_admin_manage(message,'mod',22,DueUtilMods);
+        saveGeneric(DueUtilMods, "due_mods");
+    elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'givecash'):
         arg = message.content.replace(command_key+"givecash ","");
         arg = clearmentions(arg);
         r=userMentions(message);
@@ -124,27 +123,13 @@ async def on_util_message(message):
                     await client.send_message(message.channel,"**"+get_server_name(message, r[0])+"** is not playing.");
         except:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
-        return True;      
-    elif ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins)) and message.content.lower().startswith(command_key+'removeadmin'):
-        admin = userMentions(message);
-        if(len(admin)==1):
-            if((admin[0] in DueUtilAdmins)):
-                DueUtilAdmins = list(filter((admin[0]).__ne__, DueUtilAdmins));
-                #pickle.dump(DueUtilAdmins,open ("saves/admins.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
-                saveGeneric(DueUtilAdmins, "due_admins");
-                print("Admin "+admin[0]+" removed by "+message.author.id);
-                await client.send_message(message.channel,"**"+get_server_name(message, admin[0])+"** is no longer a DueUtil admin.");
-            else:
-                await client.send_message(message.channel,"**"+get_server_name(message, admin[0])+"** is not an admin anyway!");
-        else:
-            await client.send_message(message.channel,":bangbang: **Mention one user you would like to demote.**");
-        return True;
-    elif ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins)) and message.content.lower().startswith(command_key+'backup'):
+        return True;  
+    elif ((message.author.id == "132315148487622656") or is_mod_or_admin(message.author.id)) and message.content.lower().startswith(command_key+'backup'):
         print("DueUtil backedup by admin "+message.author.id);
         zipdir("saves/","DueBackup.zip");
         await client.send_file(message.channel,'DueBackup.zip',filename=None,content =":white_check_mark: **DueUtil has been backed up!**");
         return True;
-    elif message.content.lower().startswith(command_key+'shutupdue') and (message.author.permissions_in(message.channel).manage_server or ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins))):
+    elif message.content.lower().startswith(command_key+'shutupdue') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         if(not (message.server.id+"/"+message.channel.id in mutedchan)):
             mutedchan.append(message.server.id+"/"+message.channel.id);
             #pickle.dump(mutedchan,open ("saves/muted.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
@@ -153,7 +138,7 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,"I've already shut up in this channel! Use **"+command_key+"unshutupdue** to enable my alerts again.");
         return True;
-    elif message.content.lower().startswith(command_key+'setcmdkey') and (message.author.permissions_in(message.channel).manage_server or ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins))):
+    elif message.content.lower().startswith(command_key+'setcmdkey') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         cmdKey = message.content.lower().replace(command_key+'setcmdkey','');
         cmdKey = cmdKey.replace(' ','');
         if(len(cmdKey) >= 1 and len(cmdKey) <= 2):
@@ -165,7 +150,7 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **Your command key can only be one or two characters long!**");
         return True;
-    elif message.content.lower().startswith(command_key+'unshutupdue') and (message.author.permissions_in(message.channel).manage_server or ((message.author.id == "132315148487622656") or (message.author.id in DueUtilAdmins))):
+    elif message.content.lower().startswith(command_key+'unshutupdue') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         if((message.server.id+"/"+message.channel.id in mutedchan)):
             del mutedchan[mutedchan.index(message.server.id+"/"+message.channel.id)];
             #pickle.dump(mutedchan,open ("saves/muted.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
@@ -188,7 +173,7 @@ async def on_util_message(message):
         strToGif = message.content.replace(command_key+"gt ","",1);
         await createGlitterText(message,strToGif);
         return True;
-    elif message.content.lower().startswith(command_key+'timedreply') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key+'timedreply') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         Worked = False;
         messageArg = message.content.replace(command_key+"timedreply ","",1);
         Strs = get_strings(messageArg);
@@ -213,7 +198,7 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
         return True;
-    elif message.content.lower().startswith(command_key+'autoreply') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key+'autoreply') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         target = message.raw_mentions;
         worked = False;
         messageArg = message.content.replace(command_key+"autoreply ","",1);
@@ -260,7 +245,7 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
         return True;
-    elif message.content.lower().startswith(command_key+'removereply ') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key+'removereply ') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         messageArg = message.content.replace(command_key+"removereply ","",1);
         args = messageArg.split();
         if(args[0].lower() == 'all'):
@@ -281,7 +266,7 @@ async def on_util_message(message):
                 await client.send_message(message.channel,":bangbang: **Reply does not exist.**");
             saveGeneric(AutoReplys, "auto_replys");
         return True;
-    elif message.content.lower().startswith(command_key+'listreplys') and message.author.permissions_in(message.channel).manage_server:
+    elif message.content.lower().startswith(command_key+'listreplys') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
         Found = False;
         list_out = "```Auto replys on "+message.server.name+"\n";
         for x in range(0,len(AutoReplys)):
@@ -344,6 +329,38 @@ async def on_util_message(message):
                         else:
                              await client.send_message(message.channel,AutoReplys[x].alt);
     return found;
+    
+async def mod_admin_manage(message,role,award_id,role_list):
+    print(role_list);
+    command_key = get_server_cmd_key(message.server);
+    if ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'add'+role):
+        rUser = userMentions(message);
+        if(len(rUser)==1):
+            if(not (rUser[0] in role_list)):
+                role_list.append(rUser[0]);
+                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is now a DueUtil "+role+"!");
+                print(role+" "+rUser[0]+" added by "+message.author.id);
+                await due_battles_quests.give_award_id(message,rUser[0],award_id,"Become an "+role+"!")
+            else:
+                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is already an "+role+"!");
+        else:
+            await client.send_message(message.channel,":bangbang: **Mention one user you would like to promote!**");
+        return role_list;    
+    elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'remove'+role):
+        rUser = userMentions(message);
+        if(len(rUser)==1):
+            if((rUser[0] in role_list)):
+                del role_list[role_list.index(rUser[0])];
+                print(role+" "+rUser[0]+" removed by "+message.author.id);
+                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is no longer a DueUtil "+role+".");
+                player = due_battles_quests.findPlayer(rUser[0]);
+                del player.awards[player.awards.index(award_id)];
+            else:
+                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is not an "+role+" anyway!");
+        else:
+            await client.send_message(message.channel,":bangbang: **Mention one user you would like to demote.**");
+        return role_list;
+    return None;
 
 def capsCount(message):
     shoutCount = 0;
@@ -388,6 +405,7 @@ def get_strings(mainStr):
 def load(discord_client):
     global client;
     global DueUtilAdmins;
+    global DueUtilMods;
     global AutoReplys;
     global mutedchan;
     global serverKeys;
@@ -403,6 +421,9 @@ def load(discord_client):
     test =  loadUtils("due_admins");
     if test != None:
         DueUtilAdmins = test;
+    test =  loadUtils("due_mods");
+    if test != None:
+        DueUtilMods = test;
     test =  loadUtils("auto_replys");
     if test != None:
         AutoReplys = test;

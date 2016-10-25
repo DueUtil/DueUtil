@@ -109,7 +109,7 @@ async def on_message(message):
             return;
         elif message.channel.is_private:
             return;
-        elif ((message.author.id == "132315148487622656") or (message.author.id in util_due.DueUtilAdmins)) and message.content.lower().startswith(command_key+'stop'):
+        elif ((message.author.id == "132315148487622656") or (util_due.is_admin(message.author.id))) and message.content.lower().startswith(command_key+'stop'):
             stopped = True;
             await client.send_message(message.channel,"Stopping DueUtil!");
             print("DueUtil stopped by admin "+message.author.id);
