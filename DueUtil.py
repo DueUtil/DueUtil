@@ -13,28 +13,10 @@ client = discord.Client()
 stopped = False;
 
 def get_help_page(help_file,page,key,server):
-    print(time.time())
     with open (help_file, "r") as myfile:
         data=myfile.readlines();
-    print(time.time())
-    help ='```';
-    test = help;
-    for x in range (0,page):
-        test = test + '``````'
-    for line in data:   
-        text = line.replace("[CMD_KEY]",key).replace("[SERVER]",server);
-        new_ln = help+ text;
-        test = test + text;
-        if(len(test) >= 1997*page):          
-            if(len(test ) < 1997*(page+1) and len(new_ln) <= 1997):
-                help = new_ln;
-            else:
-                print(len(help+'```'))
-                return [help+'```',True];
-    help = help + '```';
-    if('``````' in help):
-        return None;
-    return [help,False];
+    return util_due.get_page_with_replace(data,page,key,server);
+
 
 async def send_text_as_message(to,txt_name,key,message):
     with open (txt_name, "r") as myfile:
@@ -70,7 +52,7 @@ async def on_message(message):
         if message.channel.is_private:
             msg_x = 0;
             for msg in reversed(list(client.messages)):
-                if(msg_x == 5):
+                if(msg_x == 10):
                     await client.send_file(message.channel,'images/no_mem.png',content = "If you still need help run the command again on a server!");
                     await due_battles_quests.give_award_id(message,message.author.id,15,"Dumbledore!!!")
                     command_key = None;
@@ -200,7 +182,7 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.Cugt5g.X-QDr7VcmB1bjS0rbalttz_CXrI');
+        client.run('MjEyNzA3MDYzMzY3ODYwMjI1.CvEc4w.6_iCbYM9SgUlPCIkg1TEfGHCGd0');
         run_due();
       
 print("Starting DueUtil!")

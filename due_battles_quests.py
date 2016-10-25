@@ -93,6 +93,7 @@ class player:
         self.quests = [];
         self.battlers = [];
         self.awards = [];
+        self.owned_weps = [];
    
 class activeQuest(player):
         qID = "";
@@ -183,6 +184,24 @@ def get_weapon_for_server(server_id,weapon_name):
             return Weapons[weapID]
         else:
             return None;
+            
+def owns_weapon_name(player,wname):
+    for weapon in player.owned_weps:
+        if(get_weapon_from_id(weapon[0]).name.lower == wname.lower()):
+            return True;
+    return False;
+    
+def remove_weapon_from_store(player,wname):
+    #print(wname);
+    for weapon in player.owned_weps:
+        stored_weapon = get_weapon_from_id(weapon[0]);
+        if(stored_weapon != None and stored_weapon.name.lower() == wname.lower()):
+            wID = weapon[0];
+            sum = weapon[1];
+            del player.owned_weps[player.owned_weps.index(weapon)];
+            return [wID,sum];
+    return None;
+        
         
 def does_weapon_exist(server_id,weapon_name):   
     if(get_weapon_for_server(server_id,weapon_name) != None):
@@ -275,7 +294,18 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'shop'):
-        await shop(message);
+        page = 0;
+        args = message.content.lower().replace(command_key + 'shop',"");
+        if(len(args) > 0):
+            try:
+                page = int(args) - 1;
+                if(page < 0):
+                    await client.send_message(message.channel, ":bangbang: **Page not found**");
+                    return True;
+            except:
+                await client.send_message(message.channel, ":bangbang: **Page not found**");
+                return True;
+        await shop(message,page);
         return True;
     elif message.content.lower().startswith(command_key + 'benfont'):
         p =findPlayer(message.author.id);
@@ -339,6 +369,8 @@ async def battle_quest_on_message(message):
          else:
              print(len(Strs))
              await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+             if(message.content.lower().count('"') % 2 == 1):
+                await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + 'serverquests') and message.author.permissions_in(message.channel).manage_server:
             text = "```\n" + message.server.name + " Quests\nSquare brackets indicate quest name.\n";
@@ -410,6 +442,8 @@ async def battle_quest_on_message(message):
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
              await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+             if(message.content.lower().count('"') % 2 == 1):
+                await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + "sendcash"):
         sender = findPlayer(message.author.id);
@@ -506,19 +540,25 @@ async def battle_quest_on_message(message):
                     if(player == None):
                         return True;
                     if((player.money - weapon.price) >= 0):
-                        if(player.wID == no_weapon_id):
-                            player.wID = weapon.wID;
-                            player.money = player.money - weapon.price;
-                            player.wep_sum = get_weapon_sum(weapon.wID)
-                            savePlayer(player);
+                        if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
                             await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
+                            if(player.wID == no_weapon_id):
+                                player.wID = weapon.wID;
+                                out=  ["penis","dick","cock","dong"];
+                                if any([x in weapon.name.lower() for x in out]):
+                                    await give_award(message, player, 12, "For Harambe.");
+                                player.wep_sum = get_weapon_sum(weapon.wID)
+                            else:
+                                if(not owns_weapon_name(player,weapon.lower())):
+                                    player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
+                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipwep "+weapon.name.lower()+"**.");
+                                else:
+                                    await client.send_message(message.channel, ":bangbang: **You already have "+weapon.name+" stored!**");
+                            player.money = player.money - weapon.price;
+                            savePlayer(player);             
                             await give_award(message, player, 4, "License to kill.");
-                            out=  ["penis","dick","cock","dong"];
-                            if any([x in weapon.name.lower() for x in out]):
-                                #print("TEST");
-                                await give_award(message, player, 12, "For Harambe.");
                         else:
-                            await client.send_message(message.channel, "**"+player.name+"** sell your current weapon first with **" + command_key + "sellweapon**.");
+                            await client.send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
                     else:
                         await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.");
         except:
@@ -781,6 +821,12 @@ async def battle_quest_on_message(message):
         else:
             await awards_screen(message,player, 0);
         return True;
+    elif message.content.lower().startswith(command_key + 'myweapons'):
+        await show_weapons(message,findPlayer(message.author.id));
+        return True;
+    elif message.content.lower().startswith(command_key + 'equipweap'):
+        await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweap ", "", 1));
+        return True;
     else:
         found = False;
     return found;
@@ -807,8 +853,28 @@ async def display_rank(message, find):
         await client.send_message(message.channel, "You're **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
     else:
         await client.send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
+        
+async def equip_weapon(message,player,wname):
+    storedWeap = remove_weapon_from_store(player,wname);
+    if(storedWeap != None):
+        player.owned_weps.append([player.wID,player.wep_sum]);
+        player.wID = storedWeap[0];
+        player.wep_sum = storedWeap[1];
+        newWeap = get_weapon_from_id(player.wID);
+        if(newWeap != None):
+            await client.send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!");
+        else:
+            await client.send_message(message.channel, ":white_check_mark: equiped!");
+    else:
+        await client.send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
+        
+#def validate_weapon_store():
+    #for
 
 async def sell(message, uID, recall):
+    sell_weapon(message,uID,recall,None);
+    
+async def sell_weapon(message, uID, recall,weapon_id):
     global Players;
     global Weapons;
     player = findPlayer(uID);
@@ -831,6 +897,25 @@ async def sell(message, uID, recall):
     else:
         await client.send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
+        
+async def show_weapons(message,player):
+    eweap = get_weapon_from_id(player.wID);
+    output = "```"+player.name+"'s stored weapons\nEquipped: "+eweap.icon+" - "+eweap.name+"\n";
+    #check wep not removed/replaced
+    num = 1;
+    for ws in player.owned_weps:
+        weap = get_weapon_from_id(ws[0]);
+        if(weap != None):
+            if(weap.melee == True):
+                Type = "Melee";
+            else:
+                Type = "Ranged";
+            accy = round((1/weap.chance)*100,2);
+            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
+            num=num+1;
+    output = output+"Type equipweap [Weapon Name] to equip a stored weapon!```";
+    await client.send_message(message.channel, output);
+     
 def load(discord_client):
     global Weapons;
     global Players
@@ -902,10 +987,15 @@ def load_award(icon_path,name):
     AwardsIcons.append(Image.open(icon_path));
     AwardsNames.append(name);
     
-async def shop(message):
+async def shop(message,page):
     global Weapons;
-    Shop = "```\nWelcome to DueUtil's weapons shop!\n"
+    shop_title = "\n**Welcome to DueUtil's weapon shop!**\n"
+    if(page > 0):
+        shop_title = "\n**DueUtil's weapon shop: Page "+str(page+1)+"**\n"
     count = 0;
+    weapon_listings = "";
+    body = "";
+    shop_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.\n";
     for key in Weapons.keys():
         if key.startswith(message.server.id) or key.startswith("000000000000000000"):
             weapon = Weapons[key];
@@ -917,9 +1007,21 @@ async def shop(message):
                 else:
                     Type = "Ranged";
                 accy = round((1/weapon.chance)*100,2);
-                Shop = Shop + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + str(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";
-    Shop = Shop + "Type " + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name] to purchase a weapon.\nWant more? Ask a server manager to add stock!```\n";
-    await client.send_message(message.channel, Shop);
+                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + str(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
+    page_data = util_due.get_page(weapon_listings,page);
+    if(page_data == None):
+        await client.send_message(message.channel, ":bangbang: **Page not found!**");
+        return;
+    else:
+        body=page_data[0];
+        if(page_data[1]):
+            shop_footer = shop_footer +"**But wait there's more** type **"+util_due.get_server_cmd_key(message.server)+"shop "+str(page+2)+"** to have a look!"
+        else:
+            shop_footer = shop_footer +"Want more? Ask a server manager to add stock!"
+    await client.send_message(message.channel, shop_title);
+    await client.send_message(message.channel, body);
+    await client.send_message(message.channel,shop_footer);
+
 
 async def printStats(message, uID):
     global Players;
@@ -1165,6 +1267,11 @@ def jsonTest(playerT):
     print(datum);
     rebuild = json.loads(datum, object_hook=lambda d: Namespace(**d))
     print(rebuild.quests[0].name);
+ 
+def update_player_def(p):
+    if not hasattr(p,'owned_weps'):
+        setattr(p,'owned_weps',[]);
+    return p;
     
 def loadPlayers():
     global Players;
@@ -1173,6 +1280,7 @@ def loadPlayers():
             with open("saves/players/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 p = jsonpickle.decode(data);
+                p = update_player_def(p);
                 Players[p.userid] = p;
 def  loadWeapons():
     global Weaponse;
@@ -1384,7 +1492,7 @@ async def playerProgress(message):
                 await sell(message,gplayer.userid,True);
         Found = True;
         if((time.time() - gplayer.last_progress) >= 60):
-            print(gplayer.name.encode('ascii','replace').decode() + " Progressed!");
+            #print(gplayer.name.encode('ascii','replace').decode() + " Progressed!");
             gplayer.last_progress = time.time();
             startLevel = gplayer.level;
             addAttack = (len(message.content) / 600);

@@ -54,6 +54,36 @@ def get_server_name(message,id):
 def get_server_name_S(server,id):
     return server.get_member(id).name;
     
+def get_page_with_replace(data,page,key,server):
+    output ='```';
+    test = output;
+    if(not isinstance(data, list)):
+        data = data.splitlines();
+    #print(data);
+    for x in range (0,page):
+        test = test + '``````'
+    for line in data:   
+        if(key != None and server != None):
+            text = line.replace("[CMD_KEY]",key).replace("[SERVER]",server);
+        else:
+            text = line;
+        if(not ('\n' in text)):
+            text = text + '\n';
+        new_ln = output+ text;
+        test = test + text;
+        if(len(test) >= 1997*page):          
+            if(len(test ) < 1997*(page+1) and len(new_ln) <= 1997):
+                output = new_ln;
+            else:
+                return [output+'```',True];
+    output = output + '```';
+    if('``````' in output):
+        return None;
+    #print(output);
+    return [output,False]
+	
+def get_page(data,page):
+	return get_page_with_replace(data,page,None,None);
     
 async def on_util_message(message):
     global servers;
