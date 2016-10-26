@@ -232,6 +232,11 @@ def get_game_quest_from_id(id):
         return ServersQuests[args[0]][args[1]];
     else:
         return None;
+        
+async def harambe_check(message,weapon,player):
+    out=  ["penis","dick","cock","dong"];
+    if any([x in weapon.name.lower() for x in out]):
+        await give_award(message, player, 12, "For Harambe.");
     
 async def battle_quest_on_message(message):
     #await exploit_check(message);
@@ -549,9 +554,8 @@ async def battle_quest_on_message(message):
                         if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
                             if(player.wID == no_weapon_id):
                                 player.wID = weapon.wID;
-                                out=  ["penis","dick","cock","dong"];
-                                if any([x in weapon.name.lower() for x in out]):
-                                    await give_award(message, player, 12, "For Harambe.");
+                                await harambe_check(message,weapon,player);
+                                await give_award(message, player, 4, "License to kill.");
                                 player.wep_sum = get_weapon_sum(weapon.wID)
                                 await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
                             else:
@@ -563,7 +567,6 @@ async def battle_quest_on_message(message):
                                     await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
                             player.money = player.money - weapon.price;
                             savePlayer(player);             
-                            await give_award(message, player, 4, "License to kill.");
                         else:
                             await client.send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
                     else:
@@ -834,7 +837,16 @@ async def battle_quest_on_message(message):
             await awards_screen(message,player, 0);
         return True;
     elif message.content.lower().startswith(command_key + 'myweapons'):
-        await show_weapons(message,findPlayer(message.author.id));
+        await show_weapons(message,findPlayer(message.author.id),False);
+        return True;
+    elif message.content.lower().startswith(command_key + 'weapons '):
+        users = message.raw_mentions;
+        if(len(users) == 1):
+            player = findPlayer(users[0]);
+            if player == None:
+                await client.send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
+                return True;
+            await show_weapons(message,player,True);
         return True;
     elif message.content.lower().startswith(command_key + 'equipweapon'):
         await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
@@ -855,7 +867,7 @@ async def battle_quest_on_message(message):
             return True;
         player = findPlayer(users[0]);
         if player == None:
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.users[0])+"** has not joined!");
+            await client.send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
             return True;
         if message.content.lower().startswith(command_key + 'takeweapons '):
             await take_weapon(message,player);
@@ -899,7 +911,8 @@ async def equip_weapon(message,player,wname):
         player.wID = storedWeap[0];
         player.wep_sum = storedWeap[1];
         newWeap = get_weapon_from_id(player.wID);
-        if(newWeap != None):
+        if(newWeap.wID != no_weapon_id):
+            await harambe_check(message,newWeap,player);
             await client.send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!");
         else:
             await client.send_message(message.channel, ":white_check_mark: equiped!");
@@ -970,7 +983,7 @@ async def sell_weapon(message, uID, recall,weapon_name):
         await client.send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
         
-async def show_weapons(message,player):
+async def show_weapons(message,player,not_theirs):
     eweap = get_weapon_from_id(player.wID);
     output = "```"+player.name+"'s stored weapons\nEquipped: "+eweap.icon+" - "+eweap.name+"\n";
     #check wep not removed/replaced
@@ -986,9 +999,15 @@ async def show_weapons(message,player):
             output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
     if(len(player.owned_weps) == 0):
-        output = output + "You don't have any weapons stored!```";
+        if(not not_theirs):
+            output = output + "You don't have any weapons stored!```";
+        else:
+            output = output + player.name+" does not have any weapons stored!```";
     else:
-        output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweapon [Weapon Name] to equip a stored weapon!```";
+        if(not not_theirs):
+            output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweapon [Weapon Name] to equip a stored weapon!```";
+        else:
+            output = output + "```";
     await client.send_message(message.channel, output);
      
 def load(discord_client):

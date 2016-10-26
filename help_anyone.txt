@@ -4,6 +4,7 @@
 [CMD_KEY]buy [Weapon Name] ~ Buys a weapon
 [CMD_KEY]shop ~ Shows the servers weapon shop
 [CMD_KEY]myweapons ~ Shows your weapon storage (weapons you don't have equiped)
+[CMD_KEY]weapons [@User] ~ Shows @Users weapon storage.
 [CMD_KEY]equipweapon [Weapon Name] ~ Equips a weapon from your weapon storage.
 [CMD_KEY]sellweapon [Weapon Name (Optional)] ~ Sells your current weapon
 [CMD_KEY]resetme ~ Resets your profile and all stats/weapons owned user
