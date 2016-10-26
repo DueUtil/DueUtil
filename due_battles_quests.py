@@ -1738,7 +1738,7 @@ def createQuest(n_q, player):
     aQ.attack = n_q.baseattack * attackMtp;
     aQ.strg = n_q.basestrg * strgMtp;
     aQ.shooting = n_q.baseshooting * shootMtp;
-    aQ.money = int(n_q.bwinings) * int((hpMtp + shootMtp + strgMtp + attackMtp) / 4);
+    aQ.money = abs(int(n_q.bwinings) * int((hpMtp + shootMtp + strgMtp + attackMtp) / 4));
     if (aQ.money == 0):
         aQ.money = 1;
     aQ.wID =n_q.wID;
