@@ -915,10 +915,13 @@ async def unequip_weapon(message,cplayer):
     active_wep = get_weapon_from_id(cplayer.wID);
     if(active_wep.wID != no_weapon_id):
         if(len(cplayer.owned_weps) < 6):
-            cplayer.owned_weps.append([active_wep.wID,cplayer.wep_sum]);
-            cplayer.wID = no_weapon_id;
-            cplayer.wep_sum = get_weapon_sum(no_weapon_id);
-            await client.send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+            if not owns_weapon_name(cplayer,active_wep.name.lower()):
+                cplayer.owned_weps.append([active_wep.wID,cplayer.wep_sum]);
+                cplayer.wID = no_weapon_id;
+                cplayer.wep_sum = get_weapon_sum(no_weapon_id);
+                await client.send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+            else:
+                await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
         else:
             await client.send_message(message.channel, ":bangbang: **No room in your weapon storage!**");
     else:
