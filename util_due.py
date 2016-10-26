@@ -87,9 +87,9 @@ def get_page(data,page):
 	return get_page_with_replace(data,page,None,None);
     
 def is_admin(id):
-    return id in DueUtilAdmins;
+    return id in DueUtilAdmins or id == '132315148487622656';
 def is_mod_or_admin(id):
-    return id in DueUtilAdmins or id in DueUtilMods;
+    return id in DueUtilAdmins or id in DueUtilMods or id =='132315148487622656';
     
 async def on_util_message(message):
     global servers;
@@ -102,12 +102,16 @@ async def on_util_message(message):
     found = True;
     command_key = get_server_cmd_key(message.server);
     basicMode = servers.setdefault(message.server,False);
-    if ('addadmin' in message.content.lower() or 'removeadmin' in message.content.lower()):
-        DueUtilAdmins = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
-        saveGeneric(DueUtilAdmins, "due_admins");
-    elif ('addmod' in message.content.lower() or 'removemod' in message.content.lower()):
-        DueUtilMods = await mod_admin_manage(message,'mod',22,DueUtilMods);
-        saveGeneric(DueUtilMods, "due_mods");
+    if (message.content.lower(.startswith('addadmin') or message.content.lower().startswith('removeadmin')) and is_admin(message.author.id):
+		temp = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
+        if(temp != None):
+            DueUtilAdmins = temp;
+            saveGeneric(DueUtilAdmins, "due_admins");
+    elif (message.content.lower(.startswith('addmod') or message.content.lower().startswith('removemod')) and is_admin(message.author.id):
+        temp = await mod_admin_manage(message,'mod',22,DueUtilMods);
+        if(temp != None):
+            DueUtilMods = temp;
+            saveGeneric(DueUtilMods, "due_mods");
     elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'givecash'):
         arg = message.content.replace(command_key+"givecash ","");
         arg = clearmentions(arg);
