@@ -102,12 +102,12 @@ async def on_util_message(message):
     found = True;
     command_key = get_server_cmd_key(message.server);
     basicMode = servers.setdefault(message.server,False);
-    if (message.content.lower(.startswith('addadmin') or message.content.lower().startswith('removeadmin')) and is_admin(message.author.id):
+    if (message.content.lower().startswith('addadmin') or message.content.lower().startswith('removeadmin')) and is_admin(message.author.id):
 		temp = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
         if(temp != None):
             DueUtilAdmins = temp;
             saveGeneric(DueUtilAdmins, "due_admins");
-    elif (message.content.lower(.startswith('addmod') or message.content.lower().startswith('removemod')) and is_admin(message.author.id):
+    elif (message.content.lower().startswith('addmod') or message.content.lower().startswith('removemod')) and is_admin(message.author.id):
         temp = await mod_admin_manage(message,'mod',22,DueUtilMods);
         if(temp != None):
             DueUtilMods = temp;
