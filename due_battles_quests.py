@@ -1166,9 +1166,11 @@ async def new_quest_image(message, quest, player):
     output.close()
 
 async def awards_screen(message, player,page):
-    if(time.time() - player.last_image_request < 10):
+    sender = findPlayer(message.author.id);
+    if(time.time() - sender.last_image_request < 10):
         await client.send_message(message.channel,":cold_sweat: Please don't break me!");
         return;
+    sender.last_image_request = time.time();
     player.last_image_request = time.time();
     await client.send_typing(message.channel);
     img = Image.open("screens/awards_screen.png"); 
@@ -1385,12 +1387,11 @@ def saveWeapon(weapon):
         
 async def displayStatsImage(player, q, message):
     # jsonTest(player);
-
-    if(time.time() - player.last_image_request < 10):
+    sender = findPlayer(message.author.id);
+    if(time.time() - sender.last_image_request < 10):
         await client.send_message(message.channel,":cold_sweat: Please don't break me!");
-        #player.last_image_request = time.time();
         return;
-    player.last_image_request = time.time();
+    sender.last_image_request = time.time();
     # savePlayer(player);
     await client.send_typing(message.channel);
     if(q):
