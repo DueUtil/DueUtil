@@ -102,16 +102,18 @@ async def on_util_message(message):
     found = True;
     command_key = get_server_cmd_key(message.server);
     basicMode = servers.setdefault(message.server,False);
-    if (message.content.lower().startswith('addadmin') or message.content.lower().startswith('removeadmin')) and is_admin(message.author.id):
-		temp = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
+    if (message.content.lower().startswith(command_key+'addadmin') or message.content.lower().startswith(command_key+'removeadmin')) and is_admin(message.author.id):
+        temp = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
         if(temp != None):
             DueUtilAdmins = temp;
             saveGeneric(DueUtilAdmins, "due_admins");
-    elif (message.content.lower().startswith('addmod') or message.content.lower().startswith('removemod')) and is_admin(message.author.id):
+        return True;
+    elif (message.content.lower().startswith(command_key+'addmod') or message.content.lower().startswith(command_key+'removemod')) and is_admin(message.author.id):
         temp = await mod_admin_manage(message,'mod',22,DueUtilMods);
         if(temp != None):
             DueUtilMods = temp;
             saveGeneric(DueUtilMods, "due_mods");
+        return True;
     elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'givecash'):
         arg = message.content.replace(command_key+"givecash ","");
         arg = clearmentions(arg);
@@ -335,7 +337,6 @@ async def on_util_message(message):
     return found;
     
 async def mod_admin_manage(message,role,award_id,role_list):
-    print(role_list);
     command_key = get_server_cmd_key(message.server);
     if ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'add'+role):
         rUser = userMentions(message);
@@ -351,6 +352,7 @@ async def mod_admin_manage(message,role,award_id,role_list):
             await client.send_message(message.channel,":bangbang: **Mention one user you would like to promote!**");
         return role_list;    
     elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'remove'+role):
+        
         rUser = userMentions(message);
         if(len(rUser)==1):
             if((rUser[0] in role_list)):
@@ -457,7 +459,7 @@ def userMentions(message):
             Start = not Start;
         elif Start:
             userMentions[len(userMentions)-1]=userMentions[len(userMentions)-1]+mainStr[x];
-    print(len(userMentions));
+    #print(len(userMentions));
     if not Start:
         return userMentions;
     else:

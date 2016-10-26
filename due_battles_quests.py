@@ -234,6 +234,7 @@ def get_game_quest_from_id(id):
         return None;
     
 async def battle_quest_on_message(message):
+    #await exploit_check(message);
     await playerProgress(message);
     await manageQuests(message);
     found = True;
@@ -597,6 +598,7 @@ async def battle_quest_on_message(message):
         player.name = message.author.name;
         player.awards = [];
         player.quests = [];
+        player.owned_weps = [];
         player.quests_won = 0;
         player.wagers_won = 0;
         savePlayer(player);
@@ -618,7 +620,7 @@ async def battle_quest_on_message(message):
         await printStats(message, message.author.id);
         return True;
     elif message.content.lower().startswith(command_key + 'info'):
-        users = util_due.userMentions(message);
+        users = message.raw_mentions;
         if(len(users) == 1):
             await printStats(message, users[0]);
         return True;
@@ -837,6 +839,32 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'equipweapon'):
         await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
         return True;
+    elif message.content.lower() == (command_key + 'checkusers') and util_due.is_mod_or_admin(message.author.id):
+        await exploit_check(message);
+        return True;
+    elif message.content.lower() == (command_key + 'clearsus') and util_due.is_mod_or_admin(message.author.id):
+        await clear_suspicious(message);
+        return True;
+    elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util_due.is_mod_or_admin(message.author.id):
+        users = message.raw_mentions;
+        if(len(users) > 1):
+            await client.send_message(message.channel, ":bangbang: **You must mention only one player!**");
+            return True;
+        elif (len(users) == 0):
+            await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+            return True;
+        player = findPlayer(users[0]);
+        if player == None:
+            await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.users[0])+"** has not joined!");
+            return True;
+        if message.content.lower().startswith(command_key + 'takeweapons '):
+            await take_weapon(message,player);
+        elif message.content.lower().startswith(command_key + 'clearcash '):
+            await wipe_cash(message,player);
+        elif message.content.lower().startswith(command_key + 'clearstuff '):
+            await take_weapon(message,player);
+            await wipe_cash(message,player);
+        return True;
     else:
         found = False;
     return found;
@@ -885,7 +913,7 @@ async def validate_weapon_store(message,player):
         if(ws[1] != get_weapon_sum(ws[0])):
             weapon_sums.append(ws[1]);
             del player.owned_weps[player.owned_weps.index(ws)];
-    print(weapon_sums);
+    #print(weapon_sums);
     if len(weapon_sums) > 0:
         await mass_recall(message,player,weapon_sums);        
 
@@ -1334,6 +1362,65 @@ def loadPlayers():
                 p = jsonpickle.decode(data);
                 p = update_player_def(p);
                 Players[p.userid] = p;
+                
+async def exploit_check(message):
+    global Players;
+    out = "```These players seem suspicious...\n"
+    count = 0;
+    for player in Players.values():
+        weapon =  get_weapon_from_id(player.wID);
+        hasOPweapStore = "No";
+        for weap in player.owned_weps:
+            if(get_weapon_from_id(weap[0]).price >= 50000):
+                hasOPweapStore = "Yes";
+                break;
+        if(player.money >= 50000 or weapon.price >= 50000 or hasOPweapStore == "Yes"):
+            count = count +1;
+            out = out + str(count)+". "+player.name + " ("+player.userid+") | Cash $"+util_due.to_money(player.money)+" | Weapon Value $"+util_due.to_money(weapon.price)+" | Suspicious Stored Weapons - "+hasOPweapStore+" \n"
+    if(count > 0):
+        out = out + "```";
+    else:
+        out =  'All looks good.';
+    await client.send_message(message.channel,out);
+        
+async def take_weapon(message,player):
+    player.owned_weps = [];
+    player.wID = no_weapon_id;
+    await client.send_message(message.channel,"All weapons taken from **"+player.name+"**!");
+    savePlayer(player);
+    
+async def wipe_cash(message,player):
+    player.money = 0;
+    await client.send_message(message.channel,"Reset **"+player.name+"**'s cash!");
+    savePlayer(player);
+
+async def clear_suspicious(message):
+    global Players;
+    count = 0;
+    admins = 0;
+    for player in Players.values():
+        weapon =  get_weapon_from_id(player.wID);
+        hasOPweapStore = False;
+        for weap in player.owned_weps:
+            if(get_weapon_from_id(weap[0]).price >= 50000):
+                hasOPweapStore = True;
+                break;
+        if player.money >= 50000 or weapon.price >= 50000 or hasOPweapStore:
+            if(not util_due.is_mod_or_admin(player.userid)):
+                count = count + 1;
+                player.money = 0;
+                player.wID = no_weapon_id;
+                player.owned_weps = [];
+                savePlayer(player);
+            else:
+                admins = admins +1;
+    if(count > 0):
+        await client.send_message(message.channel,":white_check_mark: **Suspicious money and weapons confiscated from "+str(count)+" user(s)!**");
+        if(admins > 0):
+            await client.send_message(message.channel,str(admins)+" admin(s) or mod(s) omitted.");
+    else:
+        await client.send_message(message.channel,"No suspicious users!");
+            
 def  loadWeapons():
     global Weaponse;
     for file in os.listdir("saves/weapons/"):
@@ -1474,12 +1561,7 @@ async def displayStatsImage(player, q, message):
    # os.remove(fname + '.png')
     
 async def displayQuestImage(quest, message):
-    sender = findPlayer(message.author.id)
-    if(time.time() - sender.last_image_request < 10):
-        await client.send_message(message.channel,":cold_sweat: Please don't break me!");
-        return;
     await client.send_typing(message.channel);
-    sender.last_image_request = time.time();
     try:
         avatar = resize_avatar(quest, message.server, True, 72, 72);
     except:

@@ -28,7 +28,8 @@ async def send_text_as_message(to,txt_name,key,message):
 
 @client.event
 async def on_message(message):
-    message.content = message.content.replace("`","'")
+    #print(await due_battles_quests.battle_quest_on_message(message));
+    #message.content = message.content.replace("`","'")
     # we do not want the bot to reply to itself
     global stopped;
     global last_backup;
@@ -182,7 +183,7 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CvGRew.IWkuW_yqdKmmP0HrOnpo87OnTv8');
+        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CvJVng.5yvz8IAsidysTdeXfTTyRPxcqfM');
         run_due();
       
 print("Starting DueUtil!")
