@@ -342,9 +342,7 @@ async def battle_quest_on_message(message):
                          nquest.basestrg = abs(float(Strs[3]));
                          nquest.basehp = abs(int(Strs[4]));
                          nquest.baseshooting = abs(float(Strs[5]));
-                         nquest.bwinings = (((nquest.baseattack + nquest.basestrg + nquest.baseshooting) / 20) / 0.0883);
-                         nquest.bwinings = nquest.bwinings + (((nquest.bwinings * math.log10(nquest.basehp))) / 20) / 0.75;
-                         nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
+                         
                          if(len(Strs[6]) <= 18):
                             if(does_weapon_exist(message.server.id, Strs[6].lower())):
                                 weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
@@ -354,6 +352,14 @@ async def battle_quest_on_message(message):
                             attempt_id = Strs[6].lower();
                             attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
                             nquest.wID = get_weapon_from_id(attempt_id).wID;
+                         
+                         if(get_weapon_from_id(nquest.wID).melee):
+                            nquest.bwinings = (((nquest.baseattack + nquest.basestrg) / 10) / 0.0883);
+                         else:
+                            nquest.bwinings = (((nquest.baseshooting + nquest.basestrg) / 10) / 0.0883);
+                         nquest.bwinings = nquest.bwinings + (((nquest.bwinings * math.log10(nquest.basehp))) / 20) / 0.75;
+                         nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
+                         
                          nquest.questServer = message.server.id;
                          nquest.spawnchance = abs(int(Strs[7]));
                          nquest.image_url = Strs[8];
@@ -434,9 +440,14 @@ async def battle_quest_on_message(message):
                      else:
                          wep.icon = Strs[0][0]
                      wep.useText = Strs[4];
-                     wep.price = abs(int(((1 / int(Strs[3])) * int(Strs[2])) / 0.04375));  # Fair price
+                     
                      wep.attack = abs(int(Strs[2]));
                      wep.chance = abs(int(Strs[3]));
+                     if wep.attack == 0 or wep.chance == 0:
+                         await client.send_message(message.channel,":bangbang: **No values can be zero!**");    
+                         return True;
+                     wep.price = abs(int(((1 / wep.chance) * wep.attack) / 0.04375));  # Fair price
+                     
                      wep.image_url = Strs[6];
                      wep.server = message.server.id;
                      wep.wID = message.server.id+"_"+wep.name.lower();

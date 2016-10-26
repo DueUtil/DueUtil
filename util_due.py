@@ -59,8 +59,9 @@ def get_page_with_replace(data,page,key,server):
     output ='```';
     test = output;
     if(not isinstance(data, list)):
+        if(len(data)+6 < 2000):
+            return ['```'+data+'```',False]
         data = data.splitlines();
-    #print(data);
     for x in range (0,page):
         test = test + '``````'
     for line in data:   
@@ -82,6 +83,7 @@ def get_page_with_replace(data,page,key,server):
         return None;
     #print(output);
     return [output,False]
+    
 	
 def get_page(data,page):
 	return get_page_with_replace(data,page,None,None);
