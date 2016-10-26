@@ -337,7 +337,7 @@ async def battle_quest_on_message(message):
                          nquest.basehp = abs(int(Strs[4]));
                          nquest.baseshooting = abs(float(Strs[5]));
                          nquest.bwinings = (((nquest.baseattack + nquest.basestrg + nquest.baseshooting) / 20) / 0.0883);
-                         nquest.bwinings = nquest.bwinings + (((nquest.bwinings * nquest.basehp)) / 20) / 0.75;
+                         nquest.bwinings = nquest.bwinings + (((nquest.bwinings * math.log10(nquest.basehp))) / 20) / 0.75;
                          nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
                          if(len(Strs[6]) <= 18):
                             if(does_weapon_exist(message.server.id, Strs[6].lower())):
@@ -1604,6 +1604,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
     turns = 0;
     hpO = 0;
     hpT = 0;
+    battle_lines = 0;
     if (PlayerO != None) and (PlayerT != None):
         WeaponO = get_weapon_from_id(PlayerO.wID);
         WeaponT = get_weapon_from_id(PlayerT.wID);
@@ -1623,6 +1624,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                         bText = bText + PlayerT.name + " " + WeaponT.useText + " " + PlayerO.name + "!\n";
                     else:
                         bText = bText + "The " + PlayerT.name + " " + WeaponT.useText + " " + PlayerO.name + "!\n";
+                    battle_lines = battle_lines +1;
             damO = (aT - (PlayerO.strg / 3));
             if damO < 0:
                 damO = 0.01;
@@ -1637,6 +1639,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                         bText = bText + PlayerO.name + " " + WeaponO.useText + " " + PlayerT.name + "!\n";
                     else:
                         bText = bText + PlayerO.name + " " + WeaponO.useText + " the " + PlayerT.name + "!\n";
+                    battle_lines = battle_lines +1;
             damT = (aO - (PlayerT.strg / 3));
             if damT < 0:
                 damT = 0.01;
@@ -1645,6 +1648,8 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
         txt = "turns";
         if(turns == 1):
             txt = "turn"
+        if(battle_lines > 25):
+            bText = "```(" + PlayerO.name + " Vs " + PlayerT.name + ")\nThe battle was too long to display!\n";
         if(hpO > hpT):
             if(wager == None):
                 await battle_image(message, PlayerO, PlayerT, bText + PlayerO.name + " Wins in " + str(turns) + " " + txt + "!\n```\n");
