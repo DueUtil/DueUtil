@@ -558,7 +558,7 @@ async def battle_quest_on_message(message):
                                 if not owns_weapon_name(player,weapon.name.lower()):
                                     player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
                                     await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
-                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipwep "+weapon.name.lower()+"**.");
+                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
                                 else:
                                     await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
                             player.money = player.money - weapon.price;
@@ -988,7 +988,7 @@ async def show_weapons(message,player):
     if(len(player.owned_weps) == 0):
         output = output + "You don't have any weapons stored!```";
     else:
-        output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweap [Weapon Name] to equip a stored weapon!```";
+        output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweapon [Weapon Name] to equip a stored weapon!```";
     await client.send_message(message.channel, output);
      
 def load(discord_client):
