@@ -88,6 +88,8 @@ def get_page(data,page):
     
 def is_admin(id):
     return id in DueUtilAdmins or id == '132315148487622656';
+def is_mod(id):
+    return id in DueUtilMods or id == '132315148487622656';
 def is_mod_or_admin(id):
     return id in DueUtilAdmins or id in DueUtilMods or id =='132315148487622656';
     

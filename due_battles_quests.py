@@ -606,6 +606,10 @@ async def battle_quest_on_message(message):
         player.wagers_won = 0;
         savePlayer(player);
         await client.send_message(message.channel, "Your user has been reset.");
+        if util_due.is_mod(player.userid):
+            await give_award(message,player,22,"Become an mod!")
+        if util_due.is_admin(player.userid):
+            await give_award(message,player,21,"Become an admin!")
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
         messageArg = message.content.replace(command_key + "battlename ", "", 1);
@@ -851,6 +855,9 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'equipweapon'):
         await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
         return True;
+    elif message.content.lower().startswith(command_key + 'unequipweapon'):
+        await unequip_weapon(message,findPlayer(message.author.id));
+        return True;
     elif message.content.lower() == (command_key + 'checkusers') and util_due.is_mod_or_admin(message.author.id):
         await exploit_check(message);
         return True;
@@ -903,11 +910,25 @@ async def display_rank(message, find):
         await client.send_message(message.channel, "You're **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
     else:
         await client.send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
+
+async def unequip_weapon(message,cplayer):
+    active_wep = get_weapon_from_id(cplayer.wID);
+    if(active_wep.wID != no_weapon_id):
+        if(len(cplayer.owned_weps) < 6):
+            cplayer.owned_weps.append([active_wep.wID,cplayer.wep_sum]);
+            cplayer.wID = no_weapon_id;
+            cplayer.wep_sum = get_weapon_sum(no_weapon_id);
+            await client.send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+        else:
+            await client.send_message(message.channel, ":bangbang: **No room in your weapon storage!**");
+    else:
+        await client.send_message(message.channel, "You don't have anything equiped anyway!");
         
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
     if(storedWeap != None):
-        player.owned_weps.append([player.wID,player.wep_sum]);
+        if(player.wID != no_weapon_id):
+            player.owned_weps.append([player.wID,player.wep_sum]);
         player.wID = storedWeap[0];
         player.wep_sum = storedWeap[1];
         newWeap = get_weapon_from_id(player.wID);
@@ -1005,7 +1026,8 @@ async def show_weapons(message,player,not_theirs):
             output = output + player.name+" does not have any weapons stored!```";
     else:
         if(not not_theirs):
-            output = output+"Type "+util_due.get_server_cmd_key(message.server)+"equipweapon [Weapon Name] to equip a stored weapon!```";
+            cmd = util_due.get_server_cmd_key(message.server);
+            output = output+"Use "+cmd+"equipweapon [Weapon Name] to equip a stored weapon!\nUse "+cmd+"unequipweapon to store your equiped weapon.```";
         else:
             output = output + "```";
     await client.send_message(message.channel, output);
@@ -1405,6 +1427,7 @@ async def exploit_check(message):
 async def take_weapon(message,player):
     player.owned_weps = [];
     player.wID = no_weapon_id;
+    player.wep_sum = get_weapon_sum(no_weapon_id);
     await client.send_message(message.channel,"All weapons taken from **"+player.name+"**!");
     savePlayer(player);
     
@@ -1429,6 +1452,7 @@ async def clear_suspicious(message):
                 count = count + 1;
                 player.money = 0;
                 player.wID = no_weapon_id;
+                player.wep_sum = get_weapon_sum(no_weapon_id);
                 player.owned_weps = [];
                 savePlayer(player);
             else:
