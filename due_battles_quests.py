@@ -930,6 +930,10 @@ async def unequip_weapon(message,cplayer):
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
     if(storedWeap != None):
+        if owns_weapon_name(player,get_weapon_from_id(player.wID).name):
+            player.owned_weps.append(storedWeap);
+            await client.send_message(message.channel, ":bangbang: **Cannot put your current equiped weapon in your weapon storage as a weapon with the same name already is already being stored!**"); 
+            return;
         if(player.wID != no_weapon_id):
             player.owned_weps.append([player.wID,player.wep_sum]);
         player.wID = storedWeap[0];
