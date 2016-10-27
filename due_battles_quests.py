@@ -1361,7 +1361,10 @@ async def battle_image(message, pone, ptwo, btext):
             img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30));
     else:
         wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
-        img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
+        try:
+            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
+        except:
+            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30));
         
     draw = ImageDraw.Draw(img)
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
