@@ -1348,7 +1348,7 @@ async def battle_image(message, pone, ptwo, btext):
     wep_image_one = resize_image_url(weapon_one.image_url, 30, 30);
     
     if(wep_image_one == None):
-		wep_image_one = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
+        wep_image_one = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
 		
     try:
         img.paste(wep_image_one, (6, height - 6 - 30), wep_image_one);
@@ -1358,7 +1358,7 @@ async def battle_image(message, pone, ptwo, btext):
     wep_image_two = resize_image_url(weapon_two.image_url, 30, 30);
     
     if(wep_image_two == None):
-		wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
+        wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
     try:
         img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
     except:
