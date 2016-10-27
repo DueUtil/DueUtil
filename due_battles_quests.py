@@ -1344,27 +1344,25 @@ async def battle_image(message, pone, ptwo, btext):
         img.paste(avatar_one, (9, 9));
     if(avatar_two != None):
         img.paste(avatar_two, (width - 9 - 55, 9));
+        
     wep_image_one = resize_image_url(weapon_one.image_url, 30, 30);
-    if(wep_image_one != None):
-        try:
-            img.paste(wep_image_one, (6, height - 6 - 30), wep_image_one);
-        except:
-            img.paste(wep_image_one, (6, height - 6 - 30));
-    else:
-        wep_image_one = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
-
+    
+    if(wep_image_one == None):
+		wep_image_one = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
+		
+    try:
+        img.paste(wep_image_one, (6, height - 6 - 30), wep_image_one);
+    except:
+        img.paste(wep_image_one, (6, height - 6 - 30));
+        
     wep_image_two = resize_image_url(weapon_two.image_url, 30, 30);
-    if(wep_image_two != None):
-        try:
-            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
-        except:
-            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30));
-    else:
-        wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
-        try:
-            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
-        except:
-            img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30));
+    
+    if(wep_image_two == None):
+		wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30);
+    try:
+        img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two);
+    except:
+        img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30));
         
     draw = ImageDraw.Draw(img)
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
