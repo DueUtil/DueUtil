@@ -14,6 +14,7 @@ import io
 import time
 import re;
 import shutil
+import imghdr
 from io import BytesIO;
 import json;
 from PIL import Image, ImageDraw, ImageFont
@@ -1411,6 +1412,8 @@ def loadImageFromURL(url):
         try:
             response = requests.get(url, timeout=10)
             image_file = io.BytesIO(response.content);
+            if(imghdr.what(image_file) == None):
+                return None;
             img = Image.open(image_file);
             img.convert('RGB').save(fname, optimize=True, quality=20);
             return img;
