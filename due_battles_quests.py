@@ -255,7 +255,7 @@ async def battle_quest_on_message(message):
             q = int(messageArg);
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
                 if(player.money - int((player.quests[q - 1].money) / 2)) >= 0:
-                    print(player.quests_completed_today);
+                    #print(player.quests_completed_today);
                     if(player.quests_completed_today < 50):
                         try:
                             await Battle(message, [message.author.id, player.quests[q - 1]], player.quests[q - 1].money, True);
