@@ -215,7 +215,7 @@ async def on_util_message(message):
         if(len(target)==1):
             messageArg = clearmentions(message.content);
         Strs = get_strings(messageArg);
-        print(Strs);
+        #print(Strs);
         if(len(target) == 1):
             #print(Strs[0]);
             #print(Strs[1]);
@@ -228,7 +228,7 @@ async def on_util_message(message):
                 ar.attarget = True;
                 AutoReplys.append(ar);
                 worked = True;
-                print("TEST WOOP");
+                #print("TEST WOOP");
         elif (len(Strs) == 2) and (len(target) == 0):
                 ar = autoReply();
                 ar.key = Strs[0].lower();
@@ -261,7 +261,7 @@ async def on_util_message(message):
         if(args[0].lower() == 'all'):
             for reply in AutoReplys:
                 if(message.server.id == reply.server):
-                    print(AutoReplys[AutoReplys.index(reply)]);
+                    #print(AutoReplys[AutoReplys.index(reply)]);
                     del AutoReplys[AutoReplys.index(reply)];
             saveGeneric(AutoReplys, "auto_replys");
             await client.send_message(message.channel,":wastebasket:  **All replys cleared.**");

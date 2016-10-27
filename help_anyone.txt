@@ -34,5 +34,6 @@
 [CMD_KEY]sendcash [@User] [Amount] [Note (Optional)]~ Transfers cash between two players.
 [CMD_KEY]givepotato [@User] ~ Sends a potato (with love).
 [CMD_KEY]qcooldown ~ Shows the cooldown till the next chance of a quest (not the next time you will get a quest).
+[CMD_KEY]qinfo ~ Shows how many quest you have completed in the current day.
 [CMD_KEY]myawards [Page (Optional)] ~ Shows all your awards.
 [CMD_KEY]awards [@User] [Page (Optional)] ~ Shows all a users awards.

@@ -87,7 +87,9 @@ class player:
     wagers_won = 0;
     quests_won = 0;
     potatos_given = 0;
+    quest_day_start = 0;
     potatos = 0;
+    quests_completed_today = 0;
     last_image_request = 0;
     def __init__(self):
         self.quests = [];
@@ -253,17 +255,23 @@ async def battle_quest_on_message(message):
             q = int(messageArg);
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
                 if(player.money - int((player.quests[q - 1].money) / 2)) >= 0:
-                    await Battle(message, [message.author.id, player.quests[q - 1]], player.quests[q - 1].money, True);
-                    del player.quests[q - 1];
-                    savePlayer(player);
-
+                    print(player.quests_completed_today);
+                    if(player.quests_completed_today < 50):
+                        try:
+                            await Battle(message, [message.author.id, player.quests[q - 1]], player.quests[q - 1].money, True);
+                        except:
+                            print("Quest battle error (text probably too long)");
+                        del player.quests[q - 1];
+                        savePlayer(player);
+                    else:
+                        await client.send_message(message.channel, ":bangbang: **You can't do more that 50 quests a day!**");
                 else:
                     await client.send_message(message.channel, ":bangbang:  **You can't afford the risk!**");
             else:
                 await client.send_message(message.channel, ":bangbang: **Quest not found!**");
         except:
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-        return True;
+            return True;
     elif(message.content.lower().startswith(command_key + 'declinequest ')):
         try:
             messageArg = message.content.replace(command_key + "declinequest ", "", 1);
@@ -384,7 +392,7 @@ async def battle_quest_on_message(message):
              except:
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
-             print(len(Strs))
+             #print(len(Strs))
              await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
              if(message.content.lower().count('"') % 2 == 1):
                 await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
@@ -500,6 +508,7 @@ async def battle_quest_on_message(message):
             other.money = other.money + amount;
             savePlayer(sender);
             savePlayer(other);
+            print(filter_func(other.name)+" ("+other.userid+") has received $"+util_due.to_money(amount)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
             msg ="";
             if(amount >= 50):
                 await give_award(message, sender, 17, "Sugar daddy!")
@@ -615,6 +624,8 @@ async def battle_quest_on_message(message):
         player.owned_weps = [];
         player.quests_won = 0;
         player.wagers_won = 0;
+        player.quests_completed_today = 0;
+        player.quest_day_start = 0;
         savePlayer(player);
         await client.send_message(message.channel, "Your user has been reset.");
         if util_due.is_mod(player.userid):
@@ -874,6 +885,14 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower() == (command_key + 'clearsus') and util_due.is_mod_or_admin(message.author.id):
         await clear_suspicious(message);
+        return True;
+    elif message.content.lower() == (command_key + 'qinfo'):
+        player = findPlayer(message.author.id);
+        secs = 86400 - (time.time() - player.quest_day_start);
+        time_till_reset  = "";
+        if(secs > 0):
+            time_till_reset = "\nThis will be reset in "+time.strftime("**%Hh** **%Mm** **%Ss**", time.gmtime(secs)).replace("**00h**","").replace("**00m**","").replace("**00s**","");
+        await client.send_message(message.channel, ":information_source: You have completed "+str(player.quests_completed_today)+" quest(s) today."+time_till_reset);
         return True;
     elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util_due.is_mod_or_admin(message.author.id):
         users = message.raw_mentions;
@@ -1309,7 +1328,7 @@ async def battle_image(message, pone, ptwo, btext):
             avatar_one = resize_avatar(pone, message.server, True, 54, 54);
     except:
         avatar_one = None;
-    print(not isinstance(ptwo, activeQuest));
+    #print(not isinstance(ptwo, activeQuest));
     try:
         if(not isinstance(ptwo, activeQuest)):
             avatar_two = resize_avatar(ptwo, message.server, False, 54, 54);
@@ -1410,6 +1429,10 @@ def jsonTest(playerT):
 def update_player_def(p):
     if not hasattr(p,'owned_weps'):
         setattr(p,'owned_weps',[]);
+    if not hasattr(p,'quests_completed_today'):
+        setattr(p,'quests_completed_today',0);
+    if not hasattr(p,'quest_day_start'):
+        setattr(p,'quest_day_start',0);
     return p;
     
 def loadPlayers():
@@ -1715,7 +1738,8 @@ async def playerProgress(message):
                 if(rank == 2):
                     await give_award(message, gplayer, 2, "Attain rank 2.");
                 elif (rank > 2 and rank <=9):
-                    await give_award(message, gplayer, rank+2, "Attain rank "+str(rank)+".");         
+                    await give_award(message, gplayer, rank+2, "Attain rank "+str(rank)+".");  
+                print(filter_func(gplayer.name)+" ("+gplayer.userid+") has leveled up!");
             savePlayer(gplayer);
     if not Found:
         p = player();
@@ -1810,7 +1834,12 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                     PlayerO.money = PlayerO.money + wager;
                     bText = bText +PlayerO.name + " completed a quest and earned $" +  util_due.to_money(wager)+ "!\n```\n";
                     PlayerO.quests_won = PlayerO.quests_won + 1;
+                    if(PlayerO.quests_completed_today == 0):
+                        PlayerO.quest_day_start = time.time();
+                    #print("FUCKING BULLSHIT"+str(PlayerO.quest_day_start));
+                    PlayerO.quests_completed_today  = PlayerO.quests_completed_today + 1;
                     await give_award(message, PlayerO, 1, "*Saved* the server.");
+                    print(filter_func(PlayerO.name)+" ("+PlayerO.userid+") has received $"+util_due.to_money(wager)+" from a quest.");
                     savePlayer(PlayerO);
                 await battle_image(message, PlayerO, PlayerT, bText);
         elif (hpT > hpO):
@@ -1855,7 +1884,10 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** Has not joined!");
             
 async def manageQuests(message):
-    player = findPlayer(message.author.id);
+    player = findPlayer(message.author.id);    
+    if(time.time() - player.quest_day_start > 86400 and player.quest_day_start != 0):
+        player.quests_completed_today = 0;
+        print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset");
     if(message.server.id not in ServersQuests and not os.path.isfile("saves/gamequests/"+message.server.id)):
         addQuests(message.server.id);
     if((time.time() - player.last_quest) >= 360):
@@ -1864,6 +1896,7 @@ async def manageQuests(message):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
             if (random.randint(1, n_q.spawnchance) == 1) and len(player.quests) <= 6:
                 await addQuest(message, player, n_q);
+                print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+n_q.qID+"]");
 
 async def addQuest(message, player, n_q):
     aQ = createQuest(n_q, player);
