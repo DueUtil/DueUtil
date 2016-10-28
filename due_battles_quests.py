@@ -1072,7 +1072,7 @@ async def show_weapons(message,player,not_theirs):
                 Type = "Melee";
             else:
                 Type = "Ranged";
-            accy = round(weapon.chance,2);
+            accy = round(weap.chance,2);
             output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
     if(len(player.owned_weps) == 0):
@@ -1094,10 +1094,10 @@ def load(discord_client):
     global client;
     global loaded;
     client = discord_client;
+    loadWeapons();
     loadPlayers();
     print(str(len(Players)) + " player(s) loaded.")
     defineWeapons();
-    loadWeapons();
     loadQuests();
     print(str(len(ServersQuests)) + " server(s) with quests loaded.")
     print(str(len(Weapons)) + " weapon(s) loaded.")
@@ -1927,6 +1927,7 @@ async def manageQuests(message):
     player = findPlayer(message.author.id);    
     if(time.time() - player.quest_day_start > 86400 and player.quest_day_start != 0):
         player.quests_completed_today = 0;
+        player.quest_day_start = 0;
         print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset");
     if(message.server.id not in ServersQuests and not os.path.isfile("saves/gamequests/"+message.server.id)):
         addQuests(message.server.id);
