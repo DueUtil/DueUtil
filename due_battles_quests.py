@@ -44,6 +44,7 @@ class weapon_class:
         message = "";
         useText = "";
         name = "";
+        updated = False;
         wID = "";
         melee = True;
         image_url = "";
@@ -57,18 +58,21 @@ class quest_class:
         baseshooting = 1;
         basehp = 10;
         baselevel = 0;
+        updated = False;
         bwinings = 5;
         blosings = 0;
         wID = no_weapon_id;
         wintext = "";
         losetext = "";
-        spawnchance = 8;  # 50
+        spawnchance = 4;  # 50
         image_url = "";
         created_by = "";
         made_on = "";
+        
 class battleRequest:
         senderID = "";
         wager = 0;
+        
 class player:
     userid = "";
     benfont = False;
@@ -110,7 +114,7 @@ def addQuests(server_id):
     slime.baseattack = 1.8;
     slime.basestrg = 2.1;
     slime.baseshooting = 1.4;
-    slime.spawnchance = 25;
+    slime.spawnchance = 4;
     slime.image_url = "http://i.imgur.com/iDzGVIg.jpg";
     slime.created_by = "DueUtil";
     slime.made_on = "Unknown";
@@ -125,7 +129,7 @@ def defineWeapons():
     Default.icon = "";
     Default.name = "None"
     Default.attack = 0;
-    Default.chance = 1;
+    Default.chance = 100;
     Default.melee = True;
     Default.image_url = "http://i.imgur.com/TlQsWZ3.png";
     Default.wID = "000000000000000000_none";
@@ -147,7 +151,7 @@ def defineWeapons():
     Frisby.attack = 7;
     Frisby.useText = "throws their frisby at";
     Frisby.name = "Frisby"
-    Frisby.chance = 8;
+    Frisby.chance = 12.5;
     Frisby.melee = False;
     Frisby.image_url = "http://i.imgur.com/tv4Kloz.png";
     Frisby.wID = "000000000000000000_frisby";
@@ -158,7 +162,7 @@ def defineWeapons():
     LaserGun.attack = 1000;
     LaserGun.useText = "FIRES THEIR LAZAH AT";
     LaserGun.name = "Laser Gun"
-    LaserGun.chance = 2;
+    LaserGun.chance = 50;
     LaserGun.melee = False;
     LaserGun.image_url = "http://i.imgur.com/6GsD9qd.png";
     LaserGun.wID = "000000000000000000_laser gun";
@@ -167,7 +171,7 @@ def defineWeapons():
     Stick.price = 10;
     Stick.icon = "📏";
     Stick.attack = 1.1;
-    Stick.chance = 2;
+    Stick.chance = 50;
     Stick.melee = True;
     Stick.name = "Stick"
     Stick.useText = "wacks";
@@ -369,16 +373,22 @@ async def battle_quest_on_message(message):
                          nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
                          
                          nquest.questServer = message.server.id;
-                         nquest.spawnchance = abs(int(Strs[7]));
+                         nquest.spawnchance = abs(round(float(Strs[7]),2));
+                             
                          nquest.image_url = Strs[8];
                          nquest.created_by = findPlayer(message.author.id).name;
                          if(len(message.server.name) >13):
                              nquest.made_on = message.server.name[:10]+"...";
                          else:
                              nquest.made_on = message.server.name;
-                         if(nquest.spawnchance == 0):
-                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be zero!**");
+                         
+                         if(nquest.spawnchance < 1):
+                            await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
+                            return True;
+                         elif (nquest.spawnchance > 25):
+                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
                              return True;
+                             
                          ServersQuests[message.server.id][nquest.monsterName.lower()] = nquest;
                              
                          #pickle.dump(GameQuests, open ("saves/quests.p", "wb"), protocol=pickle.HIGHEST_PROTOCOL);
@@ -450,11 +460,20 @@ async def battle_quest_on_message(message):
                      wep.useText = Strs[4];
                      
                      wep.attack = abs(int(Strs[2]));
-                     wep.chance = abs(int(Strs[3]));
-                     if wep.attack == 0 or wep.chance == 0:
+                     
+                     wep.chance = abs(round(float(Strs[3]),2));
+                     
+                     if(wep.chance > 86):
+                         await client.send_message(message.channel,":bangbang: **A weapon can't have more than 86% accuracy**");
+                         return True;
+                     elif (wep.chance < 1):
+                         await client.send_message(message.channel,":bangbang: **A weapon can't have less than 1% accuracy**");
+                         return True;
+                         
+                     if wep.attack == 0:
                          await client.send_message(message.channel,":bangbang: **No values can be zero!**");    
                          return True;
-                     wep.price = abs(int(((1 / wep.chance) * wep.attack) / 0.04375));  # Fair price
+                     wep.price = abs(int(((wep.chance/100) * wep.attack) / 0.04375));  # Fair price
                      
                      wep.image_url = Strs[6];
                      wep.server = message.server.id;
@@ -1053,7 +1072,7 @@ async def show_weapons(message,player,not_theirs):
                 Type = "Melee";
             else:
                 Type = "Ranged";
-            accy = round((1/weap.chance)*100,2);
+            accy = round(weapon.chance,2);
             output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
     if(len(player.owned_weps) == 0):
@@ -1162,7 +1181,7 @@ async def shop(message,page):
                     Type = "Melee";
                 else:
                     Type = "Ranged";
-                accy = round((1/weapon.chance)*100,2);
+                accy = round(weapon.chance,2);
                 weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + str(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
     page_data = util_due.get_page(weapon_listings,page);
     if(page_data == None):
@@ -1515,7 +1534,21 @@ def  loadWeapons():
             with open("saves/weapons/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 w = jsonpickle.decode(data);
+                if(not w.updated):
+                    w.chance = update_chance(True,w.chance);
+                    w.updated = True;
+                    saveWeapon(w);
                 Weapons[w.wID] = w;   
+                
+
+def update_chance(is_weapon,chance):
+    new_chance = round((1/chance)*100,2) if isinstance(chance,int) else chance;
+    if(new_chance < 1):
+        new_chance = 1;
+    if(not is_weapon):
+        return new_chance;
+    else:
+        return 86 if new_chance > 86 else new_chance;
 
 def savePlayer(player):
     # data = json.dumps(player, default=lambda o: o.__dict__);
@@ -1537,6 +1570,10 @@ def loadQuests():
             with open("saves/gamequests/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 q = jsonpickle.decode(data);
+                if(not q.updated):
+                    q.spawnchance = update_chance(False,q.spawnchance);
+                    q.updated = True;
+                    saveQuest(q);
                 args = util_due.get_strings(q.qID);
                 if(len(args) == 2):
                     if(args[0] in ServersQuests):
@@ -1785,7 +1822,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             aT = PlayerT.attack;
             aO = PlayerO.attack;
             if(PlayerT.wID != no_weapon_id):
-                if((random.randint(1, WeaponT.chance) == 1)):
+                if((WeaponT.chance-random.randint(1, 100)) > 0):
                     if(WeaponT.melee == False):
                         aT = WeaponT.attack * PlayerT.shooting;
                     else:
@@ -1800,7 +1837,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                 damO = 0.01;
             hpO = hpO - damO;
             if(PlayerO.wID != no_weapon_id):
-                if((random.randint(1, WeaponO.chance) == 1)):
+                if((WeaponO.chance-random.randint(1, 100)) > 0):
                     if(WeaponO.melee == False):
                         aO = WeaponO.attack * PlayerO.shooting;
                     else:
@@ -1897,7 +1934,7 @@ async def manageQuests(message):
         player.last_quest = time.time();
         if(message.server.id in ServersQuests and len(ServersQuests[message.server.id]) >= 1):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
-            if (random.randint(1, n_q.spawnchance) == 1) and len(player.quests) <= 6:
+            if (n_q.spawnchance-random.randint(1, 100))>0 and len(player.quests) <= 6:
                 await addQuest(message, player, n_q);
                 print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+n_q.qID+"]");
 

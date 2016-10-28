@@ -7,15 +7,17 @@
 [CMD_KEY]listreplys ~ Lists the auto replys on the server
 [CMD_KEY]removereply [all/reply id] ~ remove all auto replys or a certain one.
 
-[CMD_KEY]createquest "[Creature Name]" "[Quest Text]" "[Base Attack]" "[Base Strg]" "[Base HP]" "[Base Accuracy]" "[Weapon Name]" "[Spawn Chance]" "[Icon Image URL]"
-Example [CMD_KEY]createquest "Mega Mouse" "Battle a" "1.9" "1.4" "30" "1.5" "None" "20" "http://i.imgur.com/B0EvfDF.jpg"
+[CMD_KEY]createquest "[Creature Name]" "[Quest Text]" "[Base Attack]" "[Base Strg]" "[Base HP]" "[Base Accuracy]" "[Weapon Name]" "[Spawn Chance %]" "[Icon Image URL]"
+Example [CMD_KEY]createquest "Mega Mouse" "Battle a" "1.9" "1.4" "30" "1.5" "None" "5" "http://i.imgur.com/B0EvfDF.jpg"
 Adds new quest to the server
-Note: Put "None" for no weapon. Spawn chance is one out of the given number of messages (20 in the example) after cool down. 
+Note: Put "None" for no weapon. 
+Important Note: A 5% is quite a common spawn chance! You don't want your quests to be too common!
+25% is the maximum spawn chance! 
 Note (advanced): [Server ID]:[Remote Weapon Name] can also be used as the [Weapon Name]
 
-[CMD_KEY]createweapon "[Icon]" "[Name]" "[Damage]" "[Hit Chance]" "[Use Text]" "[Melee(True/False)]" "[Icon Image URL]"
+[CMD_KEY]createweapon "[Icon]" "[Name]" "[Damage]" "[Accuracy %]" "[Use Text]" "[Melee(True/False)]" "[Icon Image URL]"
 Example: [CMD_KEY]createweapon "!" "Knife" "5" "10" "stabs" "true" "http://i.imgur.com/kYh0BGT.png"
-Note: Hit Chance = 1/[Hit Chance]. So if you enter 2 as the [Hit Chance] that means the weapon will hit 1/2 times (50% of the time).
+Note: Accuracy really is just a % value now.
 
 [CMD_KEY]timedreply "[Time]" "[Keyword]" "[AtTimeReply]" "[BeforeTimeReply]" ~ Only works in the channel it was created in. Replies to anyone with a different message if it before or after the chosen time.
 Example: [CMD_KEY]timedreply "20:45" "Bedtime now?" "Yes" "No"
