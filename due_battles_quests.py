@@ -1040,7 +1040,7 @@ async def sell_weapon(message, uID, recall,weapon_name):
             weapon_id = weapon_data[0];
     if (weapon_id != no_weapon_id):
         weapon = get_weapon_from_id(weapon_id);
-        price = int(((1 / weapon.chance) * weapon.attack) / 0.04375);
+        price = int(((weapon.chance/100) * weapon.attack) / 0.04375);
         sellPrice = int(price - (price / 4));
         if(not recall):
             await client.send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util_due.to_money(sellPrice)+ "!");
