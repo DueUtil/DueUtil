@@ -1631,7 +1631,7 @@ async def displayStatsImage(player, q, message):
     attk = round(player.attack, 2);
     strg = round(player.strg, 2);
     shooting = round(player.shooting, 2)
-    name = filter_func(player.name);
+    name = player.name;
 
     img = Image.open("backgrounds/" + player.background);
     screen = Image.open("screens/stats_page.png");    
