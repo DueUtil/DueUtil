@@ -1599,6 +1599,7 @@ def saveWeapon(weapon):
         
 def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False;
+    text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
     for x in range(0, len(text)):
         width, height = draw.textsize(text, font=given_font);
         if(width > length):
