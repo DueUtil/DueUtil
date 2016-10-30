@@ -50,7 +50,7 @@ def random_ident():
     return ident;
 
 def get_server_name(message,id):
-    get_server_name_S(message.server,id);
+    return get_server_name_S(message.server,id);
 
 def get_server_name_S(server,id):
     try:
