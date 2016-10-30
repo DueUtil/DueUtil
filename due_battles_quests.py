@@ -1607,7 +1607,7 @@ def get_text_limit_len(draw,text,given_font,length):
             removed_chars = True;
         else:
             if removed_chars:
-                return text[:-1] + "…"
+                return text[:-1] + u"\u2026"
             return text;
             
 async def displayStatsImage(player, q, message):
@@ -1797,7 +1797,7 @@ async def playerProgress(message):
         if(len(message.author.name) <= 25):
             p.name = message.author.name;
         else:
-            p.name = message.author.name[:24] + "…";
+            p.name = message.author.name[:24] + u"\u2026";
         p.wID = no_weapon_id;
         Players[str(message.author.id)] = p;
         savePlayer(p);
