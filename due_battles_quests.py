@@ -1607,7 +1607,10 @@ def get_text_limit_len(draw,text,given_font,length):
             removed_chars = True;
         else:
             if removed_chars:
-                return text[:-1] + u"\u2026"
+                if (given_font != font_epic):
+                    return text[:-1] + u"\u2026"
+                else:
+                    return text[:-3] + "..."
             return text;
             
 async def displayStatsImage(player, q, message):
@@ -1638,7 +1641,7 @@ async def displayStatsImage(player, q, message):
     draw = ImageDraw.Draw(img);
     img.paste(screen,(0,0),screen)
     if(player.benfont):
-        name=get_text_limit_len(draw,filter_func(name),font_epic,149).replace(u"\u2026","...")
+        name=get_text_limit_len(draw,filter_func(name.replace(u"\u2026","...")),font_epic,149)
         draw.text((96, 42),name, getRankColour(int(level / 10) + 1), font=font_epic)
     else:
         name=get_text_limit_len(draw,name,font,149)
