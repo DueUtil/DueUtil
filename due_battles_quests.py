@@ -1230,7 +1230,7 @@ def filter_func(string):
         else:
             new = new + "?";
     #print(string)
-    return string;
+    return new;
     #return bytes(string, 'utf-8').decode("utf-8", "strict")
 def resize_avatar(player, server, q, w, h):    
     if(not q):
