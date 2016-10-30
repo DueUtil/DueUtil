@@ -338,8 +338,8 @@ async def battle_quest_on_message(message):
          Strs = util_due.get_strings(messageArg);
          if(len(Strs) == 9):
              try:
-                 if(len(Strs[0]) <= 13):
-                     if(len(Strs[1]) <= 20):
+                 if(len(Strs[0]) <= 25):
+                     if(len(Strs[1]) <= 25):
                          if(message.server.id in ServersQuests):
                              if(Strs[0].strip().lower() in ServersQuests[message.server.id]):
                                  await client.send_message(message.channel, ":bangbang: **A foe with that name already exists on this server!**");
@@ -355,16 +355,17 @@ async def battle_quest_on_message(message):
                          nquest.basehp = abs(int(Strs[4]));
                          nquest.baseshooting = abs(float(Strs[5]));
                          
-                         if(len(Strs[6]) <= 18):
+                         if(len(Strs[6]) > 18):
+                            attempt_id = Strs[6].lower();
+                            attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
+                            nquest.wID = get_weapon_from_id(attempt_id).wID;
+                            
+                         if(nquest.wID == no_weapon_id):
                             if(does_weapon_exist(message.server.id, Strs[6].lower())):
                                 weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
                                 if(weap.server == message.server.id or weap.server == "all"):
                                     nquest.wID = weap.wID;
-                         else:
-                            attempt_id = Strs[6].lower();
-                            attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
-                            nquest.wID = get_weapon_from_id(attempt_id).wID;
-                         
+                                    
                          if(get_weapon_from_id(nquest.wID).melee):
                             nquest.bwinings = (((nquest.baseattack + nquest.basestrg) / 10) / 0.0883);
                          else:
@@ -377,10 +378,8 @@ async def battle_quest_on_message(message):
                              
                          nquest.image_url = Strs[8];
                          nquest.created_by = findPlayer(message.author.id).name;
-                         if(len(message.server.name) >13):
-                             nquest.made_on = message.server.name[:10]+"...";
-                         else:
-                             nquest.made_on = message.server.name;
+
+                         nquest.made_on = message.server.name;
                          
                          if(nquest.spawnchance < 1):
                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
@@ -395,9 +394,9 @@ async def battle_quest_on_message(message):
                          saveQuest(nquest);
                          await client.send_message(message.channel, nquest.quest + " **" + nquest.monsterName + "** quest now active!");
                      else:
-                         await client.send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 20 characters!**");
+                         await client.send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 25 characters!**");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 13 characters!**");
+                     await client.send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 25 characters!**");
 
              except:
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
@@ -450,7 +449,7 @@ async def battle_quest_on_message(message):
                  if (does_weapon_exist(message.server.id, Strs[1].strip().lower())):
                     await client.send_message(message.channel, ":bangbang: **A weapon with that name already exists on this server!**");
                     return;
-                 if(len(Strs[1]) <= 13):
+                 if(len(Strs[1]) <= 25):
                      wep = weapon_class();
                      wep.name = Strs[1].strip();
                      if(len(Strs[1]) == 1):
@@ -486,7 +485,7 @@ async def battle_quest_on_message(message):
                      saveWeapon(wep);
                      await client.send_message(message.channel, wep.name + " is now available in the shop for $" + util_due.to_money(wep.price) + "!");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 13 characters!**");                 
+                     await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 25 characters!**");                 
              except:
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
@@ -654,7 +653,7 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
         messageArg = message.content.replace(command_key + "battlename ", "", 1);
-        if((len(messageArg) > 0) and (len(messageArg) <= 13)):
+        if((len(messageArg) > 0) and (len(messageArg) <= 25)):
             player = findPlayer(message.author.id);
             if(player == None):
                 return True;
@@ -662,7 +661,7 @@ async def battle_quest_on_message(message):
             savePlayer(player);
             await client.send_message(message.channel, "Your battle name has been set to '" + messageArg + "'!");
         else:
-            await client.send_message(message.channel, ":bangbang: **Battle names must be between 0 and 13 characters in length.**");
+            await client.send_message(message.channel, ":bangbang: **Battle names must be between 1 and 25 characters in length.**");
         return True;
     elif message.content.lower().startswith(command_key + 'myinfo'):
         await printStats(message, message.author.id);
@@ -1230,8 +1229,9 @@ def filter_func(string):
             new = new + string[i];
         else:
             new = new + "?";
-    return new;
-
+    #print(string)
+    return string;
+    #return bytes(string, 'utf-8').decode("utf-8", "strict")
 def resize_avatar(player, server, q, w, h):    
     if(not q):
         u = server.get_member(player.userid);
@@ -1282,8 +1282,8 @@ async def new_quest_image(message, quest, player):
         img.paste(avatar, (10, 10));
     draw = ImageDraw.Draw(img)
     g_quest = get_game_quest_from_id(quest.qID);
-    draw.text((72, 20), filter_func(g_quest.quest), (255, 255, 255), font=font_med)
-    draw.text((71, 39), filter_func(g_quest.monsterName) + " LEVEL " + str(math.trunc(quest.level)), (255, 255, 255), font=font_big)
+    draw.text((72, 20), get_text_limit_len(draw,g_quest.quest,font_med,167), (255, 255, 255), font=font_med)
+    draw.text((71, 39), get_text_limit_len(draw,g_quest.monsterName,font_big,107) + " LEVEL " + str(math.trunc(quest.level)), (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1301,7 +1301,7 @@ async def awards_screen(message, player,page):
     img = Image.open("screens/awards_screen.png"); 
     a_s = Image.open("screens/award_slot.png"); 
     draw = ImageDraw.Draw(img)
-    name = filter_func(player.name);
+    name = get_text_limit_len(draw,player.name,font,175);
     t = name+"'s Awards";
     if(page > 0):
         t = t + ": Page "+str(page+1);
@@ -1326,6 +1326,7 @@ async def awards_screen(message, player,page):
     if (x == 0):
         msg = "That's all folks!"
     if (len(player.awards) == 0):
+        name = get_text_limit_len(draw,player.name,font,100);
         msg = name+" doesn't have any awards!";
     width, height = draw.textsize(msg, font=font_small)
     draw.text(((256-width)/2, 42 + 44 * c),msg,  (255, 255, 255), font=font_small)
@@ -1596,6 +1597,18 @@ def saveWeapon(weapon):
     with open("saves/weapons/" + str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest()) + ".json", 'w') as outfile:
         json.dump(data, outfile);
         
+def get_text_limit_len(draw,text,given_font,length):
+    removed_chars = False;
+    for x in range(0, len(text)):
+        width, height = draw.textsize(text, font=given_font);
+        if(width > length):
+            text = text[:len(text)-1];
+            removed_chars = True;
+        else:
+            if removed_chars:
+                return text[:-3] + "..."
+            return text;
+            
 async def displayStatsImage(player, q, message):
     # jsonTest(player);
     sender = findPlayer(message.author.id);
@@ -1624,14 +1637,10 @@ async def displayStatsImage(player, q, message):
     draw = ImageDraw.Draw(img);
     img.paste(screen,(0,0),screen)
     if(player.benfont):
-        for x in range(0, len(name)):
-            width, height = draw.textsize(name, font=font_epic);
-            if(width > 149):
-                name = name[:len(name)-1];
-            else:
-                break;
+        name=get_text_limit_len(draw,filter_func(name),font_epic,149)
         draw.text((96, 42),name, getRankColour(int(level / 10) + 1), font=font_epic)
     else:
+        name=get_text_limit_len(draw,name,font,149)
         draw.text((96, 42), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((142, 62), " " + str(level), (255, 255, 255), font=font_big)
     # Fill data
@@ -1694,9 +1703,9 @@ async def displayQuestImage(quest, message):
     attk = round(quest.attack, 2);
     strg = round(quest.strg, 2);
     shooting = round(quest.shooting, 2)
-    name = filter_func(quest.name);
     img = Image.open("screens/stats_page_quest.png");
     draw = ImageDraw.Draw(img)
+    name = get_text_limit_len(draw,quest.name,font,114);
     g_quest = get_game_quest_from_id(quest.qID);
     draw.text((88, 38), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
@@ -1710,13 +1719,13 @@ async def displayQuestImage(quest, message):
     width, height = draw.textsize(str(shooting), font=font)
     draw.text((203 - width, 178), str(shooting), (255, 255, 255), font=font)
 
-    wep = filter_func(get_weapon_from_id(quest.wID).name);
+    wep = get_text_limit_len(draw,get_weapon_from_id(quest.wID).name,font,136);
     width, height = draw.textsize(str(wep), font=font)
     draw.text((203 - width, 207), str(wep), (255, 255, 255), font=font)
     
     if(g_quest != None):
-        creator = filter_func(g_quest.created_by);
-        home = filter_func(g_quest.made_on);
+        creator = get_text_limit_len(draw,g_quest.created_by,font,119);
+        home = get_text_limit_len(draw,g_quest.made_on,font,146);
     else:
         creator = "Unknown";
         home = "Unknown";
@@ -1784,7 +1793,7 @@ async def playerProgress(message):
     if not Found:
         p = player();
         p.userid = message.author.id;
-        if(len(message.author.name) <= 13):
+        if(len(message.author.name) <= 25):
             p.name = message.author.name;
         else:
             p.name = message.author.name[:10] + "...";
