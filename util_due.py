@@ -50,10 +50,13 @@ def random_ident():
     return ident;
 
 def get_server_name(message,id):
-    return message.server.get_member(id).name;
+    get_server_name_S(message.server,id);
 
 def get_server_name_S(server,id):
-    return server.get_member(id).name;
+    try:
+        return server.get_member(id).name;
+    except:
+        return "Unknown User"
     
 def get_page_with_replace(data,page,key,server):
     output ='```';
