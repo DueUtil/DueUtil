@@ -1950,7 +1950,7 @@ async def manageQuests(message):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
             if (n_q.spawnchance-random.randint(1, 100))>0 and len(player.quests) <= 6:
                 await addQuest(message, player, n_q);
-                print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+n_q.qID+"]");
+                print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]");
 
 async def addQuest(message, player, n_q):
     aQ = createQuest(n_q, player);
