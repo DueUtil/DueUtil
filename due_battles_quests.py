@@ -456,8 +456,12 @@ async def battle_quest_on_message(message):
                          wep.icon = Strs[0];
                      else:
                          wep.icon = Strs[0][0]
+                         
                      wep.useText = Strs[4];
-                     
+                     if(len(wep.useText) > 40):
+                        await client.send_message(message.channel,":bangbang: **Battle use text can't be over 40 characters!**");
+                        return True;
+                   
                      wep.attack = abs(int(Strs[2]));
                      
                      wep.chance = abs(round(float(Strs[3]),2));
@@ -1668,9 +1672,10 @@ async def displayStatsImage(player, q, message):
     
     width, height = draw.textsize(str(player.wagers_won), font=font)
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
-    wep = filter_func(get_weapon_from_id(player.wID).name);
-    width, height = draw.textsize(str(wep), font=font)
-    draw.text((241 - width, 232), str(wep), (255, 255, 255), font=font)
+    
+    wep = get_text_limit_len(draw,get_weapon_from_id(player.wID).name,font,95);
+    width, height = draw.textsize(wep, font=font)
+    draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
     # here
     if(avatar != None):
         img.paste(avatar, (9, 12));
