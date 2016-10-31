@@ -1283,7 +1283,9 @@ async def new_quest_image(message, quest, player):
     draw = ImageDraw.Draw(img)
     g_quest = get_game_quest_from_id(quest.qID);
     draw.text((72, 20), get_text_limit_len(draw,g_quest.quest,font_med,167), (255, 255, 255), font=font_med)
-    draw.text((71, 39), get_text_limit_len(draw,g_quest.monsterName,font_big,107) + " LEVEL " + str(math.trunc(quest.level)), (255, 255, 255), font=font_big)
+    level_text = " LEVEL " + str(math.trunc(quest.level));
+    width, height = draw.textsize(level_text, font=font_big)
+    draw.text((71, 39), get_text_limit_len(draw,g_quest.monsterName,font_big,168-width) + level_text, (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1387,9 +1389,10 @@ async def battle_image(message, pone, ptwo, btext):
     draw = ImageDraw.Draw(img)
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
     draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), (255, 255, 255), font=font_small)
-    width, height = draw.textsize(filter_func(weapon_one.name), font=font)
-    draw.text((124 - width, 88), filter_func(weapon_one.name), (255, 255, 255), font=font)
-    draw.text((132, 103), filter_func(weapon_two.name), (255, 255, 255), font=font)
+    weap_one_name = get_text_limit_len(draw,weapon_one.name,font,85)
+    width, height = draw.textsize(weap_one_name, font=font)
+    draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
+    draw.text((132, 103), get_text_limit_len(draw,weapon_two.name,font,85), (255, 255, 255), font=font)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
