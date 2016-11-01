@@ -11,6 +11,7 @@ import time;
 last_backup = 0;
 client = discord.Client()
 stopped = False;
+start_time = 0;
 
 def get_help_page(help_file,page,key,server):
     with open (help_file, "r") as myfile:
@@ -33,6 +34,7 @@ async def on_message(message):
     # we do not want the bot to reply to itself
     global stopped;
     global last_backup;
+    global start_time;
     command_key = None;
     pri_server = "";
     if(not (util_due.loaded and due_battles_quests.loaded)):
@@ -120,6 +122,17 @@ async def on_message(message):
             sys.exit(0);
         elif(await due_battles_quests.battle_quest_on_message(message)):
            return;
+        elif message.content.lower().startswith(command_key+'dustats'):
+            stats = "```Since "+time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(start_time))+" I have\u2026\n";
+            stats += "Served "+util_due.number_format(due_battles_quests.images_served)+" image(s).\n";
+            stats += "Created $"+util_due.number_format(due_battles_quests.money_created)+"\n";
+            stats += "Transferred $"+util_due.number_format(due_battles_quests.money_transferred)+"\n";
+            stats += "Given "+util_due.number_format(due_battles_quests.quests_given)+" new quest(s).\n";
+            stats += "Seen "+util_due.number_format(due_battles_quests.quests_attempted)+" quest(s) attempted.\n";
+            stats += "Watched "+util_due.number_format(due_battles_quests.players_leveled)+" player(s) level up.\n";
+            stats += "Had "+util_due.number_format(due_battles_quests.new_players_joined)+" player(s) join.\n```";
+            await client.send_message(message.channel,stats);
+            return;
         elif (await util_due.on_util_message(message)):
             return;
         elif (message.content == "(╯°□°）╯︵ ┻━┻" and not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
@@ -158,6 +171,8 @@ async def on_message(message):
                               
 @client.event
 async def on_ready():
+    global start_time;
+    start_time = time.time();
     game = discord.Game();
     game.name = "@DueUtil helpme"
     await client.change_status(game,idle=False);
@@ -183,7 +198,7 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CveliA.W4QVS1DF3NZos3AvFlbCg9gAPPs');
+        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CvltVA.ROXUZo_f_d_bUrgG_6ahV1hrWjU');
         run_due();
       
 print("Starting DueUtil!")

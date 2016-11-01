@@ -34,6 +34,15 @@ font_big = ImageFont.truetype("Due_Robo.ttf", 18);
 font_med = ImageFont.truetype("Due_Robo.ttf", 14);
 font_small = ImageFont.truetype("Due_Robo.ttf", 11);
 font_epic = ImageFont.truetype("benfont.ttf", 12);
+#Due Stats
+images_served =0;
+money_created = 0;
+money_transferred =0;
+quests_attempted=0;
+players_leveled=0;
+new_players_joined=0;
+quests_given=0;
+
 
 class weapon_class:
         price = 0;
@@ -245,6 +254,7 @@ async def harambe_check(message,weapon,player):
         await give_award(message, player, 12, "For Harambe.");
     
 async def battle_quest_on_message(message):
+    global money_transferred;
     #await exploit_check(message);
     await playerProgress(message);
     await manageQuests(message);
@@ -338,8 +348,8 @@ async def battle_quest_on_message(message):
          Strs = util_due.get_strings(messageArg);
          if(len(Strs) == 9):
              try:
-                 if(len(Strs[0]) <= 25):
-                     if(len(Strs[1]) <= 25):
+                 if(len(Strs[0]) <= 32):
+                     if(len(Strs[1]) <= 32):
                          if(message.server.id in ServersQuests):
                              if(Strs[0].strip().lower() in ServersQuests[message.server.id]):
                                  await client.send_message(message.channel, ":bangbang: **A foe with that name already exists on this server!**");
@@ -394,9 +404,9 @@ async def battle_quest_on_message(message):
                          saveQuest(nquest);
                          await client.send_message(message.channel, nquest.quest + " **" + nquest.monsterName + "** quest now active!");
                      else:
-                         await client.send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 25 characters!**");
+                         await client.send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 32 characters!**");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 25 characters!**");
+                     await client.send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 32 characters!**");
 
              except:
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
@@ -449,7 +459,7 @@ async def battle_quest_on_message(message):
                  if (does_weapon_exist(message.server.id, Strs[1].strip().lower())):
                     await client.send_message(message.channel, ":bangbang: **A weapon with that name already exists on this server!**");
                     return;
-                 if(len(Strs[1]) <= 25):
+                 if(len(Strs[1]) <= 32):
                      wep = weapon_class();
                      wep.name = Strs[1].strip();
                      if(len(Strs[1]) == 1):
@@ -489,7 +499,7 @@ async def battle_quest_on_message(message):
                      saveWeapon(wep);
                      await client.send_message(message.channel, wep.name + " is now available in the shop for $" + util_due.to_money(wep.price) + "!");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 25 characters!**");                 
+                     await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 32 characters!**");                 
              except:
                  await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
@@ -530,6 +540,7 @@ async def battle_quest_on_message(message):
             other.money = other.money + amount;
             savePlayer(sender);
             savePlayer(other);
+            money_transferred = money_transferred + amount;
             print(filter_func(other.name)+" ("+other.userid+") has received $"+util_due.to_money(amount)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
             msg ="";
             if(amount >= 50):
@@ -657,7 +668,7 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
         messageArg = message.content.replace(command_key + "battlename ", "", 1);
-        if((len(messageArg) > 0) and (len(messageArg) <= 25)):
+        if((len(messageArg) > 0) and (len(messageArg) <= 32)):
             player = findPlayer(message.author.id);
             if(player == None):
                 return True;
@@ -665,7 +676,7 @@ async def battle_quest_on_message(message):
             savePlayer(player);
             await client.send_message(message.channel, "Your battle name has been set to '" + messageArg + "'!");
         else:
-            await client.send_message(message.channel, ":bangbang: **Battle names must be between 1 and 25 characters in length.**");
+            await client.send_message(message.channel, ":bangbang: **Battle names must be between 1 and 32 characters in length.**");
         return True;
     elif message.content.lower().startswith(command_key + 'myinfo'):
         await printStats(message, message.author.id);
@@ -896,7 +907,7 @@ async def battle_quest_on_message(message):
                 return True;
             await show_weapons(message,player,True);
         return True;
-    elif message.content.lower().startswith(command_key + 'equipweapon'):
+    elif message.content.lower().startswith(command_key + 'equipweapon '):
         await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
         return True;
     elif message.content.lower().startswith(command_key + 'unequipweapon'):
@@ -1076,7 +1087,7 @@ async def show_weapons(message,player,not_theirs):
             else:
                 Type = "Ranged";
             accy = round(weap.chance,2);
-            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + str(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
+            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + util_due.number_format(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
     if(len(player.owned_weps) == 0):
         if(not not_theirs):
@@ -1185,7 +1196,7 @@ async def shop(message,page):
                 else:
                     Type = "Ranged";
                 accy = round(weapon.chance,2);
-                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + str(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
+                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util_due.number_format(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
     page_data = util_due.get_page(weapon_listings,page);
     if(page_data == None):
         await client.send_message(message.channel, ":bangbang: **Page not found!**");
@@ -1258,6 +1269,8 @@ def resize_image_url(url, w, h):
     return img;
 
 async def level_up_image(message, player, cash):
+    global images_served;
+    images_served = images_served +1;
     level = math.trunc(player.level);
     try:
         avatar = resize_avatar(player, message.server, False, 54, 54);
@@ -1277,6 +1290,8 @@ async def level_up_image(message, player, cash):
 
 
 async def new_quest_image(message, quest, player):
+    global images_served;
+    images_served = images_served +1;
     try:
         avatar = resize_avatar(quest, message.server, True, 54, 54);
     except:
@@ -1297,6 +1312,8 @@ async def new_quest_image(message, quest, player):
     output.close()
 
 async def awards_screen(message, player,page):
+    global images_served;
+    images_served = images_served +1;
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10):
         await client.send_message(message.channel,":cold_sweat: Please don't break me!");
@@ -1344,6 +1361,8 @@ async def awards_screen(message, player,page):
 
 
 async def battle_image(message, pone, ptwo, btext):
+    global images_served;
+    images_served = images_served +1;
     sender = findPlayer(message.author.id);
     sender.last_image_request = time.time();
     await client.send_typing(message.channel);
@@ -1621,6 +1640,8 @@ def get_text_limit_len(draw,text,given_font,length):
             return text;
             
 async def displayStatsImage(player, q, message):
+    global images_served;
+    images_served = images_served +1;
     # jsonTest(player);
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10):
@@ -1706,6 +1727,8 @@ async def displayStatsImage(player, q, message):
    # os.remove(fname + '.png')
     
 async def displayQuestImage(quest, message):
+    global images_served;
+    images_served = images_served +1;
     await client.send_typing(message.channel);
     try:
         avatar = resize_avatar(quest, message.server, True, 72, 72);
@@ -1762,6 +1785,9 @@ async def displayQuestImage(quest, message):
     
 async def playerProgress(message):
     global Players;
+    global money_created;
+    global new_players_joined;
+    global players_leveled;
     Found = False;
     gplayer = findPlayer(message.author.id);
     if(gplayer != None):
@@ -1791,6 +1817,8 @@ async def playerProgress(message):
             if math.trunc(gplayer.level) > math.trunc(startLevel):
                 MONEY = math.trunc(gplayer.level) * 10;
                 gplayer.money = gplayer.money + MONEY;
+                money_created = money_created + MONEY;
+                players_leveled += 1;
                 if(not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
                     await level_up_image(message, gplayer, MONEY);
                 else:
@@ -1805,17 +1833,21 @@ async def playerProgress(message):
     if not Found:
         p = player();
         p.userid = message.author.id;
-        if(len(message.author.name) <= 25):
+        if(len(message.author.name) <= 32):
             p.name = message.author.name;
         else:
-            p.name = message.author.name[:24] + u"\u2026";
+            p.name = message.author.name[:31] + u"\u2026";
         p.wID = no_weapon_id;
         Players[str(message.author.id)] = p;
+        new_players_joined = new_players_joined + 1;
         savePlayer(p);
 
 async def Battle(message, players, wager, quest):  # Quest like wager with diff win text
     global Players;
     global Weapons;
+    global money_created;
+    global money_transferred;
+    global quests_attempted;
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10 and (wager == None and quest == False) ):
         await client.send_message(message.channel,":cold_sweat: Please don't break me!");
@@ -1826,9 +1858,11 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
     elif (quest == True):
         PlayerO = findPlayer(players[0]);
         PlayerT = players[1];
+        quests_attempted = quests_attempted + 1;
     else:
         PlayerO = findPlayer(message.author.id);
         PlayerT = findPlayer(wager.senderID);
+        money_transferred = money_transferred + wager.wager;
     turns = 0;
     hpO = 0;
     hpT = 0;
@@ -1893,6 +1927,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                     savePlayer(PlayerT);
                 else:
                     PlayerO.money = PlayerO.money + wager;
+                    money_created = money_created + wager;
                     bText = bText +PlayerO.name + " completed a quest and earned $" +  util_due.to_money(wager)+ "!\n```\n";
                     PlayerO.quests_won = PlayerO.quests_won + 1;
                     if(PlayerO.quests_completed_today == 0):
@@ -1945,6 +1980,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** Has not joined!");
             
 async def manageQuests(message):
+    global quests_given;
     player = findPlayer(message.author.id);    
     if(time.time() - player.quest_day_start > 86400 and player.quest_day_start != 0):
         player.quests_completed_today = 0;
@@ -1958,6 +1994,7 @@ async def manageQuests(message):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
             if (n_q.spawnchance-random.randint(1, 100))>0 and len(player.quests) <= 6:
                 await addQuest(message, player, n_q);
+                quests_given += 1;
                 print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]");
 
 async def addQuest(message, player, n_q):

@@ -40,7 +40,10 @@ def get_server_cmd_key(server):
     return serverKeys.setdefault(server.id,"!");
 
 def to_money(amount):
-    return '{:20,.0f}'.format(amount).strip();
+    return number_format(amount);
+    
+def number_format(number):
+    return '{:20,.0f}'.format(number).strip();
 
 def random_ident():
     ident ="";

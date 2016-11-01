@@ -37,3 +37,4 @@
 [CMD_KEY]qinfo ~ Shows how many quest you have completed in the current day.
 [CMD_KEY]myawards [Page (Optional)] ~ Shows all your awards.
 [CMD_KEY]awards [@User] [Page (Optional)] ~ Shows all a users awards.
+[CMD_KEY]dustats ~ Shows some stats about DueUtil.
