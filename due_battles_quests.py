@@ -1975,9 +1975,9 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
 
     else:
         if(PlayerO == None):
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[0])+"** Has not joined!");
+            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[0])+"** has not joined!");
         if(PlayerT == None):
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** Has not joined!");
+            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** has not joined!");
             
 async def manageQuests(message):
     global quests_given;
