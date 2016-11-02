@@ -173,9 +173,9 @@ async def on_message(message):
 async def on_ready():
     global start_time;
     start_time = time.time();
-    game = discord.Game();
-    game.name = "@DueUtil helpme"
-    await client.change_status(game,idle=False);
+    help_status = discord.Game();
+    help_status.name = "@DueUtil helpme"
+    await client.change_presence(game=help_status,afk=False);
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
@@ -198,7 +198,7 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CvltVA.ROXUZo_f_d_bUrgG_6ahV1hrWjU');
+        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CvrC0w.GPPn3h_sxqwzydLmSC0vuqrmAuc');
         run_due();
       
 print("Starting DueUtil!")

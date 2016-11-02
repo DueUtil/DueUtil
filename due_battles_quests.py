@@ -264,7 +264,7 @@ async def battle_quest_on_message(message):
             await showQuests(message);
     elif(message.content.lower().startswith(command_key + 'acceptquest ')):
         try:
-            messageArg = message.content.replace(command_key + "acceptquest ", "", 1);
+            messageArg = message.content.lower().replace(command_key + "acceptquest ", "", 1);
             player = findPlayer(message.author.id);
             q = int(messageArg);
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
@@ -288,7 +288,7 @@ async def battle_quest_on_message(message):
             return True;
     elif(message.content.lower().startswith(command_key + 'declinequest ')):
         try:
-            messageArg = message.content.replace(command_key + "declinequest ", "", 1);
+            messageArg = message.content.lower().replace(command_key + "declinequest ", "", 1);
             player = findPlayer(message.author.id);
             q = int(messageArg);
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
@@ -311,7 +311,7 @@ async def battle_quest_on_message(message):
         return True;
     elif(message.content.lower().startswith(command_key + 'questinfo ')):
         try:
-            messageArg = message.content.replace(command_key + "questinfo ", "", 1);
+            messageArg = message.content.lower().replace(command_key + "questinfo ", "", 1);
             player = findPlayer(message.author.id);
             q = int(messageArg);
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
@@ -343,9 +343,9 @@ async def battle_quest_on_message(message):
             await client.send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
     elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-         messageArg = message.content.replace(command_key + "createquest ", "", 1);  # DO DO CREAT QUWEST
+         #messageArg = message.content.replace(command_key + "createquest ", "", 1);  # DO DO CREAT QUWEST
          Worked = False;
-         Strs = util_due.get_strings(messageArg);
+         Strs = util_due.get_strings(message.content);
          if(len(Strs) == 9):
              try:
                  if(len(Strs[0]) <= 32):
@@ -429,9 +429,9 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, text);
             return True;
     elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-        messageArg = message.content.replace(command_key + "removequest ", "", 1);
+        messageArg = message.content.lower().replace(command_key + "removequest ", "", 1);
         try:
-            questName = messageArg.strip().lower().strip();
+            questName = messageArg.strip();
             if(message.server.id in ServersQuests):
                 #print(questName);
                 if(questName in ServersQuests[message.server.id]):
@@ -451,9 +451,9 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-         messageArg = message.content.replace(command_key + "createweapon ", "", 1);
+         #messageArg = message.content.replace(command_key + "createweapon ", "", 1);
          Worked = False;
-         Strs = util_due.get_strings(messageArg);
+         Strs = util_due.get_strings(message.content);
          if(len(Strs) == 7):
              try:
                  if (does_weapon_exist(message.server.id, Strs[1].strip().lower())):
@@ -497,7 +497,7 @@ async def battle_quest_on_message(message):
                          wep.melee = False;
                      Weapons[wep.wID] = wep;
                      saveWeapon(wep);
-                     await client.send_message(message.channel, wep.name + " is now available in the shop for $" + util_due.to_money(wep.price) + "!");
+                     await client.send_message(message.channel, "**" + wep.name + "** is now available in the shop for $" + util_due.to_money(wep.price) + "!");
                  else:
                      await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 32 characters!**");                 
              except:
@@ -574,9 +574,9 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
         return True;
     elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-        messageArg = message.content.replace(command_key + "removeweapon ", "", 1).strip();
+        messageArg = message.content.lower().replace(command_key + "removeweapon ", "", 1);
         try:
-            weapon = get_weapon_for_server(message.server.id, messageArg.lower());
+            weapon = get_weapon_for_server(message.server.id, messageArg.strip());
             if(weapon != None):
                 if(weapon.server == message.server.id):
                     #weapon.price = -1;
@@ -584,7 +584,7 @@ async def battle_quest_on_message(message):
                     if(os.path.isfile("saves/weapons/"+str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest())+".json")):
                         os.remove("saves/weapons/"+str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest())+".json");
                     del Weapons[weapon.wID];
-                    await client.send_message(message.channel, weapon.name + " has been removed from DueUtil!");
+                    await client.send_message(message.channel, "**" + weapon.name + "** has been removed from **DueUtil**!");
                 else:
                      await client.send_message(message.channel, ":bangbang: **You cannot remove that weapon!**");
             else:
@@ -593,10 +593,10 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'buy '):
-        messageArg = message.content.replace(command_key + "buy ", "", 1).strip();
+        messageArg = message.content.lower().replace(command_key + "buy ", "", 1);
         Found = False;
         try:
-            weapon = get_weapon_for_server(message.server.id, messageArg.lower());
+            weapon = get_weapon_for_server(message.server.id, messageArg.strip());
             if(weapon != None and weapon.name != "None"):
                 if ((weapon.server == "all") or (weapon.server == message.server.id)) and weapon.price != -1:
                     Found = True;
@@ -667,7 +667,7 @@ async def battle_quest_on_message(message):
             await give_award(message,player,21,"Become an admin!")
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
-        messageArg = message.content.replace(command_key + "battlename ", "", 1);
+        messageArg = re.sub(command_key+'battlename ', '', message.content, flags=re.IGNORECASE).strip();
         if((len(messageArg) > 0) and (len(messageArg) <= 32)):
             player = findPlayer(message.author.id);
             if(player == None):
@@ -728,7 +728,7 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'wagerbattle'):  # NEW WIP WAGERS
         users = util_due.userMentions(message);
         if(len(users) == 1):
-            messageArg = message.content.replace(command_key + "wagerbattle ", "", 1);
+            messageArg = message.content.lower().replace(command_key + "wagerbattle ", "", 1);
             messageArg = util_due.clearmentions(messageArg);
             try:
                 Money = int(messageArg);
@@ -777,7 +777,7 @@ async def battle_quest_on_message(message):
         # Loop and show received wagers
     elif message.content.lower().startswith(command_key + 'acceptwager '):
         player = findPlayer(message.author.id);
-        messageArg = message.content.replace(command_key + "acceptwager ", "", 1);
+        messageArg = message.content.lower().replace(command_key + "acceptwager ", "", 1);
         try:
             w = int(messageArg);
             w = w - 1;
@@ -796,7 +796,7 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower().startswith(command_key + 'declinewager '):
         player = findPlayer(message.author.id);
-        messageArg = message.content.replace(command_key + "declinewager ", "", 1);
+        messageArg = message.content.lower().replace(command_key + "declinewager ", "", 1);
         try:
         #if 1==1:
             w = int(messageArg);
@@ -908,7 +908,7 @@ async def battle_quest_on_message(message):
             await show_weapons(message,player,True);
         return True;
     elif message.content.lower().startswith(command_key + 'equipweapon '):
-        await equip_weapon(message,findPlayer(message.author.id),message.content.replace(command_key + "equipweapon ", "", 1));
+        await equip_weapon(message,findPlayer(message.author.id),message.content.lower().replace(command_key + "equipweapon ", "", 1));
         return True;
     elif message.content.lower().startswith(command_key + 'unequipweapon'):
         await unequip_weapon(message,findPlayer(message.author.id));
