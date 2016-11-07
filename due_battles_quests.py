@@ -667,7 +667,7 @@ async def battle_quest_on_message(message):
             await give_award(message,player,21,"Become an admin!")
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
-        messageArg = re.sub(command_key+'battlename ', '', message.content, flags=re.IGNORECASE).strip();
+        messageArg = re.sub(re.escape(command_key+'battlename '), '', message.content, flags=re.IGNORECASE).strip();
         if((len(messageArg) > 0) and (len(messageArg) <= 32)):
             player = findPlayer(message.author.id);
             if(player == None):
