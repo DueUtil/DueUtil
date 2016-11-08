@@ -53,7 +53,7 @@ class weapon_class:
         message = "";
         useText = "";
         name = "";
-        updated = False;
+        update = False;
         wID = "";
         melee = True;
         image_url = "";
@@ -67,7 +67,7 @@ class quest_class:
         baseshooting = 1;
         basehp = 10;
         baselevel = 0;
-        updated = False;
+        update = True;
         bwinings = 5;
         blosings = 0;
         wID = no_weapon_id;
@@ -394,8 +394,8 @@ async def battle_quest_on_message(message):
                          if(nquest.spawnchance < 1):
                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
                             return True;
-                         elif (nquest.spawnchance > 25):
-                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
+                         elif (nquest.spawnchance > 10):
+                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 10%!**");
                              return True;
                              
                          ServersQuests[message.server.id][nquest.monsterName.lower()] = nquest;
@@ -1561,21 +1561,27 @@ def  loadWeapons():
             with open("saves/weapons/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 w = jsonpickle.decode(data);
-                if(not w.updated):
+                if(w.update):
                     w.chance = update_chance(True,w.chance);
-                    w.updated = True;
+                    w.update = False;
                     saveWeapon(w);
                 Weapons[w.wID] = w;   
                 
 
+#def update_chance(is_weapon,chance):
+#    new_chance = round((1/chance)*100,2) if isinstance(chance,int) else chance;
+#    if(new_chance < 1):
+#        new_chance = 1;
+#    if(not is_weapon):
+#        return 10 if new_chance > 10 else new_chance;
+#    else:
+#        return 86 if new_chance > 86 else new_chance;
+
 def update_chance(is_weapon,chance):
-    new_chance = round((1/chance)*100,2) if isinstance(chance,int) else chance;
-    if(new_chance < 1):
-        new_chance = 1;
     if(not is_weapon):
-        return new_chance;
+        return 10 if chance > 10 else chance;
     else:
-        return 86 if new_chance > 86 else new_chance;
+        return 86 if chance > 86 else chance;
 
 def savePlayer(player):
     # data = json.dumps(player, default=lambda o: o.__dict__);
@@ -1597,9 +1603,9 @@ def loadQuests():
             with open("saves/gamequests/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 q = jsonpickle.decode(data);
-                if(not q.updated):
+                if(q.update):
                     q.spawnchance = update_chance(False,q.spawnchance);
-                    q.updated = True;
+                    q.update = False;
                     saveQuest(q);
                 args = util_due.get_strings(q.qID);
                 if(len(args) == 2):
