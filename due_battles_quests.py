@@ -1877,7 +1877,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             aT = PlayerT.attack;
             aO = PlayerO.attack;
             if(PlayerT.wID != no_weapon_id):
-                if((WeaponT.chance-random.randint(1, 100)) > 0):
+                if(random.random()<=(WeaponT.chance/100)):
                     if(WeaponT.melee == False):
                         aT = WeaponT.attack * PlayerT.shooting;
                     else:
@@ -1892,7 +1892,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                 damO = 0.01;
             hpO = hpO - damO;
             if(PlayerO.wID != no_weapon_id):
-                if((WeaponO.chance-random.randint(1, 100)) > 0):
+                if(random.random()<=(WeaponT.chance/100)):
                     if(WeaponO.melee == False):
                         aO = WeaponO.attack * PlayerO.shooting;
                     else:
@@ -1992,7 +1992,7 @@ async def manageQuests(message):
         player.last_quest = time.time();
         if(message.server.id in ServersQuests and len(ServersQuests[message.server.id]) >= 1):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
-            if (n_q.spawnchance-random.randint(1, 100))>0 and len(player.quests) <= 6:
+            if ((random.random()<=n_q.spawnchance) and len(player.quests) <= 6:
                 await addQuest(message, player, n_q);
                 quests_given += 1;
                 print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]");
