@@ -667,7 +667,7 @@ async def battle_quest_on_message(message):
             await give_award(message,player,21,"Become an admin!")
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
-        messageArg = re.sub(re.escape(command_key+'battlename '), '', message.content, flags=re.IGNORECASE).strip();
+        messageArg = re.sub(re.escapcommand_key+'battlename '), '', message.content, flags=re.IGNORECASE).strip();
         if((len(messageArg) > 0) and (len(messageArg) <= 32)):
             player = findPlayer(message.author.id);
             if(player == None):
@@ -1998,7 +1998,7 @@ async def manageQuests(message):
         player.last_quest = time.time();
         if(message.server.id in ServersQuests and len(ServersQuests[message.server.id]) >= 1):
             n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
-            if (random.random()<(n_q.spawnchance*(5/((player.quests_completed_today+5)*100))) and len(player.quests) <= 6):
+            if (random.random()<(n_q.spawnchance*(5/((player.quests_completed_today+5)*40))) and len(player.quests) <= 6):
                 await addQuest(message, player, n_q);
                 quests_given += 1;
                 print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]");
