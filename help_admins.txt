@@ -12,7 +12,7 @@ Example [CMD_KEY]createquest "Mega Mouse" "Battle a" "1.9" "1.4" "30" "1.5" "Non
 Adds new quest to the server
 Note: Put "None" for no weapon. 
 Important Note: A 5% is quite a common spawn chance! You don't want your quests to be too common!
-10% is the maximum spawn chance! 
+25% is the maximum spawn chance! 
 Note (advanced): [Server ID]:[Remote Weapon Name] can also be used as the [Weapon Name]
 
 [CMD_KEY]createweapon "[Icon]" "[Name]" "[Damage]" "[Accuracy %]" "[Use Text]" "[Melee(True/False)]" "[Icon Image URL]"

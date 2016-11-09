@@ -394,8 +394,8 @@ async def battle_quest_on_message(message):
                          if(nquest.spawnchance < 1):
                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
                             return True;
-                         elif (nquest.spawnchance > 10):
-                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 10%!**");
+                         elif (nquest.spawnchance > 25):
+                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
                              return True;
                              
                          ServersQuests[message.server.id][nquest.monsterName.lower()] = nquest;
@@ -1579,7 +1579,7 @@ def  loadWeapons():
 
 def update_chance(is_weapon,chance):
     if(not is_weapon):
-        return 10 if chance > 10 else chance;
+        return 25 if chance > 25 else chance;
     else:
         return 86 if chance > 86 else chance;
 
@@ -1987,7 +1987,7 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             
 async def manageQuests(message):
     global quests_given;
-    player = findPlayer(message.author.id);    
+    player = findPlayer(message.author.id);  
     if(time.time() - player.quest_day_start > 86400 and player.quest_day_start != 0):
         player.quests_completed_today = 0;
         player.quest_day_start = 0;
