@@ -507,7 +507,7 @@ async def battle_quest_on_message(message):
             if(other.userid == sender.userid):
                 await client.send_message(message.channel, ":bangbang: **There is no reason to send money to yourself!**");
                 return True;
-            if(amount < 0):
+            if(amount <= 0):
                 await client.send_message(message.channel, ":bangbang: **You must send at least $1!**");
                 return True;
             if(sender.money - amount < 0):
