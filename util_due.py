@@ -93,6 +93,41 @@ def get_page_with_replace(data,page,key,server):
 	
 def get_page(data,page):
 	return get_page_with_replace(data,page,None,None);
+	
+async def display_with_pages(message,data,command,title,title_not_page_one,constant_footer,footer_no_next_page):
+	command_key = get_server_cmd_key(message.server);
+	page = 0;
+	args = message.content.lower().replace(command_key + command,"");
+	body = data;
+	footer_to_send =constant_footer+"\n";
+	title_to_send ="";
+	if(len(args) > 0):
+		try:
+			page = int(args) - 1;
+			if(page < 0):
+				await client.send_message(message.channel, ":bangbang: **Page not found**");
+				return;
+		except:
+			await client.send_message(message.channel, ":bangbang: **Page not found**");
+			return;
+	page_data = get_page(data,page);
+	if(page_data == None or (page > 0 and len(data)+6 < 2000)):
+		await client.send_message(message.channel, ":bangbang: **Page not found!**");
+		return;
+	else:
+		body=page_data[0];
+		if(page > 0):
+			title_to_send = title_not_page_one+": Page "+str(page+1);
+		else:
+			title_to_send = title;
+		title_to_send = "**"+title_to_send+"**";
+		if(page_data[1]):
+			footer_to_send += "**But wait there's more** type **"+command_key+command+" "+str(page+2)+"** to have a look!"
+		else:
+			footer_to_send += footer_no_next_page;
+	await client.send_message(message.channel, title_to_send);
+	await client.send_message(message.channel, body);
+	await client.send_message(message.channel,footer_to_send);
     
 def is_admin(id):
     return id in DueUtilAdmins or id == '132315148487622656';

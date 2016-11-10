@@ -322,18 +322,7 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'shop'):
-        page = 0;
-        args = message.content.lower().replace(command_key + 'shop',"");
-        if(len(args) > 0):
-            try:
-                page = int(args) - 1;
-                if(page < 0):
-                    await client.send_message(message.channel, ":bangbang: **Page not found**");
-                    return True;
-            except:
-                await client.send_message(message.channel, ":bangbang: **Page not found**");
-                return True;
-        await shop(message,page);
+        await shop(message);
         return True;
     elif message.content.lower().startswith(command_key + 'benfont'):
         p =findPlayer(message.author.id);
@@ -417,16 +406,7 @@ async def battle_quest_on_message(message):
                 await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-            text = "```\n" + message.server.name + " Quests\nSquare brackets indicate quest name.\n";
-            number = 0;
-            if(message.server.id in ServersQuests):
-                for quest in ServersQuests[message.server.id].values():
-                    number = number + 1;
-                    text = text + str(number) + ". " + quest.quest + " [" + quest.monsterName + "] \n";   
-            if(number == 0):
-                text = text +"There isn't any quests on this server!\n";
-            text = text + "```";
-            await client.send_message(message.channel, text);
+            await show_quest_list(message);
             return True;
     elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
         messageArg = message.content.lower().replace(command_key + "removequest ", "", 1);
@@ -1073,6 +1053,25 @@ async def sell_weapon(message, uID, recall,weapon_name):
     else:
         await client.send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
+def get_server_quest_list(server):
+    #text = "```\n" + message.server.name + " Quests\nSquare brackets indicate quest name.\n";
+    number = 0;
+    text = "";
+    if(server.id in ServersQuests):
+        for quest in ServersQuests[server.id].values():
+            number = number + 1;
+            text = text + str(number) + ". " + quest.quest + " [" + quest.monsterName + "] \n";  
+    return text;
+    if(number == 0):
+        text =  "There isn't any quests on this server!\n";
+    #    text = text + "```";
+    #    await client.send_message(message.channel, text);
+    
+async def show_quest_list(message):
+    title = message.server.name + " Quests**\n**Square brackets indicate quest name.";
+    title_not_first_page = message.server.name + " Quests";
+    last_page_footer ="That's it!"
+    await util_due.display_with_pages(message,get_server_quest_list(message.server),"serverquests",title,title_not_first_page,"",last_page_footer);
         
 async def show_weapons(message,player,not_theirs):
     eweap = get_weapon_from_id(player.wID);
@@ -1176,15 +1175,18 @@ def load_award(icon_path,name):
     AwardsIcons.append(Image.open(icon_path));
     AwardsNames.append(name);
     
-async def shop(message,page):
+async def shop(message):
+    normal_title = "Welcome to DueUtil's weapon shop!";
+    past_page_one_title = "DueUtil's weapon shop";
+    constant_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
+    final_page_footer = "Want more? Ask a server manager to add stock!";
+    await util_due.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
+
+    
+def get_server_weapon_list(message):
     global Weapons;
-    shop_title = "\n**Welcome to DueUtil's weapon shop!**\n"
-    if(page > 0):
-        shop_title = "\n**DueUtil's weapon shop: Page "+str(page+1)+"**\n"
-    count = 0;
     weapon_listings = "";
-    body = "";
-    shop_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.\n";
+    count = 0;
     for key in Weapons.keys():
         if key.startswith(message.server.id) or key.startswith("000000000000000000"):
             weapon = Weapons[key];
@@ -1197,19 +1199,7 @@ async def shop(message,page):
                     Type = "Ranged";
                 accy = round(weapon.chance,2);
                 weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util_due.number_format(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
-    page_data = util_due.get_page(weapon_listings,page);
-    if(page_data == None):
-        await client.send_message(message.channel, ":bangbang: **Page not found!**");
-        return;
-    else:
-        body=page_data[0];
-        if(page_data[1]):
-            shop_footer = shop_footer +"**But wait there's more** type **"+util_due.get_server_cmd_key(message.server)+"shop "+str(page+2)+"** to have a look!"
-        else:
-            shop_footer = shop_footer +"Want more? Ask a server manager to add stock!"
-    await client.send_message(message.channel, shop_title);
-    await client.send_message(message.channel, body);
-    await client.send_message(message.channel,shop_footer);
+    return weapon_listings;
 
 
 async def printStats(message, uID):
@@ -1494,10 +1484,10 @@ def loadPlayers():
                 p = update_player_def(p);
                 Players[p.userid] = p;
                 
-async def exploit_check(message):
+def get_sus_list():
     global Players;
-    out = "```These players seem suspicious...\n"
     count = 0;
+    out = "";
     for player in Players.values():
         weapon =  get_weapon_from_id(player.wID);
         hasOPweapStore = "No";
@@ -1508,11 +1498,17 @@ async def exploit_check(message):
         if(player.money >= 50000 or weapon.price >= 50000 or hasOPweapStore == "Yes"):
             count = count +1;
             out = out + str(count)+". "+player.name + " ("+player.userid+") | Cash $"+util_due.to_money(player.money)+" | Weapon Value $"+util_due.to_money(weapon.price)+" | Suspicious Stored Weapons - "+hasOPweapStore+" \n"
-    if(count > 0):
-        out = out + "```";
-    else:
-        out =  'All looks good.';
-    await client.send_message(message.channel,out);
+    if (count == 0):
+        return  'All looks good.';
+    return out;
+    
+async def exploit_check(message):
+    normal_title = "These players seem suspicious...";
+    past_page_one_title = "Suspicious players";
+    final_page_footer = "That's all who've found out how broken DueUtil is!";
+    await util_due.display_with_pages(message,get_sus_list(),"checkusers",normal_title,past_page_one_title,"",final_page_footer);
+
+    
         
 async def take_weapon(message,player):
     player.owned_weps = [];

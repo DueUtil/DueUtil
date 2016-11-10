@@ -198,7 +198,7 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CwP0ig.jO3w9N4O1PmJiLXtAt9LVnou5fU');
+        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CwVDiA.SRJAdT3NETkSe_WT1mKtCEuAKMs');
         run_due();
       
 print("Starting DueUtil!")
