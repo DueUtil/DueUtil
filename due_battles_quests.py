@@ -893,7 +893,7 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'unequipweapon'):
         await unequip_weapon(message,findPlayer(message.author.id));
         return True;
-    elif message.content.lower() == (command_key + 'checkusers') and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + 'checkusers') and util_due.is_mod_or_admin(message.author.id):
         await exploit_check(message);
         return True;
     elif message.content.lower() == (command_key + 'clearsus') and util_due.is_mod_or_admin(message.author.id):
