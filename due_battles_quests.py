@@ -1843,7 +1843,9 @@ async def playerProgress(message):
         Players[str(message.author.id)] = p;
         new_players_joined = new_players_joined + 1;
         savePlayer(p);
-
+def limit_damage(player,damage):
+    max = player.level*player.level;
+    return damage if damage < max else max;
 async def Battle(message, players, wager, quest):  # Quest like wager with diff win text
     global Players;
     global Weapons;
@@ -1880,10 +1882,10 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             aO = PlayerO.attack;
             if(PlayerT.wID != no_weapon_id):
                 if(random.random()<(WeaponT.chance/100)):
-                    if(WeaponT.melee == False):
-                        aT = WeaponT.attack * PlayerT.shooting;
+                    if(not WeaponT.melee):
+                        aT = limit_damage(PlayerT,WeaponT.attack) * PlayerT.shooting;
                     else:
-                        aT = (WeaponT.attack * (PlayerT.attack));
+                        aT = limit_damage(PlayerT,WeaponT.attack) * PlayerT.attack;
                     if not quest:
                         bText = bText + PlayerT.name + " " + WeaponT.useText + " " + PlayerO.name + "!\n";
                     else:
@@ -1895,10 +1897,10 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             hpO = hpO - damO;
             if(PlayerO.wID != no_weapon_id):
                 if(random.random()<(WeaponT.chance/100)):
-                    if(WeaponO.melee == False):
-                        aO = WeaponO.attack * PlayerO.shooting;
+                    if(not WeaponO.melee):
+                        aO = limit_damage(PlayerO,WeaponO.attack) * PlayerO.shooting;
                     else:
-                        aO = (WeaponO.attack) * PlayerO.attack;
+                        aO = limit_damage(PlayerO,WeaponO.attack) * PlayerO.attack;
                     if not quest:
                         bText = bText + PlayerO.name + " " + WeaponO.useText + " " + PlayerT.name + "!\n";
                     else:
