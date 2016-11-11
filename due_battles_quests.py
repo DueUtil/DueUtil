@@ -574,41 +574,7 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'buy '):
-        messageArg = message.content.lower().replace(command_key + "buy ", "", 1);
-        Found = False;
-        try:
-            weapon = get_weapon_for_server(message.server.id, messageArg.strip());
-            if(weapon != None and weapon.name != "None"):
-                if ((weapon.server == "all") or (weapon.server == message.server.id)) and weapon.price != -1:
-                    Found = True;
-                    player = findPlayer(message.author.id);
-                    if(player == None):
-                        return True;
-                    if((player.money - weapon.price) >= 0):
-                        if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
-                            if(player.wID == no_weapon_id):
-                                player.wID = weapon.wID;
-                                await harambe_check(message,weapon,player);
-                                await give_award(message, player, 4, "License to kill.");
-                                player.wep_sum = get_weapon_sum(weapon.wID)
-                                await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
-                            else:
-                                if not owns_weapon_name(player,weapon.name.lower()):
-                                    player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
-                                    await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
-                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
-                                else:
-                                    await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
-                            player.money = player.money - weapon.price;
-                            savePlayer(player);             
-                        else:
-                            await client.send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
-                    else:
-                        await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.");
-        except:
-            Found = False;
-        if(not Found):
-            await client.send_message(message.channel, "Weapon not found!");
+        await buy_weapon(message,command_key);
         return True;
     elif message.content.lower().startswith(command_key + 'sellweapon'):
         weapon_name = message.content.lower().replace(command_key+'sellweapon',"",1).strip();
@@ -934,6 +900,48 @@ async def battle_quest_on_message(message):
         found = False;
     return found;
 
+async def buy_weapon(message,command_key):
+    messageArg = message.content.lower().replace(command_key + "buy ", "", 1);
+    Found = False;
+    try:
+        weapon = get_weapon_for_server(message.server.id, messageArg.strip());
+        if(weapon != None and weapon.name != "None"):
+            if ((weapon.server == "all") or (weapon.server == message.server.id)) and weapon.price != -1:
+                Found = True;
+                player = findPlayer(message.author.id);
+                if(player == None):
+                    return True;
+                if((player.money - weapon.price) >= 0):
+                    if(weapon.price <= max_value_for_player(player)):
+                        if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
+                            if(player.wID == no_weapon_id):
+                                player.wID = weapon.wID;
+                                await harambe_check(message,weapon,player);
+                                await give_award(message, player, 4, "License to kill.");
+                                player.wep_sum = get_weapon_sum(weapon.wID)
+                                await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
+                            else:
+                                if not owns_weapon_name(player,weapon.name.lower()):
+                                    player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
+                                    await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price) + "!");
+                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
+                                else:
+                                    await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
+                            player.money = player.money - weapon.price;
+                            savePlayer(player);             
+                        else:
+                            await client.send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
+                    else:
+                        await client.send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
+                        
+                else:
+                    await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.");
+    except:
+        Found = False;
+    if(not Found):
+        await client.send_message(message.channel, "Weapon not found!"); 
+
+   
 def hasNumbers(text):
    return any(char.isdigit() for char in text)
 
@@ -1857,7 +1865,7 @@ def max_value_for_player(player):
     return 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
     
 async def show_limits_for_player(channel,player):
-    limit = "You can use weapons with any value up to **$"+util_due.to_money(max_value_for_player(player))+"**!";
+    limit = "You can use any weapon with a value up to **$"+util_due.to_money(max_value_for_player(player))+"**!";
     await client.send_message(channel, limit);
     
 def weapon_hit(player,weapon):
