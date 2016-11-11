@@ -18,6 +18,7 @@ from io import BytesIO;
 import json;
 from PIL import Image, ImageDraw, ImageFont
 from io import StringIO
+import numpy
 
 from argparse import Namespace
 loaded = False;
@@ -1843,9 +1844,14 @@ async def playerProgress(message):
         Players[str(message.author.id)] = p;
         new_players_joined = new_players_joined + 1;
         savePlayer(p);
-def limit_damage(player,damage):
-    max = player.level*player.level;
-    return damage if damage < max else max;
+        
+def limit_weapon_accy(player,weapon):
+    max_value = 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
+    return numpy.clip((max_value/weapon.price)*100,1,86) if weapon.price > max_value else weapon.chance;
+    
+def weapon_hit(player,weapon):
+    return random.random()<(limit_weapon_accy(player,weapon)/100);
+    
 async def Battle(message, players, wager, quest):  # Quest like wager with diff win text
     global Players;
     global Weapons;
@@ -1881,11 +1887,11 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
             aT = PlayerT.attack;
             aO = PlayerO.attack;
             if(PlayerT.wID != no_weapon_id):
-                if(random.random()<(WeaponT.chance/100)):
+                if(weapon_hit(PlayerT,WeaponT)):
                     if(not WeaponT.melee):
-                        aT = limit_damage(PlayerT,WeaponT.attack) * PlayerT.shooting;
+                        aT = WeaponT.attack * PlayerT.shooting;
                     else:
-                        aT = limit_damage(PlayerT,WeaponT.attack) * PlayerT.attack;
+                        aT = WeaponT.attack * PlayerT.attack;
                     if not quest:
                         bText = bText + PlayerT.name + " " + WeaponT.useText + " " + PlayerO.name + "!\n";
                     else:
@@ -1896,11 +1902,11 @@ async def Battle(message, players, wager, quest):  # Quest like wager with diff 
                 damO = 0.01;
             hpO = hpO - damO;
             if(PlayerO.wID != no_weapon_id):
-                if(random.random()<(WeaponT.chance/100)):
+                if(weapon_hit(PlayerO,WeaponO)):
                     if(not WeaponO.melee):
-                        aO = limit_damage(PlayerO,WeaponO.attack) * PlayerO.shooting;
+                        aO = WeaponO.attack * PlayerO.shooting;
                     else:
-                        aO = limit_damage(PlayerO,WeaponO.attack) * PlayerO.attack;
+                        aO = WeaponO.attack * PlayerO.attack;
                     if not quest:
                         bText = bText + PlayerO.name + " " + WeaponO.useText + " " + PlayerT.name + "!\n";
                     else:
