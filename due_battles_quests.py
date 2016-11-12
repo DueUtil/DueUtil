@@ -1763,7 +1763,7 @@ async def displayQuestImage(quest, message):
     width = draw.textsize(str(attk), font=font)[0]
     draw.text((203 - width, 123), str(attk), (255, 255, 255), font=font)
 
-    width= = draw.textsize(str(strg), font=font)[0]
+    width= draw.textsize(str(strg), font=font)[0]
     draw.text((203 - width, 151), str(strg), (255, 255, 255), font=font)
 
     width = draw.textsize(str(shooting), font=font)[0]
