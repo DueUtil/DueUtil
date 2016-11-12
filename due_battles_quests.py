@@ -1304,7 +1304,7 @@ async def new_quest_image(message, quest, player):
     g_quest = get_game_quest_from_id(quest.qID);
     draw.text((72, 20), get_text_limit_len(draw,g_quest.quest,font_med,167), (255, 255, 255), font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level));
-    width, height = draw.textsize(level_text, font=font_big)
+    width = draw.textsize(level_text, font=font_big)[0]
     draw.text((71, 39), get_text_limit_len(draw,g_quest.monsterName,font_big,168-width) + level_text, (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
@@ -1352,7 +1352,7 @@ async def awards_screen(message, player,page):
     if (len(player.awards) == 0):
         name = get_text_limit_len(draw,player.name,font,100);
         msg = name+" doesn't have any awards!";
-    width, height = draw.textsize(msg, font=font_small)
+    width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * c),msg,  (255, 255, 255), font=font_small)
     output = BytesIO()
     img.save(output,format="PNG")
@@ -1414,7 +1414,7 @@ async def battle_image(message, pone, ptwo, btext):
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
     draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), (255, 255, 255), font=font_small)
     weap_one_name = get_text_limit_len(draw,weapon_one.name,font,85)
-    width, height = draw.textsize(weap_one_name, font=font)
+    width = draw.textsize(weap_one_name, font=font)[0]
     draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
     draw.text((132, 103), get_text_limit_len(draw,weapon_two.name,font,85), (255, 255, 255), font=font)
     output = BytesIO()
@@ -1640,7 +1640,7 @@ def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False;
     text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
     for x in range(0, len(text)):
-        width, height = draw.textsize(text, font=given_font);
+        width = draw.textsize(text, font=given_font)[0];
         if(width > length):
             text = text[:len(text)-1];
             removed_chars = True;
@@ -1651,6 +1651,8 @@ def get_text_limit_len(draw,text,given_font,length):
                 else:
                     return text[:-3] + "..."
             return text;
+            
+
             
 async def displayStatsImage(player, q, message):
     global images_served;
@@ -1689,26 +1691,26 @@ async def displayStatsImage(player, q, message):
         draw.text((96, 42), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((142, 62), " " + str(level), (255, 255, 255), font=font_big)
     # Fill data
-    width, height = draw.textsize(str(attk), font=font)
+    width = draw.textsize(str(attk), font=font)[0]
     draw.text((241 - width, 122), str(attk), (255, 255, 255), font=font)
 
-    width, height = draw.textsize(str(strg), font=font)
+    width = draw.textsize(str(strg), font=font)[0]
     draw.text((241 - width, 150), str(strg), (255, 255, 255), font=font)
 
-    width, height = draw.textsize(str(shooting), font=font)
+    width = draw.textsize(str(shooting), font=font)[0]
     draw.text((241 - width, 178), str(shooting), (255, 255, 255), font=font)
 
-    width, height = draw.textsize("$" + util_due.to_money(player.money) , font=font)
+    width = draw.textsize("$" + util_due.to_money(player.money) , font=font)[0]
     draw.text((241 - width, 204), "$" + util_due.to_money(player.money) , (255, 255, 255), font=font)
     
-    width, height = draw.textsize(str(player.quests_won), font=font)
+    width= draw.textsize(str(player.quests_won), font=font)[0]
     draw.text((241 - width, 253), str(player.quests_won), (255, 255, 255), font=font)
     
-    width, height = draw.textsize(str(player.wagers_won), font=font)
+    width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
     
     wep = get_text_limit_len(draw,get_weapon_from_id(player.wID).name,font,95);
-    width, height = draw.textsize(wep, font=font)
+    width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
     # here
     if(avatar != None):
@@ -1758,17 +1760,17 @@ async def displayQuestImage(quest, message):
     draw.text((88, 38), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
     # Fill data
-    width, height = draw.textsize(str(attk), font=font)
+    width = draw.textsize(str(attk), font=font)[0]
     draw.text((203 - width, 123), str(attk), (255, 255, 255), font=font)
 
-    width, height = draw.textsize(str(strg), font=font)
+    width= = draw.textsize(str(strg), font=font)[0]
     draw.text((203 - width, 151), str(strg), (255, 255, 255), font=font)
 
-    width, height = draw.textsize(str(shooting), font=font)
+    width = draw.textsize(str(shooting), font=font)[0]
     draw.text((203 - width, 178), str(shooting), (255, 255, 255), font=font)
 
     wep = get_text_limit_len(draw,get_weapon_from_id(quest.wID).name,font,136);
-    width, height = draw.textsize(str(wep), font=font)
+    width = draw.textsize(str(wep), font=font)[0]
     draw.text((203 - width, 207), str(wep), (255, 255, 255), font=font)
     
     if(g_quest != None):
@@ -1778,13 +1780,13 @@ async def displayQuestImage(quest, message):
         creator = "Unknown";
         home = "Unknown";
     
-    width, height = draw.textsize(creator, font=font)
+    width = draw.textsize(creator, font=font)[0]
     draw.text((203 - width, 228), creator, (255, 255, 255), font=font)
     
-    width, height = draw.textsize(home, font=font)
+    width = draw.textsize(home, font=font)[0]
     draw.text((203 - width, 242), home, (255, 255, 255), font=font)
     
-    width, height = draw.textsize("$" + util_due.to_money(quest.money), font=font_med)
+    width = draw.textsize("$" + util_due.to_money(quest.money), font=font_med)[0]
     draw.text((203 - width, 266), "$" + util_due.to_money(quest.money), (48, 48, 48), font=font_med)
 
     if(avatar != None):
