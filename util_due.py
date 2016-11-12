@@ -357,7 +357,7 @@ async def on_util_message(message):
         await client.send_message(message.channel, "Returned to normal mode for **"+message.server.name+"**.");
         return True;
     elif message.content.lower().startswith(command_key+'duservers'):
-        await client.send_message(message.channel, "DueUtil is currently active on **"+str(len(servers))+" servers**.");
+        await client.send_message(message.channel, "DueUtil is currently active on **"+str(len(client.servers))+" servers**.");
         return True;
     else:
         found = False;
