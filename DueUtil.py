@@ -37,7 +37,7 @@ async def on_message(message):
     global start_time;
     command_key = None;
     pri_server = "";
-    if(not (util_due.loaded and due_battles_quests.loaded)):
+    if not is_due_loaded():
         return;
     if(not message.channel.is_private):
         botme = message.server.get_member(client.user.id);
@@ -168,7 +168,9 @@ async def on_message(message):
                                     return;
                         except:
                             await client.send_message(message.channel,":speaking_head: I'm a little too busy to talk right now! Sorry!");
-                              
+def is_due_loaded():
+    return util_due.loaded and due_battles_quests.loaded;
+
 @client.event
 async def on_ready():
     global start_time;
@@ -180,6 +182,8 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    
+def load_due():
     due_battles_quests.load(client);
     util_due.load(client);
 
@@ -198,7 +202,9 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if(not stopped):
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.CwfgJg.Lnn_xhIEuPoOcgn0iyiD3p56HR4');
+        if not is_due_loaded():
+            load_due();
+        client.run('MTczMzkxNzkxODg0NTk5Mjk3.Cwkz2g.FpfMqmMXoCzW5go0OqHaHacfpKE');
         run_due();
       
 print("Starting DueUtil!")
