@@ -78,9 +78,9 @@ def get_page_with_replace(data,page,key,server):
         if(not ('\n' in text)):
             text = text + '\n';
         new_ln = output+ text;
-        test = test + text;
+        test += text;
         if(len(test) >= 1997*page):          
-            if(len(test ) < 1997*(page+1) and len(new_ln) <= 1997):
+            if(len(test) < 1997*(page+1)):
                 output = new_ln;
             else:
                 return [output+'```',True];
