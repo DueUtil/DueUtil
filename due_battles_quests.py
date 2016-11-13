@@ -1875,17 +1875,18 @@ def weapon_hit(player,weapon):
     
 def battle_turn(player,other_player,weapon,quest):
     battle_line = None;
+    player_hit_damage = player.attack;
     if(player.wID != no_weapon_id):
         if(weapon_hit(player,weapon)):
             if(not weapon.melee):
-                aT = weapon.attack * player.shooting;
+                player_hit_damage = weapon.attack * player.shooting;
             else:
-                aT = weapon.attack * player.attack;
+                player_hit_damage = weapon.attack * player.attack;
             if not quest:
                 battle_line = player.name + " " + weapon.useText + " " + other_player.name + "!\n";
             else:
                 battle_line = "The " + player.name + " " + weapon.useText + " " + other_player.name + "!\n";
-    damage_dealt = (player.attack - (other_player.strg / 3));
+    damage_dealt = (player_hit_damage - (other_player.strg / 3));
     if damage_dealt < 0:
         damage_dealt = 0.01;
     return [battle_line,damage_dealt];
