@@ -8,11 +8,30 @@ import urllib.parse as url1;
 import urllib;
 import requests;
 import time;
+import configparser 
+
+
 last_backup = 0;
 client = discord.Client()
 stopped = False;
 start_time = 0;
+bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
 
+def load_config():
+    global bot_key;
+    config = configparser.RawConfigParser();
+    try:
+        config.read('dueutil.cfg')
+        bot_key = config.get("DueUtil General","bot_key");
+    except:
+        create_config(config);
+		
+def create_config(config):
+    config.add_section("DueUtil General");
+    config.set("DueUtil General","bot_key",bot_key);
+    with open('dueutil.cfg', 'w+') as cfg_file:
+        config.write(cfg_file)
+		
 def get_help_page(help_file,page,key,server):
     with open (help_file, "r") as myfile:
         data=myfile.readlines();
@@ -184,6 +203,7 @@ async def on_ready():
     print('------')
     
 def load_due():
+    load_config();
     due_battles_quests.load(client);
     util_due.load(client);
 
@@ -204,7 +224,7 @@ def run_due():
     if(not stopped):
         if not is_due_loaded():
             load_due();
-        client.run('MTczMzkxNzkxODg0NTk5Mjk3.Cwkz2g.FpfMqmMXoCzW5go0OqHaHacfpKE');
+        client.run(bot_key);
         run_due();
       
 print("Starting DueUtil!")

@@ -436,8 +436,6 @@ def loadUtils(name):
         print("Failed to load "+name+"!")
         print ("Error:", sys.exc_info()[0]);
         return None;
-        
-    
 
 def get_strings(mainStr):
     Strs = [];
@@ -453,6 +451,7 @@ def get_strings(mainStr):
         return Strs;
     else:
         return [];
+       
 def load(discord_client):
     global client;
     global DueUtilAdmins;
@@ -464,8 +463,6 @@ def load(discord_client):
     global loaded;
     global stopped;
     client = discord_client;
-    for server in client.servers:
-        servers.setdefault(server,False);
     test =  loadUtils("server_keys");
     if test != None:
         serverKeys = test;
@@ -572,7 +569,7 @@ async def randomWord(message):
         print ("Unexpected error:", sys.exc_info()[0]);
 
 async def createGlitterText(message,strToGif):
-    basicMode = servers.get(message.server,False);
+    basicMode = servers.setdefault(message.server,False);
     try:
         response = requests.get("http://www.gigaglitters.com/procesing.php?text="+strToGif+"&size=90&text_color=img/DCdarkness.gif&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'");
         html = response.text;
