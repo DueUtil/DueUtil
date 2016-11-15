@@ -894,6 +894,8 @@ async def battle_quest_on_message(message):
             await take_weapon(message,player);
             await wipe_cash(message,player);
         return True;
+    elif message.content.lower().startswith(command_key + 'testbg ') and util_due.is_mod_or_admin(message.author.id):
+        await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
     else:
@@ -1469,7 +1471,32 @@ def loadImageFromURL(url):
             if(os.path.isfile(fname)):
                 os.remove(fname);
             return None;
+            
+async def does_bg_pass(channel,url):
+    bg_to_test = loadImageFromURL(url);
+    if(valid_bg(bg_to_test)):
+        await client.send_message(channel,":thumbsup: **That looks good to me!**");
+    elif (bg_to_test != None):
+        width, height = bg_to_test.size;
+        await client.send_message(channel,":thumbsdown: **That does not meet the requirements!**\nThe tested image had the dimensions ``"+str(width)+"*"+str(height)+"``!\nIt should be ``256*299``!");
+    else:
+        await client.send_message(channel,":thinking: Are you sure that 'background' is an image?");
         
+async def upload_bg(url,name):
+    #name = re.sub(r'\W+', '', name).replace();;
+    bg = loadImageFromURL(url);
+    if(valid_bg(bg)):
+        bg.save('backgrounds/');
+    else:
+        await client.send_message(message.channel,":interrobang: **That background is not vaild!**");
+        
+def valid_bg(bg_to_test):
+    if(bg_to_test != None):
+        width, height = bg_to_test.size;
+        if(width == 256 and height == 299):
+            return True;
+    return False;
+                    
 def jsonTest(playerT):
     datum = json.dumps(playerT, default=lambda o: o.__dict__);
     print(datum);

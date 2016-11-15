@@ -48,7 +48,6 @@ async def send_text_as_message(to,txt_name,key,message):
 
 @client.event
 async def on_message(message):
-    message.content = util_due.escape_markdown(message.content);
     #print(await due_battles_quests.battle_quest_on_message(message));
     #message.content = message.content.replace("`","'")
     # we do not want the bot to reply to itself
@@ -60,6 +59,7 @@ async def on_message(message):
     if not is_due_loaded():
         return;
     if(not message.channel.is_private):
+        message.content = util_due.escape_markdown(message.content);
         botme = message.server.get_member(client.user.id);
         bot_perms = message.channel.permissions_for(botme);
         if(not (bot_perms.send_messages and bot_perms.read_messages and bot_perms.attach_files and bot_perms.embed_links)):

@@ -71,8 +71,8 @@ def get_page_with_replace(data,page,key,server):
         if(len(data)+6 < 2000):
             return ['```'+data+'```',False]
         data = data.splitlines();
-    for x in range (0,page):
-        test = test + '``````'
+    #for x in range (0,page):
+        #test = test + '``````'
     for line in data:   
         if(key != None and server != None):
             text = line.replace("[CMD_KEY]",key).replace("[SERVER]",server);
