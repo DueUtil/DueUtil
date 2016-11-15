@@ -41,7 +41,6 @@ def get_server_cmd_key(server):
     return server_key if server_key != '`' else '\`';
     
 def clear_markdown_escapes(text):
-    print(text);
     return text.replace("\`","`");
 
 def to_money(amount):
