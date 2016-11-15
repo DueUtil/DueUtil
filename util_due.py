@@ -46,7 +46,7 @@ def number_format(number):
     return '{:20,.0f}'.format(number).strip();
     
 def escape_markdown(text):
-    return text.translate(str.maketrans({"`":  r"\`"})).rstrip();
+    return text.translate(str.maketrans({"`":  r"\`"})).replace("\n","");
     
 def random_ident():
     ident ="";
