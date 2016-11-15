@@ -37,7 +37,12 @@ class autoReply:
     channel = None;
 
 def get_server_cmd_key(server):
-    return serverKeys.setdefault(server.id,"!");
+    server_key = serverKeys.setdefault(server.id,"!");
+    return server_key if server_key != '`' else '\`';
+    
+def clear_markdown_escapes(text):
+    print(text);
+    return text.replace("\`","`");
 
 def to_money(amount):
     return number_format(amount);

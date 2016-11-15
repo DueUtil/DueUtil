@@ -1304,10 +1304,10 @@ async def new_quest_image(message, quest, player):
         img.paste(avatar, (10, 10));
     draw = ImageDraw.Draw(img)
     g_quest = get_game_quest_from_id(quest.qID);
-    draw.text((72, 20), get_text_limit_len(draw,g_quest.quest,font_med,167), (255, 255, 255), font=font_med)
+    draw.text((72, 20), get_text_limit_len(draw,util_due.clear_markdown_escapes(g_quest.quest),font_med,167), (255, 255, 255), font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level));
     width = draw.textsize(level_text, font=font_big)[0]
-    draw.text((71, 39), get_text_limit_len(draw,g_quest.monsterName,font_big,168-width) + level_text, (255, 255, 255), font=font_big)
+    draw.text((71, 39), get_text_limit_len(draw,util_due.clear_markdown_escapes(g_quest.monsterName),font_big,168-width) + level_text, (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1327,7 +1327,7 @@ async def awards_screen(message, player,page):
     img = Image.open("screens/awards_screen.png"); 
     a_s = Image.open("screens/award_slot.png"); 
     draw = ImageDraw.Draw(img)
-    name = get_text_limit_len(draw,player.name,font,175);
+    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,175);
     t = name+"'s Awards";
     if(page > 0):
         t = t + ": Page "+str(page+1);
@@ -1352,7 +1352,7 @@ async def awards_screen(message, player,page):
     if (x == 0):
         msg = "That's all folks!"
     if (len(player.awards) == 0):
-        name = get_text_limit_len(draw,player.name,font,100);
+        name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,100);
         msg = name+" doesn't have any awards!";
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * c),msg,  (255, 255, 255), font=font_small)
@@ -1415,10 +1415,10 @@ async def battle_image(message, pone, ptwo, btext):
     draw = ImageDraw.Draw(img)
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
     draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), (255, 255, 255), font=font_small)
-    weap_one_name = get_text_limit_len(draw,weapon_one.name,font,85)
+    weap_one_name = get_text_limit_len(draw,util_due.clear_markdown_escapes(weapon_one.name),font,85)
     width = draw.textsize(weap_one_name, font=font)[0]
     draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
-    draw.text((132, 103), get_text_limit_len(draw,weapon_two.name,font,85), (255, 255, 255), font=font)
+    draw.text((132, 103), get_text_limit_len(draw,util_due.clear_markdown_escapes(weapon_two.name),font,85), (255, 255, 255), font=font)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1704,7 +1704,7 @@ async def displayStatsImage(player, q, message):
     attk = round(player.attack, 2);
     strg = round(player.strg, 2);
     shooting = round(player.shooting, 2)
-    name = player.name;
+    name = util_due.clear_markdown_escapes(player.name);
 
     img = Image.open("backgrounds/" + player.background);
     screen = Image.open("screens/stats_page.png");    
@@ -1736,7 +1736,7 @@ async def displayStatsImage(player, q, message):
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
     
-    wep = get_text_limit_len(draw,get_weapon_from_id(player.wID).name,font,95);
+    wep = get_text_limit_len(draw,util_due.clear_markdown_escapes(get_weapon_from_id(player.wID).name),font,95);
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
     # here
@@ -1782,7 +1782,7 @@ async def displayQuestImage(quest, message):
     shooting = round(quest.shooting, 2)
     img = Image.open("screens/stats_page_quest.png");
     draw = ImageDraw.Draw(img)
-    name = get_text_limit_len(draw,quest.name,font,114);
+    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(quest.name),font,114);
     g_quest = get_game_quest_from_id(quest.qID);
     draw.text((88, 38), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
@@ -1796,7 +1796,7 @@ async def displayQuestImage(quest, message):
     width = draw.textsize(str(shooting), font=font)[0]
     draw.text((203 - width, 178), str(shooting), (255, 255, 255), font=font)
 
-    wep = get_text_limit_len(draw,get_weapon_from_id(quest.wID).name,font,136);
+    wep = get_text_limit_len(draw,util_due.clear_markdown_escapes(get_weapon_from_id(quest.wID).name),font,136);
     width = draw.textsize(str(wep), font=font)[0]
     draw.text((203 - width, 207), str(wep), (255, 255, 255), font=font)
     
@@ -1876,9 +1876,9 @@ async def playerProgress(message):
         p = player();
         p.userid = message.author.id;
         if(len(message.author.name) <= 32):
-            p.name = message.author.name;
+            p.name = util_due.escape_markdown(message.author.name);
         else:
-            p.name = message.author.name[:31] + u"\u2026";
+            p.name = util_due.escape_markdown(message.author.name[:31] + u"\u2026");
         p.wID = no_weapon_id;
         Players[str(message.author.id)] = p;
         new_players_joined = new_players_joined + 1;

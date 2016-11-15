@@ -56,6 +56,7 @@ async def on_message(message):
     global start_time;
     command_key = None;
     pri_server = "";
+   
     if not is_due_loaded():
         return;
     if(not message.channel.is_private):
