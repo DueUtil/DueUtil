@@ -527,7 +527,7 @@ async def battle_quest_on_message(message):
             if(amount >= 50):
                 await give_award(message, sender, 17, "Sugar daddy!")
             if(len(args) == 3 and len(args[2].strip()) > 0):
-                msg = "**Attached note**: ```"+args[2].replace("```","")+"```\n";
+                msg = "**Attached note**: ```"+args[2]+" ```\n";
             await client.send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util_due.to_money(amount)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
         except:
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");

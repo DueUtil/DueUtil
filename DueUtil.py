@@ -48,6 +48,7 @@ async def send_text_as_message(to,txt_name,key,message):
 
 @client.event
 async def on_message(message):
+    message.content = util_due.escape_markdown(message.content);
     #print(await due_battles_quests.battle_quest_on_message(message));
     #message.content = message.content.replace("`","'")
     # we do not want the bot to reply to itself
