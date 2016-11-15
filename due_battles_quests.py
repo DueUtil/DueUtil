@@ -1913,8 +1913,8 @@ def battle_turn(player,other_player,weapon,quest):
                 battle_line = player.name + " " + weapon.useText + " " + other_player.name + "!\n";
             else:
                 battle_line = "The " + player.name + " " + weapon.useText + " " + other_player.name + "!\n";
-    damage_dealt = (player_hit_damage - (other_player.strg / 3));
-    if damage_dealt < 0:
+    damage_dealt = (player_hit_damage / (other_player.strg / 3 +1));
+    if damage_dealt < 0.01:
         damage_dealt = 0.01;
     return [battle_line,damage_dealt];
 
