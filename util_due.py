@@ -46,10 +46,8 @@ def number_format(number):
     return '{:20,.0f}'.format(number).strip();
     
 def escape_markdown(text):
-    return text.translate(str.maketrans({"*":  r"\*",
-                                          "`":  r"\`",
-                                          "_": r"\_",
-                                          "~":  r"\~",}));
+    return text.translate(str.maketrans({"`":  r"\`"})).rstrip();
+    
 def random_ident():
     ident ="";
     identChars = "0123456789@#$%&QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm=";
