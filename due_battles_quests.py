@@ -1901,19 +1901,18 @@ async def show_limits_for_player(channel,player):
 def weapon_hit(player,weapon):
     return random.random()<(limit_weapon_accy(player,weapon)/100);
     
-def battle_turn(player,other_player,weapon,quest):
+def battle_turn(player,other_player,weapon):
     battle_line = None;
     player_hit_damage = player.attack;
+    other_name = "the "+other_player.name if isinstance(other_player,activeQuest) else other_player.name;
+    player_name = "The "+player.name if isinstance(player,activeQuest) else player.name;
     if(player.wID != no_weapon_id):
         if(weapon_hit(player,weapon)):
             if(not weapon.melee):
                 player_hit_damage = weapon.attack * player.shooting;
             else:
                 player_hit_damage = weapon.attack * player.attack;
-            if not quest:
-                battle_line = player.name + " " + weapon.useText + " " + other_player.name + "!\n";
-            else:
-                battle_line = "The " + player.name + " " + weapon.useText + " " + other_player.name + "!\n";
+            battle_line = player_name + " " + weapon.useText + " " + other_name + "!\n";
     damage_dealt = (player_hit_damage / (other_player.strg / 3 +1));
     if damage_dealt < 0.01:
         damage_dealt = 0.01;
@@ -1951,12 +1950,12 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
         weapon_player_two = get_weapon_from_id(player_two.wID);
         bText = "```(" + player_one.name + " Vs " + player_two.name + ")\n";
         while (hp_player_one > 0) and (hp_player_two > 0):
-            player_two_turn = battle_turn(player_two,player_one,weapon_player_two,quest);
+            player_two_turn = battle_turn(player_two,player_one,weapon_player_two);
             hp_player_one += -player_two_turn[1];
             if player_two_turn[0] != None:
                 bText += player_two_turn[0];
                 battle_lines+=1;
-            player_one_turn = battle_turn(player_one,player_two,weapon_player_one,quest);
+            player_one_turn = battle_turn(player_one,player_two,weapon_player_one);
             hp_player_two += -player_one_turn[1];
             if player_one_turn[0] != None:
                 bText += player_one_turn[0];
