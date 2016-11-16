@@ -468,7 +468,7 @@ async def battle_quest_on_message(message):
                          await client.send_message(message.channel,":bangbang: **No values can be zero!**");    
                          return True;
                      wep.price = abs(int(((wep.chance/100) * wep.attack) / 0.04375));  # Fair price
-                     
+                     wep.price = wep.price if wep.price > 0 else 1;
                      wep.image_url = Strs[6];
                      wep.server = message.server.id;
                      wep.wID = message.server.id+"_"+wep.name.lower();
@@ -1886,9 +1886,10 @@ async def playerProgress(message):
         
 def limit_weapon_accy(player,weapon):
     max_value = max_value_for_player(player);
-    new_accy = numpy.clip((max_value/weapon.price)*100,1,86);
+    price = weapon.price if weapon.price > 0 else 1;
+    new_accy = numpy.clip((max_value/price)*100,1,86);
     new_accy = weapon.chance if new_accy > weapon.chance else new_accy;
-    return new_accy if weapon.price > max_value else weapon.chance;
+    return new_accy if price > max_value else weapon.chance;
     
 def max_value_for_player(player):
     return 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
