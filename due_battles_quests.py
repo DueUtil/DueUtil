@@ -569,7 +569,7 @@ async def battle_quest_on_message(message):
                 else:
                      await client.send_message(message.channel, ":bangbang: **You cannot remove that weapon!**");
             else:
-                await client.send_message(message.channel, ":bangbang: **I don't no of any weapon with that name!**");
+                await client.send_message(message.channel, ":bangbang: **I don't know of any weapon with that name!**");
         except:
             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
