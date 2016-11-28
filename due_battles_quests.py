@@ -1526,10 +1526,14 @@ def loadPlayers():
     for file in os.listdir("saves/players/"):
         if file.endswith(".json"):
             with open("saves/players/" + str(file)) as data_file:    
-                data = json.load(data_file);
-                p = jsonpickle.decode(data);
-                p = update_player_def(p);
-                Players[p.userid] = p;
+                try:
+                    data = json.load(data_file);
+                    p = jsonpickle.decode(data);
+                    p = update_player_def(p);
+                    Players[p.userid] = p;
+                except:
+                    print("Failed to load player data!");
+       
                 
 def get_sus_list():
     global Players;
