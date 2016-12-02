@@ -355,6 +355,10 @@ async def battle_quest_on_message(message):
                          nquest.basehp = abs(int(Strs[4]));
                          nquest.baseshooting = abs(float(Strs[5]));
                          
+                         if(nquest.baseattack < 1 or nquest.basestrg < 1 or nquest.basehp < 1 or nquest.baseshooting < 1):
+                            await client.send_message(message.channel, ":bangbang: **No stats can be less than 1!**");
+                            return True;
+                         
                          if(len(Strs[6]) > 18):
                             attempt_id = Strs[6].lower();
                             attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
@@ -1327,10 +1331,15 @@ async def awards_screen(message, player,page):
     img = Image.open("screens/awards_screen.png"); 
     a_s = Image.open("screens/award_slot.png"); 
     draw = ImageDraw.Draw(img)
-    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,175);
-    t = name+"'s Awards";
+    t = "'s Awards";
+    pageInfoLen = 0;
     if(page > 0):
-        t = t + ": Page "+str(page+1);
+        pageInfo = ": Page "+str(page+1);
+        t += pageInfo;
+        pageInfoLen = draw.textsize(pageInfo, font=font)[0]
+    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,175-pageInfoLen); 
+    t=name+t;
+        
     draw.text((15, 17), t,(255,255,255), font=font)
     c = 0;
     l = 0;
