@@ -1650,6 +1650,10 @@ def loadQuests():
             with open("saves/gamequests/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 q = jsonpickle.decode(data);
+                if(q.baseattack < 1 or q.basestrg < 1 or q.basehp < 1 or q.baseshooting < 1):
+                    os.remove("saves/gamequests/" + str(file));
+                    print("Quest removed! - Invalid stats!");
+                    continue;
                 if(q.update):
                     q.spawnchance = update_chance(False,q.spawnchance);
                     q.update = False;
