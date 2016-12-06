@@ -941,7 +941,7 @@ async def buy_weapon(message,command_key):
                         await client.send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
                         
                 else:
-                    await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.");
+                    await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util_due.to_money(weapon.price-player.money,False)+"** more.");
     except:
         Found = False;
     if(not Found):
