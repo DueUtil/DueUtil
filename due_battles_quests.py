@@ -1215,7 +1215,7 @@ def get_server_weapon_list(message):
                 else:
                     Type = "Ranged";
                 accy = round(weapon.chance,2);
-                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util_due.number_format(weapon.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
+                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util_due.number_format(weapon.attack) + " | ACCY: " + util_due.format_float_drop_zeros(accy) + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price)+ " |\n";	
     return weapon_listings;
 
 

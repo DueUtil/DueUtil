@@ -47,8 +47,26 @@ def to_money(amount):
     return number_format(amount);
     
 def number_format(number):
-    return '{:20,.0f}'.format(number).strip();
-    
+    if(number < 1000000):
+        return '{:20,.0f}'.format(number).strip();
+    else:
+        return really_large_number_format(number);
+
+def really_large_number_format(number):
+    units = ["Million","Billion","Trillion", "Quaddrillion","Quintillion","Sextillion","Septillion","Octillion"];
+    if(number >= 1000000):
+      reg = len(str(math.floor(number/1000)));
+      if ((reg-1) % 3 != 0):
+        reg -= (reg-1) % 3;
+      num = number/pow(10,reg+2)
+      string = units[math.floor(reg/3) -1];
+      return format_float_drop_zeros(round(num,2)) + " " + string;
+    else:
+      return number_format(number);
+      
+def format_float_drop_zeros(number):
+    return (str(number)+"-").replace(".0-","").replace("-","")
+
 def escape_markdown(text):
     return text.translate(str.maketrans({"`":  r"\`"})).replace("\n","");
     
