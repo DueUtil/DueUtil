@@ -43,28 +43,39 @@ def get_server_cmd_key(server):
 def clear_markdown_escapes(text):
     return text.replace("\`","`");
 
-def to_money(amount):
-    return number_format(amount);
+def to_money(amount,short):
+    if(short):
+      return number_format(amount);
+    else:
+      return number_format_text(amount);
+    
+def number_format_text(number):
+    return '{:20,.0f}'.format(number).strip();
     
 def number_format(number):
     if(number < 1000000):
-        return '{:20,.0f}'.format(number).strip();
+        return number_format_text(number);
     else:
         return really_large_number_format(number);
 
 def really_large_number_format(number):
-    units = ["Million","Billion","Trillion", "Quaddrillion","Quintillion","Sextillion","Septillion","Octillion"];
+    units = ["Million","Billion","Trillion", "Quadrillion","Quintillion","Sextillion","Septillion","Octillion"];
     if(number >= 1000000):
       reg = len(str(math.floor(number/1000)));
       if ((reg-1) % 3 != 0):
         reg -= (reg-1) % 3;
       num = number/pow(10,reg+2)
-      string = units[math.floor(reg/3) -1];
+      try:
+          string = units[math.floor(reg/3) -1];
+      except:
+          string = "Fucktonillion";
       return format_float_drop_zeros(round(num,2)) + " " + string;
     else:
       return number_format(number);
       
 def format_float_drop_zeros(number):
+    if(len(str(number)) > 3):
+      number = round(number,0);
     return (str(number)+"-").replace(".0-","").replace("-","")
 
 def escape_markdown(text):
@@ -194,7 +205,7 @@ async def on_util_message(message):
                 p=due_battles_quests.findPlayer(r[0]);
                 if(p != None):
                     p.money = p.money + int(arg);
-                    await client.send_message(message.channel,"$"+to_money(int(arg))+" has been given to **"+p.name+"**.");
+                    await client.send_message(message.channel,"$"+to_money(int(arg),False)+" has been given to **"+p.name+"**.");
                 else:
                     await client.send_message(message.channel,"**"+get_server_name(message, r[0])+"** is not playing.");
         except:

@@ -147,13 +147,13 @@ async def on_message(message):
            return;
         elif message.content.lower().startswith(command_key+'dustats'):
             stats = "```Since "+time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(start_time))+" I have\u2026\n";
-            stats += "Served "+util_due.number_format(due_battles_quests.images_served)+" image(s).\n";
-            stats += "Created $"+util_due.number_format(due_battles_quests.money_created)+"\n";
-            stats += "Transferred $"+util_due.number_format(due_battles_quests.money_transferred)+"\n";
-            stats += "Given "+util_due.number_format(due_battles_quests.quests_given)+" new quest(s).\n";
-            stats += "Seen "+util_due.number_format(due_battles_quests.quests_attempted)+" quest(s) attempted.\n";
-            stats += "Watched "+util_due.number_format(due_battles_quests.players_leveled)+" player(s) level up.\n";
-            stats += "Had "+util_due.number_format(due_battles_quests.new_players_joined)+" player(s) join.\n```";
+            stats += "Served "+util_due.number_format_text(due_battles_quests.images_served)+" image(s).\n";
+            stats += "Created $"+util_due.number_format_text(due_battles_quests.money_created)+"\n";
+            stats += "Transferred $"+util_due.number_format_text(due_battles_quests.money_transferred)+"\n";
+            stats += "Given "+util_due.number_format_text(due_battles_quests.quests_given)+" new quest(s).\n";
+            stats += "Seen "+util_due.number_format_text(due_battles_quests.quests_attempted)+" quest(s) attempted.\n";
+            stats += "Watched "+util_due.number_format_text(due_battles_quests.players_leveled)+" player(s) level up.\n";
+            stats += "Had "+util_due.number_format_text(due_battles_quests.new_players_joined)+" player(s) join.\n```";
             await client.send_message(message.channel,stats);
             return;
         elif (await util_due.on_util_message(message)):
