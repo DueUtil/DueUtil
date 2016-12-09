@@ -69,8 +69,9 @@ def really_large_number_format(number):
           string = units[math.floor(reg/3) -1];
       except:
           string = "Fucktonillion";
-      formatted = format_float_drop_zeros_drop(round(num,2),False) + " " + string;
-      return formatted if len(formatted) < 17 else format_float_drop_zeros_drop(round(num,2),True) + " " + string;
+      num = (int(num*100)/float(100));
+      formatted = format_float_drop_zeros_drop(num,False) + " " + string;
+      return formatted if len(formatted) < 17 else format_float_drop_zeros_drop(num,True) + " " + string;
     else:
       return number_format(number);
       
@@ -80,7 +81,7 @@ def format_float_drop_zeros(number):
 def format_float_drop_zeros_drop(number,drop):
     num = str(number);
     if(len(num) > 3 and drop):
-        num = '{:0,.0f}'.format(number);
+        num = str(math.trunc(number));
     return (num+"-").replace(".0-","").replace("-","")
 
 def escape_markdown(text):
