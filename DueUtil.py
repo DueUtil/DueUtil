@@ -45,6 +45,12 @@ async def send_text_as_message(to,txt_name,key,message):
     for line in data:
         txt = txt+line.replace("[CMD_KEY]",key).replace("[SERVER]",message.server.name);
     await client.send_message(to,txt);   
+    
+def sudo_command(key,message):
+  if(util_due.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
+    message.author = message.server.get_member(message.raw_mentions[0]);
+    message.content = content = key+message.content.split('>',1)[1].strip();
+    del message.raw_mentions[0];
 
 @client.event
 async def on_message(message):
@@ -69,6 +75,7 @@ async def on_message(message):
             return;
         command_key = util_due.get_server_cmd_key(message.server);
     if not stopped:
+        sudo_command(command_key,message);
         if(time.time() - last_backup > 3600):
             util_due.zipdir("saves/","autobackups/DueBackup"+str(time.time())+".zip");
             print("Auto backup!");
