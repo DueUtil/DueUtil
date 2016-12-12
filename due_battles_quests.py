@@ -521,6 +521,9 @@ async def battle_quest_on_message(message):
                 else:
                      await client.send_message(message.channel, "You do not have any money to transfer!");
                 return True
+            if(amount > (max_value_for_player(other)*10)):
+                await client.send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_value_for_player(other)*10,False)+"**!");
+                return True;
             sender.money = sender.money - amount;
             other.money = other.money + amount;
             savePlayer(sender);
@@ -1546,7 +1549,7 @@ def get_sus_list():
             if(get_weapon_from_id(weap[0]).price >= 50000):
                 hasOPweapStore = "Yes";
                 break;
-        if(player.money >= 50000 or weapon.price >= 50000 or hasOPweapStore == "Yes"):
+        if(player.money >= 1000000000000 or weapon.price >= 50000 or hasOPweapStore == "Yes"):
             count = count +1;
             out = out + str(count)+". "+player.name + " ("+player.userid+") | Cash $"+util_due.to_money(player.money,False)+" | Weapon Value $"+util_due.to_money(weapon.price,False)+" | Suspicious Stored Weapons - "+hasOPweapStore+" \n"
     if (count == 0):
@@ -1584,7 +1587,7 @@ async def clear_suspicious(message):
             if(get_weapon_from_id(weap[0]).price >= 50000):
                 hasOPweapStore = True;
                 break;
-        if player.money >= 50000 or weapon.price >= 50000 or hasOPweapStore:
+        if player.money >= 1000000000000 or weapon.price >= 50000 or hasOPweapStore:
             if(not util_due.is_mod_or_admin(player.userid)):
                 count = count + 1;
                 player.money = 0;
