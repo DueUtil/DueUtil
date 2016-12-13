@@ -272,11 +272,12 @@ async def battle_quest_on_message(message):
                 if(player.money - int((player.quests[q - 1].money) / 2)) >= 0:
                     #print(player.quests_completed_today);
                     if(player.quests_completed_today < 50):
+                        questToBattle = player.quests[q - 1];
+                        del player.quests[q - 1];
                         try:
-                            await battle(message, [message.author.id, player.quests[q - 1]], player.quests[q - 1].money, True);
+                            await battle(message, [message.author.id, questToBattle], questToBattle.money, True);
                         except:
                             print("Quest battle error (text probably too long)");
-                        del player.quests[q - 1];
                         savePlayer(player);
                     else:
                         await client.send_message(message.channel, ":bangbang: **You can't do more that 50 quests a day!**");
@@ -741,9 +742,10 @@ async def battle_quest_on_message(message):
             w = w - 1;
             if(w >= 0) and (w <= (len(player.battlers) - 1)):  # check id they can afford it
                 if(player.money - player.battlers[w].wager) >= 0:
-                    player.money = player.money - player.battlers[w].wager;
-                    await battle(message, None, player.battlers[w], False);
+                    wagerToAccept = player.battlers[w];
                     del player.battlers[w];
+                    player.money = player.money - wagerToAccept.wager;
+                    await battle(message, None, wagerToAccept, False);
                     savePlayer(player);
                 else:
                     await client.send_message(message.channel, ":bangbang: **You can't afford to lose this wager!**");
@@ -909,6 +911,16 @@ async def battle_quest_on_message(message):
         await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
+    elif message.content.lower().startswith(command_key + 'summonquest ') and util_due.is_admin(message.author.id):
+        if(len(message.raw_mentions) == 1):
+          player = findPlayer(message.raw_mentions[0]);
+          if(player != None):
+              if(message.server.id in ServersQuests and len(ServersQuests[message.server.id]) >= 1):
+                  n_q = ServersQuests[message.server.id][random.choice(list(ServersQuests[message.server.id].keys()))];
+                  await addQuest(message,player,n_q);
+                  print("Admin quest summoned! Quest ["+n_q.qID+"] for "+filter_func(player.name)+" ("+player.userid+"+)");
+                  return True;
+        await client.send_message(message.channel, ":bangbang: **Summon failed!**");
     else:
         found = False;
     return found;
@@ -1078,18 +1090,15 @@ async def sell_weapon(message, uID, recall,weapon_name):
         await client.send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
 def get_server_quest_list(server):
-    #text = "```\n" + message.server.name + " Quests\nSquare brackets indicate quest name.\n";
     number = 0;
     text = "";
     if(server.id in ServersQuests):
         for quest in ServersQuests[server.id].values():
             number = number + 1;
             text = text + str(number) + ". " + quest.quest + " [" + quest.monsterName + "] \n";  
-    return text;
     if(number == 0):
         text =  "There isn't any quests on this server!\n";
-    #    text = text + "```";
-    #    await client.send_message(message.channel, text);
+    return text;
     
 async def show_quest_list(message):
     title = message.server.name + " Quests**\n**Square brackets indicate quest name.";
