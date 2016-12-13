@@ -280,7 +280,7 @@ async def battle_quest_on_message(message):
                             print("Quest battle error (text probably too long)");
                         savePlayer(player);
                     else:
-                        await client.send_message(message.channel, ":bangbang: **You can't do more that 50 quests a day!**");
+                        await client.send_message(message.channel, ":bangbang: **You can't do more than 50 quests a day!**");
                 else:
                     await client.send_message(message.channel, ":bangbang:  **You can't afford the risk!**");
             else:
