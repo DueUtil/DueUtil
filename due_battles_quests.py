@@ -355,6 +355,10 @@ async def battle_quest_on_message(message):
                          nquest.basehp = abs(int(Strs[4]));
                          nquest.baseshooting = abs(float(Strs[5]));
                          
+                         if (nquest.basehp < 30):
+                            await client.send_message(message.channel, ":bangbang: **Base HP must be at least 30!**");
+                            return True;
+                            
                          if(nquest.baseattack < 1 or nquest.basestrg < 1 or nquest.basehp < 1 or nquest.baseshooting < 1):
                             await client.send_message(message.channel, ":bangbang: **No stats can be less than 1!**");
                             return True;
@@ -369,14 +373,14 @@ async def battle_quest_on_message(message):
                                 weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
                                 if(weap.server == message.server.id or weap.server == "all"):
                                     nquest.wID = weap.wID;
-                                    
                          if(get_weapon_from_id(nquest.wID).melee):
                             nquest.bwinings = (((nquest.baseattack + nquest.basestrg) / 10) / 0.0883);
                          else:
                             nquest.bwinings = (((nquest.baseshooting + nquest.basestrg) / 10) / 0.0883);
+                            
                          nquest.bwinings = nquest.bwinings + (((nquest.bwinings * math.log10(nquest.basehp))) / 20) / 0.75;
                          nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
-                         
+                        
                          nquest.questServer = message.server.id;
                          nquest.spawnchance = abs(round(float(Strs[7]),2));
                              
@@ -1653,7 +1657,7 @@ def loadQuests():
             with open("saves/gamequests/" + str(file)) as data_file:    
                 data = json.load(data_file);
                 q = jsonpickle.decode(data);
-                if(q.baseattack < 1 or q.basestrg < 1 or q.basehp < 1 or q.baseshooting < 1):
+                if(q.baseattack < 1 or q.basestrg < 1 or q.basehp < 30 or q.baseshooting < 1):
                     os.remove("saves/gamequests/" + str(file));
                     print("Quest removed! - Invalid stats!");
                     continue;
