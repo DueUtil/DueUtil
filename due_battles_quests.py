@@ -305,7 +305,7 @@ async def battle_quest_on_message(message):
                         questT = "do a long forgotten quest:";
                 except:
                     questT = "do a long forgotten quest:";
-                await client.send_message(message.channel, player.name + " declined to " + questT + " " + qT.name + " [Level " + str(qT.level) + "]!");
+                await client.send_message(message.channel, "**"+player.name + "** declined to " + questT + " **" + qT.name + " [Level " + str(qT.level) + "]**!");
             else:
                 await client.send_message(message.channel, ":bangbang:  **Quest not found!**");
         except:
@@ -526,8 +526,9 @@ async def battle_quest_on_message(message):
                 else:
                      await client.send_message(message.channel, "You do not have any money to transfer!");
                 return True
-            if(amount > (max_value_for_player(other)*10)):
-                await client.send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_value_for_player(other)*10,False)+"**!");
+            max_receive =  int(max_value_for_player(other)*10);
+            if(amount > max_receive):
+                await client.send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_receive,False)+"**!");
                 return True;
             sender.money = sender.money - amount;
             other.money = other.money + amount;
