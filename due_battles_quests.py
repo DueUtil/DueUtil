@@ -1622,13 +1622,16 @@ def  loadWeapons():
     for file in os.listdir("saves/weapons/"):
         if file.endswith(".json"):
             with open("saves/weapons/" + str(file)) as data_file:    
-                data = json.load(data_file);
-                w = jsonpickle.decode(data);
-                if(w.update):
-                    w.chance = update_chance(True,w.chance);
-                    w.update = False;
-                    saveWeapon(w);
-                Weapons[w.wID] = w;   
+                try:
+                    data = json.load(data_file);
+                    w = jsonpickle.decode(data);
+                    if(w.update):
+                        w.chance = update_chance(True,w.chance);
+                        w.update = False;
+                        saveWeapon(w);
+                    Weapons[w.wID] = w;
+                except:
+                    print("Weapon data corrupt!");
                 
 
 #def update_chance(is_weapon,chance):
@@ -1664,25 +1667,28 @@ def loadQuests():
     for file in os.listdir("saves/gamequests/"):
         if file.endswith(".json"):
             with open("saves/gamequests/" + str(file)) as data_file:    
-                data = json.load(data_file);
-                q = jsonpickle.decode(data);
-                if(q.baseattack < 1 or q.basestrg < 1 or q.basehp < 30 or q.baseshooting < 1):
-                    os.remove("saves/gamequests/" + str(file));
-                    print("Quest removed! - Invalid stats!");
-                    continue;
-                if(q.update):
-                    q.spawnchance = update_chance(False,q.spawnchance);
-                    q.update = False;
-                    saveQuest(q);
-                args = util_due.get_strings(q.qID);
-                if(len(args) == 2):
-                    if(args[0] in ServersQuests):
-                        ServersQuests[args[0]][args[1]] = q;
+                try:
+                    data = json.load(data_file);
+                    q = jsonpickle.decode(data);
+                    if(q.baseattack < 1 or q.basestrg < 1 or q.basehp < 30 or q.baseshooting < 1):
+                        os.remove("saves/gamequests/" + str(file));
+                        print("Quest removed! - Invalid stats!");
+                        continue;
+                    if(q.update):
+                        q.spawnchance = update_chance(False,q.spawnchance);
+                        q.update = False;
+                        saveQuest(q);
+                    args = util_due.get_strings(q.qID);
+                    if(len(args) == 2):
+                        if(args[0] in ServersQuests):
+                            ServersQuests[args[0]][args[1]] = q;
+                        else:
+                            ServersQuests[args[0]]=dict();
+                            ServersQuests[args[0]][args[1]] = q;
                     else:
-                        ServersQuests[args[0]]=dict();
-                        ServersQuests[args[0]][args[1]] = q;
-                else:
-                    print("Failed to load quest!")  
+                        print("Failed to load quest!")
+                except:
+                    print("Quest data corrupt!");  
         
 def find_name(server,uID):
     p = findPlayer(uID);
