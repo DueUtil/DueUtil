@@ -10,7 +10,6 @@ import requests;
 import time;
 import configparser 
 
-
 last_backup = 0;
 client = discord.Client()
 stopped = False;
@@ -54,6 +53,11 @@ async def sudo_command(key,message):
         del message.raw_mentions[0];
     except:
         await client.send_message(message.channel, ":bangbang: **sudo failed!**");
+        
+@client.event
+async def on_server_join(server):
+    data = {"key":"macdue0a873a71hjd673o1","servercount":str(len(client.servers))};
+    requests.post("https://www.carbonitex.net/discord/data/botdata.php",data=data);
 
 @client.event
 async def on_message(message):
@@ -67,7 +71,6 @@ async def on_message(message):
     global start_time;
     command_key = None;
     pri_server = "";
-   
     if not is_due_loaded():
         return;
     if(not message.channel.is_private):

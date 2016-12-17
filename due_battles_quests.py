@@ -13,6 +13,7 @@ from urllib.request import urlopen
 import io
 import time
 import re;
+import os;
 import shutil
 from io import BytesIO;
 import json;
@@ -91,7 +92,7 @@ class player:
     strg = 1;
     shooting = 1;
     hp = 10;
-    background = "Default.png";
+    background = "default.png";
     wep_sum = '"0"01'#price/attack/sum;
     name = "";
     wID = no_weapon_id;
@@ -605,7 +606,7 @@ async def battle_quest_on_message(message):
         player.strg = 1;
         player.hp = 10;
         player.money = 0;
-        player.background = "Default.png";
+        player.background = "default.png";
         player.wep_sum = get_weapon_sum(no_weapon_id)
         player.wID = no_weapon_id;
         player.shooting = 1;
@@ -910,6 +911,16 @@ async def battle_quest_on_message(message):
         return True;
     elif message.content.lower().startswith(command_key + 'testbg ') and util_due.is_mod_or_admin(message.author.id):
         await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
+    elif message.content.lower().startswith(command_key + 'uploadbg ') and util_due.is_mod_or_admin(message.author.id):
+        args = re.sub(' +',' ',message.content.strip()).split(' ',2);
+        if(len(args) < 3):
+            await client.send_message(message.channel, ":bangbang: **A background has no name!**");
+        await upload_bg(message.channel,args[1],args[2]);
+    elif message.content.lower().startswith(command_key+'deletebg ') and util_due.is_mod_or_admin(message.author.id):
+        args = re.sub(' +',' ',message.content.strip()).split(' ',1);
+        if(len(args) < 2):
+            await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
+        await delete_bg(message.channel,args[1]);
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
     elif message.content.lower().startswith(command_key + 'summonquest ') and util_due.is_admin(message.author.id):
@@ -1501,20 +1512,45 @@ def loadImageFromURL(url):
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);
     if(valid_bg(bg_to_test)):
-        await client.send_message(channel,":thumbsup: **That looks good to me!**");
+        await client.send_message(channel,":thumbsup: **That looks good to me!**\nP.s. I can't check for low quality images!");
     elif (bg_to_test != None):
         width, height = bg_to_test.size;
         await client.send_message(channel,":thumbsdown: **That does not meet the requirements!**\nThe tested image had the dimensions ``"+str(width)+"*"+str(height)+"``!\nIt should be ``256*299``!");
     else:
         await client.send_message(channel,":thinking: Are you sure that 'background' is an image?");
         
-async def upload_bg(url,name):
-    #name = re.sub(r'\W+', '', name).replace();;
+async def upload_bg(channel,url,name):
     bg = loadImageFromURL(url);
+    if bg == None:
+      await client.send_message(channel,":interrobang: **I can't resolve that url to an image!**");
+      return;
+    if not all(char.isalpha() or char.isspace() for char in name):
+        await client.send_message(channel,":interrobang: **Background names can't have any special characters!**");
+        return;
+    name = re.sub(' +','_',name.lower().strip());
     if(valid_bg(bg)):
-        bg.save('backgrounds/');
+        if not os.path.isfile('backgrounds/'+name+".png"):
+            bg.save('backgrounds/'+name+".png");
+            loadBackgrounds();
+            await client.send_message(channel,":sparkles: **"+name.strip().title().replace('_',' ')+"** is now a DueUtil background!");
+        else:
+            await client.send_message(channel,":interrobang: **A background of that name already exists!**");
     else:
-        await client.send_message(message.channel,":interrobang: **That background is not vaild!**");
+        await client.send_message(channel,":interrobang: **That background is not vaild!**\nPlease test the background before accepting!");
+        
+async def delete_bg(channel,name):
+     background_name = name.strip().title();
+     if(background_name == 'Default'):
+        await client.send_message(channel,":interrobang: **Don't delete the default!**\n...It'd break me & my heart.");
+        return;
+     if(background_name in Backgrounds.keys()):
+        file_name = re.sub(' +','_',name.lower().strip())+".png";
+        os.remove("backgrounds/"+file_name);
+        loadBackgrounds();
+        await client.send_message(channel,":white_check_mark: **"+background_name+"** background deleted :wave:.\nIf this background was not one you accepted there will be questions.");
+     else:
+        await client.send_message(channel,":interrobang: **I can't find a background with that name to delete!**");
+
         
 def valid_bg(bg_to_test):
     if(bg_to_test != None):
@@ -1745,8 +1781,10 @@ async def displayStatsImage(player, q, message):
     strg = round(player.strg, 2);
     shooting = round(player.shooting, 2)
     name = util_due.clear_markdown_escapes(player.name);
-
-    img = Image.open("backgrounds/" + player.background);
+    try:
+        img = Image.open("backgrounds/" + player.background);
+    except:
+        img = Image.open("backgrounds/default.png");
     screen = Image.open("screens/stats_page.png");    
     draw = ImageDraw.Draw(img);
     img.paste(screen,(0,0),screen)
