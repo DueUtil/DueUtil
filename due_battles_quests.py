@@ -921,6 +921,11 @@ async def battle_quest_on_message(message):
         if(len(args) < 2):
             await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
         await delete_bg(message.channel,args[1]);
+    elif message.content.lower().startswith(command_key+'viewbg '):
+        args = re.sub(' +',' ',message.content.strip()).split(' ',1);
+        if(len(args) < 2):
+            await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
+        await view_bg(message.channel,args[1]);
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
     elif message.content.lower().startswith(command_key + 'summonquest ') and util_due.is_admin(message.author.id):
@@ -1302,6 +1307,14 @@ def resize_image_url(url, w, h):
         return None;
     img = img.resize((w, h), Image.ANTIALIAS);
     return img;
+    
+def rescale_image(path, scale):    
+    img = Image.open(path);
+    width, height = img.size;
+    if(img == None):
+        return None;
+    img = img.resize((int(width*scale), int(height*scale)), Image.ANTIALIAS);
+    return img;
 
 async def level_up_image(message, player, cash):
     global images_served;
@@ -1544,14 +1557,23 @@ async def delete_bg(channel,name):
         await client.send_message(channel,":interrobang: **Don't delete the default!**\n...It'd break me & my heart.");
         return;
      if(background_name in Backgrounds.keys()):
-        file_name = re.sub(' +','_',name.lower().strip())+".png";
-        os.remove("backgrounds/"+file_name);
+        os.remove("backgrounds/"+Backgrounds[background_name]);
         loadBackgrounds();
         await client.send_message(channel,":white_check_mark: **"+background_name+"** background deleted :wave:.\nIf this background was not one you accepted there will be questions.");
      else:
         await client.send_message(channel,":interrobang: **I can't find a background with that name to delete!**");
 
-        
+async def view_bg(channel,name):
+    background_name = name.strip().title();
+    if(background_name in Backgrounds.keys()):
+        img = rescale_image('backgrounds/'+Backgrounds[background_name],0.4);
+        output = BytesIO()
+        img.save(output,format="PNG")
+        output.seek(0);
+        await client.send_file(channel,fp=output,filename=Backgrounds[background_name],content=":frame_photo: Here is the background: **"+background_name+"**!");
+    else:
+        await client.send_message(channel,":bangbang: **I can't find a background with that name!**");        
+
 def valid_bg(bg_to_test):
     if(bg_to_test != None):
         width, height = bg_to_test.size;
