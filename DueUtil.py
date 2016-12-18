@@ -55,12 +55,12 @@ async def sudo_command(key,message):
         await client.send_message(message.channel, ":bangbang: **sudo failed!**");
 
 async def change_avatar(channel,avatar_name):
-    #try:
+    try:
         avatar = open("avatars/"+avatar_name.strip(),"rb");
         avatar_object = avatar.read();
         await client.edit_profile(avatar=avatar_object);
         await client.send_message(channel, ":white_check_mark: Avatar now **"+avatar_name+"**!");
-    #except:
+    except:
         await client.send_message(channel, ":bangbang: **Avatar change failed!**");
         
 @client.event
