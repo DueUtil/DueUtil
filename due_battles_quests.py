@@ -1521,6 +1521,20 @@ def loadImageFromURL(url):
             if(os.path.isfile(fname)):
                 os.remove(fname);
             return None;
+
+def loadImageFromURL_raw(url):
+    try:
+        response = requests.get(url, timeout=10)
+        if 'image' not in response.headers.get('content-type'):
+            return None;
+        image_file = io.BytesIO(response.content);
+        img = Image.open(image_file);
+        return img;
+        del response
+    except:
+        if(os.path.isfile(fname)):
+            os.remove(fname);
+        return None;
             
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);
@@ -1533,7 +1547,7 @@ async def does_bg_pass(channel,url):
         await client.send_message(channel,":thinking: Are you sure that 'background' is an image?");
         
 async def upload_bg(channel,url,name):
-    bg = loadImageFromURL(url);
+    bg = loadImageFromURL_raw(url);
     if bg == None:
       await client.send_message(channel,":interrobang: **I can't resolve that url to an image!**");
       return;
