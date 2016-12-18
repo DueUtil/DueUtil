@@ -58,6 +58,7 @@ async def sudo_command(key,message):
 async def on_server_join(server):
     data = {"key":"macdue0a873a71hjd673o1","servercount":str(len(client.servers))};
     requests.post("https://www.carbonitex.net/discord/data/botdata.php",data=data);
+    print("Joined server");
 
 @client.event
 async def on_message(message):
