@@ -919,6 +919,9 @@ async def battle_quest_on_message(message):
           player = findPlayer(message.raw_mentions[0]);
           if(player != None):
               await give_award(message, player, 23, "Background accepted!");
+          else:
+              await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
+              return True;
         await upload_bg(message.channel,args[1],args[2]);
     elif message.content.lower().startswith(command_key+'deletebg ') and util_due.is_mod_or_admin(message.author.id):
         args = re.sub(' +',' ',message.content.strip()).split(' ',1);
@@ -1222,7 +1225,7 @@ def load_awards():
     load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
     load_award("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
     load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
-    load_award("awards/bg_accepted.png","Background accepted!\Get a background submission accepted");#23
+    load_award("awards/bg_accepted.png","Background accepted!\nGet a background submission accepted");#23
     load_award("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
     
 def load_award(icon_path,name):
