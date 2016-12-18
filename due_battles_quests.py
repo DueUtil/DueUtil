@@ -1222,7 +1222,7 @@ def load_awards():
     load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
     load_award("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
     load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
-    load_award("awards/bg_accepted.png","Background accepted!\nHave a background submission accepted");#23
+    load_award("awards/bg_accepted.png","Background accepted!\Get a background submission accepted");#23
     load_award("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
     
 def load_award(icon_path,name):
