@@ -45,7 +45,6 @@ players_leveled=0;
 new_players_joined=0;
 quests_given=0;
 
-
 class weapon_class:
         price = 0;
         server = "all";
@@ -912,9 +911,14 @@ async def battle_quest_on_message(message):
     elif message.content.lower().startswith(command_key + 'testbg ') and util_due.is_mod_or_admin(message.author.id):
         await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
     elif message.content.lower().startswith(command_key + 'uploadbg ') and util_due.is_mod_or_admin(message.author.id):
-        args = re.sub(' +',' ',message.content.strip()).split(' ',2);
+        args = re.sub(' +',' ',util_due.clearmentions(message.content).strip()).split(' ',2);
         if(len(args) < 3):
             await client.send_message(message.channel, ":bangbang: **A background has no name!**");
+            return True;
+        if(len(message.raw_mentions) > 0):
+          player = findPlayer(message.raw_mentions[0]);
+          if(player != None):
+              await give_award(message, player, 23, "Background accepted!");
         await upload_bg(message.channel,args[1],args[2]);
     elif message.content.lower().startswith(command_key+'deletebg ') and util_due.is_mod_or_admin(message.author.id):
         args = re.sub(' +',' ',message.content.strip()).split(' ',1);
@@ -1218,6 +1222,8 @@ def load_awards():
     load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
     load_award("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
     load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
+    load_award("awards/bg_accepted.png","Background accepted!\nHave a background submission accepted");#23
+    load_award("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
     
 def load_award(icon_path,name):
     global AwardsIcons;
