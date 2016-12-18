@@ -53,6 +53,15 @@ async def sudo_command(key,message):
         del message.raw_mentions[0];
     except:
         await client.send_message(message.channel, ":bangbang: **sudo failed!**");
+
+async def change_avatar(channel,avatar_name):
+    #try:
+        avatar = open("avatars/"+avatar_name.strip(),"rb");
+        avatar_object = avatar.read();
+        await client.edit_profile(avatar=avatar_object);
+        await client.send_message(channel, ":white_check_mark: Avatar now **"+avatar_name+"**!");
+    #except:
+        await client.send_message(channel, ":bangbang: **Avatar change failed!**");
         
 @client.event
 async def on_server_join(server):
@@ -157,6 +166,8 @@ async def on_message(message):
             await client.close()
             client.loop._default_executor.shutdown(wait=True);
             sys.exit(0);
+        elif message.content.lower().startswith(command_key+'changeavatar ') and util_due.is_admin(message.author.id):
+             await change_avatar(message.channel,message.content[13:]);
         elif(await due_battles_quests.battle_quest_on_message(message)):
            return;
         elif message.content.lower().startswith(command_key+'dustats'):
