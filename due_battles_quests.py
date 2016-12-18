@@ -1587,9 +1587,9 @@ async def delete_bg(channel,name):
         await client.send_message(channel,":interrobang: **I can't find a background with that name to delete!**");
 
 async def view_bg(channel,name):
-    await client.send_typing(channel);
     background_name = name.strip().title();
     if(background_name in Backgrounds.keys()):
+        await client.send_typing(channel);
         img = rescale_image('backgrounds/'+Backgrounds[background_name],0.4);
         output = BytesIO()
         img.save(output,format="PNG")
