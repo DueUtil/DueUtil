@@ -155,17 +155,17 @@ def defineWeapons():
     Gun.image_url = "http://i.imgur.com/XWPPWtA.png";
     Gun.wID = "000000000000000000_gun";
     Weapons[Gun.wID]=Gun;
-    Frisby = weapon_class();
-    Frisby.price = 20;
-    Frisby.icon = "🌕";
-    Frisby.attack = 7;
-    Frisby.useText = "throws their frisby at";
-    Frisby.name = "Frisby"
-    Frisby.chance = 12.5;
-    Frisby.melee = False;
-    Frisby.image_url = "http://i.imgur.com/tv4Kloz.png";
-    Frisby.wID = "000000000000000000_frisby";
-    Weapons[Frisby.wID] = Frisby;
+    Frisbee = weapon_class();
+    Frisbee.price = 20;
+    Frisbee.icon = "🌕";
+    Frisbee.attack = 7;
+    Frisbee.useText = "throws their frisbee at";
+    Frisbee.name = "Frisbee"
+    Frisbee.chance = 12.5;
+    Frisbee.melee = False;
+    Frisbee.image_url = "http://i.imgur.com/tv4Kloz.png";
+    Frisbee.wID = "000000000000000000_frisbee";
+    Weapons[Frisbee.wID] = Frisbee;
     LaserGun = weapon_class();
     LaserGun.price = 10000;
     LaserGun.icon = "🔦";
@@ -192,7 +192,7 @@ def defineWeapons():
     print("Weapons loaded");
     
 def get_weapon_for_server(server_id,weapon_name):
-    if(weapon_name.lower() in ["stick","laser gun","gun","none","frisby"]):
+    if(weapon_name.lower() in ["stick","laser gun","gun","none","frisbee"]):
         return Weapons["000000000000000000_"+weapon_name.lower()];
     else:
         weapID = server_id+"_"+weapon_name.lower();
@@ -1600,7 +1600,7 @@ async def view_bg(channel,name):
 
 def valid_bg(bg_to_test):
     if(bg_to_test != None):
-        width, height = bg_to_test.size;
+        width, height = bg_to_test.size; 
         if(width == 256 and height == 299):
             return True;
     return False;
