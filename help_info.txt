@@ -4,7 +4,7 @@ Command key on **[SERVER]** :point_right: **[CMD_KEY]**
 Type **[CMD_KEY]help anyone** here for commands eveyone can use!
 Type **[CMD_KEY]help admins** here for commands for server managers.
 
-Join **https://discord.gg/ZzYvt8J** if you're into ghost towns.
+Join **discord.gg/ZzYvt8J** if you're into ghost towns.
 Add me to your server using :point_down: 
 **https://discordapp.com/oauth2/authorize?access_type=online&client_id=173391673634717696&scope=bot&permissions=52224**
 
