@@ -8,7 +8,7 @@ Join **https://discord.gg/ZzYvt8J** if you're into ghost towns.
 Add me to your server using :point_down: 
 **https://discordapp.com/oauth2/authorize?access_type=online&client_id=173391673634717696&scope=bot&permissions=52224**
 
-If you're still stuck check out http://dueutil.weebly.com/ for a great guide from **MrAwais#8931**.
+If you're still stuck check out **http://dueutil.weebly.com/** for a great guide from **MrAwais#8931**.
 
 This bot was created by **MacDue#4453** if you have any questions, comments or concerns feel free to message me.
 
