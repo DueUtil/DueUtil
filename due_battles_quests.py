@@ -26,16 +26,19 @@ loaded = False;
 Players = dict();
 AwardsIcons = [];
 AwardsNames = [];
+Banners = dict();
 ServersQuests = dict();
 Weapons = dict();
 Backgrounds = dict();
 client = None;
+postive_bools = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
 no_weapon_id = "000000000000000000_none";
 font = ImageFont.truetype("Due_Robo.ttf", 12);
 font_big = ImageFont.truetype("Due_Robo.ttf", 18);
 font_med = ImageFont.truetype("Due_Robo.ttf", 14);
 font_small = ImageFont.truetype("Due_Robo.ttf", 11);
 font_epic = ImageFont.truetype("benfont.ttf", 12);
+info_avatar = Image.open("screens/info_avatar.png");
 #Due Stats
 images_served =0;
 money_created = 0;
@@ -45,6 +48,16 @@ players_leveled=0;
 new_players_joined=0;
 quests_given=0;
 
+class player_info_banner:
+        price = 0;
+        donor = False;
+        banner_image_name = "info_banner.png";
+        name = "";
+        admin_only = False;
+        mod_only = False;
+        unlock_level = 0;
+        image = None;
+        
 class weapon_class:
         price = 0;
         server = "all";
@@ -82,7 +95,7 @@ class quest_class:
 class battleRequest:
         senderID = "";
         wager = 0;
-        
+    
 class player:
     userid = "";
     benfont = False;
@@ -90,7 +103,9 @@ class player:
     attack = 1;
     strg = 1;
     shooting = 1;
+    banner_id = "discord blue";
     hp = 10;
+    donor = False;
     background = "default.png";
     wep_sum = '"0"01'#price/attack/sum;
     name = "";
@@ -113,7 +128,13 @@ class player:
    
 class activeQuest(player):
         qID = "";
-
+        
+def add_default_banner():
+    global Banners
+    discord_blue_banner = player_info_banner();
+    discord_blue_banner.name = "Discord Blue";
+    Banners["discord blue"] = discord_blue_banner;
+    
 def addQuests(server_id):
     global ServersQuests;
     slime = quest_class();
@@ -481,7 +502,7 @@ async def battle_quest_on_message(message):
                      wep.image_url = Strs[6];
                      wep.server = message.server.id;
                      wep.wID = message.server.id+"_"+wep.name.lower();
-                     if Strs[5].lower() in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']:
+                     if Strs[5].lower() in postive_bools:
                          wep.melee = True;
                      else:
                          wep.melee = False;
@@ -783,32 +804,11 @@ async def battle_quest_on_message(message):
             savePlayer(player)
         else:
             await client.send_message(message.channel, ":bangbang: **That background does not exist!**\nDo **" + command_key + "listbgs** for a full list of the current backgrounds!"); 
+    elif message.content.lower().startswith(command_key + 'setbanner '):
+        await set_banner(message.channel,command_key,findPlayer(message.author.id),message.content.lower().replace(command_key + 'setbanner ',""));
     elif message.content.lower() == command_key + 'listbgs' or  message.content.lower().startswith(command_key + 'listbgs '):
         bglist = list(Backgrounds.keys());
-        page = 0;
-        end_cmd = message.content.lower().replace(command_key + 'listbgs', "");
-        if(len(end_cmd.replace(" ", "")) > 0):
-            try:
-                page = int(end_cmd) - 1;
-            except:
-                await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
-                return;
-        if(page == 0):
-            bgs = "```Available Backgrounds\n";
-        else:
-            bgs = "```Available Backgrounds: Page " + str(page + 1) + "\n";
-        if(page * 10 > len(bglist) - 1):
-            await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
-            return;
-        for x in range(page * 10, page * 10 + 10):
-            if(x < len(bglist)):
-                bgs = bgs + str(x + 1) + ". " + bglist[x] + "\n";
-            else:
-                break;
-        if(x < len(bglist) - 1):
-            bgs = bgs + "Do " + command_key + "listbgs " + str(page + 2) + " to see more.";
-        bgs = bgs + "```";
-        await client.send_message(message.channel, bgs);    
+        await util_due.simple_paged_list(message,command_key,"listbgs",bglist,"Available backgrounds");
     elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util_due.is_mod_or_admin(message.author.id))):
         loadBackgrounds();
         await client.send_message(message.channel, "Custom backgrounds reloaded.");   
@@ -933,8 +933,29 @@ async def battle_quest_on_message(message):
         if(len(args) < 2):
             await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
         await view_bg(message.channel,args[1]);
+    elif message.content.lower().startswith(command_key + "setdonor ") and util_due.is_mod_or_admin(message.author.id):
+        if len(message.raw_mentions) == 1:
+            player = findPlayer(message.raw_mentions[0]);
+            if player != None:
+                player.donor = not player.donor;
+                savePlayer(player);
+                #award and remove donor banner if not donor
+                if(player.donor):
+                    await client.send_message(message.channel, "**"+player.name+"** now has the donor rank!");
+                else:
+                    await client.send_message(message.channel, "**"+player.name+"** no longer has the donor rank.");
+            else:
+                await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
+        else:
+            await client.send_message(message.channel, ":bangbang: **Just mention one player!**");
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
+    elif message.content.lower().startswith(command_key + "mybanners"):
+      await show_banners_for_player(message,findPlayer(message.author.id));
+    elif message.content.lower().startswith(command_key + "createbanner") and util_due.is_admin(message.author.id):
+        await create_banner(message);
+    elif message.content.lower().startswith(command_key + "deletebanner") and util_due.is_admin(message.author.id):
+        await remove_banner(message.channel,message.content.lower().replace(command_key + "deletebanner","").strip());
     elif message.content.lower().startswith(command_key + 'summonquest ') and util_due.is_admin(message.author.id):
         if(len(message.raw_mentions) == 1):
           player = findPlayer(message.raw_mentions[0]);
@@ -991,6 +1012,39 @@ async def buy_weapon(message,command_key):
         await client.send_message(message.channel, "Weapon not found!"); 
 
    
+async def create_banner(message):
+    global Banners;
+    args = util_due.get_strings(message.content);
+    try:
+        name = args[0];
+        url = args[1];
+        donor = args[2] in postive_bools;
+        admin = args[3] in postive_bools;
+        mod = args[4] in postive_bools;
+        banner = player_info_banner();
+        image_name = upload_banner(url,name);
+        if(image_name == None):
+            await client.send_message(message.channel, "Banner creation failed!");
+            return;
+        banner.donor = donor;
+        banner.banner_image_name = image_name;
+        banner.name = name;
+        banner.admin_only = admin;
+        banner.mod_only = mod;
+        Banners[re.sub(' +',' ',name.lower().strip()).lower().strip()] = banner;
+        saveBanner(banner);
+        reload_banners();
+        await client.send_message(message.channel, "Banner created!");
+    except:
+        await client.send_message(message.channel, "Banner creation failed!");
+        
+async def remove_banner(channel,name):
+    if(delete_banner(name)):
+        await client.send_message(channel, "Banner deleted!");
+        reload_banners();
+    else:
+        await client.send_message(channel, "Delete banner failed!");
+
 def hasNumbers(text):
    return any(char.isdigit() for char in text)
 
@@ -1051,6 +1105,28 @@ async def equip_weapon(message,player,wname):
     else:
         await client.send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
         
+async def show_banners_for_player(message,player):
+    await util_due.simple_paged_list(message,util_due.get_server_cmd_key(message.server),"mybanners",get_banner_list_for_player(player).splitlines(),player.name+"'s banners");
+
+def get_banner_list_for_player(player):
+    banner_list ="";
+    for key, banner in Banners.items():
+        if (not banner.donor or banner.donor == player.donor):
+            banner_list += banner.name + "\n"; 
+    return banner_list;
+        
+async def set_banner(channel,command_key,player,banner_name):
+    banner_name = banner_name.lower().strip();
+    if(banner_name in Banners.keys() and (not Banners[banner_name].donor or Banners[banner_name].donor == player.donor) and banner_restricted(Banners[banner_name],player)):
+        player.banner_id = banner_name;
+        await client.send_message(channel, "Your personal banner has been set to **" + Banners[banner_name].name + "**!"); 
+        savePlayer(player)
+    else:
+        await client.send_message(channel, ":bangbang: **That's not a banner you have access to! **\nDo **" + command_key + "mybanners** to see the banners you have!"); 
+  
+def banner_restricted(banner,player):
+    return (not banner.admin_only or banner.admin_only == util_due.is_admin(player.userid)) or (not banner.mod_only or banner.mod_only == util_due.is_mod_or_admin(player.userid));
+    
 async def validate_weapon_store(message,player):
     weapon_sums = [];
     for ws in player.owned_weps:
@@ -1157,6 +1233,11 @@ async def show_weapons(message,player,not_theirs):
         else:
             output = output + "```";
     await client.send_message(message.channel, output);
+    
+def reload_banners():
+    add_default_banner();
+    loadBanners();
+    load_banner_images();
      
 def load(discord_client):
     global Weapons;
@@ -1167,7 +1248,11 @@ def load(discord_client):
     loadWeapons();
     loadPlayers();
     print(str(len(Players)) + " player(s) loaded.")
-    defineWeapons();
+    defineWeapons();  
+    add_default_banner();
+    loadBanners();
+    load_banner_images();
+    print(str(len(Banners)) + " banners(s) loaded.")
     loadQuests();
     print(str(len(ServersQuests)) + " server(s) with quests loaded.")
     print(str(len(Weapons)) + " weapon(s) loaded.")
@@ -1547,7 +1632,7 @@ def loadImageFromURL_raw(url):
             
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);
-    if(valid_bg(bg_to_test)):
+    if(valid_image(bg_to_test,(256,299))):
         await client.send_message(channel,":thumbsup: **That looks good to me!**\nP.s. I can't check for low quality images!");
     elif (bg_to_test != None):
         width, height = bg_to_test.size;
@@ -1558,13 +1643,13 @@ async def does_bg_pass(channel,url):
 async def upload_bg(channel,url,name):
     bg = loadImageFromURL_raw(url);
     if bg == None:
-      await client.send_message(channel,":interrobang: **I can't resolve that url to an image!**");
-      return;
+        await client.send_message(channel,":interrobang: **I can't resolve that url to an image!**");
+        return;
     if not all(char.isalpha() or char.isspace() for char in name):
         await client.send_message(channel,":interrobang: **Background names can't have any special characters!**");
         return;
     name = re.sub(' +','_',name.lower().strip());
-    if(valid_bg(bg)):
+    if(valid_image(bg,(256,299))):
         if not os.path.isfile('backgrounds/'+name+".png"):
             bg.save('backgrounds/'+name+".png");
             loadBackgrounds();
@@ -1574,6 +1659,31 @@ async def upload_bg(channel,url,name):
     else:
         await client.send_message(channel,":interrobang: **That background is not vaild!**\nPlease test the background before accepting!");
         
+def upload_banner(url,name):
+    banner = loadImageFromURL_raw(url);
+    if banner == None:
+        return None;
+    if not all(char.isalpha() or char.isspace() for char in name):
+        return None;
+    name = re.sub(' +','_',name.lower().strip());
+    if(valid_image(banner,(155,51))):
+        banner.save('screens/info_banners/'+name+".png");
+        return name+".png";
+    return None;
+    
+def delete_banner(name):
+     global Banners;
+     banner_name = name.strip().lower();
+     if(banner_name == 'discord blue'):
+        return False;
+     if(banner_name in Banners.keys()):
+        os.remove('screens/info_banners/'+Banners[banner_name].banner_image_name);
+        os.remove('screens/info_banners/'+banner_name.replace(" ","_")+".json");
+        del Banners[banner_name];
+        return True;
+     else:
+        return False;
+    
 async def delete_bg(channel,name):
      background_name = name.strip().title();
      if(background_name == 'Default'):
@@ -1598,10 +1708,10 @@ async def view_bg(channel,name):
     else:
         await client.send_message(channel,":bangbang: **I can't find a background with that name!**");        
 
-def valid_bg(bg_to_test):
+def valid_image(bg_to_test,dimensions):
     if(bg_to_test != None):
         width, height = bg_to_test.size; 
-        if(width == 256 and height == 299):
+        if(width == dimensions[0] and height == dimensions[1]):
             return True;
     return False;
                     
@@ -1632,7 +1742,18 @@ def loadPlayers():
                     Players[p.userid] = p;
                 except:
                     print("Failed to load player data!");
-       
+  
+def loadBanners():
+    global Banners;
+    for file in os.listdir("screens/info_banners/"):
+        if file.endswith(".json"):
+            with open("screens/info_banners/" + str(file)) as data_file:    
+                try:
+                    data = json.load(data_file);
+                    banner = jsonpickle.decode(data);
+                    Banners[banner.name.lower()] = banner;
+                except:
+                    print("Failed to load banner data!");
                 
 def get_sus_list():
     global Players;
@@ -1738,6 +1859,12 @@ def savePlayer(player):
     with open("saves/players/" + player.userid + ".json", 'w') as outfile:
         json.dump(data, outfile);
         
+def saveBanner(banner):
+    # data = ba.dumps(player, default=lambda o: o.__dict__);
+    data = jsonpickle.encode(banner);
+    with open("screens/info_banners/" + banner.name.lower().replace(" ","_")+ ".json", 'w') as outfile:
+        json.dump(data, outfile);
+        
 def saveQuest(quest):
     # data = json.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(quest);
@@ -1801,7 +1928,24 @@ def get_text_limit_len(draw,text,given_font,length):
                     return text[:-3] + "..."
             return text;
             
+#def load_banner():
 
+def load_image_and_set_opacity(image_path,opacity_level):
+    opacity_level = int(255*opacity_level) # Opaque is 255, input between 0-255
+    image = Image.open(image_path).convert('RGBA')
+    pixeldata = list(image.getdata())
+    for i,pixel in enumerate(pixeldata):
+        pixeldata[i] = pixel[:3] +(opacity_level,);
+    image.putdata(pixeldata)
+    return image
+        
+def load_banner_images():
+    global Banners;
+    for key, banner in Banners.items():
+        banner.image = load_image_and_set_opacity("screens/info_banners/"+banner.banner_image_name,0.9);
+        
+def get_player_banner(player):
+    return Banners.get(player.banner_id,Banners["discord blue"]).image;
             
 async def displayStatsImage(player, q, message):
     global images_served;
@@ -1831,16 +1975,27 @@ async def displayStatsImage(player, q, message):
         img = Image.open("backgrounds/" + player.background);
     except:
         img = Image.open("backgrounds/default.png");
-    screen = Image.open("screens/stats_page.png");    
+        
+    screen = Image.open("screens/info_screen.png");   
+    
     draw = ImageDraw.Draw(img);
     img.paste(screen,(0,0),screen)
+    
+    #draw_banner
+    player_banner = get_player_banner(player);
+    
+    img.paste(player_banner,(91,34),player_banner);
+    
+    #draw_avatar slot
+    img.paste(info_avatar,(3,6),info_avatar);
+     
     if(player.benfont):
         name=get_text_limit_len(draw,filter_func(name.replace(u"\u2026","...")),font_epic,149)
         draw.text((96, 42),name, getRankColour(int(level / 10) + 1), font=font_epic)
     else:
         name=get_text_limit_len(draw,name,font,149)
         draw.text((96, 42), name, getRankColour(int(level / 10) + 1), font=font)
-    draw.text((142, 62), " " + str(level), (255, 255, 255), font=font_big)
+    draw.text((96, 62), "LEVEL " + str(level), (255, 255, 255), font=font_big)
     # Fill data
     width = draw.textsize(str(attk), font=font)[0]
     draw.text((241 - width, 122), str(attk), (255, 255, 255), font=font)

@@ -103,12 +103,41 @@ def get_server_name_S(server,id):
     except:
         return "Unknown User"
     
+async def simple_paged_list(message,command_key,command_name,item_list,title):
+    page = 0;
+    end_cmd = message.content.lower().replace(command_key + command_name, "");
+    if(len(end_cmd.replace(" ", "")) > 0):
+        try:
+            page = int(end_cmd) - 1;
+        except:
+            await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
+            return;
+    if(page < 0):
+        await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
+        return;
+    if(page == 0):
+        text_list = "```Markdown\n"+title+"\n";
+    else:
+        text_list = "```"+title+": Page " + str(page + 1) + "\n";
+    if(page * 10 > len(item_list) - 1):
+        await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
+        return;
+    for x in range(page * 10, page * 10 + 10):
+        if(x < len(item_list)):
+            text_list += str(x + 1) + ". " + item_list[x] + "\n";
+        else:
+            break;
+    if(x < len(item_list) - 1):
+        text_list += "Do " + command_key + command_name + " " + str(page + 2) + " to see more.";
+    text_list += "```";
+    await client.send_message(message.channel, text_list);   
+       
 def get_page_with_replace(data,page,key,server):
-    output ='```';
+    output ='```Markdown\n';
     test = output;
     if(not isinstance(data, list)):
         if(len(data)+6 < 2000):
-            return ['```'+data+'```',False]
+            return ['```Markdown\n'+data+'```',False]
         data = data.splitlines();
     #for x in range (0,page):
         #test = test + '``````'
