@@ -29,6 +29,8 @@
 [CMD_KEY]wagerbattle [@User] [Money] ~ Sends a battle wager to a user.
 [CMD_KEY]setbg [Background Name]~ Changes your info/profile screen background.
 [CMD_KEY]listbgs [Page Number]/Nothing ~ Lists the available backgrounds.
+[CMD_KEY]mybanners [Page Number]/Nothing ~ Lists all the banners you have access to.
+[CMD_KEY]setbanner [Banner Name] ~ Sets your profile banner.
 [CMD_KEY]myrank ~ Displays your rank in the current server.
 [CMD_KEY]rank [@User] ~ Displays a users rank in the current server.
 [CMD_KEY]sendcash [@User] [Amount] [Note (Optional)]~ Transfers cash between two players.
