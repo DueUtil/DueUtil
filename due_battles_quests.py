@@ -942,8 +942,10 @@ async def battle_quest_on_message(message):
                 #award and remove donor banner if not donor
                 if(player.donor):
                     await client.send_message(message.channel, "**"+player.name+"** now has the donor rank!");
+                    await give_award(message,player,25,"All MacDue Ever Wanted!!");
                 else:
                     await client.send_message(message.channel, "**"+player.name+"** no longer has the donor rank.");
+                    del player.awards[player.awards.index(25)];
             else:
                 await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
         else:
@@ -1024,7 +1026,7 @@ async def create_banner(message):
         banner = player_info_banner();
         image_name = upload_banner(url,name);
         if(image_name == None):
-            await client.send_message(message.channel, "Banner creation failed!");
+            await client.send_message(message.channel, ":interrobang: **Banner creation failed!**");
             return;
         banner.donor = donor;
         banner.banner_image_name = image_name;
@@ -1034,16 +1036,16 @@ async def create_banner(message):
         Banners[re.sub(' +',' ',name.lower().strip()).lower().strip()] = banner;
         saveBanner(banner);
         reload_banners();
-        await client.send_message(message.channel, "Banner created!");
+        await client.send_message(message.channel, ":white_check_mark: **"+name+"** is now a DueUtil banner!");
     except:
-        await client.send_message(message.channel, "Banner creation failed!");
+        await client.send_message(message.channel, ":interrobang: **Banner creation failed!**");
         
 async def remove_banner(channel,name):
     if(delete_banner(name)):
-        await client.send_message(channel, "Banner deleted!");
+        await client.send_message(channel, ":wastebasket: **Banner deleted!**");
         reload_banners();
     else:
-        await client.send_message(channel, "Delete banner failed!");
+        await client.send_message(channel, ":interrobang: **Banner not deleted!**\nAre you sure that you used the right name?");
 
 def hasNumbers(text):
    return any(char.isdigit() for char in text)
@@ -1111,21 +1113,24 @@ async def show_banners_for_player(message,player):
 def get_banner_list_for_player(player):
     banner_list ="";
     for key, banner in Banners.items():
-        if (not banner.donor or banner.donor == player.donor):
+        if can_use_banner(banner,player):
             banner_list += banner.name + "\n"; 
     return banner_list;
         
 async def set_banner(channel,command_key,player,banner_name):
     banner_name = banner_name.lower().strip();
-    if(banner_name in Banners.keys() and (not Banners[banner_name].donor or Banners[banner_name].donor == player.donor) and banner_restricted(Banners[banner_name],player)):
+    if(banner_name in Banners.keys() and can_use_banner(Banners[banner_name],player)):
         player.banner_id = banner_name;
         await client.send_message(channel, "Your personal banner has been set to **" + Banners[banner_name].name + "**!"); 
         savePlayer(player)
     else:
         await client.send_message(channel, ":bangbang: **That's not a banner you have access to! **\nDo **" + command_key + "mybanners** to see the banners you have!"); 
   
+def can_use_banner(banner,player):
+    return (not banner.donor or banner.donor == player.donor) and banner_restricted(banner,player);
+    
 def banner_restricted(banner,player):
-    return (not banner.admin_only or banner.admin_only == util_due.is_admin(player.userid)) or (not banner.mod_only or banner.mod_only == util_due.is_mod_or_admin(player.userid));
+    return (not banner.admin_only or banner.admin_only == util_due.is_admin(player.userid)) and (not banner.mod_only or banner.mod_only == util_due.is_mod_or_admin(player.userid));
     
 async def validate_weapon_store(message,player):
     weapon_sums = [];
@@ -1312,6 +1317,7 @@ def load_awards():
     load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
     load_award("awards/bg_accepted.png","Background accepted!\nGet a background submission accepted");#23
     load_award("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
+    load_award("awards/donor_award.png","All MacDue Ever Wanted!\nDonate to DueUtil"); #25
     
 def load_award(icon_path,name):
     global AwardsIcons;
@@ -1666,6 +1672,8 @@ def upload_banner(url,name):
     if not all(char.isalpha() or char.isspace() for char in name):
         return None;
     name = re.sub(' +','_',name.lower().strip());
+    if os.path.isfile('screens/info_banners/'+name+".png"):
+        return None;
     if(valid_image(banner,(155,51))):
         banner.save('screens/info_banners/'+name+".png");
         return name+".png";
@@ -1945,7 +1953,11 @@ def load_banner_images():
         banner.image = load_image_and_set_opacity("screens/info_banners/"+banner.banner_image_name,0.9);
         
 def get_player_banner(player):
-    return Banners.get(player.banner_id,Banners["discord blue"]).image;
+    banner = Banners.get(player.banner_id,Banners["discord blue"]);
+    if(not can_use_banner(banner,player)):
+        player.banner_id = "discord blue";
+        return Banners["discord blue"].image;
+    return banner.image;
             
 async def displayStatsImage(player, q, message):
     global images_served;

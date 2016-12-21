@@ -133,11 +133,11 @@ async def simple_paged_list(message,command_key,command_name,item_list,title):
     await client.send_message(message.channel, text_list);   
        
 def get_page_with_replace(data,page,key,server):
-    output ='```Markdown\n';
+    output ='```\n';
     test = output;
     if(not isinstance(data, list)):
         if(len(data)+6 < 2000):
-            return ['```Markdown\n'+data+'```',False]
+            return ['```\n'+data+'```',False]
         data = data.splitlines();
     #for x in range (0,page):
         #test = test + '``````'
