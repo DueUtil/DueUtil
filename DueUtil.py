@@ -92,7 +92,6 @@ async def on_message(message):
             return;
         command_key = util_due.get_server_cmd_key(message.server);
     if not stopped:
-        await sudo_command(command_key,message);
         if(time.time() - last_backup > 3600):
             util_due.zipdir("saves/","autobackups/DueBackup"+str(time.time())+".zip");
             print("Auto backup!");
@@ -116,6 +115,7 @@ async def on_message(message):
                         command_key =server_info[3].strip();   
                         pri_server=server_info[1];  
                         break;
+        await sudo_command(command_key,message);
         if message.author == client.user:
             return
         elif(command_key != None and message.content.lower().startswith(command_key+'help')):
