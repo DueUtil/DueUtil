@@ -8,6 +8,7 @@ import urllib.parse as url1;
 import urllib;
 import requests;
 import time;
+import json;
 import configparser 
 
 last_backup = 0;
@@ -46,6 +47,8 @@ async def send_text_as_message(to,txt_name,key,message):
     await client.send_message(to,txt);   
     
 async def sudo_command(key,message):
+  if message.channel.is_private:
+      return;
   if(util_due.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
     try:
         message.author = message.server.get_member(message.raw_mentions[0]);
@@ -66,8 +69,9 @@ async def change_avatar(channel,avatar_name):
 @client.event
 async def on_server_join(server):
     data = {"key":"macdue0a873a71hjd673o1","servercount":str(len(client.servers))};
-    session = requests.Session();
-    session.post("https://www.carbonitex.net/discord/data/botdata.php",data=data);
+    request = url3.Request("https://www.carbonitex.net/discord/data/botdata.php");
+    request.add_header('Content-Type', 'application/json');
+    response = url3.urlopen(request, json.dumps(data).encode('ascii'));
     print("Joined server");
 
 @client.event
