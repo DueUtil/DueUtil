@@ -29,8 +29,10 @@
 [CMD_KEY]wagerbattle [@User] [Money] ~ Sends a battle wager to a user.
 [CMD_KEY]setbg [Background Name]~ Changes your info/profile screen background.
 [CMD_KEY]listbgs [Page Number]/Nothing ~ Lists the available backgrounds.
+[CMD_KEY]viewbg [BG name] ~ Shows a preview of a background.
 [CMD_KEY]mybanners [Page Number]/Nothing ~ Lists all the banners you have access to.
 [CMD_KEY]setbanner [Banner Name] ~ Sets your profile banner.
+[CMD_KEY]viewbanner [Banner name] ~ Shows a preview of a banner.
 [CMD_KEY]myrank ~ Displays your rank in the current server.
 [CMD_KEY]rank [@User] ~ Displays a users rank in the current server.
 [CMD_KEY]sendcash [@User] [Amount] [Note (Optional)]~ Transfers cash between two players.
@@ -41,4 +43,4 @@
 [CMD_KEY]awards [@User] [Page (Optional)] ~ Shows all a users awards.
 [CMD_KEY]dustats ~ Shows some stats about DueUtil.
 [CMD_KEY]mylimit ~ Shows the max weapon value you can own.
-[CMD_KEY]viewbg [BG name] ~ Shows a preview of a background.
+

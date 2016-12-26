@@ -116,9 +116,9 @@ async def simple_paged_list(message,command_key,command_name,item_list,title):
         await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
         return;
     if(page == 0):
-        text_list = "```Markdown\n"+title+"\n";
+        text_list = "```css\n["+title+"]\n";
     else:
-        text_list = "```"+title+": Page " + str(page + 1) + "\n";
+        text_list = "```css\n["+title+": Page " + str(page + 1) + "]\n";
     if(page * 10 > len(item_list) - 1):
         await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
         return;
@@ -128,7 +128,7 @@ async def simple_paged_list(message,command_key,command_name,item_list,title):
         else:
             break;
     if(x < len(item_list) - 1):
-        text_list += "Do " + command_key + command_name + " " + str(page + 2) + " to see more.";
+        text_list += "[Do " + command_key + command_name + " " + str(page + 2) + " to see more.]";
     text_list += "```";
     await client.send_message(message.channel, text_list);   
        

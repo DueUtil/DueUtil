@@ -933,6 +933,11 @@ async def battle_quest_on_message(message):
         if(len(args) < 2):
             await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
         await view_bg(message.channel,args[1]);
+    elif message.content.lower().startswith(command_key+'viewbanner '):
+        args = re.sub(' +',' ',message.content.strip()).split(' ',1);
+        if(len(args) < 2):
+            await client.send_message(message.channel, ":bangbang: **Enter a banner name!**");
+        await view_banner(message.channel,args[1]);
     elif message.content.lower().startswith(command_key + "setdonor ") and util_due.is_mod_or_admin(message.author.id):
         if len(message.raw_mentions) == 1:
             player = findPlayer(message.raw_mentions[0]);
@@ -1714,7 +1719,19 @@ async def view_bg(channel,name):
         output.seek(0);
         await client.send_file(channel,fp=output,filename=Backgrounds[background_name],content=":frame_photo: Here is the background: **"+background_name+"**!");
     else:
-        await client.send_message(channel,":bangbang: **I can't find a background with that name!**");        
+        await client.send_message(channel,":bangbang: **I can't find a background with that name!**");   
+        
+async def view_banner(channel,name):
+    banner_name = name.strip().lower();
+    if(banner_name in Banners.keys()):
+        await client.send_typing(channel);
+        img = rescale_image("screens/info_banners/"+Banners[banner_name].banner_image_name,0.7);
+        output = BytesIO()
+        img.save(output,format="PNG")
+        output.seek(0);
+        await client.send_file(channel,fp=output,filename="banner.png",content=":frame_photo: Here is the banner: **"+Banners[banner_name].name+"**!");
+    else:
+        await client.send_message(channel,":bangbang: **I can't find a banner with that name!**"); 
 
 def valid_image(bg_to_test,dimensions):
     if(bg_to_test != None):
