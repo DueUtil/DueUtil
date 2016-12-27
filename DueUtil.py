@@ -176,8 +176,8 @@ async def on_message(message):
         elif(await due_battles_quests.battle_quest_on_message(message)):
            return;
         elif message.content.lower().startswith(command_key+'dustats'):
-            stats = "```Since "+time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(start_time))+" I have\u2026\n";
-            stats += "Served "+util_due.number_format_text(due_battles_quests.images_served)+" image(s).\n";
+            stats = "```css\nSince "+time.strftime("[%Y-%m-%d %H:%M:%S]", time.gmtime(start_time))+" I have\u2026\n";
+            stats += "Served "+util_due.number_format_text(due_battles_quests.images_served)+" quest\battle image(s).\n";
             stats += "Created $"+util_due.number_format_text(due_battles_quests.money_created)+"\n";
             stats += "Transferred $"+util_due.number_format_text(due_battles_quests.money_transferred)+"\n";
             stats += "Given "+util_due.number_format_text(due_battles_quests.quests_given)+" new quest(s).\n";
