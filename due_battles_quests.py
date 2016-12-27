@@ -928,16 +928,22 @@ async def battle_quest_on_message(message):
         if(len(args) < 2):
             await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
         await delete_bg(message.channel,args[1]);
-    elif message.content.lower().startswith(command_key+'viewbg '):
-        args = re.sub(' +',' ',message.content.strip()).split(' ',1);
+    elif message.content.lower().startswith(command_key+'view'):
+        args = re.sub(' +',' ',message.content[5:].strip()).split(' ',1);
+        if(args[0] not in ['bg','banner']):
+            return True;
         if(len(args) < 2):
-            await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
-        await view_bg(message.channel,args[1]);
-    elif message.content.lower().startswith(command_key+'viewbanner '):
-        args = re.sub(' +',' ',message.content.strip()).split(' ',1);
-        if(len(args) < 2):
-            await client.send_message(message.channel, ":bangbang: **Enter a banner name!**");
-        await view_banner(message.channel,args[1]);
+            await client.send_message(message.channel, ":bangbang: **Enter a "+("background" if args[0] == "bg" else "banner")+" name!**");
+        sender = findPlayer(message.author.id);
+        if(time.time() - sender.last_image_request < 10):
+            await client.send_message(message.channel,":cold_sweat: Please don't break me!");
+            return True;
+        sender.last_image_request = time.time();
+        if(args[0] == 'bg'):
+            await view_bg(message.channel,args[1]);
+        else:
+            await view_banner(message.channel,args[1]); 
+        return True;
     elif message.content.lower().startswith(command_key + "setdonor ") and util_due.is_mod_or_admin(message.author.id):
         if len(message.raw_mentions) == 1:
             player = findPlayer(message.raw_mentions[0]);
@@ -1472,7 +1478,7 @@ async def awards_screen(message, player,page):
         await client.send_message(message.channel,":cold_sweat: Please don't break me!");
         return;
     sender.last_image_request = time.time();
-    player.last_image_request = time.time();
+    #player.last_image_request = time.time();
     await client.send_typing(message.channel);
     img = Image.open("screens/awards_screen.png"); 
     a_s = Image.open("screens/award_slot.png"); 
