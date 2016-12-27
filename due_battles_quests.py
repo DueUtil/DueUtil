@@ -934,11 +934,6 @@ async def battle_quest_on_message(message):
             return True;
         if(len(args) < 2):
             await client.send_message(message.channel, ":bangbang: **Enter a "+("background" if args[0] == "bg" else "banner")+" name!**");
-        sender = findPlayer(message.author.id);
-        if(time.time() - sender.last_image_request < 10):
-            await client.send_message(message.channel,":cold_sweat: Please don't break me!");
-            return True;
-        sender.last_image_request = time.time();
         if(args[0] == 'bg'):
             await view_bg(message.channel,args[1]);
         else:
