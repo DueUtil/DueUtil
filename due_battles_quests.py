@@ -918,7 +918,7 @@ async def battle_quest_on_message(message):
         if(len(message.raw_mentions) > 0):
           player = findPlayer(message.raw_mentions[0]);
           if(player != None):
-              await give_award(message, player, 23, "Background accepted!");
+              await give_award(message, player, 23, "Background Accepted!");
           else:
               await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
               return True;
@@ -1320,7 +1320,7 @@ def load_awards():
     load_award("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
     load_award("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
     load_award("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
-    load_award("awards/bg_accepted.png","Background accepted!\nGet a background submission accepted");#23
+    load_award("awards/bg_accepted.png","Background Accepted!\nGet a background submission accepted");#23
     load_award("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
     load_award("awards/donor_award.png","All MacDue Ever Wanted!\nDonate to DueUtil"); #25
     
