@@ -1,7 +1,7 @@
 **DueUtil's Help!**
 Command key on **[SERVER]** :point_right: **[CMD_KEY]**
 
-Type **[CMD_KEY]help anyone** here for commands eveyone can use!
+Type **[CMD_KEY]help anyone** here for commands everyone can use!
 Type **[CMD_KEY]help admins** here for commands for server managers.
 
 Join **https://discord.gg/ZzYvt8J** if you're into ghost towns.

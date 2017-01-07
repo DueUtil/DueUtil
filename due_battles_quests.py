@@ -653,6 +653,9 @@ async def battle_quest_on_message(message):
             player = findPlayer(message.author.id);
             if(player == None):
                 return True;
+            if(len(message.raw_mentions) > 0 or message.mention_everyone):
+                await client.send_message(message.channel, ":bangbang: **Please don't include mentions in your battlename!**");
+                return True;
             player.name = messageArg;
             savePlayer(player);
             await client.send_message(message.channel, "Your battle name has been set to '" + messageArg + "'!");
@@ -1754,6 +1757,8 @@ def update_player_def(p):
         setattr(p,'quests_completed_today',0);
     if not hasattr(p,'quest_day_start'):
         setattr(p,'quest_day_start',0);
+    if(p.name in ['@here','@everyone']):
+        p.name ='DueUtil Player';
     return p;
     
 def loadPlayers():
