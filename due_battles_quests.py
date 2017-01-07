@@ -1757,7 +1757,7 @@ def update_player_def(p):
         setattr(p,'quests_completed_today',0);
     if not hasattr(p,'quest_day_start'):
         setattr(p,'quest_day_start',0);
-    if(p.name in ['@here','@everyone']):
+    if('@here' in p.name or '@everyone' in p.name):
         p.name ='DueUtil Player';
     return p;
     
