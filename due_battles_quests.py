@@ -653,7 +653,7 @@ async def battle_quest_on_message(message):
             player = findPlayer(message.author.id);
             if(player == None):
                 return True;
-            if(len(message.raw_mentions) > 0 or message.mention_everyone):
+            if(len(message.raw_mentions) > 0 or message.mention_everyone or '@everyone' in message.content or '@here' in message.content):
                 await client.send_message(message.channel, ":bangbang: **Please don't include mentions in your battlename!**");
                 return True;
             player.name = messageArg;
