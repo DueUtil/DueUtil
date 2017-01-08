@@ -626,6 +626,7 @@ async def battle_quest_on_message(message):
         player.strg = 1;
         player.hp = 10;
         player.money = 0;
+        player.banner_id = "discord blue";
         player.background = "default.png";
         player.wep_sum = get_weapon_sum(no_weapon_id)
         player.wID = no_weapon_id;
