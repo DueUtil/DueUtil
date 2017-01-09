@@ -68,10 +68,10 @@ async def change_avatar(channel,avatar_name):
         
 @client.event
 async def on_server_join(server):
-    data = {"key":"macdue0a873a71hjd673o1","servercount":str(len(client.servers))};
-    request = url3.Request("https://www.carbonitex.net/discord/data/botdata.php");
-    request.add_header('Content-Type', 'application/json');
-    response = url3.urlopen(request, json.dumps(data).encode('ascii'));
+    data = {"key":'macdue0a873a71hjd673o1',"servercount":len(client.servers)};
+    url = "https://www.carbonitex.net/discord/data/botdata.php";
+    reponse = await aiohttp.post(url, data=payload);
+    reponse.close();
     print("Joined server");
 
 @client.event
