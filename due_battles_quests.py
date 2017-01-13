@@ -2207,8 +2207,11 @@ def limit_weapon_accy(player,weapon):
     return new_accy if price > max_value else weapon.chance;
     
 def max_value_for_player(player):
-    return 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
-    
+    if(not util_due.is_admin(player.userid)):
+        return 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
+    else:
+        return math.inf;
+        
 async def show_limits_for_player(channel,player):
     limit = "You can use any weapon with a value up to **$"+util_due.to_money(max_value_for_player(player),False)+"**!";
     await client.send_message(channel, limit);
