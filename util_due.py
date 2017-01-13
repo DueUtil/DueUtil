@@ -1,5 +1,6 @@
 import discord
 import random
+import DueUtil;
 import requests
 import re
 import urllib.request
@@ -36,6 +37,12 @@ class autoReply:
     alt = "";
     channel = None;
 
+def get_shard_id(server_id):
+    (int(server_id) >> 22) % DueUtil.shard_count;
+
+def get_shard(server_id):
+    DueUtil.shard_clients[get_shard_id(server_id)];
+    
 def get_server_cmd_key(server):
     server_key = serverKeys.setdefault(server.id,"!");
     return server_key if server_key != '`' else '\`';
