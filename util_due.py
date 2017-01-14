@@ -36,12 +36,6 @@ class autoReply:
     timed = "";
     alt = "";
     channel = None;
-
-def get_shard_id(server_id):
-    (int(server_id) >> 22) % DueUtil.shard_count;
-
-def get_shard(server_id):
-    DueUtil.shard_clients[get_shard_id(server_id)];
     
 def get_server_cmd_key(server):
     server_key = serverKeys.setdefault(server.id,"!");

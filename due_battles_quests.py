@@ -30,7 +30,7 @@ Banners = dict();
 ServersQuests = dict();
 Weapons = dict();
 Backgrounds = dict();
-client = None;
+#client = None;
 postive_bools = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
 no_weapon_id = "000000000000000000_none";
 font = ImageFont.truetype("Due_Robo.ttf", 12);
@@ -275,7 +275,7 @@ async def harambe_check(message,weapon,player):
     if any([x in weapon.name.lower() for x in out]):
         await give_award(message, player, 12, "For Harambe.");
     
-async def battle_quest_on_message(message):
+async def battle_quest_on_message(client,message):
     global money_transferred;
     #await exploit_check(message);
     await playerProgress(message);
@@ -664,12 +664,12 @@ async def battle_quest_on_message(message):
             await client.send_message(message.channel, ":bangbang: **Battle names must be between 1 and 32 characters in length.**");
         return True;
     elif message.content.lower().startswith(command_key + 'myinfo'):
-        await printStats(message, message.author.id);
+        await printStats(client,message, message.author.id);
         return True;
     elif message.content.lower().startswith(command_key + 'info'):
         users = message.raw_mentions;
         if(len(users) == 1):
-            await printStats(message, users[0]);
+            await printStats(client,message, users[0]);
         return True;
     elif message.content.lower().startswith(command_key + 'battle '):
         users = util_due.userMentions(message);
@@ -1254,12 +1254,11 @@ def reload_banners():
     loadBanners();
     load_banner_images();
      
-def load(discord_client):
+def load():
     global Weapons;
     global Players
     global client;
     global loaded;
-    client = discord_client;
     loadWeapons();
     loadPlayers();
     print(str(len(Players)) + " player(s) loaded.")
@@ -1362,14 +1361,14 @@ def get_server_weapon_list(message):
     return weapon_listings;
 
 
-async def printStats(message, uID):
+async def printStats(client,message, uID):
     global Players;
     level = 0;
     attk = 0;
     strg = 0;
     player = findPlayer(uID);
     if(player != None):
-        await displayStatsImage(player, False, message);
+        await displayStatsImage(client,player, False, message);
     else:
         await client.send_message(message.channel, "**"+util_due.get_server_name(message,uID)+"** has not joined!");
             
@@ -1983,7 +1982,7 @@ def get_player_banner(player):
         return Banners["discord blue"].image;
     return banner.image;
             
-async def displayStatsImage(player, q, message):
+async def displayStatsImage(client,player, q, message):
     global images_served;
     images_served = images_served +1;
     # jsonTest(player);
