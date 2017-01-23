@@ -37,6 +37,13 @@ class autoReply:
     alt = "";
     channel = None;
     
+class DueUtilException(ValueError):
+  
+    def __init__(self, channel,message, *args):
+        self.message = message 
+        self.channel = channel
+        super(DueUtilException, self).__init__(message,channel,*args) 
+    
 def get_server_cmd_key(server):
     server_key = serverKeys.setdefault(server.id,"!");
     return server_key if server_key != '`' else '\`';
@@ -88,13 +95,6 @@ def format_float_drop_zeros_drop(number,drop):
 def escape_markdown(text):
     return text.translate(str.maketrans({"`":  r"\`"})).replace("\n","");
     
-def random_ident():
-    ident ="";
-    identChars = "0123456789@#$%&QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm=";
-    for x in range(0,6):
-        ident= ident + identChars[(random.randint(0,len(identChars)-1))];
-    return ident;
-
 def get_server_name(message,id):
     return get_server_name_S(message.server,id);
 

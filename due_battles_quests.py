@@ -21,26 +21,31 @@ import json;
 from PIL import Image, ImageDraw, ImageFont
 from io import StringIO
 import numpy
-
 from argparse import Namespace
+
 loaded = False;
-Players = dict();
-AwardsIcons = [];
-AwardsNames = [];
-Banners = dict();
-ServersQuests = dict();
-Weapons = dict();
-Backgrounds = dict();
+players = dict();         #Players
+award_icons = [];         #AwardIcons
+awards_names = [];        #AwardNames
+banners = dict();         #Banners
+servers_quests = dict();  #ServerQuests
+weapons = dict();         #Weapons
+backgrounds = dict();     #Backgrounds
 shard_clients = None;
+
 postive_bools = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
 no_weapon_id = "000000000000000000_none";
+stock_weapons = ["stick","laser gun","gun","none","frisbee"];
+
+#DueUtil fonts
 font = ImageFont.truetype("Due_Robo.ttf", 12);
 font_big = ImageFont.truetype("Due_Robo.ttf", 18);
 font_med = ImageFont.truetype("Due_Robo.ttf", 14);
 font_small = ImageFont.truetype("Due_Robo.ttf", 11);
 font_epic = ImageFont.truetype("benfont.ttf", 12);
 info_avatar = Image.open("screens/info_avatar.png");
-#Due Stats
+
+#DueUtil stats
 images_served =0;
 money_created = 0;
 money_transferred =0;
@@ -49,236 +54,297 @@ players_leveled=0;
 new_players_joined=0;
 quests_given=0;
 
-class player_info_banner:
-        price = 0;
-        donor = False;
-        banner_image_name = "info_banner.png";
-        name = "";
-        admin_only = False;
-        mod_only = False;
-        unlock_level = 0;
-        image = None;
-        
-class weapon_class:
-        price = 0;
-        server = "all";
-        icon = "";
-        attack = 0;
-        chance = 0;
-        message = "";
-        useText = "";
-        name = "";
-        update = False;
-        wID = "";
-        melee = True;
-        image_url = "";
-class quest_class:
-        qID = "";
-        quest = "Battle a"
-        monsterName = "";
-        baseattack = 1;
-        questServer = "all";
-        basestrg = 1;
-        baseshooting = 1;
-        basehp = 10;
-        baselevel = 0;
-        update = True;
-        bwinings = 5;
-        blosings = 0;
-        wID = no_weapon_id;
-        wintext = "";
-        losetext = "";
-        spawnchance = 4;  # 50
-        image_url = "";
-        created_by = "";
-        made_on = "";
-        
-class battleRequest:
-        senderID = "";
-        wager = 0;
-    
-class player:
-    userid = "";
-    benfont = False;
-    level = 1;
-    attack = 1;
-    strg = 1;
-    shooting = 1;
-    banner_id = "discord blue";
-    hp = 10;
-    donor = False;
-    background = "default.png";
-    wep_sum = '"0"01'#price/attack/sum;
-    name = "";
-    wID = no_weapon_id;
-    money = 0;
-    last_progress = 0;
-    last_quest = 0;
-    wagers_won = 0;
-    quests_won = 0;
-    potatos_given = 0;
-    quest_day_start = 0;
-    potatos = 0;
-    quests_completed_today = 0;
-    last_image_request = 0;
-    def __init__(self):
-        self.quests = [];
-        self.battlers = [];
-        self.awards = [];
-        self.owned_weps = [];
-   
-class activeQuest(player):
-        qID = "";
-        
-def add_default_banner():
-    global Banners
-    discord_blue_banner = player_info_banner();
-    discord_blue_banner.name = "Discord Blue";
-    Banners["discord blue"] = discord_blue_banner;
-    
-def addQuests(server_id):
-    global ServersQuests;
-    slime = quest_class();
-    slime.monsterName = "Slime";
-    slime.qID = '"'+server_id+'""'+slime.monsterName.lower()+'"';
-    slime.bwinnings = 2;
-    slime.blosings = 1;
-    slime.baseattack = 1.8;
-    slime.basestrg = 2.1;
-    slime.baseshooting = 1.4;
-    slime.spawnchance = 4;
-    slime.image_url = "http://i.imgur.com/iDzGVIg.jpg";
-    slime.created_by = "DueUtil";
-    slime.made_on = "Unknown";
-    ServersQuests[server_id] = dict();
-    ServersQuests[server_id]['slime'] = slime;
-    saveQuest(slime);
-    open("saves/gamequests/"+server_id, 'w').close()
-def defineWeapons():
-    global Weapons;
-    Default = weapon_class();
-    Default.price = 0;
-    Default.icon = "";
-    Default.name = "None"
-    Default.attack = 0;
-    Default.chance = 100;
-    Default.melee = True;
-    Default.image_url = "http://i.imgur.com/TlQsWZ3.png";
-    Default.wID = "000000000000000000_none";
-    Weapons[Default.wID]=Default;
-    Gun = weapon_class();
-    Gun.price = 200;
-    Gun.icon = "🔫​";
-    Gun.name = "Gun"
-    Gun.useText = "shoots";
-    Gun.attack = 30;
-    Gun.chance = 10;
-    Gun.melee = False;
-    Gun.image_url = "http://i.imgur.com/XWPPWtA.png";
-    Gun.wID = "000000000000000000_gun";
-    Weapons[Gun.wID]=Gun;
-    Frisbee = weapon_class();
-    Frisbee.price = 20;
-    Frisbee.icon = "🌕";
-    Frisbee.attack = 7;
-    Frisbee.useText = "throws their frisbee at";
-    Frisbee.name = "Frisbee"
-    Frisbee.chance = 12.5;
-    Frisbee.melee = False;
-    Frisbee.image_url = "http://i.imgur.com/tv4Kloz.png";
-    Frisbee.wID = "000000000000000000_frisbee";
-    Weapons[Frisbee.wID] = Frisbee;
-    LaserGun = weapon_class();
-    LaserGun.price = 10000;
-    LaserGun.icon = "🔦";
-    LaserGun.attack = 1000;
-    LaserGun.useText = "FIRES THEIR LAZAH AT";
-    LaserGun.name = "Laser Gun"
-    LaserGun.chance = 50;
-    LaserGun.melee = False;
-    LaserGun.image_url = "http://i.imgur.com/6GsD9qd.png";
-    LaserGun.wID = "000000000000000000_laser gun";
-    Weapons[LaserGun.wID] = LaserGun;
-    Stick = weapon_class();
-    Stick.price = 10;
-    Stick.icon = "📏";
-    Stick.attack = 1.1;
-    Stick.chance = 50;
-    Stick.melee = True;
-    Stick.name = "Stick"
-    Stick.useText = "wacks";
-    Stick.image_url = "http://i.imgur.com/M0IaSSZ.png";
-    Stick.wID = "000000000000000000_stick";
-    Weapons[Stick.wID]=Stick; 
-    
-    print("Weapons loaded");
-    
-def get_weapon_for_server(server_id,weapon_name):
-    if(weapon_name.lower() in ["stick","laser gun","gun","none","frisbee"]):
-        return Weapons["000000000000000000_"+weapon_name.lower()];
-    else:
-        weapID = server_id+"_"+weapon_name.lower();
-        if(weapID in Weapons):
-            return Weapons[weapID]
-        else:
-            return None;
-            
-def owns_weapon_name(player,wname):
-    for weapon in player.owned_weps:
-        if(get_weapon_from_id(weapon[0]).name.lower() == wname.lower()):
-            return True;
-    return False;
-    
-def remove_weapon_from_store(player,wname):
-    #print(wname);
-    for weapon in player.owned_weps:
-        stored_weapon = get_weapon_from_id(weapon[0]);
-        if(stored_weapon != None and stored_weapon.name.lower() == wname.lower()):
-            wID = weapon[0];
-            sum = weapon[1];
-            del player.owned_weps[player.owned_weps.index(weapon)];
-            return [wID,sum];
-    return None;
-        
-        
-def does_weapon_exist(server_id,weapon_name):   
-    if(get_weapon_for_server(server_id,weapon_name) != None):
-        return True;
-    return False;
+""" DueUtil battles & quests. The main meat of the bot. """
 
-def get_weapon_from_id(id):
+class PlayerInfoBanner:
+    
+    """Class to hold details & methods for a profile banner"""
+    
+    def __init__(self,name,image_name,**kwargs):
+      
+        self.price = kwargs.get('price',0);
+        self.donor = kwargs.get('donor',False);
+        self.admin_only = kwargs.get('admin_only',False);
+        self.mod_only = kwargs.get('mod_only',False);
+        self.unlock_level = kwargs.get('unlock_level',0);
+        
+        self.banner_image_name = image_name;
+        self.name = name;
+        self.image = None;
+        
+class Weapon:
+  
+    """A simple weapon that can be used by a monster or player in DueUtil"""
+    
+    def __init__(self,message,name,accy,damage,**kwargs):
+      
+        if does_weapon_exist(server,name):
+            raise util_due.DueUtilException(message.channel,"A weapon with that name already exists on this server!");
+            
+        if len(name) > 30 or len(name) == 0 or name.strip == "":
+            raise util_due.DueUtilException(message.channel,"Weapon names must be between 1 and 30 characters!");
+            
+        if accy == 0 or damage == 0:
+            raise util_due.DueUtilException(message.channel,"No weapon stats can be zero!");
+        
+        if accy > 86 or accy < 1:
+            raise util_due.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!");
+        
+        self.server_id = message.server_id;
+        self.icon = kwargs.get('icon',"!")
+        self.hit_text = kwargs.get('hit_text',"hits");
+        self.melee = kwargs.get('melee',True);
+        self.image_url = kwargs.get('image_url',"");
+  
+        self.name = name;
+        self.damage = damage;
+        self.accy = accy;
+        self.price = self.__price();
+        self.w_id = self.__weapon_id();
+        self.weapon_sum = self.__weapon_sum();
+        
+        add_weapon(self);
+            
+    def __weapon_id(self):
+        return self.server_id+"_"+self.name.lower();
+        
+    def __weapon_sum(self):
+        return '"'+str(self.price)+'"'+str(self.damage)+str(weapon.accy);
+      
+    def __price(self):
+        return (self.accy/100 * self.damage) / 0.04375; 
+      
+    @staticmethod
+    def get_weapon_from_id(id):
         if(id in Weapons):
             return Weapons[id]
         else:
             if(id != no_weapon_id):
                 return Weapons[no_weapon_id];
+    @staticmethod
+    def does_weapon_exist(server_id,weapon_name):   
+        if(get_weapon_for_server(server_id,weapon_name) != None):
+            return True;
+        return False;
+    
+    @staticmethod
+    def get_weapon_for_server(server_id,weapon_name):
+        if(weapon_name.lower() in stock_weapons):
+            return Weapons["000000000000000000_"+weapon_name.lower()];
+        else:
+            weapon_id = server_id+"_"+weapon_name.lower();
+            if(weapon_id in Weapons):
+                return Weapons[weapID]
+            else:
+                return None;
+                
+    @staticmethod
+    def remove_weapon_from_shop(player,wname):
+        for weapon in player.owned_weps:
+            stored_weapon = get_weapon_from_id(weapon[0]);
+            if(stored_weapon != None and stored_weapon.name.lower() == wname.lower()):
+                wID = weapon[0];
+                sum = weapon[1];
+                del player.owned_weps[player.owned_weps.index(weapon)];
+                return [wID,sum];
+        return None;
         
-def get_weapon_sum(id):
-        if(id in Weapons):
-            weapon  = Weapons[id];
-            return '"'+str(weapon.price)+'"'+str(weapon.attack)+str(weapon.chance);
+    @staticmethod
+    def save_weapon(weapon):
+        data = jsonpickle.encode(weapon);
+        with open("saves/weapons/" + str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest()) + ".json", 'w') as outfile:
+            json.dump(data, outfile);   
+      
+        
+class Quest:
+  
+    """A class to hold info about a server quest"""
+  
+    def __init__(self,message,name,base_attack,base_strg,base_accy,base_hp,**kwargs):
+      
+        if message.server.id in server_quests:
+            if name.strip().lower() in server_quests[message.server.id]:
+                raise util_due.DueUtilException(message.channel,"A foe with that name already exists on this server!");
+      
+        if base_accy < 1 or base_attack < 1 or base_strg < 1:
+            raise util_due.DueUtilException(message.channel,"No quest stats can be less than 1!");
+
+        if base_hp < 30:
+            raise util_due.DueUtilException(message.channel,"Base HP must be at least 30!");
+
+        if len(name) > 30 or len(name) == 0 or name.strip == "":
+            raise util_due.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
+      
+        self.task = kwargs.get('task',"Battle a");
+        self.w_id = kwargs.get('weapon_id',no_weapon_id);
+        self.spawnchance = kwargs.get('spawn_chance',4);
+        self.image_url = kwargs.get('image_url',"");
+        
+        self.monster_name = name;
+        self.base_attack = base_attack;
+        self.server_id = message.server_id;
+        self.base_strg = base_strg;
+        self.base_accy = base_accy;
+        self.base_hp = base_hp;
+        
+        created_by = message.author.id;
+        
+        base_reward = self__reward();
+        self.q_id = self.__quest_id();
+        
+        add_quest(self);
+        
+    def __quest_id(self):
+        return '"'+self.server_id+'""'+self.monster_name.lower()+'"';
+      
+    def __reward(self):
+        if(Weapon.get_weapon_from_id(self.w_id).melee):
+            base_reward = (self.base_attack + self.base_strg) / 10 / 0.0883;
+        else:
+            base_reward = (self.base_accy + self.base_strg) / 10 / 0.0883;
+    
+        base_reward += base_reward * math.log10(self.base_hp) / 20 / 0.75;
+        base_reward *= self.base_hp / abs(self.base_hp - 0.01);
+        
+        return base_reward;
+                        
+    @property
+    def made_on():
+        return self.server_id;
+        
+    @staticmethod
+    def get_game_quest_from_id(id):
+        id  = str(id);
+        args = util_due.get_strings(id);
+        if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
+            return ServersQuests[args[0]][args[1]];
         else:
             return None;
-def get_game_quest_from_id(id):
-    id  = str(id);
-    #print(id);
-    args = util_due.get_strings(id);
-    #print(args);
-    #print(args[1] in ServersQuests[args[0]]);
-    if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
-        #print(ServersQuests[args[0]][args[1]].quest);
-        return ServersQuests[args[0]][args[1]];
-    else:
-        return None;
+        
+class BattleRequest:
+  
+    """A class to hold a wager"""
+  
+    def __init__(self,message,wager_amount):
+        self.sender_id = message.author.id;
+        self.wager_amount = wagers_amount;
+    
+class Player:
+  
+    """The DueUtil player!"""
+  
+    def __init__(self,*args):
+        
+        self.user_id = args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "";
+        self.reset();
+
+    def reset(self):
+        self.benfont = False;
+        self.level = 1;
+        self.attack = 1;
+        self.strg = 1;
+        self.accy = 1;
+        self.banner_id = "discord blue";
+        self.hp = 10;
+        self.donor = False;
+        self.background = "default.png";
+        self.weapon_sum = '"0"01'     #price/attack/sum;
+        self.name = "";
+        self.w_id = no_weapon_id;
+        self.money = 0;
+        self.last_progress = 0;
+        self.last_quest = 0;
+        self.wagers_won = 0;
+        self.quests_won = 0;
+        self.potatos_given = 0;
+        self.quest_day_start = 0;
+        self.potatos = 0;
+        self.quests_completed_today = 0;
+        self.last_image_request = 0;
+        self.quests = [];
+        self.battlers = [];
+        self.awards = [];
+        self.owned_weps = [];
+        
+    def owns_weapon(self,weapon_name):
+        for weapon_slot in self.owned_weps:
+            if(Weapon.get_weapon_from_id(weapon_slot[0]).name.lower() == weapon_name.lower()):
+                return True;
+        return False;
+        
+    def limit_weapon_accy(self):
+        max_value = self.max_value_for_player();
+        price = self.weapon.price if self.weapon.price > 0 else 1;
+        new_accy = numpy.clip(max_value/price * 100,1,86);
+        new_accy = weapon.chance if new_accy > weapon.chance else new_accy;
+        return new_accy if price > max_value else self.weapon.chance;
+    
+    def max_value_for_player(self):
+        if not util_due.is_admin(self.user_id):
+            return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
+        else:
+            return math.inf;  #Best new feature!
+            
+    async def unequip_weapon(self,channel):
+        if weapon.w_id != no_weapon_id:
+            if len(self.owned_weps) < 6:
+                if not self.owns_weapon(self.weapon.name):
+                    self.owned_weps.append([active_wep.wID,self.weapon_sum]);
+                    self.wID = no_weapon_id;
+                    self.weapon_sum = weapons(no_weapon_id).weapon_sum;
+                    await say(channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+                else:
+                    raise util_due.DueUtilException(channel,"You already have a weapon with that name stored!"); 
+            else:
+                raise util_due.DueUtilException(channel, "No room in your weapon storage!");
+        else:
+            raise util_due.DueUtilException(channel,"You don't have anything equiped anyway!");
+            
+    @property
+    def weapon(self):
+        return weapons[self.w_id];
+        
+    @staticmethod
+    def find_player(user_id):
+        global players;
+        
+        if(user_id in players):
+            return players[user_id]
+        else:
+            return None;
+   
+class ActiveQuest(Player):
+  
+    def __init__(self,q_id):
+        self.q_id = q_id;
+        super(ActiveQuest,self).__init__();
+        
+def add_default_banner():
+    global banners
+    
+    discord_blue_banner = player_info_banner();
+    discord_blue_banner.name = "Discord Blue";
+    Banners["discord blue"] = discord_blue_banner;
+    
+def add_quest(quest):
+    global server_quests;
+    
+    server_quests[quest.server_id][quest.monster_name.lower()] = quest;
+    save_quest(quest);
+    
+def add_weapon(weapon):
+    global weapons;
+    
+    weapons[weapon.w_id] = weapon;
+    save_weapon(weapon);
         
 async def harambe_check(message,weapon,player):
     out=  ["penis","dick","cock","dong"];
     if any([x in weapon.name.lower() for x in out]):
         await give_award(message, player, 12, "For Harambe.");
     
-async def battle_quest_on_message(client,message):
+async def battle_quest_on_message(client,message):    
     global money_transferred;
-    #await exploit_check(message);
     await playerProgress(message);
     await manageQuests(message);
     found = True;
@@ -356,86 +422,6 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
     elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-         #messageArg = message.content.replace(command_key + "createquest ", "", 1);  # DO DO CREAT QUWEST
-         Worked = False;
-         Strs = util_due.get_strings(message.content);
-         if(len(Strs) == 9):
-             try:
-                 if(len(Strs[0]) <= 32):
-                     if(len(Strs[1]) <= 32):
-                         if(message.server.id in ServersQuests):
-                             if(Strs[0].strip().lower() in ServersQuests[message.server.id]):
-                                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **A foe with that name already exists on this server!**");
-                                 return True;
-                         else:
-                             addQuests(message.server.id);
-                         nquest = quest_class();
-                         nquest.monsterName = Strs[0].strip();
-                         nquest.quest = Strs[1];
-                         nquest.qID = '"'+message.server.id+'""'+nquest.monsterName.lower()+'"';
-                         nquest.baseattack = abs(float(Strs[2]));
-                         nquest.basestrg = abs(float(Strs[3]));
-                         nquest.basehp = abs(int(Strs[4]));
-                         nquest.baseshooting = abs(float(Strs[5]));
-                         
-                         if (nquest.basehp < 30):
-                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Base HP must be at least 30!**");
-                            return True;
-                            
-                         if(nquest.baseattack < 1 or nquest.basestrg < 1 or nquest.basehp < 1 or nquest.baseshooting < 1):
-                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **No stats can be less than 1!**");
-                            return True;
-                         
-                         if(len(Strs[6]) > 18):
-                            attempt_id = Strs[6].lower();
-                            attempt_id = attempt_id[:18]+"_"+attempt_id[19:];
-                            nquest.wID = get_weapon_from_id(attempt_id).wID;
-                            
-                         if(nquest.wID == no_weapon_id):
-                            if(does_weapon_exist(message.server.id, Strs[6].lower())):
-                                weap = get_weapon_for_server(message.server.id,  Strs[6].lower());
-                                if(weap.server == message.server.id or weap.server == "all"):
-                                    nquest.wID = weap.wID;
-                         if(get_weapon_from_id(nquest.wID).melee):
-                            nquest.bwinings = (((nquest.baseattack + nquest.basestrg) / 10) / 0.0883);
-                         else:
-                            nquest.bwinings = (((nquest.baseshooting + nquest.basestrg) / 10) / 0.0883);
-                            
-                         nquest.bwinings = nquest.bwinings + (((nquest.bwinings * math.log10(nquest.basehp))) / 20) / 0.75;
-                         nquest.bwinings = nquest.bwinings * (nquest.basehp / (abs(nquest.basehp - 0.01)));
-                        
-                         nquest.questServer = message.server.id;
-                         nquest.spawnchance = abs(round(float(Strs[7]),2));
-                             
-                         nquest.image_url = Strs[8];
-                         nquest.created_by = findPlayer(message.author.id).name;
-
-                         nquest.made_on = message.server.name;
-                         
-                         if(nquest.spawnchance < 1):
-                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
-                            return True;
-                         elif (nquest.spawnchance > 25):
-                             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
-                             return True;
-                             
-                         ServersQuests[message.server.id][nquest.monsterName.lower()] = nquest;
-                             
-                         #pickle.dump(GameQuests, open ("saves/quests.p", "wb"), protocol=pickle.HIGHEST_PROTOCOL);
-                         saveQuest(nquest);
-                         await get_client(message.server.id).send_message(message.channel, nquest.quest + " **" + nquest.monsterName + "** quest now active!");
-                     else:
-                         await get_client(message.server.id).send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 32 characters!**");
-                 else:
-                     await get_client(message.server.id).send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 32 characters!**");
-
-             except:
-                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-         else:
-             #print(len(Strs))
-             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-             if(message.content.lower().count('"') % 2 == 1):
-                await get_client(message.server.id).send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
             await show_quest_list(message);
@@ -463,61 +449,6 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
-         #messageArg = message.content.replace(command_key + "createweapon ", "", 1);
-         Worked = False;
-         Strs = util_due.get_strings(message.content);
-         if(len(Strs) == 7):
-             try:
-                 if (does_weapon_exist(message.server.id, Strs[1].strip().lower())):
-                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **A weapon with that name already exists on this server!**");
-                    return;
-                 if(len(Strs[1]) <= 32):
-                     wep = weapon_class();
-                     wep.name = Strs[1].strip();
-                     if(len(Strs[1]) == 1):
-                         wep.icon = Strs[0];
-                     else:
-                         wep.icon = Strs[0][0]
-                         
-                     wep.useText = Strs[4];
-                     if(len(wep.useText) > 40):
-                        await get_client(message.server.id).send_message(message.channel,":bangbang: **Battle use text can't be over 40 characters!**");
-                        return True;
-                   
-                     wep.attack = abs(int(Strs[2]));
-                     
-                     wep.chance = abs(round(float(Strs[3]),2));
-                     
-                     if(wep.chance > 86):
-                         await get_client(message.server.id).send_message(message.channel,":bangbang: **A weapon can't have more than 86% accuracy**");
-                         return True;
-                     elif (wep.chance < 1):
-                         await get_client(message.server.id).send_message(message.channel,":bangbang: **A weapon can't have less than 1% accuracy**");
-                         return True;
-                         
-                     if wep.attack == 0:
-                         await get_client(message.server.id).send_message(message.channel,":bangbang: **No values can be zero!**");    
-                         return True;
-                     wep.price = abs(int(((wep.chance/100) * wep.attack) / 0.04375));  # Fair price
-                     wep.price = wep.price if wep.price > 0 else 1;
-                     wep.image_url = Strs[6];
-                     wep.server = message.server.id;
-                     wep.wID = message.server.id+"_"+wep.name.lower();
-                     if Strs[5].lower() in postive_bools:
-                         wep.melee = True;
-                     else:
-                         wep.melee = False;
-                     Weapons[wep.wID] = wep;
-                     saveWeapon(wep);
-                     await get_client(message.server.id).send_message(message.channel, "**" + wep.name + "** is now available in the shop for $" + util_due.to_money(wep.price,False) + "!");
-                 else:
-                     await get_client(message.server.id).send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 32 characters!**");                 
-             except:
-                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-         else:
-             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-             if(message.content.lower().count('"') % 2 == 1):
-                await get_client(message.server.id).send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + "sendcash"):
         sender = findPlayer(message.author.id);
@@ -1058,7 +989,7 @@ async def remove_banner(channel,name):
     else:
         await get_client(message.server.id).send_message(channel, ":interrobang: **Banner not deleted!**\nAre you sure that you used the right name?");
 
-def hasNumbers(text):
+def has_numbers(text):
    return any(char.isdigit() for char in text)
 
 async def display_rank(message, find):
@@ -1081,21 +1012,7 @@ async def display_rank(message, find):
     else:
         await get_client(message.server.id).send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
 
-async def unequip_weapon(message,cplayer):
-    active_wep = get_weapon_from_id(cplayer.wID);
-    if(active_wep.wID != no_weapon_id):
-        if(len(cplayer.owned_weps) < 6):
-            if not owns_weapon_name(cplayer,active_wep.name.lower()):
-                cplayer.owned_weps.append([active_wep.wID,cplayer.wep_sum]);
-                cplayer.wID = no_weapon_id;
-                cplayer.wep_sum = get_weapon_sum(no_weapon_id);
-                await get_client(message.server.id).send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
-            else:
-                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
-        else:
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **No room in your weapon storage!**");
-    else:
-        await get_client(message.server.id).send_message(message.channel, "You don't have anything equiped anyway!");
+
         
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
@@ -1341,10 +1258,10 @@ def load_award(icon_path,name):
     
 async def shop(message):
     normal_title = "Welcome to DueUtil's weapon shop!";
-    past_page_one_title = "DueUtil's weapon shop";
-    constant_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
-    final_page_footer = "Want more? Ask a server manager to add stock!";
-    await util_due.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
+    #past_page_one_title = "DueUtil's weapon shop";
+    #constant_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
+    #final_page_footer = "Want more? Ask a server manager to add stock!";
+    #await util_due.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
 
     
 def get_server_weapon_list(message):
@@ -1377,7 +1294,7 @@ async def printStats(message, uID):
     else:
         await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,uID)+"** has not joined!");
             
-async def displayStats(player, q, message):
+async def display_stats(player, q, message):
         level = math.trunc(player.level);
         attk = round(player.attack, 2);
         strg = round(player.strg, 2);
@@ -1749,7 +1666,7 @@ def valid_image(bg_to_test,dimensions):
             return True;
     return False;
                     
-def jsonTest(playerT):
+def json_test(playerT):
     datum = json.dumps(playerT, default=lambda o: o.__dict__);
     print(datum);
     rebuild = json.loads(datum, object_hook=lambda d: Namespace(**d))
@@ -1857,7 +1774,7 @@ async def clear_suspicious(message):
     else:
         await get_client(message.server.id).send_message(message.channel,"No suspicious users!");
             
-def  loadWeapons():
+def load_weapons():
     global Weaponse;
     for file in os.listdir("saves/weapons/"):
         if file.endswith(".json"):
@@ -1889,26 +1806,26 @@ def update_chance(is_weapon,chance):
     else:
         return 86 if chance > 86 else chance;
 
-def savePlayer(player):
+def save_player(player):
     # data = json.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(player);
     with open("saves/players/" + player.userid + ".json", 'w') as outfile:
         json.dump(data, outfile);
         
-def saveBanner(banner):
+def save_banner(banner):
     # data = ba.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(banner);
     with open("screens/info_banners/" + banner.name.lower().replace(" ","_")+ ".json", 'w') as outfile:
         json.dump(data, outfile);
         
-def saveQuest(quest):
+def save_quest(quest):
     # data = json.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(quest);
     args = util_due.get_strings(quest.qID);
     with open("saves/gamequests/" + args[0] + "_"+str(hashlib.md5(quest.monsterName.lower().encode('utf-8')).hexdigest())+".json", 'w') as outfile:
         json.dump(data, outfile);
         
-def loadQuests():
+def load_quests():
     global ServersQuests;
     for file in os.listdir("saves/gamequests/"):
         if file.endswith(".json"):
@@ -1943,10 +1860,7 @@ def find_name(server,uID):
     else:
         return util_due.get_server_name_S(server,uID);
     
-def saveWeapon(weapon):
-    data = jsonpickle.encode(weapon);
-    with open("saves/weapons/" + str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest()) + ".json", 'w') as outfile:
-        json.dump(data, outfile);
+
         
 def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False;
@@ -1963,8 +1877,6 @@ def get_text_limit_len(draw,text,given_font,length):
                 else:
                     return text[:-3] + "..."
             return text;
-            
-#def load_banner():
 
 def load_image_and_set_opacity(image_path,opacity_level):
     opacity_level = int(255*opacity_level) # Opaque is 255, input between 0-255
@@ -1987,7 +1899,7 @@ def get_player_banner(player):
         return Banners["discord blue"].image;
     return banner.image;
             
-async def displayStatsImage(player, q, message):
+async def display_stats_image(player, q, message):
     global images_served;
     images_served = images_served +1;
     # jsonTest(player);
@@ -2144,7 +2056,7 @@ async def displayQuestImage(quest, message):
     output.close()
 
     
-async def playerProgress(message):
+async def player_progress(message):
     global Players;
     global money_created;
     global new_players_joined;
@@ -2203,19 +2115,7 @@ async def playerProgress(message):
         new_players_joined = new_players_joined + 1;
         savePlayer(p);
         
-def limit_weapon_accy(player,weapon):
-    max_value = max_value_for_player(player);
-    price = weapon.price if weapon.price > 0 else 1;
-    new_accy = numpy.clip((max_value/price)*100,1,86);
-    new_accy = weapon.chance if new_accy > weapon.chance else new_accy;
-    return new_accy if price > max_value else weapon.chance;
-    
-def max_value_for_player(player):
-    if(not util_due.is_admin(player.userid)):
-        return 10*(math.pow(player.level,2)/3 + 0.5*(math.pow(player.level+1,2))*player.level);
-    else:
-        return math.inf;
-        
+
 async def show_limits_for_player(channel,player):
     limit = "You can use any weapon with a value up to **$"+util_due.to_money(max_value_for_player(player),False)+"**!";
     await get_client(message.server.id).send_message(channel, limit);
@@ -2354,7 +2254,7 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
         if(player_two == None):
             await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** has not joined!");
             
-async def manageQuests(message):
+async def manage_quests(message):
     global quests_given;
     player = findPlayer(message.author.id);  
     if(time.time() - player.quest_day_start > 86400 and player.quest_day_start != 0):
@@ -2372,7 +2272,7 @@ async def manageQuests(message):
                 quests_given += 1;
                 print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]");
 
-async def addQuest(message, player, n_q):
+async def add_quest(message, player, n_q):
     aQ = createQuest(n_q, player);
     savePlayer(player);
     if(not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
@@ -2380,7 +2280,7 @@ async def addQuest(message, player, n_q):
     else:
         print("Won't send new quest image - channel blocked.")
 
-def createQuest(n_q, player):
+def create_quest(n_q, player):
     aQ = activeQuest();
     aQ.qID = n_q.qID;
     aQ.level = random.randint(int(player.level), int((player.level * 2)))
@@ -2400,7 +2300,7 @@ def createQuest(n_q, player):
     player.quests.append(aQ);
     return aQ;
 
-async def showQuests(message):
+async def show_quests(message):
       #global GameQuests;
       player = findPlayer(message.author.id);
       command_key = util_due.get_server_cmd_key(message.server);
@@ -2423,12 +2323,9 @@ async def showQuests(message):
           QuestsT = QuestsT + "You don't have any quests!```";
       await get_client(message.server.id).send_message(message.channel, QuestsT);
       
-def findPlayer(pID):
-    global Players;
-    if(pID in Players):
-        return Players[str(pID)]
-    else:
-        return None;
-    
+
+async def say(channel,*args,**kwargs):
+      await get_client(channel.server.id).send_message(channel,*args,**kwargs);
+
 
 

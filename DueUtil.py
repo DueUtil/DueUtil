@@ -13,6 +13,7 @@ import time;
 import json;
 import configparser
 from concurrent.futures import ProcessPoolExecutor
+import traceback
 
 last_backup = 0;
 stopped = False;
@@ -20,6 +21,8 @@ start_time = 0;
 shard_count = 3;
 shard_clients = [];
 bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
+
+shard_names = []
 
 
 def load_config():
@@ -71,11 +74,11 @@ async def change_avatar(channel,avatar_name):
     except:
         await client.send_message(channel, ":bangbang: **Avatar change failed!**");
         
-class DueUtil_Client(discord.Client):
+class DueUtilClient(discord.Client):
 
     def __init__(self, *args, **kwargs):
         self.shard_id = int(kwargs["shard_id"]);
-        super(DueUtil_Client,self).__init__(*args,**kwargs);
+        super(DueUtilClient,self).__init__(*args,**kwargs);
 
     @asyncio.coroutine
     async def on_server_join(self,server):
@@ -87,25 +90,31 @@ class DueUtil_Client(discord.Client):
         reponse = await aiohttp.post(url, data=payload);
         reponse.close();
         print("Joined server");
-
+    
     @asyncio.coroutine
-    async def on_message(self, message):
-        if not util_due.is_admin(message.author.id):
-            return;
-        #print(due_battles_quests.filter_func(message.author.id+"["+util_due.get_server_name(message, message.author.id)+"] ->"+message.content));
-        #return;
-        #print(await due_battles_quests.battle_quest_on_message(message));
-        #message.content = message.content.replace("`","'")
-        # we do not want the bot to reply to itself
-        #self = util_due.get_shard(message.server.id);
-        #print(get_shard_id(message.server.id));
+    async def on_error(self,event,ctx):
+        error = sys.exc_info()[1];
+        if isinstance(error,util_due.DueUtilException):
+            await self.send_message(error.channel,":bangbang: **"+error.message+"**");
+        elif isinstance(ctx, discord.Message):
+            await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**\n"
+                                                 "``"+str(error)+"``"));
+            traceback.print_exc();
+        else:
+            traceback.print_exc();
+            
+    @asyncio.coroutine
+    async def on_message(self,message):
         global stopped;
         global last_backup;
         global start_time;
+        
+        if not util_due.is_admin(message.author.id):
+            return;
         command_key = None;
         pri_server = "";
-       # if not is_due_loaded():
-       #     return;
+        # if not is_due_loaded():
+        #     return;
         if(not message.channel.is_private):
             message.content = util_due.escape_markdown(message.content);
             botme = message.server.get_member(self.user.id);
@@ -114,71 +123,16 @@ class DueUtil_Client(discord.Client):
                 return;
             command_key = util_due.get_server_cmd_key(message.server);
         if not stopped:
-            if(time.time() - last_backup > 3600):
+            if(time.time() - last_backup > 20000):
                 util_due.zipdir("saves/","autobackups/DueBackup"+str(time.time())+".zip");
                 print("Auto backup!");
                 last_backup = time.time();
             if message.author.bot:
                 return;
-            if message.channel.is_private:
-                msg_x = 0;
-                for msg in reversed(list(self.messages)):
-                    if(msg_x == 10):
-                        await self.send_file(message.channel,'images/no_mem.png',content = "If you still need help run the command again on a server!");
-                        await due_battles_quests.give_award_id(message,message.author.id,15,"Dumbledore!!!")
-                        command_key = None;
-                        break;
-                    if(msg.channel == message.channel):
-                        if("**run the help command on a server**" in msg.content and msg.author.id == self.user.id):
-                            break;
-                        msg_x = msg_x +1;
-                        if("DueUtil's Help!" in msg.content and msg.author.id == self.user.id):
-                            server_info = msg.content.splitlines()[1].split(sep="**");
-                            command_key =server_info[3].strip();   
-                            pri_server=server_info[1];  
-                            break;
             await sudo_command(command_key,message);
             if message.author == self.user:
                 return
-            elif(command_key != None and message.content.lower().startswith(command_key+'help')):
-                if(not message.channel.is_private):
-                    await self.send_message(message.channel,"I'll PM you the help! :wink:");
-                    await self.start_private_message(message.author);
-                    await send_text_as_message(message.author,"help_info.txt",command_key,message);
-                    return True;
-                elif message.content.lower().strip().startswith(command_key+'help '):
-                    msgArgs = message.content.lower().strip();
-                    helpfor = '';
-                    if 'anyone' in msgArgs:
-                        helpfor = 'anyone';
-                    elif 'admins' in msgArgs:
-                        helpfor = 'admins';
-                    else:
-                        return;
-                    args = msgArgs.replace(command_key+'help '+helpfor,'').strip();
-                    page = 1;
-                    try:
-                        page = int(args);
-                    except:
-                        page = 1;
-                    if(page <= 0):
-                        page = 1;
-                    help_i = get_help_page('help_'+helpfor+'.txt',page-1,command_key,pri_server);
-                    if(help_i == None):
-                        await self.send_message(message.author,":bangbang: **Page not found!**" );
-                        return;
-                    if(page == 1):
-                        await self.send_message(message.author,'**Help for '+helpfor+'**');
-                    else:
-                        await self.send_message(message.author,'**Help for '+helpfor+'**: Page '+str(page));
-                    await self.send_message(message.author,help_i[0]);
-                    if(help_i[1]):
-                        await self.send_message(message.author,"But wait there's more! Type **"+command_key+"help "+helpfor+" "+str(page+1)+"** for the next page.");
-                else:
-                    await self.send_message(message.author,"Still here! Do **"+command_key+"help anyone** or **"+command_key+"help admins** to see my commands!");
-            elif message.channel.is_private and command_key == None:
-                await self.send_message(message.channel,"If you're here looking for a chat this isn't the right place.\nIf you're looking for help **run the help command on a server** first so I know where you're coming from.");
-                return;
+            #old help
             elif message.channel.is_private:
                 return;
             elif ((message.author.id == "132315148487622656") or (util_due.is_admin(message.author.id))) and message.content.lower().startswith(command_key+'stop'):
@@ -194,16 +148,16 @@ class DueUtil_Client(discord.Client):
             elif(await due_battles_quests.battle_quest_on_message(self,message)):
                return;
             elif message.content.lower().startswith(command_key+'dustats'):
-                stats = "```css\nSince "+time.strftime("[%Y-%m-%d %H:%M:%S]", time.gmtime(start_time))+" I have\u2026\n";
-                stats += "Served "+util_due.number_format_text(due_battles_quests.images_served)+" quest\\battle image(s).\n";
-                stats += "Created $"+util_due.number_format_text(due_battles_quests.money_created)+"\n";
-                stats += "Transferred $"+util_due.number_format_text(due_battles_quests.money_transferred)+"\n";
-                stats += "Given "+util_due.number_format_text(due_battles_quests.quests_given)+" new quest(s).\n";
-                stats += "Seen "+util_due.number_format_text(due_battles_quests.quests_attempted)+" quest(s) attempted.\n";
-                stats += "Watched "+util_due.number_format_text(due_battles_quests.players_leveled)+" player(s) level up.\n";
-                stats += "Had "+util_due.number_format_text(due_battles_quests.new_players_joined)+" player(s) join.\n```";
-                stats += "``This is DueUtil shard "+str(self)+" (shard number "+str(self.shard_id)+")``\n";
-                await self.send_message(message.channel,stats);
+                stats = discord.Embed(title="DueUtil Stats",type="rich",description="DueUtil's global stats since "+time.strftime("%m/%d/%Y at %H:%M", time.gmtime(start_time))+"!",color=16038978);
+                stats.add_field(name="Images Served",value=util_due.number_format_text(due_battles_quests.images_served));
+                stats.add_field(name="Awarded",value="$"+util_due.number_format_text(due_battles_quests.money_created));
+                stats.add_field(name="Players have transferred",value="$"+util_due.number_format_text(due_battles_quests.money_transferred));
+                stats.add_field(name="Quests Given",value=util_due.number_format_text(due_battles_quests.quests_given));
+                stats.add_field(name="Quests Attempted",value=util_due.number_format_text(due_battles_quests.quests_attempted));
+                stats.add_field(name="Level Ups",value=util_due.number_format_text(due_battles_quests.players_leveled));
+                stats.add_field(name="New Players",value=util_due.number_format_text(due_battles_quests.new_players_joined));
+                stats.set_footer(text="DueUtil Shard "+str(self.shard_id+1))
+                await self.send_message(message.channel,embed=stats);
                 return;
             elif (await util_due.on_util_message(message)):
                 return;
@@ -218,9 +172,7 @@ class DueUtil_Client(discord.Client):
                         if(self.user.id in mentions):
                                 await self.start_private_message(message.author);
                                 await send_text_as_message(message.author,"help_info.txt",command_key,message)
-                                await self.send_message(message.channel,"Hi! I've PM-ed you my help!\nP.S. **"+command_key+"** is the command key on **"+message.server.name+"**!");	
-                                
-                                            
+                                await self.send_message(message.channel,"Hi! I've PM-ed you my help!\nP.S. **"+command_key+"** is the command key on **"+message.server.name+"**!");	                        
                 return;					
             else:
                 for mentions in message.raw_mentions:
@@ -248,7 +200,7 @@ class DueUtil_Client(discord.Client):
         
         shard_number = shard_clients.index(self) +1;
         help_status = discord.Game();
-        help_status.name = "THIS IS A TEST | shard "+str(shard_number)+"/"+str(shard_count);
+        help_status.name = "dueutil.tech | shard "+str(shard_number)+"/"+str(shard_count);
         await self.change_presence(game=help_status,afk=False);
         print('Logged in shard '+str(shard_number)+' as ')
         print(self.user.name)
@@ -263,22 +215,18 @@ def is_due_loaded():
 
 def load_due():
     load_config();
-    due_battles_quests.load(shard_clients);
+    #due_battles_quests.load(shard_clients);
     #util_due.load(client);
     
 def setup_due_thread(loop,shard_id):
     global shard_clients;
     asyncio.set_event_loop(loop)
-    client = DueUtil_Client(shard_id=shard_id,shard_count=shard_count);
+    client = DueUtilClient(shard_id=shard_id,shard_count=shard_count);
     shard_clients.append(client);
     try:
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop);
     finally:
         print("A shard died.");
-
-
-def do_nothing():
-    return;
 
         
 def run_due():
@@ -302,12 +250,9 @@ def run_due():
         for shard_number in range(0,shard_count):
             bot_thread = Thread(target=setup_due_thread,args=(asyncio.new_event_loop(),shard_number,));
             bot_thread.start()
-        while True:
-            do_nothing();
-       # run_due();
+
 if __name__ == "__main__":
     print("Starting DueUtil!")
     run_due();
-#k=input("press close to exit")
-#raw_input()
+
 
