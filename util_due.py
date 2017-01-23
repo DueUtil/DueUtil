@@ -44,6 +44,13 @@ class DueUtilException(ValueError):
         self.channel = channel
         super(DueUtilException, self).__init__(message,channel,*args) 
     
+    
+async def say(channel,*args,**kwargs):
+      await get_client(channel.server.id).send_message(channel,*args,**kwargs);
+
+def get_client(server_id):
+    return shard_clients[DueUtil.get_shard_index(server_id)];
+
 def get_server_cmd_key(server):
     server_key = serverKeys.setdefault(server.id,"!");
     return server_key if server_key != '`' else '\`';

@@ -4,7 +4,7 @@ import math
 import sys
 import pickle;
 import requests;
-import util_due
+import util as util;
 import string
 import os;
 import jsonpickle;
@@ -79,16 +79,16 @@ class Weapon:
     def __init__(self,message,name,accy,damage,**kwargs):
       
         if does_weapon_exist(server,name):
-            raise util_due.DueUtilException(message.channel,"A weapon with that name already exists on this server!");
+            raise util.DueUtilException(message.channel,"A weapon with that name already exists on this server!");
             
         if len(name) > 30 or len(name) == 0 or name.strip == "":
-            raise util_due.DueUtilException(message.channel,"Weapon names must be between 1 and 30 characters!");
+            raise util.DueUtilException(message.channel,"Weapon names must be between 1 and 30 characters!");
             
         if accy == 0 or damage == 0:
-            raise util_due.DueUtilException(message.channel,"No weapon stats can be zero!");
+            raise util.DueUtilException(message.channel,"No weapon stats can be zero!");
         
         if accy > 86 or accy < 1:
-            raise util_due.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!");
+            raise util.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!");
         
         self.server_id = message.server_id;
         self.icon = kwargs.get('icon',"!")
@@ -164,16 +164,16 @@ class Quest:
       
         if message.server.id in server_quests:
             if name.strip().lower() in server_quests[message.server.id]:
-                raise util_due.DueUtilException(message.channel,"A foe with that name already exists on this server!");
+                raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!");
       
         if base_accy < 1 or base_attack < 1 or base_strg < 1:
-            raise util_due.DueUtilException(message.channel,"No quest stats can be less than 1!");
+            raise util.DueUtilException(message.channel,"No quest stats can be less than 1!");
 
         if base_hp < 30:
-            raise util_due.DueUtilException(message.channel,"Base HP must be at least 30!");
+            raise util.DueUtilException(message.channel,"Base HP must be at least 30!");
 
         if len(name) > 30 or len(name) == 0 or name.strip == "":
-            raise util_due.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
+            raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
       
         self.task = kwargs.get('task',"Battle a");
         self.w_id = kwargs.get('weapon_id',no_weapon_id);
@@ -215,7 +215,7 @@ class Quest:
     @staticmethod
     def get_game_quest_from_id(id):
         id  = str(id);
-        args = util_due.get_strings(id);
+        args = util.get_strings(id);
         if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
             return ServersQuests[args[0]][args[1]];
         else:
@@ -280,7 +280,7 @@ class Player:
         return new_accy if price > max_value else self.weapon.chance;
     
     def max_value_for_player(self):
-        if not util_due.is_admin(self.user_id):
+        if not util.is_admin(self.user_id):
             return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
         else:
             return math.inf;  #Best new feature!
@@ -292,13 +292,13 @@ class Player:
                     self.owned_weps.append([active_wep.wID,self.weapon_sum]);
                     self.wID = no_weapon_id;
                     self.weapon_sum = weapons(no_weapon_id).weapon_sum;
-                    await say(channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+                    await util.say(channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
                 else:
-                    raise util_due.DueUtilException(channel,"You already have a weapon with that name stored!"); 
+                    raise util.DueUtilException(channel,"You already have a weapon with that name stored!"); 
             else:
-                raise util_due.DueUtilException(channel, "No room in your weapon storage!");
+                raise util.DueUtilException(channel, "No room in your weapon storage!");
         else:
-            raise util_due.DueUtilException(channel,"You don't have anything equiped anyway!");
+            raise util.DueUtilException(channel,"You don't have anything equiped anyway!");
             
     @property
     def weapon(self):
@@ -348,7 +348,7 @@ async def battle_quest_on_message(client,message):
     await playerProgress(message);
     await manageQuests(message);
     found = True;
-    command_key = util_due.get_server_cmd_key(message.server);
+    command_key = util.get_server_cmd_key(message.server);
     if(message.content.lower().startswith(command_key + 'myquests')):
             await showQuests(message);
     elif(message.content.lower().startswith(command_key + 'acceptquest ')):
@@ -421,12 +421,12 @@ async def battle_quest_on_message(client,message):
         if(p.benfont):
             await get_client(message.server.id).send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
-    elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+    elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
          return True;
-    elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+    elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
             await show_quest_list(message);
             return True;
-    elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+    elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
         messageArg = message.content.lower().replace(command_key + "removequest ", "", 1);
         try:
             questName = messageArg.strip();
@@ -448,7 +448,7 @@ async def battle_quest_on_message(client,message):
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
-    elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+    elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
          return True;
     elif message.content.lower().startswith(command_key + "sendcash"):
         sender = findPlayer(message.author.id);
@@ -460,12 +460,12 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
             return True;
         try:
-            cmd = util_due.clearmentions(message.content);
+            cmd = util.clearmentions(message.content);
             args = re.sub("\s\s+" , " ", cmd).split(sep =" ",maxsplit=2);
             amount = int(args[1]);
             other =findPlayer(mentions[0]);
             if(other == None):
-                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,mentions[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,mentions[0])+"** has not joined!");
                 return True;
             if(other.userid == sender.userid):
                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **There is no reason to send money to yourself!**");
@@ -475,26 +475,26 @@ async def battle_quest_on_message(client,message):
                 return True;
             if(sender.money - amount < 0):
                 if(sender.money > 0):
-                    await get_client(message.server.id).send_message(message.channel, "You do not have **$"+ util_due.to_money(amount,False)+"**! The maximum you can transfer is **$"+ util_due.to_money(sender.money,False)+"**");
+                    await get_client(message.server.id).send_message(message.channel, "You do not have **$"+ util.to_money(amount,False)+"**! The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**");
                 else:
                      await get_client(message.server.id).send_message(message.channel, "You do not have any money to transfer!");
                 return True
             max_receive =  int(max_value_for_player(other)*10);
             if(amount > max_receive):
-                await get_client(message.server.id).send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_receive,False)+"**!");
+                await get_client(message.server.id).send_message(message.channel, "**$"+util.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util.to_money(max_receive,False)+"**!");
                 return True;
             sender.money = sender.money - amount;
             other.money = other.money + amount;
             savePlayer(sender);
             savePlayer(other);
             money_transferred = money_transferred + amount;
-            print(filter_func(other.name)+" ("+other.userid+") has received $"+util_due.to_money(amount,False)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
+            print(filter_func(other.name)+" ("+other.userid+") has received $"+util.to_money(amount,False)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
             msg ="";
             if(amount >= 50):
                 await give_award(message, sender, 17, "Sugar daddy!")
             if(len(args) == 3 and len(args[2].strip()) > 0):
                 msg = "**Attached note**: ```"+args[2]+" ```\n";
-            await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util_due.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
+            await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
@@ -520,7 +520,7 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
         return True;
-    elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
+    elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
         messageArg = message.content.lower().replace(command_key + "removeweapon ", "", 1);
         try:
             weapon = get_weapon_for_server(message.server.id, messageArg.strip());
@@ -575,9 +575,9 @@ async def battle_quest_on_message(client,message):
         player.quest_day_start = 0;
         savePlayer(player);
         await get_client(message.server.id).send_message(message.channel, "Your user has been reset.");
-        if util_due.is_mod(player.userid):
+        if util.is_mod(player.userid):
             await give_award(message,player,22,"Become an mod!")
-        if util_due.is_admin(player.userid):
+        if util.is_admin(player.userid):
             await give_award(message,player,21,"Become an admin!")
         return True;
     elif message.content.lower().startswith(command_key + 'battlename '):
@@ -604,7 +604,7 @@ async def battle_quest_on_message(client,message):
             await printStats(message, users[0]);
         return True;
     elif message.content.lower().startswith(command_key + 'battle '):
-        users = util_due.userMentions(message);
+        users = util.userMentions(message);
         if (len(users) == 2):
             if(users[0] != users[1]):
                 await battle(message, users, None, False);
@@ -614,7 +614,7 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention two players!**");
         return True;
     elif message.content.lower().startswith(command_key + 'battleme '):
-        p = util_due.userMentions(message);
+        p = util.userMentions(message);
         if(len(p) == 1):
             if(message.author.id == p[0]):
                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't battle yourself!**");
@@ -643,10 +643,10 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(s)+"s**");
     elif message.content.lower().startswith(command_key + 'wagerbattle'):  # NEW WIP WAGERS
-        users = util_due.userMentions(message);
+        users = util.userMentions(message);
         if(len(users) == 1):
             messageArg = message.content.lower().replace(command_key + "wagerbattle ", "", 1);
-            messageArg = util_due.clearmentions(messageArg);
+            messageArg = util.clearmentions(messageArg);
             try:
                 Money = int(messageArg);
                 if (len(users) == 1):
@@ -663,13 +663,13 @@ async def battle_quest_on_message(client,message):
                                     player.battlers.append(wagerS);
                                     savePlayer(sender);
                                     savePlayer(player);
-                                    await get_client(message.server.id).send_message(message.channel, "**"+sender.name+"** wagers **"+player.name+"** $" + util_due.to_money(Money,False) + " that they will win in a battle!");
+                                    await get_client(message.server.id).send_message(message.channel, "**"+sender.name+"** wagers **"+player.name+"** $" + util.to_money(Money,False) + " that they will win in a battle!");
                                 else:
                                     await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't afford this wager!**");
                             else:
                                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must wager at least $1!**");
                         else:
-                            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** is not playing!");
+                            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,users[0])+"** is not playing!");
                     else:
                         await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't wager against yourself!**");
                 else:
@@ -684,7 +684,7 @@ async def battle_quest_on_message(client,message):
         WagerT = "```\n" + player.name + "'s received wagers\n";
         if(len(player.battlers) > 0):
             for x in range(0, len(player.battlers)):
-                WagerT = WagerT + str(x + 1) + ". $" +  util_due.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
+                WagerT = WagerT + str(x + 1) + ". $" +  util.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
         else:
             WagerT = WagerT + "You have no requests!\n";
         WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n";
@@ -744,8 +744,8 @@ async def battle_quest_on_message(client,message):
         await set_banner(message.channel,command_key,findPlayer(message.author.id),message.content.lower().replace(command_key + 'setbanner ',""));
     elif message.content.lower() == command_key + 'listbgs' or  message.content.lower().startswith(command_key + 'listbgs '):
         bglist = list(Backgrounds.keys());
-        await util_due.simple_paged_list(message,command_key,"listbgs",bglist,"Available backgrounds");
-    elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util_due.is_mod_or_admin(message.author.id))):
+        await util.simple_paged_list(message,command_key,"listbgs",bglist,"Available backgrounds");
+    elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util.is_mod_or_admin(message.author.id))):
         loadBackgrounds();
         await get_client(message.server.id).send_message(message.channel, "Custom backgrounds reloaded.");   
         return True; 
@@ -753,9 +753,9 @@ async def battle_quest_on_message(client,message):
         await display_rank(message, None);
     elif message.content.lower().startswith(command_key + 'rank'):
         if(len(message.raw_mentions) == 1):
-            gplayer = findPlayer(util_due.userMentions(message)[0]);
+            gplayer = findPlayer(util.userMentions(message)[0]);
             if(gplayer == None):
-                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,util_due.userMentions(message)[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,util.userMentions(message)[0])+"** has not joined!");
             else:
                 await display_rank(message, gplayer);
         else:
@@ -768,7 +768,7 @@ async def battle_quest_on_message(client,message):
         if  len(message.raw_mentions) == 1 and message.content.lower().startswith(command_key + 'awards'):
             player = findPlayer(message.raw_mentions[0]);
             if player == None:
-                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,message.raw_mentions[0])+"** has not joined!");
                 return True;
         elif message.content.lower().startswith(command_key + 'awards') and len(message.raw_mentions) == 0:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
@@ -778,9 +778,9 @@ async def battle_quest_on_message(client,message):
             return True; 
         else:
             player = findPlayer(message.author.id);
-        if(" " in message.content.lower() and hasNumbers(util_due.clearmentions(message.content))):
+        if(" " in message.content.lower() and hasNumbers(util.clearmentions(message.content))):
             try:
-                p = int(util_due.clearmentions(message.content.lower().replace(command_key + 'myawards',"").replace(command_key + 'awards',"")));
+                p = int(util.clearmentions(message.content.lower().replace(command_key + 'myawards',"").replace(command_key + 'awards',"")));
                 if((p-1)*5 < len(player.awards) and p > 0):
                     await awards_screen(message, player, p-1);
                 else:
@@ -800,7 +800,7 @@ async def battle_quest_on_message(client,message):
         if(len(users) == 1):
             player = findPlayer(users[0]);
             if player == None:
-                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,users[0])+"** has not joined!");
                 return True;
             await show_weapons(message,player,True);
         return True;
@@ -810,10 +810,10 @@ async def battle_quest_on_message(client,message):
     elif message.content.lower().startswith(command_key + 'unequipweapon'):
         await unequip_weapon(message,findPlayer(message.author.id));
         return True;
-    elif message.content.lower().startswith(command_key + 'checkusers') and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + 'checkusers') and util.is_mod_or_admin(message.author.id):
         await exploit_check(message);
         return True;
-    elif message.content.lower() == (command_key + 'clearsus') and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower() == (command_key + 'clearsus') and util.is_mod_or_admin(message.author.id):
         await clear_suspicious(message);
         return True;
     elif message.content.lower() == (command_key + 'qinfo'):
@@ -824,7 +824,7 @@ async def battle_quest_on_message(client,message):
             time_till_reset = "\nThis will be reset in "+time.strftime("**%Hh** **%Mm** **%Ss**", time.gmtime(secs)).replace("**00h**","").replace("**00m**","").replace("**00s**","");
         await get_client(message.server.id).send_message(message.channel, ":information_source: You have completed "+str(player.quests_completed_today)+" quest(s) today."+time_till_reset);
         return True;
-    elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util_due.is_mod_or_admin(message.author.id):
+    elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util.is_mod_or_admin(message.author.id):
         users = message.raw_mentions;
         if(len(users) > 1):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
@@ -834,7 +834,7 @@ async def battle_quest_on_message(client,message):
             return True;
         player = findPlayer(users[0]);
         if player == None:
-            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,users[0])+"** has not joined!");
             return True;
         if message.content.lower().startswith(command_key + 'takeweapons '):
             await take_weapon(message,player);
@@ -844,10 +844,10 @@ async def battle_quest_on_message(client,message):
             await take_weapon(message,player);
             await wipe_cash(message,player);
         return True;
-    elif message.content.lower().startswith(command_key + 'testbg ') and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + 'testbg ') and util.is_mod_or_admin(message.author.id):
         await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
-    elif message.content.lower().startswith(command_key + 'uploadbg ') and util_due.is_mod_or_admin(message.author.id):
-        args = re.sub(' +',' ',util_due.clearmentions(message.content).strip()).split(' ',2);
+    elif message.content.lower().startswith(command_key + 'uploadbg ') and util.is_mod_or_admin(message.author.id):
+        args = re.sub(' +',' ',util.clearmentions(message.content).strip()).split(' ',2);
         if(len(args) < 3):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **A background has no name!**");
             return True;
@@ -856,10 +856,10 @@ async def battle_quest_on_message(client,message):
           if(player != None):
               await give_award(message, player, 23, "Background Accepted!");
           else:
-              await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
+              await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
               return True;
         await upload_bg(message.channel,args[1],args[2]);
-    elif message.content.lower().startswith(command_key+'deletebg ') and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower().startswith(command_key+'deletebg ') and util.is_mod_or_admin(message.author.id):
         args = re.sub(' +',' ',message.content.strip()).split(' ',1);
         if(len(args) < 2):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Enter a background name!**");
@@ -875,7 +875,7 @@ async def battle_quest_on_message(client,message):
         else:
             await view_banner(message.channel,args[1]); 
         return True;
-    elif message.content.lower().startswith(command_key + "setdonor ") and util_due.is_mod_or_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + "setdonor ") and util.is_mod_or_admin(message.author.id):
         if len(message.raw_mentions) == 1:
             player = findPlayer(message.raw_mentions[0]);
             if player != None:
@@ -889,18 +889,18 @@ async def battle_quest_on_message(client,message):
                     await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** no longer has the donor rank.");
                     del player.awards[player.awards.index(25)];
             else:
-                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
+                await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Just mention one player!**");
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
     elif message.content.lower().startswith(command_key + "mybanners"):
       await show_banners_for_player(message,findPlayer(message.author.id));
-    elif message.content.lower().startswith(command_key + "createbanner") and util_due.is_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + "createbanner") and util.is_admin(message.author.id):
         await create_banner(message);
-    elif message.content.lower().startswith(command_key + "deletebanner") and util_due.is_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + "deletebanner") and util.is_admin(message.author.id):
         await remove_banner(message.channel,message.content.lower().replace(command_key + "deletebanner","").strip());
-    elif message.content.lower().startswith(command_key + 'summonquest ') and util_due.is_admin(message.author.id):
+    elif message.content.lower().startswith(command_key + 'summonquest ') and util.is_admin(message.author.id):
         if(len(message.raw_mentions) == 1):
           player = findPlayer(message.raw_mentions[0]);
           if(player != None):
@@ -933,11 +933,11 @@ async def buy_weapon(message,command_key):
                                 await harambe_check(message,weapon,player);
                                 await give_award(message, player, 4, "License to kill.");
                                 player.wep_sum = get_weapon_sum(weapon.wID)
-                                await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
+                                await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util.to_money(weapon.price,False) + "!");
                             else:
                                 if not owns_weapon_name(player,weapon.name.lower()):
                                     player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
-                                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
+                                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util.to_money(weapon.price,False) + "!");
                                     await get_client(message.server.id).send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
                                 else:
                                     await get_client(message.server.id).send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
@@ -949,7 +949,7 @@ async def buy_weapon(message,command_key):
                         await get_client(message.server.id).send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
                         
                 else:
-                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util_due.to_money(weapon.price-player.money,False)+"** more.");
+                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util.to_money(weapon.price-player.money,False)+"** more.");
     except:
         Found = False;
     if(not Found):
@@ -958,7 +958,7 @@ async def buy_weapon(message,command_key):
    
 async def create_banner(message):
     global Banners;
-    args = util_due.get_strings(message.content);
+    args = util.get_strings(message.content);
     try:
         name = args[0];
         url = args[1];
@@ -1036,7 +1036,7 @@ async def equip_weapon(message,player,wname):
         await get_client(message.server.id).send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
         
 async def show_banners_for_player(message,player):
-    await util_due.simple_paged_list(message,util_due.get_server_cmd_key(message.server),"mybanners",get_banner_list_for_player(player).splitlines(),player.name+"'s banners");
+    await util.simple_paged_list(message,util.get_server_cmd_key(message.server),"mybanners",get_banner_list_for_player(player).splitlines(),player.name+"'s banners");
 
 def get_banner_list_for_player(player):
     banner_list ="";
@@ -1058,7 +1058,7 @@ def can_use_banner(banner,player):
     return (not banner.donor or banner.donor == player.donor) and banner_restricted(banner,player);
     
 def banner_restricted(banner,player):
-    return (not banner.admin_only or banner.admin_only == util_due.is_admin(player.userid)) and (not banner.mod_only or banner.mod_only == util_due.is_mod_or_admin(player.userid));
+    return (not banner.admin_only or banner.admin_only == util.is_admin(player.userid)) and (not banner.mod_only or banner.mod_only == util.is_mod_or_admin(player.userid));
     
 async def validate_weapon_store(message,player):
     weapon_sums = [];
@@ -1076,9 +1076,9 @@ async def sell(message, uID, recall):
 async def mass_recall(message, player, weapon_sums):
     refund = 0;
     for sum in weapon_sums:
-        refund = refund + int(util_due.get_strings(sum)[0]);
+        refund = refund + int(util.get_strings(sum)[0]);
     player.money = player.money + refund;
-    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util_due.to_money(refund,False) + " refund.");
+    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util.to_money(refund,False) + " refund.");
     savePlayer(player);
     
 async def sell_weapon(message, uID, recall,weapon_name):
@@ -1106,14 +1106,14 @@ async def sell_weapon(message, uID, recall,weapon_name):
         price = int(((weapon.chance/100) * weapon.attack) / 0.04375);
         sellPrice = int(price - (price / 4));
         if(not recall):
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util_due.to_money(sellPrice,False)+ "!");
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util.to_money(sellPrice,False)+ "!");
         else:
             if(weapon_name == None):
-                sellPrice = int(util_due.get_strings(player.wep_sum)[0]);
+                sellPrice = int(util.get_strings(player.wep_sum)[0]);
             else:
-                sellPrice = int(util_due.get_strings(weapon_data[1])[0]);
-            #print(util_due.get_strings(player.wep_sum));
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util_due.to_money(sellPrice,False) + " refund.");
+                sellPrice = int(util.get_strings(weapon_data[1])[0]);
+            #print(util.get_strings(player.wep_sum));
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util.to_money(sellPrice,False) + " refund.");
         if(weapon_name == None):
             player.wID = no_weapon_id;
             player.wep_sum = get_weapon_sum(no_weapon_id)
@@ -1137,7 +1137,7 @@ async def show_quest_list(message):
     title = message.server.name + " Quests**\n**Square brackets indicate quest name.";
     title_not_first_page = message.server.name + " Quests";
     last_page_footer ="That's it!"
-    await util_due.display_with_pages(message,get_server_quest_list(message.server),"serverquests",title,title_not_first_page,"",last_page_footer);
+    await util.display_with_pages(message,get_server_quest_list(message.server),"serverquests",title,title_not_first_page,"",last_page_footer);
         
 async def show_weapons(message,player,not_theirs):
     eweap = get_weapon_from_id(player.wID);
@@ -1152,7 +1152,7 @@ async def show_weapons(message,player,not_theirs):
             else:
                 Type = "Ranged";
             accy = round(weap.chance,2);
-            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + util_due.number_format_text(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
+            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + util.number_format_text(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n";
             num=num+1;
     if(len(player.owned_weps) == 0):
         if(not not_theirs):
@@ -1161,7 +1161,7 @@ async def show_weapons(message,player,not_theirs):
             output = output + player.name+" does not have any weapons stored!```";
     else:
         if(not not_theirs):
-            cmd = util_due.get_server_cmd_key(message.server);
+            cmd = util.get_server_cmd_key(message.server);
             output = output+"Use "+cmd+"equipweapon [Weapon Name] to equip a stored weapon!\nUse "+cmd+"unequipweapon to store your equiped weapon.```";
         else:
             output = output + "```";
@@ -1194,8 +1194,7 @@ def load(clients):
     load_awards();
     loaded = True;
     
-def get_client(server_id):
-    return shard_clients[DueUtil.get_shard_index(server_id)];
+
     
 def loadBackgrounds():
      Backgrounds.clear();
@@ -1209,7 +1208,7 @@ async def give_award(message, player, id, text):
     if(id not in player.awards):
         player.awards.append(id);
         savePlayer(player)
-        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util_due.mutedchan):
+        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util.mutedchan):
             await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
 
 async def give_award_id(message, userid, id, text):
@@ -1219,7 +1218,7 @@ async def give_award_id(message, userid, id, text):
     if(id not in player.awards):
         player.awards.append(id);
         savePlayer(player)
-        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util_due.mutedchan):
+        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util.mutedchan):
             await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
              
 def load_awards():
@@ -1259,9 +1258,9 @@ def load_award(icon_path,name):
 async def shop(message):
     normal_title = "Welcome to DueUtil's weapon shop!";
     #past_page_one_title = "DueUtil's weapon shop";
-    #constant_footer = "Type **" + util_due.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
+    #constant_footer = "Type **" + util.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
     #final_page_footer = "Want more? Ask a server manager to add stock!";
-    #await util_due.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
+    #await util.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
 
     
 def get_server_weapon_list(message):
@@ -1279,7 +1278,7 @@ def get_server_weapon_list(message):
                 else:
                     Type = "Ranged";
                 accy = round(weapon.chance,2);
-                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util_due.number_format_text(weapon.attack) + " | ACCY: " + util_due.format_float_drop_zeros(accy) + "% | Type: " + Type + " | $" +  util_due.to_money(weapon.price,False)+ " |\n";	
+                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util.number_format_text(weapon.attack) + " | ACCY: " + util.format_float_drop_zeros(accy) + "% | Type: " + Type + " | $" +  util.to_money(weapon.price,False)+ " |\n";	
     return weapon_listings;
 
 
@@ -1292,7 +1291,7 @@ async def printStats(message, uID):
     if(player != None):
         await displayStatsImage(player, False, message);
     else:
-        await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,uID)+"** has not joined!");
+        await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,uID)+"** has not joined!");
             
 async def display_stats(player, q, message):
         level = math.trunc(player.level);
@@ -1306,7 +1305,7 @@ async def display_stats(player, q, message):
             c = "Reward"
             w = "Weapon"
             title = "```\n" + player.name + " Quest Info"
-        await get_client(message.server.id).send_message(message.channel, title + "\nLevel: " + str(level) + " \nAttack: " + str(attk) + "\nStrength: " + str(strg) + "\nShooting: " + str(shooting) + "\n" + c + ": $" +  util_due.to_money(player.money,False)+ "\n" + w + ": " + Weapons[player.wID].icon + " - " + Weapons[player.wID].name + "```\n");
+        await get_client(message.server.id).send_message(message.channel, title + "\nLevel: " + str(level) + " \nAttack: " + str(attk) + "\nStrength: " + str(strg) + "\nShooting: " + str(shooting) + "\n" + c + ": $" +  util.to_money(player.money,False)+ "\n" + w + ": " + Weapons[player.wID].icon + " - " + Weapons[player.wID].name + "```\n");
 
 def filter_func(string):
     new = "";
@@ -1360,7 +1359,7 @@ async def level_up_image(message, player, cash):
         img.paste(avatar, (10, 10));
     draw = ImageDraw.Draw(img)
     draw.text((159, 18), str(level), (255, 255, 255), font=font_big)
-    draw.text((127, 40), "$" + util_due.to_money(cash,True), (255, 255, 255), font=font_big)
+    draw.text((127, 40), "$" + util.to_money(cash,True), (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1380,10 +1379,10 @@ async def new_quest_image(message, quest, player):
         img.paste(avatar, (10, 10));
     draw = ImageDraw.Draw(img)
     g_quest = get_game_quest_from_id(quest.qID);
-    draw.text((72, 20), get_text_limit_len(draw,util_due.clear_markdown_escapes(g_quest.quest),font_med,167), (255, 255, 255), font=font_med)
+    draw.text((72, 20), get_text_limit_len(draw,util.clear_markdown_escapes(g_quest.quest),font_med,167), (255, 255, 255), font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level));
     width = draw.textsize(level_text, font=font_big)[0]
-    draw.text((71, 39), get_text_limit_len(draw,util_due.clear_markdown_escapes(g_quest.monsterName),font_big,168-width) + level_text, (255, 255, 255), font=font_big)
+    draw.text((71, 39), get_text_limit_len(draw,util.clear_markdown_escapes(g_quest.monsterName),font_big,168-width) + level_text, (255, 255, 255), font=font_big)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1409,7 +1408,7 @@ async def awards_screen(message, player,page):
         pageInfo = ": Page "+str(page+1);
         t += pageInfo;
         pageInfoLen = draw.textsize(pageInfo, font=font)[0]
-    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,175-pageInfoLen); 
+    name = get_text_limit_len(draw,util.clear_markdown_escapes(player.name),font,175-pageInfoLen); 
     t=name+t;
         
     draw.text((15, 17), t,(255,255,255), font=font)
@@ -1426,14 +1425,14 @@ async def awards_screen(message, player,page):
          if(c == 5):
              if(x != 0):
                  a = "myawards";
-                 if(message.content.lower().startswith(util_due.get_server_cmd_key(message.server)+"awards")):
+                 if(message.content.lower().startswith(util.get_server_cmd_key(message.server)+"awards")):
                      a = "awards @User";
-                 msg = "+ "+str(len(player.awards)-(5*(page+1)))+" More. Do "+filter_func(util_due.get_server_cmd_key(message.server))+a+" "+str(page+2)+" for the next page.";
+                 msg = "+ "+str(len(player.awards)-(5*(page+1)))+" More. Do "+filter_func(util.get_server_cmd_key(message.server))+a+" "+str(page+2)+" for the next page.";
              break;
     if (x == 0):
         msg = "That's all folks!"
     if (len(player.awards) == 0):
-        name = get_text_limit_len(draw,util_due.clear_markdown_escapes(player.name),font,100);
+        name = get_text_limit_len(draw,util.clear_markdown_escapes(player.name),font,100);
         msg = name+" doesn't have any awards!";
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * c),msg,  (255, 255, 255), font=font_small)
@@ -1496,10 +1495,10 @@ async def battle_image(message, pone, ptwo, btext):
     draw = ImageDraw.Draw(img)
     draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
     draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), (255, 255, 255), font=font_small)
-    weap_one_name = get_text_limit_len(draw,util_due.clear_markdown_escapes(weapon_one.name),font,85)
+    weap_one_name = get_text_limit_len(draw,util.clear_markdown_escapes(weapon_one.name),font,85)
     width = draw.textsize(weap_one_name, font=font)[0]
     draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
-    draw.text((132, 103), get_text_limit_len(draw,util_due.clear_markdown_escapes(weapon_two.name),font,85), (255, 255, 255), font=font)
+    draw.text((132, 103), get_text_limit_len(draw,util.clear_markdown_escapes(weapon_two.name),font,85), (255, 255, 255), font=font)
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
@@ -1721,7 +1720,7 @@ def get_sus_list():
                 break;
         if(player.money >= 1000000000000 or weapon.price >= 50000 or hasOPweapStore == "Yes"):
             count = count +1;
-            out = out + str(count)+". "+player.name + " ("+player.userid+") | Cash $"+util_due.to_money(player.money,False)+" | Weapon Value $"+util_due.to_money(weapon.price,False)+" | Suspicious Stored Weapons - "+hasOPweapStore+" \n"
+            out = out + str(count)+". "+player.name + " ("+player.userid+") | Cash $"+util.to_money(player.money,False)+" | Weapon Value $"+util.to_money(weapon.price,False)+" | Suspicious Stored Weapons - "+hasOPweapStore+" \n"
     if (count == 0):
         return  'All looks good.';
     return out;
@@ -1730,7 +1729,7 @@ async def exploit_check(message):
     normal_title = "These players seem suspicious...";
     past_page_one_title = "Suspicious players";
     final_page_footer = "That's all who've found out how broken DueUtil is!";
-    await util_due.display_with_pages(message,get_sus_list(),"checkusers",normal_title,past_page_one_title,"",final_page_footer);
+    await util.display_with_pages(message,get_sus_list(),"checkusers",normal_title,past_page_one_title,"",final_page_footer);
 
     
         
@@ -1758,7 +1757,7 @@ async def clear_suspicious(message):
                 hasOPweapStore = True;
                 break;
         if player.money >= 1000000000000 or weapon.price >= 50000 or hasOPweapStore:
-            if(not util_due.is_mod_or_admin(player.userid)):
+            if(not util.is_mod_or_admin(player.userid)):
                 count = count + 1;
                 player.money = 0;
                 player.wID = no_weapon_id;
@@ -1821,7 +1820,7 @@ def save_banner(banner):
 def save_quest(quest):
     # data = json.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(quest);
-    args = util_due.get_strings(quest.qID);
+    args = util.get_strings(quest.qID);
     with open("saves/gamequests/" + args[0] + "_"+str(hashlib.md5(quest.monsterName.lower().encode('utf-8')).hexdigest())+".json", 'w') as outfile:
         json.dump(data, outfile);
         
@@ -1841,7 +1840,7 @@ def load_quests():
                         q.spawnchance = update_chance(False,q.spawnchance);
                         q.update = False;
                         saveQuest(q);
-                    args = util_due.get_strings(q.qID);
+                    args = util.get_strings(q.qID);
                     if(len(args) == 2):
                         if(args[0] in ServersQuests):
                             ServersQuests[args[0]][args[1]] = q;
@@ -1858,7 +1857,7 @@ def find_name(server,uID):
     if(p != None):
         return p.name;
     else:
-        return util_due.get_server_name_S(server,uID);
+        return util.get_server_name_S(server,uID);
     
 
         
@@ -1922,7 +1921,7 @@ async def display_stats_image(player, q, message):
     attk = round(player.attack, 2);
     strg = round(player.strg, 2);
     shooting = round(player.shooting, 2)
-    name = util_due.clear_markdown_escapes(player.name);
+    name = util.clear_markdown_escapes(player.name);
     try:
         img = Image.open("backgrounds/" + player.background);
     except:
@@ -1958,8 +1957,8 @@ async def display_stats_image(player, q, message):
     width = draw.textsize(str(shooting), font=font)[0]
     draw.text((241 - width, 178), str(shooting), (255, 255, 255), font=font)
 
-    width = draw.textsize("$" + util_due.to_money(player.money,True) , font=font)[0]
-    draw.text((241 - width, 204), "$" + util_due.to_money(player.money,True) , (255, 255, 255), font=font)
+    width = draw.textsize("$" + util.to_money(player.money,True) , font=font)[0]
+    draw.text((241 - width, 204), "$" + util.to_money(player.money,True) , (255, 255, 255), font=font)
     
     width= draw.textsize(str(player.quests_won), font=font)[0]
     draw.text((241 - width, 253), str(player.quests_won), (255, 255, 255), font=font)
@@ -1967,7 +1966,7 @@ async def display_stats_image(player, q, message):
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
     
-    wep = get_text_limit_len(draw,util_due.clear_markdown_escapes(get_weapon_from_id(player.wID).name),font,95);
+    wep = get_text_limit_len(draw,util.clear_markdown_escapes(get_weapon_from_id(player.wID).name),font,95);
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
     # here
@@ -2013,7 +2012,7 @@ async def displayQuestImage(quest, message):
     shooting = round(quest.shooting, 2)
     img = Image.open("screens/stats_page_quest.png");
     draw = ImageDraw.Draw(img)
-    name = get_text_limit_len(draw,util_due.clear_markdown_escapes(quest.name),font,114);
+    name = get_text_limit_len(draw,util.clear_markdown_escapes(quest.name),font,114);
     g_quest = get_game_quest_from_id(quest.qID);
     draw.text((88, 38), name, getRankColour(int(level / 10) + 1), font=font)
     draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
@@ -2027,7 +2026,7 @@ async def displayQuestImage(quest, message):
     width = draw.textsize(str(shooting), font=font)[0]
     draw.text((203 - width, 178), str(shooting), (255, 255, 255), font=font)
 
-    wep = get_text_limit_len(draw,util_due.clear_markdown_escapes(get_weapon_from_id(quest.wID).name),font,136);
+    wep = get_text_limit_len(draw,util.clear_markdown_escapes(get_weapon_from_id(quest.wID).name),font,136);
     width = draw.textsize(str(wep), font=font)[0]
     draw.text((203 - width, 207), str(wep), (255, 255, 255), font=font)
     
@@ -2044,8 +2043,8 @@ async def displayQuestImage(quest, message):
     width = draw.textsize(home, font=font)[0]
     draw.text((203 - width, 242), home, (255, 255, 255), font=font)
     
-    width = draw.textsize("$" + util_due.to_money(quest.money,True), font=font_med)[0]
-    draw.text((203 - width, 266), "$" + util_due.to_money(quest.money,True), (48, 48, 48), font=font_med)
+    width = draw.textsize("$" + util.to_money(quest.money,True), font=font_med)[0]
+    draw.text((203 - width, 266), "$" + util.to_money(quest.money,True), (48, 48, 48), font=font_med)
 
     if(avatar != None):
         img.paste(avatar, (9, 12));
@@ -2076,7 +2075,7 @@ async def player_progress(message):
             addAttack = (len(message.content) / 600);
             if(addAttack < 0.02):
                 addAttack = addAttack + 0.02;
-            addstrg = (util_due.capsCount(message) / 400);
+            addstrg = (util.capsCount(message) / 400);
             if(addstrg < 0.03):
                 addstrg = addstrg + 0.03;
             addshoot = (((message.content.count(' ') + message.content.count('.') + message.content.count("'") / 3) / 200));
@@ -2092,7 +2091,7 @@ async def player_progress(message):
                 gplayer.money = gplayer.money + MONEY;
                 money_created = money_created + MONEY;
                 players_leveled += 1;
-                if(not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
+                if(not(message.server.id+"/"+message.channel.id in util.mutedchan)):
                     await level_up_image(message, gplayer, MONEY);
                 else:
                     print("Won't send level up image - channel blocked.")
@@ -2107,9 +2106,9 @@ async def player_progress(message):
         p = player();
         p.userid = message.author.id;
         if(len(message.author.name) <= 32):
-            p.name = util_due.escape_markdown(message.author.name);
+            p.name = util.escape_markdown(message.author.name);
         else:
-            p.name = util_due.escape_markdown(message.author.name[:31] + u"\u2026");
+            p.name = util.escape_markdown(message.author.name[:31] + u"\u2026");
         p.wID = no_weapon_id;
         Players[str(message.author.id)] = p;
         new_players_joined = new_players_joined + 1;
@@ -2117,7 +2116,7 @@ async def player_progress(message):
         
 
 async def show_limits_for_player(channel,player):
-    limit = "You can use any weapon with a value up to **$"+util_due.to_money(max_value_for_player(player),False)+"**!";
+    limit = "You can use any weapon with a value up to **$"+util.to_money(max_value_for_player(player),False)+"**!";
     await get_client(message.server.id).send_message(channel, limit);
     
 def weapon_hit(player,weapon):
@@ -2194,7 +2193,7 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
             else:
                 bText = bText +player_one.name + " Wins in " + str(turns) + " " + txt + "!\n";
                 if not quest:
-                    bText = bText + player_one.name + " receives $" + util_due.to_money(wager.wager,False)+ " in winnings from " + player_two.name + "!\n```\n";
+                    bText = bText + player_one.name + " receives $" + util.to_money(wager.wager,False)+ " in winnings from " + player_two.name + "!\n```\n";
                     player_one.money = player_one.money + (wager.wager * 2);
                     player_one.wagers_won = player_one.wagers_won + 1;
                     await give_award(message, player_one, 13, "Win a wager!");
@@ -2204,13 +2203,13 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
                 else:
                     player_one.money = player_one.money + wager;
                     money_created = money_created + wager;
-                    bText = bText +player_one.name + " completed a quest and earned $" +  util_due.to_money(wager,False)+ "!\n```\n";
+                    bText = bText +player_one.name + " completed a quest and earned $" +  util.to_money(wager,False)+ "!\n```\n";
                     player_one.quests_won = player_one.quests_won + 1;
                     if(player_one.quests_completed_today == 0):
                         player_one.quest_day_start = time.time();
                     player_one.quests_completed_today  = player_one.quests_completed_today + 1;
                     await give_award(message, player_one, 1, "*Saved* the server.");
-                    print(filter_func(player_one.name)+" ("+player_one.userid+") has received $"+util_due.to_money(wager,False)+" from a quest.");
+                    print(filter_func(player_one.name)+" ("+player_one.userid+") has received $"+util.to_money(wager,False)+" from a quest.");
                     savePlayer(player_one);
                 await battle_image(message, player_one, player_two, bText);
         elif (hp_player_two > hp_player_one):
@@ -2219,7 +2218,7 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
             else:
                 if not quest:
                     bText = bText +player_two.name + " Wins in " + str(turns) + " " + txt + "!\n";
-                    bText = bText + player_two.name + " receives $" + util_due.to_money(wager.wager,False) + " in winnings from " + player_one.name + "!\n```\n";
+                    bText = bText + player_two.name + " receives $" + util.to_money(wager.wager,False) + " in winnings from " + player_one.name + "!\n```\n";
                     player_two.money = player_two.money + (wager.wager * 2);
                     player_two.wagers_won = player_two.wagers_won + 1;
                     await give_award(message, player_two, 13, "Win a wager!");
@@ -2228,7 +2227,7 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
                     savePlayer(player_two);
                 else:
                     bText = bText + "The " + player_two.name + " Wins in " + str(turns) + " " + txt + "!\n";
-                    bText = bText + ""+player_one.name + " failed a quest and lost $" + util_due.to_money(int((wager) / 2),False)+ "!\n```\n";
+                    bText = bText + ""+player_one.name + " failed a quest and lost $" + util.to_money(int((wager) / 2),False)+ "!\n```\n";
                     player_one.money = player_one.money - int((wager) / 2);
                     await give_award(message, player_one, 3, "Red mist.");
                     savePlayer(player_one);
@@ -2250,9 +2249,9 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
 
     else:
         if(player_one == None):
-            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,players[0])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,players[0])+"** has not joined!");
         if(player_two == None):
-            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,players[1])+"** has not joined!");
             
 async def manage_quests(message):
     global quests_given;
@@ -2275,7 +2274,7 @@ async def manage_quests(message):
 async def add_quest(message, player, n_q):
     aQ = createQuest(n_q, player);
     savePlayer(player);
-    if(not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
+    if(not(message.server.id+"/"+message.channel.id in util.mutedchan)):
         await new_quest_image(message, aQ, player);
     else:
         print("Won't send new quest image - channel blocked.")
@@ -2303,7 +2302,7 @@ def create_quest(n_q, player):
 async def show_quests(message):
       #global GameQuests;
       player = findPlayer(message.author.id);
-      command_key = util_due.get_server_cmd_key(message.server);
+      command_key = util.get_server_cmd_key(message.server);
       QuestsT = "```\n" + player.name + "'s Quests!\n"
       if len(player.quests) > 0:
           for x in range(0, len(player.quests)):
@@ -2323,9 +2322,5 @@ async def show_quests(message):
           QuestsT = QuestsT + "You don't have any quests!```";
       await get_client(message.server.id).send_message(message.channel, QuestsT);
       
-
-async def say(channel,*args,**kwargs):
-      await get_client(channel.server.id).send_message(channel,*args,**kwargs);
-
 
 
