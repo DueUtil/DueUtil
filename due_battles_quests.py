@@ -15,6 +15,7 @@ import time
 import re;
 import os;
 import shutil
+import DueUtil;
 from io import BytesIO;
 import json;
 from PIL import Image, ImageDraw, ImageFont
@@ -30,7 +31,7 @@ Banners = dict();
 ServersQuests = dict();
 Weapons = dict();
 Backgrounds = dict();
-#client = None;
+shard_clients = None;
 postive_bools = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
 no_weapon_id = "000000000000000000_none";
 font = ImageFont.truetype("Due_Robo.ttf", 12);
@@ -301,13 +302,13 @@ async def battle_quest_on_message(client,message):
                             print("Quest battle error (text probably too long)");
                         savePlayer(player);
                     else:
-                        await client.send_message(message.channel, ":bangbang: **You can't do more than 50 quests a day!**");
+                        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't do more than 50 quests a day!**");
                 else:
-                    await client.send_message(message.channel, ":bangbang:  **You can't afford the risk!**");
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang:  **You can't afford the risk!**");
             else:
-                await client.send_message(message.channel, ":bangbang: **Quest not found!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Quest not found!**");
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
             return True;
     elif(message.content.lower().startswith(command_key + 'declinequest ')):
         try:
@@ -326,11 +327,11 @@ async def battle_quest_on_message(client,message):
                         questT = "do a long forgotten quest:";
                 except:
                     questT = "do a long forgotten quest:";
-                await client.send_message(message.channel, "**"+player.name + "** declined to " + questT + " **" + qT.name + " [Level " + str(qT.level) + "]**!");
+                await get_client(message.server.id).send_message(message.channel, "**"+player.name + "** declined to " + questT + " **" + qT.name + " [Level " + str(qT.level) + "]**!");
             else:
-                await client.send_message(message.channel, ":bangbang:  **Quest not found!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**");
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif(message.content.lower().startswith(command_key + 'questinfo ')):
         try:
@@ -340,9 +341,9 @@ async def battle_quest_on_message(client,message):
             if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
                 await displayStatsImage(player.quests[q - 1], True, message);
             else:
-                await client.send_message(message.channel, ":bangbang: **Quest not found!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Quest not found!**");
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'shop'):
         await shop(message);
@@ -352,7 +353,7 @@ async def battle_quest_on_message(client,message):
         p.benfont = not p.benfont;
         savePlayer(p);
         if(p.benfont):
-            await client.send_file(message.channel,'images/nod.gif');
+            await get_client(message.server.id).send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
     elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
          #messageArg = message.content.replace(command_key + "createquest ", "", 1);  # DO DO CREAT QUWEST
@@ -364,7 +365,7 @@ async def battle_quest_on_message(client,message):
                      if(len(Strs[1]) <= 32):
                          if(message.server.id in ServersQuests):
                              if(Strs[0].strip().lower() in ServersQuests[message.server.id]):
-                                 await client.send_message(message.channel, ":bangbang: **A foe with that name already exists on this server!**");
+                                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **A foe with that name already exists on this server!**");
                                  return True;
                          else:
                              addQuests(message.server.id);
@@ -378,11 +379,11 @@ async def battle_quest_on_message(client,message):
                          nquest.baseshooting = abs(float(Strs[5]));
                          
                          if (nquest.basehp < 30):
-                            await client.send_message(message.channel, ":bangbang: **Base HP must be at least 30!**");
+                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Base HP must be at least 30!**");
                             return True;
                             
                          if(nquest.baseattack < 1 or nquest.basestrg < 1 or nquest.basehp < 1 or nquest.baseshooting < 1):
-                            await client.send_message(message.channel, ":bangbang: **No stats can be less than 1!**");
+                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **No stats can be less than 1!**");
                             return True;
                          
                          if(len(Strs[6]) > 18):
@@ -412,29 +413,29 @@ async def battle_quest_on_message(client,message):
                          nquest.made_on = message.server.name;
                          
                          if(nquest.spawnchance < 1):
-                            await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
+                            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Spawn chance cannot be less than 1%!**");
                             return True;
                          elif (nquest.spawnchance > 25):
-                             await client.send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
+                             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Spawn chance cannot be over 25%!**");
                              return True;
                              
                          ServersQuests[message.server.id][nquest.monsterName.lower()] = nquest;
                              
                          #pickle.dump(GameQuests, open ("saves/quests.p", "wb"), protocol=pickle.HIGHEST_PROTOCOL);
                          saveQuest(nquest);
-                         await client.send_message(message.channel, nquest.quest + " **" + nquest.monsterName + "** quest now active!");
+                         await get_client(message.server.id).send_message(message.channel, nquest.quest + " **" + nquest.monsterName + "** quest now active!");
                      else:
-                         await client.send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 32 characters!**");
+                         await get_client(message.server.id).send_message(message.channel,":bangbang: **Quest text too long! Quest text cannot be longer than 32 characters!**");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 32 characters!**");
+                     await get_client(message.server.id).send_message(message.channel,":bangbang: **Monster name too long! Monster names cannot be longer than 32 characters!**");
 
              except:
-                 await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
              #print(len(Strs))
-             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
              if(message.content.lower().count('"') % 2 == 1):
-                await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
+                await get_client(message.server.id).send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
             await show_quest_list(message);
@@ -448,18 +449,18 @@ async def battle_quest_on_message(client,message):
                 if(questName in ServersQuests[message.server.id]):
                     quest_to = ServersQuests[message.server.id][questName];
                 else:
-                    await client.send_message(message.channel, ":bangbang: **No monster with that name found on your server!**");
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **No monster with that name found on your server!**");
                     return True;
             else:
-                 await client.send_message(message.channel, ":bangbang: **Looking at my records it appears you don't have any quests anyway...**");
+                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **Looking at my records it appears you don't have any quests anyway...**");
                  True;
                  
             text = quest_to.quest + " **" + quest_to.monsterName + "** quest has been removed. You can rest easy now!"
             del ServersQuests[message.server.id][questName];
             os.remove("saves/gamequests/"+message.server.id+"_"+str(hashlib.md5(questName.encode('utf-8')).hexdigest())+".json");
-            await client.send_message(message.channel, text);
+            await get_client(message.server.id).send_message(message.channel, text);
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
          #messageArg = message.content.replace(command_key + "createweapon ", "", 1);
@@ -468,7 +469,7 @@ async def battle_quest_on_message(client,message):
          if(len(Strs) == 7):
              try:
                  if (does_weapon_exist(message.server.id, Strs[1].strip().lower())):
-                    await client.send_message(message.channel, ":bangbang: **A weapon with that name already exists on this server!**");
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **A weapon with that name already exists on this server!**");
                     return;
                  if(len(Strs[1]) <= 32):
                      wep = weapon_class();
@@ -480,7 +481,7 @@ async def battle_quest_on_message(client,message):
                          
                      wep.useText = Strs[4];
                      if(len(wep.useText) > 40):
-                        await client.send_message(message.channel,":bangbang: **Battle use text can't be over 40 characters!**");
+                        await get_client(message.server.id).send_message(message.channel,":bangbang: **Battle use text can't be over 40 characters!**");
                         return True;
                    
                      wep.attack = abs(int(Strs[2]));
@@ -488,14 +489,14 @@ async def battle_quest_on_message(client,message):
                      wep.chance = abs(round(float(Strs[3]),2));
                      
                      if(wep.chance > 86):
-                         await client.send_message(message.channel,":bangbang: **A weapon can't have more than 86% accuracy**");
+                         await get_client(message.server.id).send_message(message.channel,":bangbang: **A weapon can't have more than 86% accuracy**");
                          return True;
                      elif (wep.chance < 1):
-                         await client.send_message(message.channel,":bangbang: **A weapon can't have less than 1% accuracy**");
+                         await get_client(message.server.id).send_message(message.channel,":bangbang: **A weapon can't have less than 1% accuracy**");
                          return True;
                          
                      if wep.attack == 0:
-                         await client.send_message(message.channel,":bangbang: **No values can be zero!**");    
+                         await get_client(message.server.id).send_message(message.channel,":bangbang: **No values can be zero!**");    
                          return True;
                      wep.price = abs(int(((wep.chance/100) * wep.attack) / 0.04375));  # Fair price
                      wep.price = wep.price if wep.price > 0 else 1;
@@ -508,24 +509,24 @@ async def battle_quest_on_message(client,message):
                          wep.melee = False;
                      Weapons[wep.wID] = wep;
                      saveWeapon(wep);
-                     await client.send_message(message.channel, "**" + wep.name + "** is now available in the shop for $" + util_due.to_money(wep.price,False) + "!");
+                     await get_client(message.server.id).send_message(message.channel, "**" + wep.name + "** is now available in the shop for $" + util_due.to_money(wep.price,False) + "!");
                  else:
-                     await client.send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 32 characters!**");                 
+                     await get_client(message.server.id).send_message(message.channel,":bangbang: **Weapon name too long! Weapon names cannot be longer than 32 characters!**");                 
              except:
-                 await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
          else:
-             await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
              if(message.content.lower().count('"') % 2 == 1):
-                await client.send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
+                await get_client(message.server.id).send_message(message.channel, ":information_source: It looks like you might have missed off a double quote!");
          return True;
     elif message.content.lower().startswith(command_key + "sendcash"):
         sender = findPlayer(message.author.id);
         mentions = message.raw_mentions;
         if(len(mentions) < 1):
-            await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
             return True;
         elif (len(mentions) > 1):
-            await client.send_message(message.channel, ":bangbang: **You must mention only one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
             return True;
         try:
             cmd = util_due.clearmentions(message.content);
@@ -533,23 +534,23 @@ async def battle_quest_on_message(client,message):
             amount = int(args[1]);
             other =findPlayer(mentions[0]);
             if(other == None):
-                await client.send_message(message.channel, "**"+util_due.get_server_name(message,mentions[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,mentions[0])+"** has not joined!");
                 return True;
             if(other.userid == sender.userid):
-                await client.send_message(message.channel, ":bangbang: **There is no reason to send money to yourself!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **There is no reason to send money to yourself!**");
                 return True;
             if(amount <= 0):
-                await client.send_message(message.channel, ":bangbang: **You must send at least $1!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must send at least $1!**");
                 return True;
             if(sender.money - amount < 0):
                 if(sender.money > 0):
-                    await client.send_message(message.channel, "You do not have **$"+ util_due.to_money(amount,False)+"**! The maximum you can transfer is **$"+ util_due.to_money(sender.money,False)+"**");
+                    await get_client(message.server.id).send_message(message.channel, "You do not have **$"+ util_due.to_money(amount,False)+"**! The maximum you can transfer is **$"+ util_due.to_money(sender.money,False)+"**");
                 else:
-                     await client.send_message(message.channel, "You do not have any money to transfer!");
+                     await get_client(message.server.id).send_message(message.channel, "You do not have any money to transfer!");
                 return True
             max_receive =  int(max_value_for_player(other)*10);
             if(amount > max_receive):
-                await client.send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_receive,False)+"**!");
+                await get_client(message.server.id).send_message(message.channel, "**$"+util_due.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util_due.to_money(max_receive,False)+"**!");
                 return True;
             sender.money = sender.money - amount;
             other.money = other.money + amount;
@@ -562,31 +563,31 @@ async def battle_quest_on_message(client,message):
                 await give_award(message, sender, 17, "Sugar daddy!")
             if(len(args) == 3 and len(args[2].strip()) > 0):
                 msg = "**Attached note**: ```"+args[2]+" ```\n";
-            await client.send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util_due.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
+            await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util_due.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + "givepotato"):
         sender = findPlayer(message.author.id);
         if len(message.raw_mentions) == 1:
             if(sender.userid == message.raw_mentions[0]):
-                await client.send_message(message.channel,":potato: **It's already yours enjoy it!**");
+                await get_client(message.server.id).send_message(message.channel,":potato: **It's already yours enjoy it!**");
                 return True;
             n = find_name(message.server,message.raw_mentions[0]);
             o = findPlayer(message.raw_mentions[0]);
             if(o == None):
-                await client.send_message(message.channel, "**"+n+"** has not joined! No potatoes for them!");
+                await get_client(message.server.id).send_message(message.channel, "**"+n+"** has not joined! No potatoes for them!");
                 return True;
             o.potatos = o.potatos +1;
             sender.potatos_given = sender.potatos_given + 1;
             await give_award(message, sender, 18, "Bringer of potatoes!");
             if(sender.potatos_given == 100):
                 await give_award(message, sender, 19, "Potato king!");
-            await client.send_message(message.channel,"**"+n+"!** :potato: :heart: **"+sender.name+"**");
+            await get_client(message.server.id).send_message(message.channel,"**"+n+"!** :potato: :heart: **"+sender.name+"**");
             savePlayer(o);
             savePlayer(sender);
         else:
-            await client.send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
         return True;
     elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util_due.is_mod_or_admin(message.author.id)):
         messageArg = message.content.lower().replace(command_key + "removeweapon ", "", 1);
@@ -599,13 +600,13 @@ async def battle_quest_on_message(client,message):
                     if(os.path.isfile("saves/weapons/"+str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest())+".json")):
                         os.remove("saves/weapons/"+str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest())+".json");
                     del Weapons[weapon.wID];
-                    await client.send_message(message.channel, "**" + weapon.name + "** has been removed from **DueUtil**!");
+                    await get_client(message.server.id).send_message(message.channel, "**" + weapon.name + "** has been removed from **DueUtil**!");
                 else:
-                     await client.send_message(message.channel, ":bangbang: **You cannot remove that weapon!**");
+                     await get_client(message.server.id).send_message(message.channel, ":bangbang: **You cannot remove that weapon!**");
             else:
-                await client.send_message(message.channel, ":bangbang: **I don't know of any weapon with that name!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't know of any weapon with that name!**");
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'buy '):
         await buy_weapon(message,command_key);
@@ -642,7 +643,7 @@ async def battle_quest_on_message(client,message):
         player.quests_completed_today = 0;
         player.quest_day_start = 0;
         savePlayer(player);
-        await client.send_message(message.channel, "Your user has been reset.");
+        await get_client(message.server.id).send_message(message.channel, "Your user has been reset.");
         if util_due.is_mod(player.userid):
             await give_award(message,player,22,"Become an mod!")
         if util_due.is_admin(player.userid):
@@ -655,21 +656,21 @@ async def battle_quest_on_message(client,message):
             if(player == None):
                 return True;
             if(len(message.raw_mentions) > 0 or message.mention_everyone or '@everyone' in message.content or '@here' in message.content):
-                await client.send_message(message.channel, ":bangbang: **Please don't include mentions in your battlename!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Please don't include mentions in your battlename!**");
                 return True;
             player.name = messageArg;
             savePlayer(player);
-            await client.send_message(message.channel, "Your battle name has been set to '" + messageArg + "'!");
+            await get_client(message.server.id).send_message(message.channel, "Your battle name has been set to '" + messageArg + "'!");
         else:
-            await client.send_message(message.channel, ":bangbang: **Battle names must be between 1 and 32 characters in length.**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Battle names must be between 1 and 32 characters in length.**");
         return True;
     elif message.content.lower().startswith(command_key + 'myinfo'):
-        await printStats(client,message, message.author.id);
+        await printStats(message, message.author.id);
         return True;
     elif message.content.lower().startswith(command_key + 'info'):
         users = message.raw_mentions;
         if(len(users) == 1):
-            await printStats(client,message, users[0]);
+            await printStats(message, users[0]);
         return True;
     elif message.content.lower().startswith(command_key + 'battle '):
         users = util_due.userMentions(message);
@@ -677,22 +678,22 @@ async def battle_quest_on_message(client,message):
             if(users[0] != users[1]):
                 await battle(message, users, None, False);
             else:
-                await client.send_message(message.channel, ":bangbang: **You can't battle yourself!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't battle yourself!**");
         else:
-            await client.send_message(message.channel, ":bangbang: **You must mention two players!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention two players!**");
         return True;
     elif message.content.lower().startswith(command_key + 'battleme '):
         p = util_due.userMentions(message);
         if(len(p) == 1):
             if(message.author.id == p[0]):
-                await client.send_message(message.channel, ":bangbang: **You can't battle yourself!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't battle yourself!**");
                 return True;
             await battle(message, [message.author.id,p[0]], None, False)
         elif len(p) > 1:
-            await client.send_message(message.channel, ":bangbang: **You must only mention one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must only mention one player!**");
             return True;
         else:
-            await client.send_message(message.channel, ":bangbang: **You must mention who you would like to battle!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention who you would like to battle!**");
             return True;
     elif message.content.lower().startswith(command_key + 'qcooldown'):
         player = findPlayer(message.author.id);
@@ -701,15 +702,15 @@ async def battle_quest_on_message(client,message):
         m = str(int(mi));
         s = str(int(se));
         if(int(mi) == 0 and int(se) == 0):
-            await client.send_message(message.channel, ":information_source: You next have the chance of getting a now! Good luck.");
+            await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a now! Good luck.");
         if( int(se) < 10):
             s = "0"+str(s);
         if( int(mi) < 10):
             m = "0"+str(m);
         if(int(mi) > 0):
-            await client.send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(m)+"m "+str(s)+"s**");
+            await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(m)+"m "+str(s)+"s**");
         else:
-            await client.send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(s)+"s**");
+            await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(s)+"s**");
     elif message.content.lower().startswith(command_key + 'wagerbattle'):  # NEW WIP WAGERS
         users = util_due.userMentions(message);
         if(len(users) == 1):
@@ -731,21 +732,21 @@ async def battle_quest_on_message(client,message):
                                     player.battlers.append(wagerS);
                                     savePlayer(sender);
                                     savePlayer(player);
-                                    await client.send_message(message.channel, "**"+sender.name+"** wagers **"+player.name+"** $" + util_due.to_money(Money,False) + " that they will win in a battle!");
+                                    await get_client(message.server.id).send_message(message.channel, "**"+sender.name+"** wagers **"+player.name+"** $" + util_due.to_money(Money,False) + " that they will win in a battle!");
                                 else:
-                                    await client.send_message(message.channel, ":bangbang: **You can't afford this wager!**");
+                                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't afford this wager!**");
                             else:
-                                await client.send_message(message.channel, ":bangbang: **You must wager at least $1!**");
+                                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must wager at least $1!**");
                         else:
-                            await client.send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** is not playing!");
+                            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** is not playing!");
                     else:
-                        await client.send_message(message.channel, ":bangbang: **You can't wager against yourself!**");
+                        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't wager against yourself!**");
                 else:
-                    await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
             except:
-                await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         else:
-             await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
         return True;
     elif message.content.lower().startswith(command_key + 'viewwagers'):
         player = findPlayer(message.author.id);
@@ -757,7 +758,7 @@ async def battle_quest_on_message(client,message):
             WagerT = WagerT + "You have no requests!\n";
         WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n";
         WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
-        await client.send_message(message.channel, WagerT);
+        await get_client(message.server.id).send_message(message.channel, WagerT);
         return True;
         # Loop and show received wagers
     elif message.content.lower().startswith(command_key + 'acceptwager '):
@@ -774,11 +775,11 @@ async def battle_quest_on_message(client,message):
                     await battle(message, None, wagerToAccept, False);
                     savePlayer(player);
                 else:
-                    await client.send_message(message.channel, ":bangbang: **You can't afford to lose this wager!**");
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't afford to lose this wager!**");
             else:
-                await client.send_message(message.channel, ":bangbang: **Request not found**"); 
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Request not found**"); 
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'declinewager '):
         player = findPlayer(message.author.id);
@@ -793,21 +794,21 @@ async def battle_quest_on_message(client,message):
                 del player.battlers[w];
                 savePlayer(player);
                 savePlayer(sender);
-                await client.send_message(message.channel, "**"+player.name+"** declined **"+sender.name+"**'s wager.");
+                await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** declined **"+sender.name+"**'s wager.");
             else:
-                await client.send_message(message.channel, ":bangbang: **Request not found!**"); 
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Request not found!**"); 
         except:
-            await client.send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
     elif message.content.lower().startswith(command_key + 'setbg '):
         player = findPlayer(message.author.id);
         background_name = message.content.lower().replace(command_key + 'setbg ', "").strip().title();
         if(background_name in Backgrounds.keys()):
             player.background = Backgrounds[background_name];
-            await client.send_message(message.channel, "Your personal background has been set to **" + background_name + "**!"); 
+            await get_client(message.server.id).send_message(message.channel, "Your personal background has been set to **" + background_name + "**!"); 
             savePlayer(player)
         else:
-            await client.send_message(message.channel, ":bangbang: **That background does not exist!**\nDo **" + command_key + "listbgs** for a full list of the current backgrounds!"); 
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **That background does not exist!**\nDo **" + command_key + "listbgs** for a full list of the current backgrounds!"); 
     elif message.content.lower().startswith(command_key + 'setbanner '):
         await set_banner(message.channel,command_key,findPlayer(message.author.id),message.content.lower().replace(command_key + 'setbanner ',""));
     elif message.content.lower() == command_key + 'listbgs' or  message.content.lower().startswith(command_key + 'listbgs '):
@@ -815,7 +816,7 @@ async def battle_quest_on_message(client,message):
         await util_due.simple_paged_list(message,command_key,"listbgs",bglist,"Available backgrounds");
     elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util_due.is_mod_or_admin(message.author.id))):
         loadBackgrounds();
-        await client.send_message(message.channel, "Custom backgrounds reloaded.");   
+        await get_client(message.server.id).send_message(message.channel, "Custom backgrounds reloaded.");   
         return True; 
     elif message.content.lower().startswith(command_key + 'myrank'):
         await display_rank(message, None);
@@ -823,26 +824,26 @@ async def battle_quest_on_message(client,message):
         if(len(message.raw_mentions) == 1):
             gplayer = findPlayer(util_due.userMentions(message)[0]);
             if(gplayer == None):
-                await client.send_message(message.channel, "**"+util_due.get_server_name(message,util_due.userMentions(message)[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,util_due.userMentions(message)[0])+"** has not joined!");
             else:
                 await display_rank(message, gplayer);
         else:
             if(len(message.raw_mentions) < 1):
-                await client.send_message(message.channel, ":bangbang: **You must mention one player!**");    
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");    
             else:
-                await client.send_message(message.channel, ":bangbang: **You must mention only one player!**");    
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");    
         return True;
     elif message.content.lower().startswith(command_key + 'myawards') or message.content.lower().startswith(command_key + 'awards'):
         if  len(message.raw_mentions) == 1 and message.content.lower().startswith(command_key + 'awards'):
             player = findPlayer(message.raw_mentions[0]);
             if player == None:
-                await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!");
                 return True;
         elif message.content.lower().startswith(command_key + 'awards') and len(message.raw_mentions) == 0:
-            await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
             return True;
         elif message.content.lower().startswith(command_key + 'awards') and len(message.raw_mentions) > 1: 
-            await client.send_message(message.channel, ":bangbang: **You must mention only one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
             return True; 
         else:
             player = findPlayer(message.author.id);
@@ -852,10 +853,10 @@ async def battle_quest_on_message(client,message):
                 if((p-1)*5 < len(player.awards) and p > 0):
                     await awards_screen(message, player, p-1);
                 else:
-                    await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
+                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **Page not found!**"); 
                     return True;
             except:
-                await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Page not found!**"); 
                 return True;
         else:
             await awards_screen(message,player, 0);
@@ -868,7 +869,7 @@ async def battle_quest_on_message(client,message):
         if(len(users) == 1):
             player = findPlayer(users[0]);
             if player == None:
-                await client.send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
+                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
                 return True;
             await show_weapons(message,player,True);
         return True;
@@ -890,19 +891,19 @@ async def battle_quest_on_message(client,message):
         time_till_reset  = "";
         if(secs > 0):
             time_till_reset = "\nThis will be reset in "+time.strftime("**%Hh** **%Mm** **%Ss**", time.gmtime(secs)).replace("**00h**","").replace("**00m**","").replace("**00s**","");
-        await client.send_message(message.channel, ":information_source: You have completed "+str(player.quests_completed_today)+" quest(s) today."+time_till_reset);
+        await get_client(message.server.id).send_message(message.channel, ":information_source: You have completed "+str(player.quests_completed_today)+" quest(s) today."+time_till_reset);
         return True;
     elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util_due.is_mod_or_admin(message.author.id):
         users = message.raw_mentions;
         if(len(users) > 1):
-            await client.send_message(message.channel, ":bangbang: **You must mention only one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
             return True;
         elif (len(users) == 0):
-            await client.send_message(message.channel, ":bangbang: **You must mention one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
             return True;
         player = findPlayer(users[0]);
         if player == None:
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,users[0])+"** has not joined!");
             return True;
         if message.content.lower().startswith(command_key + 'takeweapons '):
             await take_weapon(message,player);
@@ -917,27 +918,27 @@ async def battle_quest_on_message(client,message):
     elif message.content.lower().startswith(command_key + 'uploadbg ') and util_due.is_mod_or_admin(message.author.id):
         args = re.sub(' +',' ',util_due.clearmentions(message.content).strip()).split(' ',2);
         if(len(args) < 3):
-            await client.send_message(message.channel, ":bangbang: **A background has no name!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **A background has no name!**");
             return True;
         if(len(message.raw_mentions) > 0):
           player = findPlayer(message.raw_mentions[0]);
           if(player != None):
               await give_award(message, player, 23, "Background Accepted!");
           else:
-              await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
+              await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
               return True;
         await upload_bg(message.channel,args[1],args[2]);
     elif message.content.lower().startswith(command_key+'deletebg ') and util_due.is_mod_or_admin(message.author.id):
         args = re.sub(' +',' ',message.content.strip()).split(' ',1);
         if(len(args) < 2):
-            await client.send_message(message.channel, ":bangbang: **Enter a background name!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Enter a background name!**");
         await delete_bg(message.channel,args[1]);
     elif message.content.lower().startswith(command_key+'view'):
         args = re.sub(' +',' ',message.content[5:].strip()).split(' ',1);
         if(args[0] not in ['bg','banner']):
             return True;
         if(len(args) < 2):
-            await client.send_message(message.channel, ":bangbang: **Enter a "+("background" if args[0] == "bg" else "banner")+" name!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Enter a "+("background" if args[0] == "bg" else "banner")+" name!**");
         if(args[0] == 'bg'):
             await view_bg(message.channel,args[1]);
         else:
@@ -951,15 +952,15 @@ async def battle_quest_on_message(client,message):
                 savePlayer(player);
                 #award and remove donor banner if not donor
                 if(player.donor):
-                    await client.send_message(message.channel, "**"+player.name+"** now has the donor rank!");
+                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** now has the donor rank!");
                     await give_award(message,player,25,"All MacDue Ever Wanted!!");
                 else:
-                    await client.send_message(message.channel, "**"+player.name+"** no longer has the donor rank.");
+                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** no longer has the donor rank.");
                     del player.awards[player.awards.index(25)];
             else:
-                await client.send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
+                await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
         else:
-            await client.send_message(message.channel, ":bangbang: **Just mention one player!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Just mention one player!**");
     elif message.content.lower().startswith(command_key + 'mylimit'):
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
     elif message.content.lower().startswith(command_key + "mybanners"):
@@ -977,7 +978,7 @@ async def battle_quest_on_message(client,message):
                   await addQuest(message,player,n_q);
                   print("Admin quest summoned! Quest ["+n_q.qID+"] for "+filter_func(player.name)+" ("+player.userid+"+)");
                   return True;
-        await client.send_message(message.channel, ":bangbang: **Summon failed!**");
+        await get_client(message.server.id).send_message(message.channel, ":bangbang: **Summon failed!**");
     else:
         found = False;
     return found;
@@ -1001,27 +1002,27 @@ async def buy_weapon(message,command_key):
                                 await harambe_check(message,weapon,player);
                                 await give_award(message, player, 4, "License to kill.");
                                 player.wep_sum = get_weapon_sum(weapon.wID)
-                                await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
+                                await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
                             else:
                                 if not owns_weapon_name(player,weapon.name.lower()):
                                     player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
-                                    await client.send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
-                                    await client.send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
+                                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util_due.to_money(weapon.price,False) + "!");
+                                    await get_client(message.server.id).send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
                                 else:
-                                    await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
+                                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
                             player.money = player.money - weapon.price;
                             savePlayer(player);             
                         else:
-                            await client.send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
+                            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
                     else:
-                        await client.send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
+                        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
                         
                 else:
-                    await client.send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util_due.to_money(weapon.price-player.money,False)+"** more.");
+                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util_due.to_money(weapon.price-player.money,False)+"** more.");
     except:
         Found = False;
     if(not Found):
-        await client.send_message(message.channel, "Weapon not found!"); 
+        await get_client(message.server.id).send_message(message.channel, "Weapon not found!"); 
 
    
 async def create_banner(message):
@@ -1036,7 +1037,7 @@ async def create_banner(message):
         banner = player_info_banner();
         image_name = upload_banner(url,name);
         if(image_name == None):
-            await client.send_message(message.channel, ":interrobang: **Banner creation failed!**");
+            await get_client(message.server.id).send_message(message.channel, ":interrobang: **Banner creation failed!**");
             return;
         banner.donor = donor;
         banner.banner_image_name = image_name;
@@ -1046,16 +1047,16 @@ async def create_banner(message):
         Banners[re.sub(' +',' ',name.lower().strip()).lower().strip()] = banner;
         saveBanner(banner);
         reload_banners();
-        await client.send_message(message.channel, ":white_check_mark: **"+name+"** is now a DueUtil banner!");
+        await get_client(message.server.id).send_message(message.channel, ":white_check_mark: **"+name+"** is now a DueUtil banner!");
     except:
-        await client.send_message(message.channel, ":interrobang: **Banner creation failed!**");
+        await get_client(message.server.id).send_message(message.channel, ":interrobang: **Banner creation failed!**");
         
 async def remove_banner(channel,name):
     if(delete_banner(name)):
-        await client.send_message(channel, ":wastebasket: **Banner deleted!**");
+        await get_client(message.server.id).send_message(channel, ":wastebasket: **Banner deleted!**");
         reload_banners();
     else:
-        await client.send_message(channel, ":interrobang: **Banner not deleted!**\nAre you sure that you used the right name?");
+        await get_client(message.server.id).send_message(channel, ":interrobang: **Banner not deleted!**\nAre you sure that you used the right name?");
 
 def hasNumbers(text):
    return any(char.isdigit() for char in text)
@@ -1076,9 +1077,9 @@ async def display_rank(message, find):
             if(player.level > rplayer.level):
                 players_of_higher_level = players_of_higher_level + 1;
     if(find == None):
-        await client.send_message(message.channel, "You're **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
+        await get_client(message.server.id).send_message(message.channel, "You're **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
     else:
-        await client.send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
+        await get_client(message.server.id).send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
 
 async def unequip_weapon(message,cplayer):
     active_wep = get_weapon_from_id(cplayer.wID);
@@ -1088,20 +1089,20 @@ async def unequip_weapon(message,cplayer):
                 cplayer.owned_weps.append([active_wep.wID,cplayer.wep_sum]);
                 cplayer.wID = no_weapon_id;
                 cplayer.wep_sum = get_weapon_sum(no_weapon_id);
-                await client.send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
+                await get_client(message.server.id).send_message(message.channel, ":white_check_mark: **"+active_wep.name+"** unequiped!");
             else:
-                await client.send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
         else:
-            await client.send_message(message.channel, ":bangbang: **No room in your weapon storage!**");
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **No room in your weapon storage!**");
     else:
-        await client.send_message(message.channel, "You don't have anything equiped anyway!");
+        await get_client(message.server.id).send_message(message.channel, "You don't have anything equiped anyway!");
         
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
     if(storedWeap != None):
         if owns_weapon_name(player,get_weapon_from_id(player.wID).name):
             player.owned_weps.append(storedWeap);
-            await client.send_message(message.channel, ":bangbang: **Cannot put your current equiped weapon in your weapon storage as a weapon with the same name is already being stored!**"); 
+            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Cannot put your current equiped weapon in your weapon storage as a weapon with the same name is already being stored!**"); 
             return;
         if(player.wID != no_weapon_id):
             player.owned_weps.append([player.wID,player.wep_sum]);
@@ -1110,12 +1111,12 @@ async def equip_weapon(message,player,wname):
         newWeap = get_weapon_from_id(player.wID);
         if(newWeap.wID != no_weapon_id):
             await harambe_check(message,newWeap,player);
-            await client.send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!");
+            await get_client(message.server.id).send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!");
         else:
-            await client.send_message(message.channel, ":white_check_mark: equiped!");
+            await get_client(message.server.id).send_message(message.channel, ":white_check_mark: equiped!");
         savePlayer(player);
     else:
-        await client.send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
+        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
         
 async def show_banners_for_player(message,player):
     await util_due.simple_paged_list(message,util_due.get_server_cmd_key(message.server),"mybanners",get_banner_list_for_player(player).splitlines(),player.name+"'s banners");
@@ -1131,10 +1132,10 @@ async def set_banner(channel,command_key,player,banner_name):
     banner_name = banner_name.lower().strip();
     if(banner_name in Banners.keys() and can_use_banner(Banners[banner_name],player)):
         player.banner_id = banner_name;
-        await client.send_message(channel, "Your personal banner has been set to **" + Banners[banner_name].name + "**!"); 
+        await get_client(message.server.id).send_message(channel, "Your personal banner has been set to **" + Banners[banner_name].name + "**!"); 
         savePlayer(player)
     else:
-        await client.send_message(channel, ":bangbang: **That's not a banner you have access to! **\nDo **" + command_key + "mybanners** to see the banners you have!"); 
+        await get_client(message.server.id).send_message(channel, ":bangbang: **That's not a banner you have access to! **\nDo **" + command_key + "mybanners** to see the banners you have!"); 
   
 def can_use_banner(banner,player):
     return (not banner.donor or banner.donor == player.donor) and banner_restricted(banner,player);
@@ -1160,7 +1161,7 @@ async def mass_recall(message, player, weapon_sums):
     for sum in weapon_sums:
         refund = refund + int(util_due.get_strings(sum)[0]);
     player.money = player.money + refund;
-    await client.send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util_due.to_money(refund,False) + " refund.");
+    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util_due.to_money(refund,False) + " refund.");
     savePlayer(player);
     
 async def sell_weapon(message, uID, recall,weapon_name):
@@ -1179,7 +1180,7 @@ async def sell_weapon(message, uID, recall,weapon_name):
                 weapon_name = None;
                 weapon_id = player.wID;
             if(weapon_name != None):
-                await client.send_message(message.channel, ":bangbang: **Weapon not found!**");
+                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Weapon not found!**");
                 return;
         if(weapon_data != None):
             weapon_id = weapon_data[0];
@@ -1188,21 +1189,21 @@ async def sell_weapon(message, uID, recall,weapon_name):
         price = int(((weapon.chance/100) * weapon.attack) / 0.04375);
         sellPrice = int(price - (price / 4));
         if(not recall):
-            await client.send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util_due.to_money(sellPrice,False)+ "!");
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util_due.to_money(sellPrice,False)+ "!");
         else:
             if(weapon_name == None):
                 sellPrice = int(util_due.get_strings(player.wep_sum)[0]);
             else:
                 sellPrice = int(util_due.get_strings(weapon_data[1])[0]);
             #print(util_due.get_strings(player.wep_sum));
-            await client.send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util_due.to_money(sellPrice,False) + " refund.");
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util_due.to_money(sellPrice,False) + " refund.");
         if(weapon_name == None):
             player.wID = no_weapon_id;
             player.wep_sum = get_weapon_sum(no_weapon_id)
         player.money = player.money + sellPrice;
         savePlayer(player);
     else:
-        await client.send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
+        await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
 def get_server_quest_list(server):
     number = 0;
@@ -1247,18 +1248,19 @@ async def show_weapons(message,player,not_theirs):
             output = output+"Use "+cmd+"equipweapon [Weapon Name] to equip a stored weapon!\nUse "+cmd+"unequipweapon to store your equiped weapon.```";
         else:
             output = output + "```";
-    await client.send_message(message.channel, output);
+    await get_client(message.server.id).send_message(message.channel, output);
     
 def reload_banners():
     add_default_banner();
     loadBanners();
     load_banner_images();
      
-def load():
+def load(clients):
     global Weapons;
     global Players
     global client;
-    global loaded;
+    global shard_clients;
+    shard_clients = clients;
     loadWeapons();
     loadPlayers();
     print(str(len(Players)) + " player(s) loaded.")
@@ -1275,6 +1277,9 @@ def load():
     load_awards();
     loaded = True;
     
+def get_client(server_id):
+    return shard_clients[DueUtil.get_shard_index(server_id)];
+    
 def loadBackgrounds():
      Backgrounds.clear();
      for file in os.listdir("backgrounds"):
@@ -1288,7 +1293,7 @@ async def give_award(message, player, id, text):
         player.awards.append(id);
         savePlayer(player)
         if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util_due.mutedchan):
-            await client.send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
 
 async def give_award_id(message, userid, id, text):
     player = findPlayer(userid);
@@ -1298,7 +1303,7 @@ async def give_award_id(message, userid, id, text):
         player.awards.append(id);
         savePlayer(player)
         if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util_due.mutedchan):
-            await client.send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
+            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
              
 def load_awards():
     load_award("awards/Duseless.png","Duseless\nIgnore DueUtil");  # 0
@@ -1361,16 +1366,16 @@ def get_server_weapon_list(message):
     return weapon_listings;
 
 
-async def printStats(client,message, uID):
+async def printStats(message, uID):
     global Players;
     level = 0;
     attk = 0;
     strg = 0;
     player = findPlayer(uID);
     if(player != None):
-        await displayStatsImage(client,player, False, message);
+        await displayStatsImage(player, False, message);
     else:
-        await client.send_message(message.channel, "**"+util_due.get_server_name(message,uID)+"** has not joined!");
+        await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,uID)+"** has not joined!");
             
 async def displayStats(player, q, message):
         level = math.trunc(player.level);
@@ -1384,7 +1389,7 @@ async def displayStats(player, q, message):
             c = "Reward"
             w = "Weapon"
             title = "```\n" + player.name + " Quest Info"
-        await client.send_message(message.channel, title + "\nLevel: " + str(level) + " \nAttack: " + str(attk) + "\nStrength: " + str(strg) + "\nShooting: " + str(shooting) + "\n" + c + ": $" +  util_due.to_money(player.money,False)+ "\n" + w + ": " + Weapons[player.wID].icon + " - " + Weapons[player.wID].name + "```\n");
+        await get_client(message.server.id).send_message(message.channel, title + "\nLevel: " + str(level) + " \nAttack: " + str(attk) + "\nStrength: " + str(strg) + "\nShooting: " + str(shooting) + "\n" + c + ": $" +  util_due.to_money(player.money,False)+ "\n" + w + ": " + Weapons[player.wID].icon + " - " + Weapons[player.wID].name + "```\n");
 
 def filter_func(string):
     new = "";
@@ -1442,7 +1447,7 @@ async def level_up_image(message, player, cash):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="level_up.png",content=":point_up_2: **"+player.name+"** Level Up!");
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="level_up.png",content=":point_up_2: **"+player.name+"** Level Up!");
     output.close()
 
 
@@ -1465,7 +1470,7 @@ async def new_quest_image(message, quest, player):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="new_quest.png",content=":crossed_swords: **"+player.name+"** New Quest!");
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="new_quest.png",content=":crossed_swords: **"+player.name+"** New Quest!");
     output.close()
 
 async def awards_screen(message, player,page):
@@ -1473,11 +1478,11 @@ async def awards_screen(message, player,page):
     images_served = images_served +1;
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10):
-        await client.send_message(message.channel,":cold_sweat: Please don't break me!");
+        await get_client(message.server.id).send_message(message.channel,":cold_sweat: Please don't break me!");
         return;
     sender.last_image_request = time.time();
     #player.last_image_request = time.time();
-    await client.send_typing(message.channel);
+    await get_client(message.server.id).send_typing(message.channel);
     img = Image.open("screens/awards_screen.png"); 
     a_s = Image.open("screens/award_slot.png"); 
     draw = ImageDraw.Draw(img)
@@ -1518,7 +1523,7 @@ async def awards_screen(message, player,page):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
     output.close()
 
 
@@ -1527,7 +1532,7 @@ async def battle_image(message, pone, ptwo, btext):
     images_served = images_served +1;
     sender = findPlayer(message.author.id);
     sender.last_image_request = time.time();
-    await client.send_typing(message.channel);
+    await get_client(message.server.id).send_typing(message.channel);
     try:
         if(not isinstance(pone, activeQuest)):
             avatar_one = resize_avatar(pone, message.server, False, 54, 54);
@@ -1581,8 +1586,8 @@ async def battle_image(message, pone, ptwo, btext):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="battle.png");
-    await client.send_message(message.channel,btext);
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="battle.png");
+    await get_client(message.server.id).send_message(message.channel,btext);
     output.close()
 
         
@@ -1648,31 +1653,31 @@ def loadImageFromURL_raw(url):
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);
     if(valid_image(bg_to_test,(256,299))):
-        await client.send_message(channel,":thumbsup: **That looks good to me!**\nP.s. I can't check for low quality images!");
+        await get_client(message.server.id).send_message(channel,":thumbsup: **That looks good to me!**\nP.s. I can't check for low quality images!");
     elif (bg_to_test != None):
         width, height = bg_to_test.size;
-        await client.send_message(channel,":thumbsdown: **That does not meet the requirements!**\nThe tested image had the dimensions ``"+str(width)+"*"+str(height)+"``!\nIt should be ``256*299``!");
+        await get_client(message.server.id).send_message(channel,":thumbsdown: **That does not meet the requirements!**\nThe tested image had the dimensions ``"+str(width)+"*"+str(height)+"``!\nIt should be ``256*299``!");
     else:
-        await client.send_message(channel,":thinking: Are you sure that 'background' is an image?");
+        await get_client(message.server.id).send_message(channel,":thinking: Are you sure that 'background' is an image?");
         
 async def upload_bg(channel,url,name):
     bg = loadImageFromURL_raw(url);
     if bg == None:
-        await client.send_message(channel,":interrobang: **I can't resolve that url to an image!**");
+        await get_client(message.server.id).send_message(channel,":interrobang: **I can't resolve that url to an image!**");
         return;
     if not all(char.isalpha() or char.isspace() for char in name):
-        await client.send_message(channel,":interrobang: **Background names can't have any special characters!**");
+        await get_client(message.server.id).send_message(channel,":interrobang: **Background names can't have any special characters!**");
         return;
     name = re.sub(' +','_',name.lower().strip());
     if(valid_image(bg,(256,299))):
         if not os.path.isfile('backgrounds/'+name+".png"):
             bg.save('backgrounds/'+name+".png");
             loadBackgrounds();
-            await client.send_message(channel,":sparkles: **"+name.strip().title().replace('_',' ')+"** is now a DueUtil background!");
+            await get_client(message.server.id).send_message(channel,":sparkles: **"+name.strip().title().replace('_',' ')+"** is now a DueUtil background!");
         else:
-            await client.send_message(channel,":interrobang: **A background of that name already exists!**");
+            await get_client(message.server.id).send_message(channel,":interrobang: **A background of that name already exists!**");
     else:
-        await client.send_message(channel,":interrobang: **That background is not vaild!**\nPlease test the background before accepting!");
+        await get_client(message.server.id).send_message(channel,":interrobang: **That background is not vaild!**\nPlease test the background before accepting!");
         
 def upload_banner(url,name):
     banner = loadImageFromURL_raw(url);
@@ -1704,38 +1709,38 @@ def delete_banner(name):
 async def delete_bg(channel,name):
      background_name = name.strip().title();
      if(background_name == 'Default'):
-        await client.send_message(channel,":interrobang: **Don't delete the default!**\n...It'd break me & my heart.");
+        await get_client(message.server.id).send_message(channel,":interrobang: **Don't delete the default!**\n...It'd break me & my heart.");
         return;
      if(background_name in Backgrounds.keys()):
         os.remove("backgrounds/"+Backgrounds[background_name]);
         loadBackgrounds();
-        await client.send_message(channel,":white_check_mark: **"+background_name+"** background deleted :wave:.\nIf this background was not one you accepted there will be questions.");
+        await get_client(message.server.id).send_message(channel,":white_check_mark: **"+background_name+"** background deleted :wave:.\nIf this background was not one you accepted there will be questions.");
      else:
-        await client.send_message(channel,":interrobang: **I can't find a background with that name to delete!**");
+        await get_client(message.server.id).send_message(channel,":interrobang: **I can't find a background with that name to delete!**");
 
 async def view_bg(channel,name):
     background_name = name.strip().title();
     if(background_name in Backgrounds.keys()):
-        await client.send_typing(channel);
+        await get_client(message.server.id).send_typing(channel);
         img = rescale_image('backgrounds/'+Backgrounds[background_name],0.4);
         output = BytesIO()
         img.save(output,format="PNG")
         output.seek(0);
-        await client.send_file(channel,fp=output,filename=Backgrounds[background_name],content=":frame_photo: Here is the background: **"+background_name+"**!");
+        await get_client(message.server.id).send_file(channel,fp=output,filename=Backgrounds[background_name],content=":frame_photo: Here is the background: **"+background_name+"**!");
     else:
-        await client.send_message(channel,":bangbang: **I can't find a background with that name!**");   
+        await get_client(message.server.id).send_message(channel,":bangbang: **I can't find a background with that name!**");   
         
 async def view_banner(channel,name):
     banner_name = name.strip().lower();
     if(banner_name in Banners.keys()):
-        await client.send_typing(channel);
+        await get_client(message.server.id).send_typing(channel);
         img = rescale_image("screens/info_banners/"+Banners[banner_name].banner_image_name,0.7);
         output = BytesIO()
         img.save(output,format="PNG")
         output.seek(0);
-        await client.send_file(channel,fp=output,filename="banner.png",content=":frame_photo: Here is the banner: **"+Banners[banner_name].name+"**!");
+        await get_client(message.server.id).send_file(channel,fp=output,filename="banner.png",content=":frame_photo: Here is the banner: **"+Banners[banner_name].name+"**!");
     else:
-        await client.send_message(channel,":bangbang: **I can't find a banner with that name!**"); 
+        await get_client(message.server.id).send_message(channel,":bangbang: **I can't find a banner with that name!**"); 
 
 def valid_image(bg_to_test,dimensions):
     if(bg_to_test != None):
@@ -1816,12 +1821,12 @@ async def take_weapon(message,player):
     player.owned_weps = [];
     player.wID = no_weapon_id;
     player.wep_sum = get_weapon_sum(no_weapon_id);
-    await client.send_message(message.channel,"All weapons taken from **"+player.name+"**!");
+    await get_client(message.server.id).send_message(message.channel,"All weapons taken from **"+player.name+"**!");
     savePlayer(player);
     
 async def wipe_cash(message,player):
     player.money = 0;
-    await client.send_message(message.channel,"Reset **"+player.name+"**'s cash!");
+    await get_client(message.server.id).send_message(message.channel,"Reset **"+player.name+"**'s cash!");
     savePlayer(player);
 
 async def clear_suspicious(message):
@@ -1846,11 +1851,11 @@ async def clear_suspicious(message):
             else:
                 admins = admins +1;
     if(count > 0):
-        await client.send_message(message.channel,":white_check_mark: **Suspicious money and weapons confiscated from "+str(count)+" user(s)!**");
+        await get_client(message.server.id).send_message(message.channel,":white_check_mark: **Suspicious money and weapons confiscated from "+str(count)+" user(s)!**");
         if(admins > 0):
-            await client.send_message(message.channel,str(admins)+" admin(s) or mod(s) omitted.");
+            await get_client(message.server.id).send_message(message.channel,str(admins)+" admin(s) or mod(s) omitted.");
     else:
-        await client.send_message(message.channel,"No suspicious users!");
+        await get_client(message.server.id).send_message(message.channel,"No suspicious users!");
             
 def  loadWeapons():
     global Weaponse;
@@ -1982,17 +1987,17 @@ def get_player_banner(player):
         return Banners["discord blue"].image;
     return banner.image;
             
-async def displayStatsImage(client,player, q, message):
+async def displayStatsImage(player, q, message):
     global images_served;
     images_served = images_served +1;
     # jsonTest(player);
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10):
-        await client.send_message(message.channel,":cold_sweat: Please don't break me!");
+        await get_client(message.server.id).send_message(message.channel,":cold_sweat: Please don't break me!");
         return;
     sender.last_image_request = time.time();
     # savePlayer(player);
-    await client.send_typing(message.channel);
+    await get_client(message.server.id).send_typing(message.channel);
     if(q):
         await displayQuestImage(player, message);
         return;
@@ -2076,7 +2081,7 @@ async def displayStatsImage(client,player, q, message):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information.");
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information.");
     output.close()
 
 
@@ -2085,7 +2090,7 @@ async def displayStatsImage(client,player, q, message):
 async def displayQuestImage(quest, message):
     global images_served;
     images_served = images_served +1;
-    await client.send_typing(message.channel);
+    await get_client(message.server.id).send_typing(message.channel);
     try:
         avatar = resize_avatar(quest, message.server, True, 72, 72);
     except:
@@ -2135,7 +2140,7 @@ async def displayQuestImage(quest, message):
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await client.send_file(message.channel, fp=output, filename="questinfo.png",content=":pen_fountain: Here you go.");
+    await get_client(message.server.id).send_file(message.channel, fp=output, filename="questinfo.png",content=":pen_fountain: Here you go.");
     output.close()
 
     
@@ -2213,7 +2218,7 @@ def max_value_for_player(player):
         
 async def show_limits_for_player(channel,player):
     limit = "You can use any weapon with a value up to **$"+util_due.to_money(max_value_for_player(player),False)+"**!";
-    await client.send_message(channel, limit);
+    await get_client(message.server.id).send_message(channel, limit);
     
 def weapon_hit(player,weapon):
     return random.random()<(limit_weapon_accy(player,weapon)/100);
@@ -2243,7 +2248,7 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
     global quests_attempted;
     sender = findPlayer(message.author.id);
     if(time.time() - sender.last_image_request < 10 and (wager == None and quest == False) ):
-        await client.send_message(message.channel,":cold_sweat: Please don't break me!");
+        await get_client(message.server.id).send_message(message.channel,":cold_sweat: Please don't break me!");
         return;
     if(wager == None and quest == False):
         player_one = findPlayer(players[0]);
@@ -2345,9 +2350,9 @@ async def battle(message, players, wager, quest):  # Quest like wager with diff 
 
     else:
         if(player_one == None):
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[0])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,players[0])+"** has not joined!");
         if(player_two == None):
-            await client.send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** has not joined!");
+            await get_client(message.server.id).send_message(message.channel, "**"+util_due.get_server_name(message,players[1])+"** has not joined!");
             
 async def manageQuests(message):
     global quests_given;
@@ -2416,7 +2421,7 @@ async def showQuests(message):
           QuestsT = QuestsT + "Use " + command_key + "questinfo [Quest Number] for more information!\n```";
       else:
           QuestsT = QuestsT + "You don't have any quests!```";
-      await client.send_message(message.channel, QuestsT);
+      await get_client(message.server.id).send_message(message.channel, QuestsT);
       
 def findPlayer(pID):
     global Players;

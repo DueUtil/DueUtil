@@ -17,7 +17,7 @@ from concurrent.futures import ProcessPoolExecutor
 last_backup = 0;
 stopped = False;
 start_time = 0;
-shard_count = 20;
+shard_count = 3;
 shard_clients = [];
 bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
 
@@ -255,12 +255,15 @@ class DueUtil_Client(discord.Client):
         print(self.user.id)
         print('------')
 
+def get_shard_index(server_id):
+    return (int(server_id) >> 22) % shard_count;
+
 def is_due_loaded():
     return util_due.loaded and due_battles_quests.loaded;
 
 def load_due():
     load_config();
-    due_battles_quests.load();
+    due_battles_quests.load(shard_clients);
     #util_due.load(client);
     
 def setup_due_thread(loop,shard_id):
