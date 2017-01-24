@@ -24,7 +24,6 @@ bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
 
 shard_names = []
 
-
 def load_config():
     global bot_key;
     config = configparser.RawConfigParser();
@@ -65,15 +64,6 @@ async def sudo_command(key,message):
     except:
         await client.send_message(message.channel, ":bangbang: **sudo failed!**");
 
-async def change_avatar(channel,avatar_name):
-    try:
-        avatar = open("avatars/"+avatar_name.strip(),"rb");
-        avatar_object = avatar.read();
-        await client.edit_profile(avatar=avatar_object);
-        await client.send_message(channel, ":white_check_mark: Avatar now **"+avatar_name+"**!");
-    except:
-        await client.send_message(channel, ":bangbang: **Avatar change failed!**");
-        
 class DueUtilClient(discord.Client):
 
     def __init__(self, *args, **kwargs):
@@ -136,6 +126,8 @@ class DueUtilClient(discord.Client):
             elif message.channel.is_private:
                 return;
             elif ((message.author.id == "132315148487622656") or (util_due.is_admin(message.author.id))) and message.content.lower().startswith(command_key+'stop'):
+                
+                
                 stopped = True;
                 await self.send_message(message.channel,"Stopping DueUtil!");
                 print("DueUtil stopped by admin "+message.author.id);
@@ -143,11 +135,19 @@ class DueUtilClient(discord.Client):
                 await self.close()
                 self.loop._default_executor.shutdown(wait=True);
                 sys.exit(0);
+           
+           
             elif message.content.lower().startswith(command_key+'changeavatar ') and util_due.is_admin(message.author.id):
+               
+               
                  await change_avatar(message.channel,message.content[13:]);
+            
+            
             elif(await due_battles_quests.battle_quest_on_message(self,message)):
                return;
             elif message.content.lower().startswith(command_key+'dustats'):
+             
+             
                 stats = discord.Embed(title="DueUtil Stats",type="rich",description="DueUtil's global stats since "+time.strftime("%m/%d/%Y at %H:%M", time.gmtime(start_time))+"!",color=16038978);
                 stats.add_field(name="Images Served",value=util_due.number_format_text(due_battles_quests.images_served));
                 stats.add_field(name="Awarded",value="$"+util_due.number_format_text(due_battles_quests.money_created));
@@ -159,15 +159,31 @@ class DueUtilClient(discord.Client):
                 stats.set_footer(text="DueUtil Shard "+str(self.shard_id+1))
                 await self.send_message(message.channel,embed=stats);
                 return;
+            
+            
             elif (await util_due.on_util_message(message)):
+               
+               
                 return;
+                
+                
             elif (message.content == "(╯°□°）╯︵ ┻━┻" and not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
+                
+                
                  await self.send_file(message.channel,'images/unflip.png');
                  return;
+                 
+                 
             elif (message.content == "┬─┬﻿ ノ( ゜-゜ノ)" and not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
+               
+               
                  await self.send_file(message.channel,'images/fliptable.png');
                  return;
+          
+          
             elif "helpme" in message.content.lower():
+             
+             
                 for mentions in message.raw_mentions:
                         if(self.user.id in mentions):
                                 await self.start_private_message(message.author);
@@ -175,6 +191,8 @@ class DueUtilClient(discord.Client):
                                 await self.send_message(message.channel,"Hi! I've PM-ed you my help!\nP.S. **"+command_key+"** is the command key on **"+message.server.name+"**!");	                        
                 return;					
             else:
+               
+               
                 for mentions in message.raw_mentions:
                     if(self.user.id in mentions):
                         msg = util_due.clearmentions(message.content);
@@ -192,12 +210,21 @@ class DueUtilClient(discord.Client):
                                         return;
                             except:
                                 await self.send_message(message.channel,":speaking_head: I'm a little too busy to talk right now! Sorry!");
+                                
+                                
+    async def change_avatar(self,channel,avatar_name):
+        try:
+            avatar = open("avatars/"+avatar_name.strip(),"rb");
+            avatar_object = avatar.read();
+            await self.edit_profile(avatar=avatar_object);
+            await self.send_message(channel, ":white_check_mark: Avatar now **"+avatar_name+"**!");
+        except:
+            await self.send_message(channel, ":bangbang: **Avatar change failed!**");
 
     @asyncio.coroutine
     async def on_ready(self):
         #global start_time;
         #start_time = time.time();
-        
         shard_number = shard_clients.index(self) +1;
         help_status = discord.Game();
         help_status.name = "dueutil.tech | shard "+str(shard_number)+"/"+str(shard_count);

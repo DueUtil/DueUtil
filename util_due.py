@@ -1,6 +1,6 @@
 import discord
 import random
-import DueUtil;
+import dueutil;
 import requests
 import re
 import urllib.request
@@ -26,7 +26,7 @@ servers = dict();
 serverKeys = dict();
 client = None;
 
-class autoReply:
+class AutoReply:
     message = "";
     key = "";
     target = "";
@@ -226,19 +226,30 @@ async def on_util_message(message):
     found = True;
     command_key = get_server_cmd_key(message.server);
     basicMode = servers.setdefault(message.server,False);
+    
     if (message.content.lower().startswith(command_key+'addadmin') or message.content.lower().startswith(command_key+'removeadmin')) and is_admin(message.author.id):
+      
+      
         temp = await mod_admin_manage(message,'admin',21,DueUtilAdmins);
         if(temp != None):
             DueUtilAdmins = temp;
             saveGeneric(DueUtilAdmins, "due_admins");
         return True;
+    
+    
     elif (message.content.lower().startswith(command_key+'addmod') or message.content.lower().startswith(command_key+'removemod')) and is_admin(message.author.id):
+       
+       
         temp = await mod_admin_manage(message,'mod',22,DueUtilMods);
         if(temp != None):
             DueUtilMods = temp;
             saveGeneric(DueUtilMods, "due_mods");
         return True;
+    
+    
     elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'givecash'):
+     
+     
         arg = message.content.replace(command_key+"givecash ","");
         arg = clearmentions(arg);
         r=userMentions(message);
@@ -254,12 +265,20 @@ async def on_util_message(message):
         except:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
         return True;  
+  
+  
     elif ((message.author.id == "132315148487622656") or is_mod_or_admin(message.author.id)) and message.content.lower().startswith(command_key+'backup'):
+      
+      
         print("DueUtil backedup by admin "+message.author.id);
         zipdir("saves/","DueBackup.zip");
         await client.send_file(message.channel,'DueBackup.zip',filename=None,content =":white_check_mark: **DueUtil has been backed up!**");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'shutupdue') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+     
+     
         if(not (message.server.id+"/"+message.channel.id in mutedchan)):
             mutedchan.append(message.server.id+"/"+message.channel.id);
             #pickle.dump(mutedchan,open ("saves/muted.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
@@ -268,7 +287,11 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,"I've already shut up in this channel! Use **"+command_key+"unshutupdue** to enable my alerts again.");
         return True;
+        
+        
     elif message.content.lower().startswith(command_key+'setcmdkey') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+     
+     
         cmdKey = message.content.lower().replace(command_key+'setcmdkey','');
         cmdKey = cmdKey.replace(' ','');
         if(len(cmdKey) >= 1 and len(cmdKey) <= 2):
@@ -280,7 +303,11 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **Your command key can only be one or two characters long!**");
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'unshutupdue') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+       
+       
         if((message.server.id+"/"+message.channel.id in mutedchan)):
             del mutedchan[mutedchan.index(message.server.id+"/"+message.channel.id)];
             #pickle.dump(mutedchan,open ("saves/muted.p","wb"),protocol=pickle.HIGHEST_PROTOCOL);
@@ -289,21 +316,41 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,"I have not yet shut up in this channel!");
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'dujoin'):
+     
+     
         await client.send_message(message.channel, ":bangbang: **I can no longer accept invites to servers!**\nIf you want to add me to a server use this link :point_down:\nhttps://discordapp.com/oauth2/authorize?access_type=online&client_id=173391673634717696&scope=bot&permissions=52224");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'gtrandom'):
+      
+      
         await randomWord(message);
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'glittertext'):
+     
+     
             strToGif = message.content.replace(command_key+"glittertext","",1);
             await createGlitterText(message,strToGif);
             return True;
+    
+    
     elif message.content.lower().startswith(command_key+'gt '):
+      
+      
         strToGif = message.content.replace(command_key+"gt ","",1);
         await createGlitterText(message,strToGif);
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'timedreply') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+       
+       
         Worked = False;
         messageArg = message.content.replace(command_key+"timedreply ","",1);
         Strs = get_strings(messageArg);
@@ -328,7 +375,11 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'autoreply') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+        
+        
         target = message.raw_mentions;
         worked = False;
         messageArg = message.content.replace(command_key+"autoreply ","",1);
@@ -375,7 +426,11 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,":bangbang: **I don't understand your arguments**");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'removereply ') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+      
+      
         messageArg = message.content.replace(command_key+"removereply ","",1);
         args = messageArg.split();
         if(args[0].lower() == 'all'):
@@ -396,7 +451,11 @@ async def on_util_message(message):
                 await client.send_message(message.channel,":bangbang: **Reply does not exist.**");
             saveGeneric(AutoReplys, "auto_replys");
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'listreplys') and (message.author.permissions_in(message.channel).manage_server or is_mod_or_admin(message.author.id)):
+      
+      
         Found = False;
         list_out = "```Auto replys on "+message.server.name+"\n";
         for x in range(0,len(AutoReplys)):
@@ -417,7 +476,11 @@ async def on_util_message(message):
         else:
             await client.send_message(message.channel,list_out+"```");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key+'gtbasic'):
+       
+       
         if basicMode:
             servers.setdefault(message.server,False);
             servers[message.server]=False;
@@ -430,15 +493,27 @@ async def on_util_message(message):
             await client.send_message(message.channel, "Type **"+command_key+"gtbasic** again or **"+command_key+"gtnormal** to return to normal.");
             return
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'gtnormal'):
+       
+       
         servers.setdefault(message.server,False);
         servers[message.server]=False;
         await client.send_message(message.channel, "Returned to normal mode for **"+message.server.name+"**.");
         return True;
+   
+   
     elif message.content.lower().startswith(command_key+'duservers'):
+     
+     
         await client.send_message(message.channel, "DueUtil is currently active on **"+str(len(client.servers))+" servers**.");
         return True;
+    
+    
     else:
+       
+       
         found = False;
         for x in range(0,len(AutoReplys)):
             if(AutoReplys[x].timed == ""):
@@ -458,11 +533,17 @@ async def on_util_message(message):
                              await client.send_message(message.channel,AutoReplys[x].message);
                         else:
                              await client.send_message(message.channel,AutoReplys[x].alt);
+    
+    
     return found;
     
 async def mod_admin_manage(message,role,award_id,role_list):
+    
+    
     command_key = get_server_cmd_key(message.server);
     if ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'add'+role):
+       
+       
         rUser = userMentions(message);
         if(len(rUser)==1):
             if(not (rUser[0] in role_list)):
@@ -475,8 +556,11 @@ async def mod_admin_manage(message,role,award_id,role_list):
         else:
             await client.send_message(message.channel,":bangbang: **Mention one user you would like to promote!**");
         return role_list;    
+    
+    
     elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'remove'+role):
         
+      
         rUser = userMentions(message);
         if(len(rUser)==1):
             if((rUser[0] in role_list)):
@@ -490,6 +574,8 @@ async def mod_admin_manage(message,role,award_id,role_list):
         else:
             await client.send_message(message.channel,":bangbang: **Mention one user you would like to demote.**");
         return role_list;
+    
+    
     return None;
 
 def capsCount(message):

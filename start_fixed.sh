@@ -1,5 +1,5 @@
 #!/bin/sh
-until python3 DueUtil.py; do
-    echo "Script 'DueUtil.py' crashed with exit code $?.  Respawning.." >&2
+until python3 dueutil.py; do
+    echo "Script 'dueutil.py' crashed with exit code $?.  Respawning.." >&2
     sleep 1
 done

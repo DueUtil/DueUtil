@@ -4,7 +4,7 @@ import math
 import sys
 import pickle;
 import requests;
-import util as util;
+import util_due as util;
 import string
 import os;
 import jsonpickle;
@@ -15,7 +15,7 @@ import time
 import re;
 import os;
 import shutil
-import DueUtil;
+import dueutil;
 from io import BytesIO;
 import json;
 from PIL import Image, ImageDraw, ImageFont
@@ -300,6 +300,11 @@ class Player:
         else:
             raise util.DueUtilException(channel,"You don't have anything equiped anyway!");
             
+    def save(self):
+        data = jsonpickle.encode(self);
+        with open("saves/players/" + self.user_id + ".json", 'w') as outfile:
+            json.dump(data, outfile);
+            
     @property
     def weapon(self):
         return weapons[self.w_id];
@@ -338,95 +343,55 @@ def add_weapon(weapon):
     weapons[weapon.w_id] = weapon;
     save_weapon(weapon);
         
-async def harambe_check(message,weapon,player):
-    out=  ["penis","dick","cock","dong"];
-    if any([x in weapon.name.lower() for x in out]):
-        await give_award(message, player, 12, "For Harambe.");
-    
+
 async def battle_quest_on_message(client,message):    
     global money_transferred;
-    await playerProgress(message);
-    await manageQuests(message);
+    await player_progress(message);
+    await manage_quests(message);
     found = True;
     command_key = util.get_server_cmd_key(message.server);
-    if(message.content.lower().startswith(command_key + 'myquests')):
-            await showQuests(message);
-    elif(message.content.lower().startswith(command_key + 'acceptquest ')):
-        try:
-            messageArg = message.content.lower().replace(command_key + "acceptquest ", "", 1);
-            player = findPlayer(message.author.id);
-            q = int(messageArg);
-            if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
-                if(player.money - int((player.quests[q - 1].money) / 2)) >= 0:
-                    #print(player.quests_completed_today);
-                    if(player.quests_completed_today < 50):
-                        questToBattle = player.quests[q - 1];
-                        del player.quests[q - 1];
-                        try:
-                            await battle(message, [message.author.id, questToBattle], questToBattle.money, True);
-                        except:
-                            print("Quest battle error (text probably too long)");
-                        savePlayer(player);
-                    else:
-                        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You can't do more than 50 quests a day!**");
-                else:
-                    await get_client(message.server.id).send_message(message.channel, ":bangbang:  **You can't afford the risk!**");
-            else:
-                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Quest not found!**");
-        except:
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-            return True;
-    elif(message.content.lower().startswith(command_key + 'declinequest ')):
-        try:
-            messageArg = message.content.lower().replace(command_key + "declinequest ", "", 1);
-            player = findPlayer(message.author.id);
-            q = int(messageArg);
-            if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
-                qT = player.quests[q - 1];
-                del player.quests[q - 1];
-                savePlayer(player);
-                try:
-                    main_quest = get_game_quest_from_id(qT.qID);
-                    if(main_quest != None):
-                        questT = main_quest.quest;
-                    else:
-                        questT = "do a long forgotten quest:";
-                except:
-                    questT = "do a long forgotten quest:";
-                await get_client(message.server.id).send_message(message.channel, "**"+player.name + "** declined to " + questT + " **" + qT.name + " [Level " + str(qT.level) + "]**!");
-            else:
-                await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**");
-        except:
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-        return True;
-    elif(message.content.lower().startswith(command_key + 'questinfo ')):
-        try:
-            messageArg = message.content.lower().replace(command_key + "questinfo ", "", 1);
-            player = findPlayer(message.author.id);
-            q = int(messageArg);
-            if (q - 1) >= 0 and (q - 1) <= len(player.quests) - 1:
-                await displayStatsImage(player.quests[q - 1], True, message);
-            else:
-                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Quest not found!**");
-        except:
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-        return True;
+
+      
+
+        
+        
+        
+        
     elif message.content.lower().startswith(command_key + 'shop'):
+      
+      
         await shop(message);
         return True;
+        
+        
+        
     elif message.content.lower().startswith(command_key + 'benfont'):
+      
+      
         p =findPlayer(message.author.id);
         p.benfont = not p.benfont;
         savePlayer(p);
         if(p.benfont):
             await get_client(message.server.id).send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
+    
+    
     elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
+        
+        
          return True;
+   
+   
     elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
+          
+          
             await show_quest_list(message);
             return True;
+    
+    
     elif message.content.lower().startswith(command_key + 'removequest ') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
+       
+       
         messageArg = message.content.lower().replace(command_key + "removequest ", "", 1);
         try:
             questName = messageArg.strip();
@@ -448,9 +413,17 @@ async def battle_quest_on_message(client,message):
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
+   
+   
     elif message.content.lower().startswith(command_key + 'createweapon') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
+       
+       
          return True;
+    
+    
     elif message.content.lower().startswith(command_key + "sendcash"):
+       
+       
         sender = findPlayer(message.author.id);
         mentions = message.raw_mentions;
         if(len(mentions) < 1):
@@ -497,8 +470,12 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
-        return True;
+      return True;
+      
+      
     elif message.content.lower().startswith(command_key + "givepotato"):
+      
+      
         sender = findPlayer(message.author.id);
         if len(message.raw_mentions) == 1:
             if(sender.userid == message.raw_mentions[0]):
@@ -520,7 +497,11 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention the potato receiver!**");
         return True;
+    
+    
     elif message.content.lower().startswith(command_key + 'removeweapon ')  and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
+      
+      
         messageArg = message.content.lower().replace(command_key + "removeweapon ", "", 1);
         try:
             weapon = get_weapon_for_server(message.server.id, messageArg.strip());
@@ -539,17 +520,29 @@ async def battle_quest_on_message(client,message):
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'buy '):
+       
+       
         await buy_weapon(message,command_key);
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'sellweapon'):
+      
+      
         weapon_name = message.content.lower().replace(command_key+'sellweapon',"",1).strip();
         if(len(weapon_name)  == 0):
             await sell(message,message.author.id,False);
         else:
             await sell_weapon(message,message.author.id,False,weapon_name);
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'resetme'):
+       
+       
         player = findPlayer(message.author.id);
         if(player == None):
             return True;
@@ -580,7 +573,11 @@ async def battle_quest_on_message(client,message):
         if util.is_admin(player.userid):
             await give_award(message,player,21,"Become an admin!")
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'battlename '):
+       
+       
         messageArg = re.sub(re.escape(command_key+'battlename '), '', message.content, flags=re.IGNORECASE).strip();
         if((len(messageArg) > 0) and (len(messageArg) <= 32)):
             player = findPlayer(message.author.id);
@@ -595,15 +592,27 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Battle names must be between 1 and 32 characters in length.**");
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'myinfo'):
+       
+       
         await printStats(message, message.author.id);
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'info'):
+        
+        
         users = message.raw_mentions;
         if(len(users) == 1):
             await printStats(message, users[0]);
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'battle '):
+        
+        
         users = util.userMentions(message);
         if (len(users) == 2):
             if(users[0] != users[1]):
@@ -613,7 +622,11 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention two players!**");
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'battleme '):
+        
+        
         p = util.userMentions(message);
         if(len(p) == 1):
             if(message.author.id == p[0]):
@@ -626,7 +639,11 @@ async def battle_quest_on_message(client,message):
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention who you would like to battle!**");
             return True;
+            
+            
     elif message.content.lower().startswith(command_key + 'qcooldown'):
+       
+       
         player = findPlayer(message.author.id);
         t = 360 - (time.time() - player.last_quest);
         mi, se = divmod(t, 60)
@@ -642,7 +659,11 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(m)+"m "+str(s)+"s**");
         else:
             await get_client(message.server.id).send_message(message.channel, ":information_source: You next have the chance of getting a quest in **"+str(s)+"s**");
+   
+   
     elif message.content.lower().startswith(command_key + 'wagerbattle'):  # NEW WIP WAGERS
+      
+      
         users = util.userMentions(message);
         if(len(users) == 1):
             messageArg = message.content.lower().replace(command_key + "wagerbattle ", "", 1);
@@ -679,7 +700,11 @@ async def battle_quest_on_message(client,message):
         else:
              await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'viewwagers'):
+       
+       
         player = findPlayer(message.author.id);
         WagerT = "```\n" + player.name + "'s received wagers\n";
         if(len(player.battlers) > 0):
@@ -692,7 +717,11 @@ async def battle_quest_on_message(client,message):
         await get_client(message.server.id).send_message(message.channel, WagerT);
         return True;
         # Loop and show received wagers
+        
+        
     elif message.content.lower().startswith(command_key + 'acceptwager '):
+        
+        
         player = findPlayer(message.author.id);
         messageArg = message.content.lower().replace(command_key + "acceptwager ", "", 1);
         try:
@@ -712,7 +741,11 @@ async def battle_quest_on_message(client,message):
         except:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
         return True;
+  
+  
     elif message.content.lower().startswith(command_key + 'declinewager '):
+        
+        
         player = findPlayer(message.author.id);
         messageArg = message.content.lower().replace(command_key + "declinewager ", "", 1);
         try:
@@ -740,18 +773,38 @@ async def battle_quest_on_message(client,message):
             savePlayer(player)
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **That background does not exist!**\nDo **" + command_key + "listbgs** for a full list of the current backgrounds!"); 
+   
+   
     elif message.content.lower().startswith(command_key + 'setbanner '):
+       
+       
         await set_banner(message.channel,command_key,findPlayer(message.author.id),message.content.lower().replace(command_key + 'setbanner ',""));
+    
+    
     elif message.content.lower() == command_key + 'listbgs' or  message.content.lower().startswith(command_key + 'listbgs '):
+       
+       
         bglist = list(Backgrounds.keys());
         await util.simple_paged_list(message,command_key,"listbgs",bglist,"Available backgrounds");
+    
+    
     elif message.content.lower() == command_key + "reloadbgs" and ((message.author.id == "132315148487622656") or (util.is_mod_or_admin(message.author.id))):
+        
+        
         loadBackgrounds();
         await get_client(message.server.id).send_message(message.channel, "Custom backgrounds reloaded.");   
         return True; 
+   
+   
     elif message.content.lower().startswith(command_key + 'myrank'):
+       
+       
         await display_rank(message, None);
+    
+    
     elif message.content.lower().startswith(command_key + 'rank'):
+       
+       
         if(len(message.raw_mentions) == 1):
             gplayer = findPlayer(util.userMentions(message)[0]);
             if(gplayer == None):
@@ -764,7 +817,11 @@ async def battle_quest_on_message(client,message):
             else:
                 await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");    
         return True;
+   
+   
     elif message.content.lower().startswith(command_key + 'myawards') or message.content.lower().startswith(command_key + 'awards'):
+       
+       
         if  len(message.raw_mentions) == 1 and message.content.lower().startswith(command_key + 'awards'):
             player = findPlayer(message.raw_mentions[0]);
             if player == None:
@@ -792,10 +849,18 @@ async def battle_quest_on_message(client,message):
         else:
             await awards_screen(message,player, 0);
         return True;
+    
+    
     elif message.content.lower().startswith(command_key + 'myweapons'):
+       
+       
         await show_weapons(message,findPlayer(message.author.id),False);
         return True;
+    
+    
     elif message.content.lower().startswith(command_key + 'weapons '):
+      
+      
         users = message.raw_mentions;
         if(len(users) == 1):
             player = findPlayer(users[0]);
@@ -804,19 +869,39 @@ async def battle_quest_on_message(client,message):
                 return True;
             await show_weapons(message,player,True);
         return True;
+   
+   
     elif message.content.lower().startswith(command_key + 'equipweapon '):
+       
+       
         await equip_weapon(message,findPlayer(message.author.id),message.content.lower().replace(command_key + "equipweapon ", "", 1));
         return True;
+    
+    
     elif message.content.lower().startswith(command_key + 'unequipweapon'):
+       
+       
         await unequip_weapon(message,findPlayer(message.author.id));
         return True;
+        
+        
     elif message.content.lower().startswith(command_key + 'checkusers') and util.is_mod_or_admin(message.author.id):
+       
+       
         await exploit_check(message);
         return True;
+ 
+ 
     elif message.content.lower() == (command_key + 'clearsus') and util.is_mod_or_admin(message.author.id):
+       
+       
         await clear_suspicious(message);
         return True;
+    
+    
     elif message.content.lower() == (command_key + 'qinfo'):
+        
+        
         player = findPlayer(message.author.id);
         secs = 86400 - (time.time() - player.quest_day_start);
         time_till_reset  = "";
@@ -824,7 +909,11 @@ async def battle_quest_on_message(client,message):
             time_till_reset = "\nThis will be reset in "+time.strftime("**%Hh** **%Mm** **%Ss**", time.gmtime(secs)).replace("**00h**","").replace("**00m**","").replace("**00s**","");
         await get_client(message.server.id).send_message(message.channel, ":information_source: You have completed "+str(player.quests_completed_today)+" quest(s) today."+time_till_reset);
         return True;
+    
+    
     elif (message.content.lower().startswith(command_key + 'takeweapons ') or message.content.lower().startswith(command_key + 'clearcash ') or message.content.lower().startswith(command_key + 'clearstuff ')) and util.is_mod_or_admin(message.author.id):
+       
+       
         users = message.raw_mentions;
         if(len(users) > 1):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
@@ -844,9 +933,17 @@ async def battle_quest_on_message(client,message):
             await take_weapon(message,player);
             await wipe_cash(message,player);
         return True;
+   
+   
     elif message.content.lower().startswith(command_key + 'testbg ') and util.is_mod_or_admin(message.author.id):
+       
+       
         await does_bg_pass(message.channel,message.content.replace(command_key + 'testbg ','').strip());
+    
+    
     elif message.content.lower().startswith(command_key + 'uploadbg ') and util.is_mod_or_admin(message.author.id):
+     
+     
         args = re.sub(' +',' ',util.clearmentions(message.content).strip()).split(' ',2);
         if(len(args) < 3):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **A background has no name!**");
@@ -859,12 +956,20 @@ async def battle_quest_on_message(client,message):
               await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,message.raw_mentions[0])+"** has not joined!\nBackground not uploaded.");
               return True;
         await upload_bg(message.channel,args[1],args[2]);
+    
+    
     elif message.content.lower().startswith(command_key+'deletebg ') and util.is_mod_or_admin(message.author.id):
+     
+     
         args = re.sub(' +',' ',message.content.strip()).split(' ',1);
         if(len(args) < 2):
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Enter a background name!**");
         await delete_bg(message.channel,args[1]);
+    
+    
     elif message.content.lower().startswith(command_key+'view'):
+     
+     
         args = re.sub(' +',' ',message.content[5:].strip()).split(' ',1);
         if(args[0] not in ['bg','banner']):
             return True;
@@ -875,7 +980,11 @@ async def battle_quest_on_message(client,message):
         else:
             await view_banner(message.channel,args[1]); 
         return True;
+    
+    
     elif message.content.lower().startswith(command_key + "setdonor ") and util.is_mod_or_admin(message.author.id):
+      
+      
         if len(message.raw_mentions) == 1:
             player = findPlayer(message.raw_mentions[0]);
             if player != None:
@@ -892,15 +1001,35 @@ async def battle_quest_on_message(client,message):
                 await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,message.raw_mentions[0])+"** has not joined!.");
         else:
             await get_client(message.server.id).send_message(message.channel, ":bangbang: **Just mention one player!**");
+    
+    
     elif message.content.lower().startswith(command_key + 'mylimit'):
+     
+     
         await show_limits_for_player(message.channel,findPlayer(message.author.id));
+    
+    
     elif message.content.lower().startswith(command_key + "mybanners"):
+    
+    
       await show_banners_for_player(message,findPlayer(message.author.id));
+   
+   
     elif message.content.lower().startswith(command_key + "createbanner") and util.is_admin(message.author.id):
+     
+     
         await create_banner(message);
+    
+    
     elif message.content.lower().startswith(command_key + "deletebanner") and util.is_admin(message.author.id):
+    
+    
         await remove_banner(message.channel,message.content.lower().replace(command_key + "deletebanner","").strip());
+   
+   
     elif message.content.lower().startswith(command_key + 'summonquest ') and util.is_admin(message.author.id):
+     
+     
         if(len(message.raw_mentions) == 1):
           player = findPlayer(message.raw_mentions[0]);
           if(player != None):
@@ -910,6 +1039,8 @@ async def battle_quest_on_message(client,message):
                   print("Admin quest summoned! Quest ["+n_q.qID+"] for "+filter_func(player.name)+" ("+player.userid+"+)");
                   return True;
         await get_client(message.server.id).send_message(message.channel, ":bangbang: **Summon failed!**");
+   
+   
     else:
         found = False;
     return found;
@@ -1789,28 +1920,12 @@ def load_weapons():
                 except:
                     print("Weapon data corrupt!");
                 
-
-#def update_chance(is_weapon,chance):
-#    new_chance = round((1/chance)*100,2) if isinstance(chance,int) else chance;
-#    if(new_chance < 1):
-#        new_chance = 1;
-#    if(not is_weapon):
-#        return 10 if new_chance > 10 else new_chance;
-#    else:
-#        return 86 if new_chance > 86 else new_chance;
-
 def update_chance(is_weapon,chance):
     if(not is_weapon):
         return 25 if chance > 25 else chance;
     else:
         return 86 if chance > 86 else chance;
 
-def save_player(player):
-    # data = json.dumps(player, default=lambda o: o.__dict__);
-    data = jsonpickle.encode(player);
-    with open("saves/players/" + player.userid + ".json", 'w') as outfile:
-        json.dump(data, outfile);
-        
 def save_banner(banner):
     # data = ba.dumps(player, default=lambda o: o.__dict__);
     data = jsonpickle.encode(banner);
