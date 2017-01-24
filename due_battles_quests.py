@@ -350,19 +350,6 @@ async def battle_quest_on_message(client,message):
     await manage_quests(message);
     found = True;
     command_key = util.get_server_cmd_key(message.server);
-
-      
-
-        
-        
-        
-        
-    elif message.content.lower().startswith(command_key + 'shop'):
-      
-      
-        await shop(message);
-        return True;
-        
         
         
     elif message.content.lower().startswith(command_key + 'benfont'):
@@ -375,12 +362,6 @@ async def battle_quest_on_message(client,message):
             await get_client(message.server.id).send_file(message.channel,'images/nod.gif');
             await give_award(message, p, 16, "ONE TRUE *type* FONT")
     
-    
-    elif message.content.lower().startswith(command_key + 'createquest') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
-        
-        
-         return True;
-   
    
     elif message.content.lower().startswith(command_key + 'serverquests') and (message.author.permissions_in(message.channel).manage_server or util.is_mod_or_admin(message.author.id)):
           
@@ -539,40 +520,6 @@ async def battle_quest_on_message(client,message):
             await sell_weapon(message,message.author.id,False,weapon_name);
         return True;
         
-        
-    elif message.content.lower().startswith(command_key + 'resetme'):
-       
-       
-        player = findPlayer(message.author.id);
-        if(player == None):
-            return True;
-        player.level = 1;
-        player.attack = 1;
-        player.strg = 1;
-        player.hp = 10;
-        player.money = 0;
-        player.banner_id = "discord blue";
-        player.background = "default.png";
-        player.wep_sum = get_weapon_sum(no_weapon_id)
-        player.wID = no_weapon_id;
-        player.shooting = 1;
-        player.last_progress = 0;
-        player.last_quest = 0;
-        player.name = message.author.name;
-        player.awards = [];
-        player.quests = [];
-        player.owned_weps = [];
-        player.quests_won = 0;
-        player.wagers_won = 0;
-        player.quests_completed_today = 0;
-        player.quest_day_start = 0;
-        savePlayer(player);
-        await get_client(message.server.id).send_message(message.channel, "Your user has been reset.");
-        if util.is_mod(player.userid):
-            await give_award(message,player,22,"Become an mod!")
-        if util.is_admin(player.userid):
-            await give_award(message,player,21,"Become an admin!")
-        return True;
         
         
     elif message.content.lower().startswith(command_key + 'battlename '):
@@ -854,7 +801,6 @@ async def battle_quest_on_message(client,message):
     elif message.content.lower().startswith(command_key + 'myweapons'):
        
        
-        await show_weapons(message,findPlayer(message.author.id),False);
         return True;
     
     
@@ -1142,8 +1088,6 @@ async def display_rank(message, find):
         await get_client(message.server.id).send_message(message.channel, "You're **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
     else:
         await get_client(message.server.id).send_message(message.channel, rplayer.name + " is **rank " + str(players_of_higher_level + 1) + "** out of " + str(players) + " players on **" + message.server.name + "**");
-
-
         
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
@@ -1197,7 +1141,6 @@ async def validate_weapon_store(message,player):
         if(ws[1] != get_weapon_sum(ws[0])):
             weapon_sums.append(ws[1]);
             del player.owned_weps[player.owned_weps.index(ws)];
-    #print(weapon_sums);
     if len(weapon_sums) > 0:
         await mass_recall(message,player,weapon_sums);        
 

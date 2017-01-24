@@ -653,7 +653,7 @@ def zipdir(path, fname):
             zipf.write(os.path.join(root, file))
     zipf.close()
 
-def userMentions(message):
+def user_mentions(message):
     text = message.content.replace("@!","");
     text = text.replace("@","");
     userMentions = [];
@@ -724,7 +724,7 @@ def copydirectorykut(src, dst):
     os.chdir('..')
 
 
-async def randomWord(message):
+async def random_word(message):
     try:
         response = requests.get("http://randomword.setgetgo.com/get.php");
         await createGlitterText(message, response.text);
@@ -733,7 +733,7 @@ async def randomWord(message):
         print ("Error details.");
         print ("Unexpected error:", sys.exc_info()[0]);
 
-async def createGlitterText(message,strToGif):
+async def create_glitter_text(message,strToGif):
     basicMode = servers.setdefault(message.server,False);
     try:
         response = requests.get("http://www.gigaglitters.com/procesing.php?text="+strToGif+"&size=90&text_color=img/DCdarkness.gif&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'");

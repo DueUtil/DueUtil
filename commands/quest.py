@@ -1,3 +1,6 @@
+from due_battles_quests import *;
+import util_due as util;
+
 async def questinfo(ctx,*args): 
     player = Player.find_player(ctx.author.id);
     quest_index = int(args[0]);

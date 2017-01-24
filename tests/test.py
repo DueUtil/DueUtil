@@ -32,16 +32,19 @@ class Event(list):
     """
     def __call__(self, ctx,*args, **kwargs):
         for f in self:
-            f(ctx,*args, **kwargs)
+            print(f(ctx,*args, **kwargs))
 
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
 
 e = Event();
-        
+
+print(commands.myinfo);
+
 e.append(commands.myinfo);
 
 data_and_classes.player_join(1,"bob");
 data_and_classes.player_join(2,"poo");
 
+e(1,"myinfo");
 e(2,"myinfo");
