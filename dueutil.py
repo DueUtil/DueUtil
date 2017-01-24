@@ -14,6 +14,8 @@ import json;
 import configparser
 from concurrent.futures import ProcessPoolExecutor
 import traceback
+from commands import fun
+from commands.util import events;
 
 last_backup = 0;
 stopped = False;
@@ -95,122 +97,10 @@ class DueUtilClient(discord.Client):
             
     @asyncio.coroutine
     async def on_message(self,message):
-        global stopped;
-        global last_backup;
-        global start_time;
-        
-        if not util_due.is_admin(message.author.id):
-            return;
-        command_key = None;
-        pri_server = "";
-        # if not is_due_loaded():
-        #     return;
-        if(not message.channel.is_private):
-            message.content = util_due.escape_markdown(message.content);
-            botme = message.server.get_member(self.user.id);
-            bot_perms = message.channel.permissions_for(botme);
-            if(not (bot_perms.send_messages and bot_perms.read_messages and bot_perms.attach_files and bot_perms.embed_links)):
-                return;
-            command_key = util_due.get_server_cmd_key(message.server);
-        if not stopped:
-            if(time.time() - last_backup > 20000):
-                util_due.zipdir("saves/","autobackups/DueBackup"+str(time.time())+".zip");
-                print("Auto backup!");
-                last_backup = time.time();
-            if message.author.bot:
-                return;
-            await sudo_command(command_key,message);
-            if message.author == self.user:
-                return
-            #old help
-            elif message.channel.is_private:
-                return;
-            elif ((message.author.id == "132315148487622656") or (util_due.is_admin(message.author.id))) and message.content.lower().startswith(command_key+'stop'):
-                
-                
-                stopped = True;
-                await self.send_message(message.channel,"Stopping DueUtil!");
-                print("DueUtil stopped by admin "+message.author.id);
-                self.loop.run_until_complete(self.logout());
-                await self.close()
-                self.loop._default_executor.shutdown(wait=True);
-                sys.exit(0);
-           
-           
-            elif message.content.lower().startswith(command_key+'changeavatar ') and util_due.is_admin(message.author.id):
-               
-               
-                 await change_avatar(message.channel,message.content[13:]);
-            
-            
-            elif(await due_battles_quests.battle_quest_on_message(self,message)):
-               return;
-            elif message.content.lower().startswith(command_key+'dustats'):
-             
-             
-                stats = discord.Embed(title="DueUtil Stats",type="rich",description="DueUtil's global stats since "+time.strftime("%m/%d/%Y at %H:%M", time.gmtime(start_time))+"!",color=16038978);
-                stats.add_field(name="Images Served",value=util_due.number_format_text(due_battles_quests.images_served));
-                stats.add_field(name="Awarded",value="$"+util_due.number_format_text(due_battles_quests.money_created));
-                stats.add_field(name="Players have transferred",value="$"+util_due.number_format_text(due_battles_quests.money_transferred));
-                stats.add_field(name="Quests Given",value=util_due.number_format_text(due_battles_quests.quests_given));
-                stats.add_field(name="Quests Attempted",value=util_due.number_format_text(due_battles_quests.quests_attempted));
-                stats.add_field(name="Level Ups",value=util_due.number_format_text(due_battles_quests.players_leveled));
-                stats.add_field(name="New Players",value=util_due.number_format_text(due_battles_quests.new_players_joined));
-                stats.set_footer(text="DueUtil Shard "+str(self.shard_id+1))
-                await self.send_message(message.channel,embed=stats);
-                return;
-            
-            
-            elif (await util_due.on_util_message(message)):
-               
-               
-                return;
-                
-                
-            elif (message.content == "(╯°□°）╯︵ ┻━┻" and not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
-                
-                
-                 await self.send_file(message.channel,'images/unflip.png');
-                 return;
-                 
-                 
-            elif (message.content == "┬─┬﻿ ノ( ゜-゜ノ)" and not(message.server.id+"/"+message.channel.id in util_due.mutedchan)):
-               
-               
-                 await self.send_file(message.channel,'images/fliptable.png');
-                 return;
-          
-          
-            elif "helpme" in message.content.lower():
-             
-             
-                for mentions in message.raw_mentions:
-                        if(self.user.id in mentions):
-                                await self.start_private_message(message.author);
-                                await send_text_as_message(message.author,"help_info.txt",command_key,message)
-                                await self.send_message(message.channel,"Hi! I've PM-ed you my help!\nP.S. **"+command_key+"** is the command key on **"+message.server.name+"**!");	                        
-                return;					
-            else:
-               
-               
-                for mentions in message.raw_mentions:
-                    if(self.user.id in mentions):
-                        msg = util_due.clearmentions(message.content);
-                        if(len(msg) <= 255):
-                            f = { 'bot_id' : '6', 'say' : msg,'convo_id' : message.author.id,'format' :'xml'};
-                            try:
-                                await self.send_typing(message.channel);
-                                r = requests.get("http://api.program-o.com/v2/chatbot/?"+url1.urlencode(f),timeout=3);
-                                for line in r.content.splitlines():
-                                    if("response" in str(line)):
-                                        msg = str(line);
-                                        msg = msg.split(sep="<response>", maxsplit=1)[1];
-                                        msg = msg.split(sep="</response>", maxsplit=1)[0];
-                                        await self.send_message(message.channel,":speaking_head: "+msg);
-                                        return;
-                            except:
-                                await self.send_message(message.channel,":speaking_head: I'm a little too busy to talk right now! Sorry!");
-                                
+        if message.author == self.user:
+            return
+        await events.on_command_event(message);
+
                                 
     async def change_avatar(self,channel,avatar_name):
         try:
@@ -234,16 +124,15 @@ class DueUtilClient(discord.Client):
         print(self.user.id)
         print('------')
 
-def get_shard_index(server_id):
-    return (int(server_id) >> 22) % shard_count;
-
 def is_due_loaded():
     return util_due.loaded and due_battles_quests.loaded;
 
 def load_due():
     load_config();
+    #Testing
+    events.register_command(fun.test);
     #due_battles_quests.load(shard_clients);
-    #util_due.load(client);
+    util_due.load(shard_clients);
     
 def setup_due_thread(loop,shard_id):
     global shard_clients;
@@ -277,6 +166,7 @@ def run_due():
         for shard_number in range(0,shard_count):
             bot_thread = Thread(target=setup_due_thread,args=(asyncio.new_event_loop(),shard_number,));
             bot_thread.start()
+        print(shard_clients);
 
 if __name__ == "__main__":
     print("Starting DueUtil!")

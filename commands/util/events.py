@@ -1,8 +1,8 @@
 import discord;
+import asyncio;
+from commands.util import commands
 
-command_event = Event();
-
-class Event(list):
+class CommandEvent(list):
   
     """Event subscription.
 
@@ -11,15 +11,18 @@ class Event(list):
 
     """
     
-    def __call__(self,ctx, *args, **kwargs):
-        for f in self:
-            f(ctx, *args, **kwargs)
+   
+    async def __call__(self,ctx):
+        for command in self:
+            await command(ctx, *commands.parse(ctx))
 
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
         
-def on_command_event():
-    print("do stuff");
+command_event = CommandEvent();
+        
+async def on_command_event(ctx):
+    await command_event(ctx);
         
 def register_command(command_function):
     command_event.append(command_function);

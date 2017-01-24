@@ -1,6 +1,8 @@
 from due_battles_quests import *;
 import util_due as util;
+import util.commands;
 
+@commands.command()
 async def questinfo(ctx,*args): 
     player = Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
@@ -8,10 +10,12 @@ async def questinfo(ctx,*args):
         await displayStatsImage(player.quests[q - 1], True, message);
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!");
-        
+
+@commands.command()
 async def myquests(ctx,*args): 
     await showQuests(message);
-    
+
+@commands.command()
 async def acceptquest(ctx, **args):
     player = Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
@@ -28,7 +32,8 @@ async def acceptquest(ctx, **args):
             raise util.DueUtilException(ctx.channel,"You can't afford the risk!");
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!");
-        
+ 
+@commands.command()
 async def declinequest(ctx,*args):
     player = Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
@@ -49,3 +54,6 @@ async def declinequest(ctx,*args):
     else:
         await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**");
 
+@commands.command(manage_server=True)
+async def serverquests(ctx,*args):
+    await show_quest_list(ctx);
