@@ -238,9 +238,10 @@ class Player:
     """The DueUtil player!"""
   
     def __init__(self,*args):
-        
+        global players;
         self.user_id = args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "";
         self.reset();
+        players[self.user_id] = self;
 
     def reset(self):
         self.benfont = False;
@@ -253,8 +254,8 @@ class Player:
         self.donor = False;
         self.background = "default.png";
         self.weapon_sum = '"0"01'     #price/attack/sum;
-        self.name = "";
-        self.w_id = no_weapon_id;
+        self.name = "Put name here";
+        self.w_id = NO_WEAPON_ID;
         self.money = 0;
         self.last_progress = 0;
         self.last_quest = 0;
@@ -269,6 +270,7 @@ class Player:
         self.battlers = [];
         self.awards = [];
         self.owned_weps = [];
+        self.save();
         
     def owns_weapon(self,weapon_name):
         for weapon_slot in self.owned_weps:
@@ -347,13 +349,9 @@ def add_weapon(weapon):
     save_weapon(weapon);
         
 
-#async def battle_quest_on_message(client,message):    
-#    global money_transferred;
-#    await player_progress(message);
-#    await manage_quests(message);
-#    found = True;
-#    command_key = util.get_server_cmd_key(message.server);
-   
+async def on_message(message): 
+    await player_progress(message);
+
 
 async def buy_weapon(message,command_key):
     messageArg = message.content.lower().replace(command_key + "buy ", "", 1);
@@ -609,10 +607,8 @@ def reload_banners():
     load_banner_images();
      
 def load(clients):
-    global Weapons;
-    global Players
-    global client;
     global shard_clients;
+    """
     shard_clients = clients;
     loadWeapons();
     loadPlayers();
@@ -629,7 +625,7 @@ def load(clients):
     loadBackgrounds();
     load_awards();
     loaded = True;
-    
+    """
 
     
 def load_backgrounds():
@@ -715,34 +711,8 @@ def get_server_weapon_list(message):
                     Type = "Ranged";
                 accy = round(weapon.chance,2);
                 weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util.number_format_text(weapon.attack) + " | ACCY: " + util.format_float_drop_zeros(accy) + "% | Type: " + Type + " | $" +  util.to_money(weapon.price,False)+ " |\n";	
-    return weapon_listings;
-
-
-async def print_stats(message, uID):
-    global Players;
-    level = 0;
-    attk = 0;
-    strg = 0;
-    player = findPlayer(uID);
-    if(player != None):
-        await displayStatsImage(player, False, message);
-    else:
-        await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,uID)+"** has not joined!");
+    return weapon_listings;     
             
-async def display_stats(player, q, message):
-        level = math.trunc(player.level);
-        attk = round(player.attack, 2);
-        strg = round(player.strg, 2);
-        shooting = round(player.shooting, 2)
-        c = "Cash"
-        title = "```\n" + player.name + "'s Info";
-        w = "Current Weapon"
-        if(q):
-            c = "Reward"
-            w = "Weapon"
-            title = "```\n" + player.name + " Quest Info"
-        await get_client(message.server.id).send_message(message.channel, title + "\nLevel: " + str(level) + " \nAttack: " + str(attk) + "\nStrength: " + str(strg) + "\nShooting: " + str(shooting) + "\n" + c + ": $" +  util.to_money(player.money,False)+ "\n" + w + ": " + Weapons[player.wID].icon + " - " + Weapons[player.wID].name + "```\n");
-
 def filter_func(string):
     new = "";
     for i in range(0, len(string)):
@@ -1306,12 +1276,12 @@ def load_image_and_set_opacity(image_path,opacity_level):
     return image
         
 def load_banner_images():
-    global Banners;
-    for key, banner in Banners.items():
+    global banners;
+    for key, banner in banners.items():
         banner.image = load_image_and_set_opacity("screens/info_banners/"+banner.banner_image_name,0.9);
         
 def get_player_banner(player):
-    banner = Banners.get(player.banner_id,Banners["discord blue"]);
+    banner = banners.get(player.banner_id,banners["discord blue"]);
     if(not can_use_banner(banner,player)):
         player.banner_id = "discord blue";
         return Banners["discord blue"].image;
@@ -1320,14 +1290,14 @@ def get_player_banner(player):
 async def display_stats_image(player, q, message):
     global images_served;
     images_served = images_served +1;
-    # jsonTest(player);
-    sender = findPlayer(message.author.id);
+    sender = Player.find_player(message.author.id);
+    print(players);
     if(time.time() - sender.last_image_request < 10):
-        await get_client(message.server.id).send_message(message.channel,":cold_sweat: Please don't break me!");
+        await util.say(message.channel,":cold_sweat: Please don't break me!");
         return;
     sender.last_image_request = time.time();
-    # savePlayer(player);
-    await get_client(message.server.id).send_typing(message.channel);
+    
+    await util.get_client(message.server.id).send_typing(message.channel);
     if(q):
         await displayQuestImage(player, message);
         return;
@@ -1339,7 +1309,7 @@ async def display_stats_image(player, q, message):
     level = math.trunc(player.level);
     attk = round(player.attack, 2);
     strg = round(player.strg, 2);
-    shooting = round(player.shooting, 2)
+    shooting = round(player.accy, 2)
     name = util.clear_markdown_escapes(player.name);
     try:
         img = Image.open("backgrounds/" + player.background);
@@ -1352,19 +1322,19 @@ async def display_stats_image(player, q, message):
     img.paste(screen,(0,0),screen)
     
     #draw_banner
-    player_banner = get_player_banner(player);
+    #player_banner = get_player_banner(player);
     
-    img.paste(player_banner,(91,34),player_banner);
+    #img.paste(player_banner,(91,34),player_banner);
     
     #draw_avatar slot
     img.paste(info_avatar,(3,6),info_avatar);
      
     if(player.benfont):
         name=get_text_limit_len(draw,filter_func(name.replace(u"\u2026","...")),font_epic,149)
-        draw.text((96, 42),name, getRankColour(int(level / 10) + 1), font=font_epic)
+        draw.text((96, 42),name, get_rank_colour(int(level / 10) + 1), font=font_epic)
     else:
         name=get_text_limit_len(draw,name,font,149)
-        draw.text((96, 42), name, getRankColour(int(level / 10) + 1), font=font)
+        draw.text((96, 42), name, get_rank_colour(int(level / 10) + 1), font=font)
     draw.text((96, 62), "LEVEL " + str(level), (255, 255, 255), font=font_big)
     # Fill data
     width = draw.textsize(str(attk), font=font)[0]
@@ -1385,7 +1355,7 @@ async def display_stats_image(player, q, message):
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
     
-    wep = get_text_limit_len(draw,util.clear_markdown_escapes(get_weapon_from_id(player.wID).name),font,95);
+    wep = get_text_limit_len(draw,util.clear_markdown_escapes(player.weapon.name),font,95);
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
     # here
@@ -1396,9 +1366,9 @@ async def display_stats_image(player, q, message):
     first_even = True;
     for x in range(len(player.awards) - 1, -1, -1):
          if (c % 2 == 0):
-             img.paste(AwardsIcons[player.awards[x]], (18, 121 + 35 * l));
+             img.paste(award_icons[player.awards[x]], (18, 121 + 35 * l));
          else:
-             img.paste(AwardsIcons[player.awards[x]], (53, 121 + 35 * l));
+             img.paste(award_icons[player.awards[x]], (53, 121 + 35 * l));
              l = l + 1;
          c = c + 1;
          if(c == 8):
@@ -1407,11 +1377,10 @@ async def display_stats_image(player, q, message):
         draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", (48, 48, 48), font=font);
     if(len(player.awards) == 0):
         draw.text((38, 183), "None", (48, 48, 48), font=font);
-    #img.save(fname + '.png')
     output = BytesIO()
     img.save(output,format="PNG")
     output.seek(0);
-    await get_client(message.server.id).send_file(message.channel, fp=output, filename="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information.");
+    await util.get_client(message.server.id).send_file(message.channel, fp=output, filename="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information.");
     output.close()
 
 
@@ -1475,63 +1444,61 @@ async def displayQuestImage(quest, message):
 
     
 async def player_progress(message):
-    global Players;
     global money_created;
     global new_players_joined;
     global players_leveled;
-    Found = False;
-    gplayer = findPlayer(message.author.id);
-    if(gplayer != None):
-        if(gplayer.wID != no_weapon_id):
-            if(gplayer.wep_sum != get_weapon_sum(gplayer.wID)):
-                await sell(message,gplayer.userid,True);
-        await validate_weapon_store(message,gplayer);
-        Found = True;
-        if((time.time() - gplayer.last_progress) >= 60):
-            #print(gplayer.name.encode('ascii','replace').decode() + " Progressed!");
-            gplayer.last_progress = time.time();
-            startLevel = gplayer.level;
-            addAttack = (len(message.content) / 600);
-            if(addAttack < 0.02):
-                addAttack = addAttack + 0.02;
-            addstrg = (util.capsCount(message) / 400);
-            if(addstrg < 0.03):
-                addstrg = addstrg + 0.03;
-            addshoot = (((message.content.count(' ') + message.content.count('.') + message.content.count("'") / 3) / 200));
-            if(addshoot < 0.01):
-                addshoot = addshoot + 0.01;
-            gplayer.attack = gplayer.attack + addAttack;
-            gplayer.strg = gplayer.strg + addstrg;
-            gplayer.shooting = gplayer.shooting + addshoot;
-            gplayer.level = gplayer.level + ((((gplayer.attack - 1) + (gplayer.strg - 1) + (gplayer.shooting - 1)) / 3) / math.pow(gplayer.level, 3));                                          
-            gplayer.hp = 10 * gplayer.level;
-            if math.trunc(gplayer.level) > math.trunc(startLevel):
-                MONEY = math.trunc(gplayer.level) * 10;
-                gplayer.money = gplayer.money + MONEY;
-                money_created = money_created + MONEY;
+    global players;
+    print(players);
+    player = Player.find_player(message.author.id);
+    if(player != None):
+        if(player.w_id != NO_WEAPON_ID):
+            if(player.weapon_sum != player.weapon.weapon_sum):
+                await sell(message,player.user_id,True);
+        await validate_weapon_store(message,player);
+        
+        if  time.time() - player.last_progress >= 60:
+            player.last_progress = time.time();
+            start_level = player.level;
+            add_attack = len(message.content) / 600;
+            if add_attack < 0.02:
+                add_attack += 0.02;
+                
+            add_strg = sum(1 for char in message.content if char.isupper()) / 400;
+            if add_strg < 0.03:
+                add_strg += 0.03;
+                
+            add_accy = (message.content.count(' ') + message.content.count('.') + message.content.count("'")) / 3 / 200;
+            if add_accy < 0.01:
+                add_accy += 0.01;
+                
+            player.attack += add_attack;
+            player.strg += add_strg;
+            player.accy += add_accy;
+            player.level += (player.attack + player.strg + player.accy -3) / 3 / math.pow(player.level, 3);                                          
+            player.hp = 10 * player.level;
+            
+            if math.trunc(player.level) > math.trunc(start_level):
+                level_up_reward = math.trunc(gplayer.level) * 10;
+                player.money += level_up_reward;
+                money_created += level_up_reward;
                 players_leveled += 1;
-                if(not(message.server.id+"/"+message.channel.id in util.mutedchan)):
-                    await level_up_image(message, gplayer, MONEY);
+                
+                if not(message.server.id+"/"+message.channel.id in util.muted_channels):
+                    await level_up_image(message,player, level_up_reward);
                 else:
-                    print("Won't send level up image - channel blocked.")
-                rank = int(gplayer.level / 10) + 1;
+                    print("Won't send level up image - channel blocked.");
+                    
+                rank = int(player.level / 10) + 1;
                 if(rank == 2):
-                    await give_award(message, gplayer, 2, "Attain rank 2.");
+                    await give_award(message, player, 2, "Attain rank 2.");
                 elif (rank > 2 and rank <=9):
-                    await give_award(message, gplayer, rank+2, "Attain rank "+str(rank)+".");  
-                print(filter_func(gplayer.name)+" ("+gplayer.userid+") has leveled up!");
-            savePlayer(gplayer);
-    if not Found:
-        p = player();
-        p.userid = message.author.id;
-        if(len(message.author.name) <= 32):
-            p.name = util.escape_markdown(message.author.name);
-        else:
-            p.name = util.escape_markdown(message.author.name[:31] + u"\u2026");
-        p.wID = no_weapon_id;
-        Players[str(message.author.id)] = p;
-        new_players_joined = new_players_joined + 1;
-        savePlayer(p);
+                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".");  
+                print(filter_func(player.name)+" ("+player.userid+") has leveled up!");
+                
+            player.save();
+    if player == None:
+        new_player = Player(message.author);
+        new_players_joined += 1;
         
 
 async def show_limits_for_player(channel,player):

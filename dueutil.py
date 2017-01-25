@@ -98,8 +98,9 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user:
             return
+        await due_battles_quests.on_message(message);
         await events.on_command_event(message);
-
+        #HACKER MAN 
                                 
     async def change_avatar(self,channel,avatar_name):
         try:
@@ -129,7 +130,7 @@ def is_due_loaded():
 def load_due():
     load_config();
     #Testing
-    #due_battles_quests.load(shard_clients);
+    due_battles_quests.load(shard_clients);
     util_due.load(shard_clients);
     
 def setup_due_thread(loop,shard_id):

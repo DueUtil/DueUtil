@@ -1,2 +1,2 @@
-from commands import fun,quest
+from commands import fun,quest,general
 

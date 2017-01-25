@@ -1,23 +1,30 @@
-from due_battles_quests import *;
+import due_battles_quests as quests;
 import util_due as util;
-import util.commands;
+from commands.util import commands
 
+@commands.command()
+async def myinfo(ctx,*args):
+    await quests.display_stats_image(quests.Player.find_player(ctx.author.id), None,ctx);
+
+@commands.command()
 async def resetme(ctx,*args): 
     player = Player.find_player(ctx.author.id);
     player.reset();
-    player.save();
     await util.say(ctx.channel, "Your user has been reset.");
     if util.is_mod(player.user_id):
         await give_award(message,player,22,"Become an mod!")
     if util.is_admin(player.userid):
         await give_award(message,player,21,"Become an admin!")       
 
+@commands.command()
 async def myweapons(ctx,*args):
     await show_weapons(ctx,Player.find_player(ctx.author.id),False);
 
+@commands.command()
 async def shop(ctx,*args):
     await shop(ctx);
 
+@commands.command()
 async def benfont(ctx,*args):
     player = Player.find_player(ctx.author.id);
     player.benfont = not player.benfont;
@@ -26,6 +33,7 @@ async def benfont(ctx,*args):
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif');
         await give_award(ctx, player, 16, "ONE TRUE *type* FONT")
 
+@commands.command()
 async def mywagers(ctx,*args):      
     player = Player.find_player(ctx.author.id);
     WagerT = "```\n" + player.name + "'s received wagers\n";
@@ -38,6 +46,7 @@ async def mywagers(ctx,*args):
     WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
     await get_client(message.server.id).send_message(message.channel, WagerT);
 
+@commands.command()
 async def sendcash(ctx,*args):
     sender = Player.find_player(ctx.author.id);
     mentions = message.raw_mentions;

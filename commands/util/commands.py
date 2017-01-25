@@ -14,6 +14,7 @@ def command(**command_rules):
             if(args[0].lower() != command_func.__name__):
                 return False;
             if(ctx.author.id != "IDK"):
+                print(ctx.author.server_permissions);
                 args_pattern = command_rules.get('args_pattern',"");
                 if not await check_pattern(args_pattern,*args[1:]):
                     await util_due.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
@@ -27,6 +28,7 @@ def command(**command_rules):
         return wrapped_command;
         
     return wrap;
+    
 
 def parse(command_message):
   
@@ -124,4 +126,3 @@ def __add_arg(arg,args):
     else:
         return ("",args);
             
-#print(command_parse('!createweapon "Ultra \\"Bob" 1 2.2 1.1'));
