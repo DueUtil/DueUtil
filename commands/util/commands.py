@@ -1,22 +1,31 @@
 from functools import wraps
 import util_due;
+import due_battles_quests as game;
+from commands.util import events;
 
 def command(**command_rules):
   
     """A command wrapper for command functions"""
   
     def wrap(command_func):
+  
         @wraps(command_func)
         async def wrapped_command(ctx, *args,**kwargs):
             if(args[0].lower() != command_func.__name__):
                 return False;
             if(ctx.author.id != "IDK"):
-                await util_due.say(ctx.channel,"```"+str(args)+"```");
+                args_pattern = command_rules.get('args_pattern',"");
+                if not await check_pattern(args_pattern,*args[1:]):
+                    await util_due.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
+                    return False;
+                await util_due.say(ctx.channel,str(args));
                 await command_func(ctx,*args[1:],**kwargs);
             else:
-                raise util_due.DueUtilException(channel,"You can't use that command! ");
+                raise util_due.DueUtilException(ctx.channel,"You can't use that command!");
             return True;
+        events.register_command(wrapped_command);
         return wrapped_command;
+        
     return wrap;
 
 def parse(command_message):
@@ -28,7 +37,7 @@ def parse(command_message):
     
     escaped = False;
     is_string = False;
-    args = ();
+    args = [];
     current_arg = '';
     for char_pos in range(0,len(command_string)+1):
         current_char = command_string[char_pos] if char_pos < len(command_string) else ' ';
@@ -47,11 +56,71 @@ def parse(command_message):
             current_arg += command_string[char_pos];
         else:
             current_arg, args = __add_arg(current_arg,args);
+    if is_string:
+        raise util_due.DueUtilException(command_message.channel,"Unclosed string in command!");
+        
+    if len(command_message.raw_mentions) > 0:
+        for arg in args:
+            for mention in command_message.raw_mentions:
+                if mention in arg and len(arg)-len(mention) < 6:
+                    args[args.index(arg)] = mention;
     return args;
+    
+async def check_pattern(pattern,*args):
+    
+    """A string to define the expected args of a command
+    
+    e.g. SIRIIP
+    
+    means String, Integer, Real, Integer, Integer, Player.
+    
+    """
+        
+    if len(pattern) == 0:
+        return True;
+    
+    if len(pattern) != len(args):
+        return False;
+    
+    for pos in range(0,len(pattern)):
+        current_rule = pattern[pos];
+        switch = {
+            'S': not args[pos].isspace(),
+            'I': represents_int(args[pos]),
+            'R': represents_float(args[pos]),
+            'P': game.Player.find_player(args[pos])
+        }
+        if not switch.get(current_rule):
+            return False;
+    return True;
+        
+def represents_int(string):
+    try: 
+        int(string)
+        return True
+    except:return False  
+    
+def represents_float(string):
+    try: 
+        float(string)
+        return True
+    except:return False 
+    
+def point_error(command_string):
+  
+    """Maybe make a programming lang style error string."""
+    
+    error_string = command_string+"\n";
+    for char_pos in range(len(command_string),-1,-1):
+        if command_string[char_pos-1] == '"':
+            error_string += ' ' * (char_pos-1);
+            break;
+    return error_string + '^';
+        
                     
 def __add_arg(arg,args):
     if len(arg) > 0:
-        return ("",args + (arg,),);
+        return ("",args + [arg,],);
     else:
         return ("",args);
             

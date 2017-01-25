@@ -1,13 +1,13 @@
-from due_battles_quests import *;
+import due_battles_quests as quests;
 import util_due as util;
-import util.commands;
+from commands.util import commands
 
 @commands.command()
 async def questinfo(ctx,*args): 
-    player = Player.find_player(ctx.author.id);
+    player = quests.Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
     if (quest_index - 1) >= 0 and (quest_index - 1) <= len(player.quests) - 1:
-        await displayStatsImage(player.quests[q - 1], True, message);
+        await quests.displayStatsImage(player.quests[q - 1], True, message);
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!");
 

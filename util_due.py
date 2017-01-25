@@ -39,10 +39,17 @@ class AutoReply:
     
 class DueUtilException(ValueError):
   
-    def __init__(self, channel,message, *args):
+    def __init__(self, channel,message, *args,**kwargs):
         self.message = message 
         self.channel = channel
+        self.addtional_info = kwargs.get('addtional_info',"");
         super(DueUtilException, self).__init__(message,channel,*args) 
+        
+    def get_message(self):
+        message = ":bangbang: **"+self.message+"**";
+        if  self.addtional_info != "":
+            message += "```css\n"+self.addtional_info+"```";
+        return message;
     
     
 async def say(channel,*args,**kwargs):

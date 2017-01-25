@@ -4,13 +4,9 @@ from commands.util import commands
 
 class CommandEvent(list):
   
-    """Event subscription.
-
-    A list of callable objects. Calling an instance of this will cause a
-    call to each item in the list in ascending order by index.
-
-    """
+    """Command event subscription.
     
+    """
    
     async def __call__(self,ctx):
         for command in self:
@@ -26,6 +22,7 @@ async def on_command_event(ctx):
         
 def register_command(command_function):
     command_event.append(command_function);
+    print(command_event);
     
 def remove_command(command_function):
     command_event.remove(command_function);

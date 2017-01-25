@@ -14,8 +14,7 @@ import json;
 import configparser
 from concurrent.futures import ProcessPoolExecutor
 import traceback
-from commands import fun
-from commands.util import events;
+from commands.util import events , loader;
 
 last_backup = 0;
 stopped = False;
@@ -87,7 +86,7 @@ class DueUtilClient(discord.Client):
     async def on_error(self,event,ctx):
         error = sys.exc_info()[1];
         if isinstance(error,util_due.DueUtilException):
-            await self.send_message(error.channel,":bangbang: **"+error.message+"**");
+            await self.send_message(error.channel,error.get_message());
         elif isinstance(ctx, discord.Message):
             await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**\n"
                                                  "``"+str(error)+"``"));
@@ -130,7 +129,6 @@ def is_due_loaded():
 def load_due():
     load_config();
     #Testing
-    events.register_command(fun.test);
     #due_battles_quests.load(shard_clients);
     util_due.load(shard_clients);
     
