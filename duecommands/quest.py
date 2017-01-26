@@ -13,7 +13,7 @@ async def questinfo(ctx,*args):
 
 @commands.command()
 async def myquests(ctx,*args): 
-    await showQuests(message);
+    await quests.show_quests(message);
 
 @commands.command()
 async def acceptquest(ctx, **args):

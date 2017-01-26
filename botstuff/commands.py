@@ -36,7 +36,7 @@ def parse(command_message):
     
     key = util_due.get_server_cmd_key(command_message.server);
     command_string = command_message.content.replace(key,'',1);
-    
+    user_mentions = command_message.raw_mentions;
     escaped = False;
     is_string = False;
     args = [];
@@ -57,15 +57,14 @@ def parse(command_message):
                 escaped = False;
             current_arg += command_string[char_pos];
         else:
+            for mention in user_mentions: #Replade mentions
+                if mention in arg and len(arg)-len(mention) < 6:
+                    current_arg = mention;
+                    del user_mentions[user_mentions.index(mention)];
             current_arg, args = __add_arg(current_arg,args);
     if is_string:
         raise util_due.DueUtilException(command_message.channel,"Unclosed string in command!");
         
-    if len(command_message.raw_mentions) > 0:
-        for arg in args:
-            for mention in command_message.raw_mentions:
-                if mention in arg and len(arg)-len(mention) < 6:
-                    args[args.index(arg)] = mention;
     return args;
     
 async def check_pattern(pattern,*args):

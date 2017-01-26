@@ -22,48 +22,8 @@ start_time = 0;
 shard_count = 3;
 shard_clients = [];
 bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
-
 shard_names = []
 
-def load_config():
-    global bot_key;
-    config = configparser.RawConfigParser();
-    try:
-        config.read('dueutil.cfg')
-        bot_key = config.get("DueUtil General","bot_key");
-    except:
-        create_config(config);
-		
-def create_config(config):
-    config.add_section("DueUtil General");
-    config.set("DueUtil General","bot_key",bot_key);
-    with open('dueutil.cfg', 'w+') as cfg_file:
-        config.write(cfg_file)
-		
-def get_help_page(help_file,page,key,server):
-    with open (help_file, "r") as myfile:
-        data=myfile.readlines();
-    return util_due.get_page_with_replace(data,page,key,server);
-
-
-async def send_text_as_message(to,txt_name,key,message):
-    with open (txt_name, "r") as myfile:
-        data=myfile.readlines();
-    txt ="";
-    for line in data:
-        txt = txt+line.replace("[CMD_KEY]",key).replace("[SERVER]",message.server.name);
-    await client.send_message(to,txt);   
-    
-async def sudo_command(key,message):
-  if message.channel.is_private:
-      return;
-  if(util_due.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
-    try:
-        message.author = message.server.get_member(message.raw_mentions[0]);
-        message.content = content = key+message.content.split('>',1)[1].strip();
-        del message.raw_mentions[0];
-    except:
-        await client.send_message(message.channel, ":bangbang: **sudo failed!**");
 
 class DueUtilClient(discord.Client):
 
@@ -143,6 +103,45 @@ def setup_due_thread(loop,shard_id):
     finally:
         print("A shard died.");
 
+def load_config():
+    global bot_key;
+    config = configparser.RawConfigParser();
+    try:
+        config.read('dueutil.cfg')
+        bot_key = config.get("DueUtil General","bot_key");
+    except:
+        create_config(config);
+		
+def create_config(config):
+    config.add_section("DueUtil General");
+    config.set("DueUtil General","bot_key",bot_key);
+    with open('dueutil.cfg', 'w+') as cfg_file:
+        config.write(cfg_file)
+		
+def get_help_page(help_file,page,key,server):
+    with open (help_file, "r") as myfile:
+        data=myfile.readlines();
+    return util_due.get_page_with_replace(data,page,key,server);
+
+
+async def send_text_as_message(to,txt_name,key,message):
+    with open (txt_name, "r") as myfile:
+        data=myfile.readlines();
+    txt ="";
+    for line in data:
+        txt = txt+line.replace("[CMD_KEY]",key).replace("[SERVER]",message.server.name);
+    await client.send_message(to,txt);   
+    
+async def sudo_command(key,message):
+  if message.channel.is_private:
+      return;
+  if(util_due.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
+    try:
+        message.author = message.server.get_member(message.raw_mentions[0]);
+        message.content = content = key+message.content.split('>',1)[1].strip();
+        del message.raw_mentions[0];
+    except:
+        await client.send_message(message.channel, ":bangbang: **sudo failed!**");
         
 def run_due():
     global stopped;

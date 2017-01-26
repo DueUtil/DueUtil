@@ -4,6 +4,11 @@ from commands.util import commands
 
 @commands.command()
 async def myinfo(ctx,*args):
+  
+    """
+    Shows your info!
+    """
+    
     await quests.display_stats_image(quests.Player.find_player(ctx.author.id), None,ctx);
 
 @commands.command()
