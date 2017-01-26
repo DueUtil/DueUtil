@@ -1,7 +1,7 @@
 import discord
 import os
-import util_due;
-import due_battles_quests;
+import botstuff.util;
+from fun import battlesquests;
 import sys;
 import urllib.request as url3;
 import asyncio;
@@ -14,7 +14,7 @@ import json;
 import configparser
 from concurrent.futures import ProcessPoolExecutor
 import traceback
-from commands.util import events , loader;
+from botstuff import events,loader,util;
 
 last_backup = 0;
 stopped = False;
@@ -24,6 +24,7 @@ shard_clients = [];
 bot_key = "MjEyNzA3MDYzMzY3ODYwMjI1.Cwk-Cg.N98twLnUL6i0VPePyzUsn1bNf-4";
 shard_names = []
 
+""" The most 1337 (worst) discord bot ever."""
 
 class DueUtilClient(discord.Client):
 
@@ -45,7 +46,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     async def on_error(self,event,ctx):
         error = sys.exc_info()[1];
-        if isinstance(error,util_due.DueUtilException):
+        if isinstance(error,util.DueUtilException):
             await self.send_message(error.channel,error.get_message());
         elif isinstance(ctx, discord.Message):
             await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**\n"
@@ -58,7 +59,7 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user:
             return
-        await due_battles_quests.on_message(message);
+        await battlesquests.on_message(message);
         await events.on_command_event(message);
         #HACKER MAN 
                                 
@@ -85,13 +86,13 @@ class DueUtilClient(discord.Client):
         print('------')
 
 def is_due_loaded():
-    return util_due.loaded and due_battles_quests.loaded;
+    return battlesquests.loaded and util.loaded;
 
 def load_due():
     load_config();
     #Testing
-    due_battles_quests.load(shard_clients);
-    util_due.load(shard_clients);
+    battlesquests.load(shard_clients);
+    util.load(shard_clients);
     
 def setup_due_thread(loop,shard_id):
     global shard_clients;
@@ -121,7 +122,7 @@ def create_config(config):
 def get_help_page(help_file,page,key,server):
     with open (help_file, "r") as myfile:
         data=myfile.readlines();
-    return util_due.get_page_with_replace(data,page,key,server);
+    return util.get_page_with_replace(data,page,key,server);
 
 
 async def send_text_as_message(to,txt_name,key,message):
@@ -135,7 +136,7 @@ async def send_text_as_message(to,txt_name,key,message):
 async def sudo_command(key,message):
   if message.channel.is_private:
       return;
-  if(util_due.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
+  if(util.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo ")):
     try:
         message.author = message.server.get_member(message.raw_mentions[0]);
         message.content = content = key+message.content.split('>',1)[1].strip();
@@ -144,8 +145,7 @@ async def sudo_command(key,message):
         await client.send_message(message.channel, ":bangbang: **sudo failed!**");
         
 def run_due():
-    global stopped;
-    global shard_clients
+    global stopped,shard_clients;
     if not os.path.exists("saves/players"):
         os.makedirs("saves/players")  
     if not os.path.exists("saves/weapons"):

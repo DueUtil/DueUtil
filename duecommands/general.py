@@ -1,6 +1,5 @@
-import due_battles_quests as quests;
-import util_due as util;
-from commands.util import commands
+from fun import battlesquests;
+from botstuff import commands,util;
 
 @commands.command()
 async def myinfo(ctx,*args):

@@ -1,6 +1,6 @@
 import discord;
 import asyncio;
-from commands.util import commands
+from botstuff import commands
 
 class CommandEvent(list):
   

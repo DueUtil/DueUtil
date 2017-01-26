@@ -4,7 +4,7 @@ import math
 import sys
 import pickle;
 import requests;
-import util_due as util;
+import botstuff.util;
 import string
 import os;
 import jsonpickle;

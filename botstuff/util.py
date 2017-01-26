@@ -10,7 +10,7 @@ import math
 import sys
 from html.parser import HTMLParser
 import time;
-import due_battles_quests
+import fun.battlesquests;
 import zipfile;
 import shutil;
 import jsonpickle;
@@ -241,7 +241,7 @@ async def mod_admin_manage(message,role,award_id,role_list):
                 role_list.append(rUser[0]);
                 await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is now a DueUtil "+role+"!");
                 print(role+" "+rUser[0]+" added by "+message.author.id);
-                await due_battles_quests.give_award_id(message,rUser[0],award_id,"Become an "+role+"!")
+                await battlesquests.give_award_id(message,rUser[0],award_id,"Become an "+role+"!")
             else:
                 await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is already an "+role+"!");
         else:
@@ -258,7 +258,7 @@ async def mod_admin_manage(message,role,award_id,role_list):
                 del role_list[role_list.index(rUser[0])];
                 print(role+" "+rUser[0]+" removed by "+message.author.id);
                 await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is no longer a DueUtil "+role+".");
-                player = due_battles_quests.findPlayer(rUser[0]);
+                player = battlesquests.findPlayer(rUser[0]);
                 del player.awards[player.awards.index(award_id)];
             else:
                 await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is not an "+role+" anyway!");
