@@ -19,23 +19,11 @@ import json;
 loaded = False;
 due_admins=[];
 due_mods=[];
-auto_replies = [];
 muted_channels = [];
 servers = dict();
 server_keys = dict();
 shard_clients = [];
 
-class AutoReply:
-  
-    message = "";
-    key = "";
-    target = "";
-    attarget = False;
-    server = "";
-    username ="";
-    timed = "";
-    alt = "";
-    channel = None;
     
 class DueUtilException(ValueError):
   
@@ -112,195 +100,36 @@ def format_float_drop_zeros_drop(number,drop):
 def escape_markdown(text):
     return text.translate(str.maketrans({"`":  r"\`"})).replace("\n","");
     
-def get_server_name(message,id):
-    return get_server_name_S(message.server,id);
-
-def get_server_name_S(server,id):
+def get_server_name(server,id):
     try:
         return server.get_member(id).name;
     except:
         return "Unknown User"
     
-async def simple_paged_list(message,command_key,command_name,item_list,title):
-    page = 0;
-    end_cmd = message.content.lower().replace(command_key + command_name, "");
-    if(len(end_cmd.replace(" ", "")) > 0):
-        try:
-            page = int(end_cmd) - 1;
-        except:
-            await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
-            return;
-    if(page < 0):
-        await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
-        return;
-    if(page == 0):
-        text_list = "```css\n["+title+"]\n";
-    else:
-        text_list = "```css\n["+title+": Page " + str(page + 1) + "]\n";
-    if(page * 10 > len(item_list) - 1):
-        await client.send_message(message.channel, ":bangbang: **Page not found!**"); 
-        return;
-    for x in range(page * 10, page * 10 + 10):
-        if(x < len(item_list)):
-            text_list += str(x + 1) + ". " + item_list[x] + "\n";
-        else:
-            break;
-    if(x < len(item_list) - 1):
-        text_list += "[Do " + command_key + command_name + " " + str(page + 2) + " to see more.]";
-    text_list += "```";
-    await client.send_message(message.channel, text_list);   
-       
-def get_page_with_replace(data,page,key,server):
-    output ='```\n';
-    test = output;
-    if(not isinstance(data, list)):
-        if(len(data)+6 < 2000):
-            return ['```\n'+data+'```',False]
-        data = data.splitlines();
-    #for x in range (0,page):
-        #test = test + '``````'
-    for line in data:   
-        if(key != None and server != None):
-            text = line.replace("[CMD_KEY]",key).replace("[SERVER]",server);
-        else:
-            text = line;
-        if(not ('\n' in text)):
-            text = text + '\n';
-        new_ln = output+ text;
-        test += text;
-        if(len(test) >= 1997*page):          
-            if(len(test) < 1997*(page+1) and len(new_ln) <= 1997):
-                output = new_ln;
-            else:
-                return [output+'```',True];
-    output = output + '```';
-    if('``````' in output):
-        return None;
-    #print(output);
-    return [output,False]
-    
-	
-def get_page(data,page):
-	return get_page_with_replace(data,page,None,None);
-	
-async def display_with_pages(message,data,command,title,title_not_page_one,constant_footer,footer_no_next_page):
-	command_key = get_server_cmd_key(message.server);
-	page = 0;
-	args = message.content.lower().replace(command_key + command,"");
-	body = data;
-	footer_to_send =constant_footer+"\n";
-	title_to_send ="";
-	if(len(args) > 0):
-		try:
-			page = int(args) - 1;
-			if(page < 0):
-				await client.send_message(message.channel, ":bangbang: **Page not found**");
-				return;
-		except:
-			await client.send_message(message.channel, ":bangbang: **Page not found**");
-			return;
-	page_data = get_page(data,page);
-	if(page_data == None or (page > 0 and len(data)+6 < 2000)):
-		await client.send_message(message.channel, ":bangbang: **Page not found!**");
-		return;
-	else:
-		body=page_data[0];
-		if(page > 0):
-			title_to_send = title_not_page_one+": Page "+str(page+1);
-		else:
-			title_to_send = title;
-		title_to_send = "**"+title_to_send+"**";
-		if(page_data[1]):
-			footer_to_send += "**But wait there's more** type **"+command_key+command+" "+str(page+2)+"** to have a look!"
-		else:
-			footer_to_send += footer_no_next_page;
-	await client.send_message(message.channel, title_to_send);
-	await client.send_message(message.channel, body);
-	await client.send_message(message.channel,footer_to_send);
+def paginate():
+    """ This always was shit. Replace it. """
     
 def is_admin(id):
     return id in DueUtilAdmins or id == '132315148487622656';
+    
 def is_mod(id):
     return id in DueUtilMods or id == '132315148487622656';
+    
 def is_mod_or_admin(id):
     return id in DueUtilAdmins or id in DueUtilMods or id =='132315148487622656';
-    
-#async def on_util_message(message):
-   
-    
-async def mod_admin_manage(message,role,award_id,role_list):
-    
-    
-    command_key = get_server_cmd_key(message.server);
-    if ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'add'+role):
-       
-       
-        rUser = userMentions(message);
-        if(len(rUser)==1):
-            if(not (rUser[0] in role_list)):
-                role_list.append(rUser[0]);
-                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is now a DueUtil "+role+"!");
-                print(role+" "+rUser[0]+" added by "+message.author.id);
-                await battlesquests.give_award_id(message,rUser[0],award_id,"Become an "+role+"!")
-            else:
-                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is already an "+role+"!");
-        else:
-            await client.send_message(message.channel,":bangbang: **Mention one user you would like to promote!**");
-        return role_list;    
-    
-    
-    elif ((message.author.id == "132315148487622656") or is_admin(message.author.id)) and message.content.lower().startswith(command_key+'remove'+role):
-        
-      
-        rUser = userMentions(message);
-        if(len(rUser)==1):
-            if((rUser[0] in role_list)):
-                del role_list[role_list.index(rUser[0])];
-                print(role+" "+rUser[0]+" removed by "+message.author.id);
-                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is no longer a DueUtil "+role+".");
-                player = battlesquests.findPlayer(rUser[0]);
-                del player.awards[player.awards.index(award_id)];
-            else:
-                await client.send_message(message.channel,"**"+get_server_name(message, rUser[0])+"** is not an "+role+" anyway!");
-        else:
-            await client.send_message(message.channel,":bangbang: **Mention one user you would like to demote.**");
-        return role_list;
-    
-    
-    return None;
 
-def save_generic(thing,name):
+def save_json(thing,file_path):
     data = jsonpickle.encode(thing);
-    with open("saves/util/" + name+ ".json", 'w') as outfile:
+    with open(file_path+'.json', 'w') as outfile:
         json.dump(data, outfile);
 
-def load_utils(name):
-    try:
-        with open("saves/util/"+name+".json") as data_file:    
-                data = json.load(data_file);
-                du = jsonpickle.decode(data);
-                print(str(len(du))+" "+name+"(s) loaded")
-                return du;
-    except:
-        print("Failed to load "+name+"!")
-        print ("Error:", sys.exc_info()[0]);
-        return None;
-
-def get_strings(mainStr):
-    Strs = [];
-    Start = False;
-    for x in range (0,len(mainStr)):
-        if mainStr[x] == '"':
-            if Start == False:
-                Strs.append("");
-            Start = not Start;
-        elif Start:
-            Strs[len(Strs)-1]=Strs[len(Strs)-1]+mainStr[x];
-    if not Start:
-        return Strs;
-    else:
-        return [];
-       
+def load_json(path):
+    with open(path) as data_file:    
+        data = json.load(data_file);
+        unpickled = jsonpickle.decode(data);
+        return unpickled;
+                
+        
 def load(shards):
     global shard_clients;
     shard_clients = shards;
@@ -333,63 +162,10 @@ def load(shards):
     loaded = True;
     '''
 
-
-def zipdir(path, fname):
-    zipf = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            zipf.write(os.path.join(root, file))
-    zipf.close()
-
-def user_mentions(message):
-    text = message.content.replace("@!","");
-    text = text.replace("@","");
-    userMentions = [];
-    mainStr = text;
-    Start = False;
-    for x in range (0,len(mainStr)):
-        if mainStr[x] == '<' or mainStr[x] == '>':
-            if Start == False:
-                userMentions.append("");
-            Start = not Start;
-        elif Start:
-            userMentions[len(userMentions)-1]=userMentions[len(userMentions)-1]+mainStr[x];
-    #print(len(userMentions));
-    if not Start:
-        return userMentions;
-    else:
-        return False;
-
-def clear_mentions(message):
-    mainStr = message;
-    cleanStr ="";
-    Start = False;
-    for x in range (0,len(mainStr)):
-        if mainStr[x] == '<' and mainStr[:x+2].endswith('@'):
-            Start = True;
-        elif mainStr[x] == '>' and Start:
-            Start = False;
-        elif not Start:
-            cleanStr = cleanStr + mainStr[x];
-    return cleanStr;
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
-
 async def random_word(message):
-    try:
-        response = requests.get("http://randomword.setgetgo.com/get.php");
-        await createGlitterText(message, response.text);
-    except:
-        await client.send_message(message.channel, "An error occured.");
-        print ("Error details.");
-        print ("Unexpected error:", sys.exc_info()[0]);
+    response = requests.get("http://randomword.setgetgo.com/get.php");
+    await create_glitter_text(message, response.text);
+        
 
 async def create_glitter_text(channel,gif_text):
     response = requests.get("http://www.gigaglitters.com/procesing.php?text="+parse.quote_plus(gif_text)

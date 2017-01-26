@@ -90,6 +90,7 @@ def is_due_loaded():
 
 def load_due():
     load_config();
+    
     #Testing
     battlesquests.load(shard_clients);
     util.load(shard_clients);
@@ -101,6 +102,8 @@ def setup_due_thread(loop,shard_id):
     shard_clients.append(client);
     try:
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop);
+    except:
+        print("DON'T YOU DIE ON ME!");
     finally:
         print("A shard died.");
 
