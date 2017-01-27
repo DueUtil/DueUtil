@@ -1,2 +1,2 @@
-from duecommands import fun,quest,general
+from duecommands import fun,quest,general;
 

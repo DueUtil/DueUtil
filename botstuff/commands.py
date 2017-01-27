@@ -17,9 +17,9 @@ def command(**command_rules):
                 args_pattern = command_rules.get('args_pattern',"");
                 if not await check_pattern(args_pattern,args[1]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
-                    return False;
-                await util.say(ctx.channel,str(args));
-                await command_func(ctx,*args[1],**kwargs);
+                else:
+                    await util.say(ctx.channel,str(args));
+                    await command_func(ctx,*args[1],**kwargs);
             else:
                 raise util.DueUtilException(ctx.channel,"You can't use that command!");
             return True;
@@ -27,8 +27,7 @@ def command(**command_rules):
         return wrapped_command;
         
     return wrap;
-    
-
+        
 def parse(command_message):
   
     """A basic command parser with support for escape strings."""

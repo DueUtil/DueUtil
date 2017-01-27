@@ -10,7 +10,8 @@ class CommandEvent(list):
    
     async def __call__(self,ctx):
         for command in self:
-            await command(ctx, *commands.parse(ctx))
+            if await command(ctx, *commands.parse(ctx)):
+                break;
 
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
