@@ -23,7 +23,6 @@ muted_channels = [];
 servers = dict();
 server_keys = dict();
 shard_clients = [];
-
     
 class DueUtilException(ValueError):
   

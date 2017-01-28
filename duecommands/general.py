@@ -1,14 +1,14 @@
-from fun import battlesquests;
-from botstuff import commands,util;
+from fun import game;
+from botstuff import commands,util,imagehelper;
 
-@commands.command()
+@commands.command(args_pattern=None)
 async def myinfo(ctx,*args):
   
     """
     Shows your info!
     """
     
-    await quests.display_stats_image(quests.Player.find_player(ctx.author.id), None,ctx);
+    await imagehelper.stats_screen(ctx.channel,game.Player.find_player(ctx.author.id));
 
 @commands.command()
 async def resetme(ctx,*args): 

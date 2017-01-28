@@ -60,8 +60,7 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user:
             return
-        await battlesquests.on_message(message);
-        await events.on_command_event(message);
+        await events.on_message_event(message);
         #HACKER MAN 
                                 
     async def change_avatar(self,channel,avatar_name):
@@ -87,13 +86,13 @@ class DueUtilClient(discord.Client):
         print('------')
 
 def is_due_loaded():
-    return battlesquests.loaded and util.loaded;
+    return False#battlesquests.loaded and util.loaded;
 
 def load_due():
     load_config();
     
     #Testing
-    battlesquests.load(shard_clients);
+    #battlesquests.load(shard_clients);
     util.load(shard_clients);
     
 def setup_due_thread(loop,shard_id):
@@ -173,5 +172,3 @@ def run_due():
 if __name__ == "__main__":
     print("Starting DueUtil!")
     run_due();
-
-

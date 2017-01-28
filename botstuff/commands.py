@@ -1,5 +1,5 @@
 from functools import wraps
-from fun import battlesquests as game;
+from fun import game;
 from botstuff import events,util;
 
 def command(**command_rules):
@@ -97,13 +97,19 @@ async def check_pattern(pattern,args):
         try: 
             return float(string)
         except:return False 
+    
+        
+    if pattern == None and len(args) > 0:
+        return False;
+    elif pattern == None and len(args) == 0:
+        return True;
    
     if len(pattern) == 0:
         return True;
     
     if len(pattern) != len(args):
         return False;
-    
+        
     for pos in range(0,len(pattern)):
         current_rule = pattern[pos];
         switch = {

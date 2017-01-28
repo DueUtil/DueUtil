@@ -1,12 +1,12 @@
-from fun import battlesquests as quests;
+from fun import quests,game;
 from botstuff import commands,util;
 
 @commands.command(args_pattern="I")
 async def questinfo(ctx,*args): 
-    player = quests.Player.find_player(ctx.author.id);
+    player = game.Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
     if (quest_index - 1) >= 0 and (quest_index - 1) <= len(player.quests) - 1:
-        await quests.display_stats_image(player.quests[q - 1], True, message);
+        await game.display_stats_image(player.quests[q - 1], True, message);
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!");
 

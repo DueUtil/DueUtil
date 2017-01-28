@@ -4,14 +4,11 @@ import math
 import sys
 import pickle;
 import requests;
-import botstuff.util;
-import botstuff.imagehelper;
 import string
 import os;
 import jsonpickle;
 import hashlib;
 from urllib.request import urlopen
-import io
 import time
 import re;
 import os;
@@ -20,14 +17,8 @@ import dueutil;
 import json;
 from io import StringIO
 import numpy
-from argparse import Namespace
-from PIL import Image
-
-POSTIVE_BOOLS = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
-
-loaded = False;
-
-shard_clients = None;
+from fun.game import Player,PlayerInfoBanner,Stats,Weapons;
+from botstuff import events, util, imagehelper;
 
 """ DueUtil battles & quests. The main meat of the bot. """
 
@@ -37,7 +28,62 @@ def add_default_banner():
     banners["discord blue"] = discord_blue_banner;
         
 async def on_message(message): 
+    print("Test");
     await player_progress(message);
+
+async def player_progress(message):
+    #global money_created,new_players_joined,players_leveled,players;
+
+    player = Player.find_player(message.author.id);
+    if(player != None):
+        if(player.w_id != Weapons.NO_WEAPON_ID):
+            if(player.weapon_sum != player.weapon.weapon_sum):
+                pass;
+                #await sell(message,player.user_id,True);
+        #await validate_weapon_store(message,player);
+        
+        if  time.time() - player.last_progress >= 60:
+            player.last_progress = time.time();
+            start_level = player.level;
+            add_attack = len(message.content) / 600;
+            if add_attack < 0.02:
+                add_attack += 0.02;
+                
+            add_strg = sum(1 for char in message.content if char.isupper()) / 400;
+            if add_strg < 0.03:
+                add_strg += 0.03;
+                
+            add_accy = (message.content.count(' ') + message.content.count('.') + message.content.count("'")) / 3 / 200;
+            if add_accy < 0.01:
+                add_accy += 0.01;
+                
+            player.attack += add_attack;
+            player.strg += add_strg;
+            player.accy += add_accy;
+            player.level += (player.attack + player.strg + player.accy -3) / 3 / math.pow(player.level, 3);                                          
+            player.hp = 10 * player.level;
+            
+            if math.trunc(player.level) > math.trunc(start_level):
+                level_up_reward = math.trunc(gplayer.level) * 10;
+                player.money += level_up_reward;
+                Stats.money_created += level_up_reward;
+                Stats.players_leveled += 1;
+                
+                if not(message.server.id+"/"+message.channel.id in util.muted_channels):
+                    await level_up_image(message,player, level_up_reward);
+                else:
+                    print("Won't send level up image - channel blocked.");
+                    
+                rank = int(player.level / 10) + 1;
+                if(rank == 2):
+                    await give_award(message, player, 2, "Attain rank 2.");
+                elif (rank > 2 and rank <=9):
+                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".");  
+                print(filter_func(player.name)+" ("+player.userid+") has leveled up!");
+                
+            player.save();
+    if player == None:
+        new_player = Player(message.author);
 
 async def create_banner(message):
     global Banners;
@@ -164,27 +210,6 @@ async def give_award_id(message, userid, id, text):
         savePlayer(player)
         if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util.mutedchan):
             await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
-  
-def get_rank_colour(rank):
-    if(rank == 1):
-        return (255, 255, 255);
-    elif (rank == 2):
-        return (235, 196, 42);
-    elif (rank == 3):
-        return (235, 145, 42);
-    elif (rank == 4):
-        return (42, 235, 68);
-    elif (rank == 5):
-        return (174, 42, 235);
-    elif (rank == 6):
-        return (42, 103, 235);
-    elif (rank == 7):
-        return (163, 102, 90);
-    elif (rank == 8):
-        return (224, 33, 11);
-    elif (rank > 8):
-        return (15, 15, 15);
-    return (255, 255, 255); 
 
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);
@@ -287,60 +312,10 @@ def valid_image(bg_to_test,dimensions):
                 
 
         
-async def player_progress(message):
-    global money_created,new_players_joined,players_leveled,players;
 
-    player = Player.find_player(message.author.id);
-    if(player != None):
-        if(player.w_id != NO_WEAPON_ID):
-            if(player.weapon_sum != player.weapon.weapon_sum):
-                await sell(message,player.user_id,True);
-        await validate_weapon_store(message,player);
-        
-        if  time.time() - player.last_progress >= 60:
-            player.last_progress = time.time();
-            start_level = player.level;
-            add_attack = len(message.content) / 600;
-            if add_attack < 0.02:
-                add_attack += 0.02;
-                
-            add_strg = sum(1 for char in message.content if char.isupper()) / 400;
-            if add_strg < 0.03:
-                add_strg += 0.03;
-                
-            add_accy = (message.content.count(' ') + message.content.count('.') + message.content.count("'")) / 3 / 200;
-            if add_accy < 0.01:
-                add_accy += 0.01;
-                
-            player.attack += add_attack;
-            player.strg += add_strg;
-            player.accy += add_accy;
-            player.level += (player.attack + player.strg + player.accy -3) / 3 / math.pow(player.level, 3);                                          
-            player.hp = 10 * player.level;
-            
-            if math.trunc(player.level) > math.trunc(start_level):
-                level_up_reward = math.trunc(gplayer.level) * 10;
-                player.money += level_up_reward;
-                money_created += level_up_reward;
-                players_leveled += 1;
-                
-                if not(message.server.id+"/"+message.channel.id in util.muted_channels):
-                    await level_up_image(message,player, level_up_reward);
-                else:
-                    print("Won't send level up image - channel blocked.");
-                    
-                rank = int(player.level / 10) + 1;
-                if(rank == 2):
-                    await give_award(message, player, 2, "Attain rank 2.");
-                elif (rank > 2 and rank <=9):
-                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".");  
-                print(filter_func(player.name)+" ("+player.userid+") has leveled up!");
-                
-            player.save();
-    if player == None:
-        new_player = Player(message.author);
-        new_players_joined += 1;
         
 async def show_limits_for_player(channel,player):
     limit = "You can use any weapon with a value up to **$"+util.to_money(max_value_for_player(player),False)+"**!";
     await get_client(message.server.id).send_message(channel, limit);
+    
+events.register_message_listener(on_message);

@@ -1,8 +1,12 @@
-from fun import players;
+import re;
+import requests;
+import math;
+import os;
+import io
+from fun import game,players;
+from botstuff import util;
 from io import BytesIO;
 from PIL import Image, ImageDraw, ImageFont
-
-images_served = 0;
 
 #DueUtil fonts
 font = ImageFont.truetype("fonts/Due_Robo.ttf", 12);
@@ -19,7 +23,7 @@ def set_opacity(image,opacity_level):
     pixel_data = list(image.getdata())
     for i,pixel in enumerate(pixel_data):
         pixel_data[i] = pixel[:3] +(opacity_level,);
-    image.putdata(pixeldata)
+    image.putdata(pixel_data)
     return image
         
 def load_image_url(url,**kwargs):
@@ -28,18 +32,18 @@ def load_image_url(url,**kwargs):
     if len(file_name) > 128:
         file_name = file_name[:128];
     file_name = file_name + '.jpg';
-    if not do_not_compress and os.path.isfile(fname):
-        return Image.open(fname);    
+    if not do_not_compress and os.path.isfile(file_name):
+        return Image.open(file_name);    
     else:
         try:
             response = requests.get(url, timeout=10)
             if 'image' not in response.headers.get('content-type'):
                 return None;
-            image_file = io.BytesIO(response.content);
-            img = Image.open(image_file);
+            image_date = io.BytesIO(response.content);
+            image = Image.open(image_date);
             #cache image
-            img.convert('RGB').save(file_name, optimize=True, quality=20);
-            return img;
+            image.convert('RGB').save(file_name, optimize=True, quality=20);
+            return image;
         except:
             if os.path.isfile(file_name):
                 os.remove(file_name);
@@ -51,8 +55,7 @@ def resize(image,width,height):
     return image.resize((width, height), Image.ANTIALIAS);        
     
 def resize_avatar(player, server, width, height):    
-    image = load_image_url(player.get_avatar_url(server));
-    return img;
+    return resize_image_url(player.get_avatar_url(server),width,height);
 
 def resize_image_url(url, width, height):    
     return resize(load_image_url(url),width,height);
@@ -61,18 +64,16 @@ def rescale_image(image, scale):
     if(image == None):
         return None;    
     width, height = image.size;
-    img = img.resize((int(width*scale), int(height*scale)), Image.ANTIALIAS);
-    return img;
+    return image.resize((int(width*scale), int(height*scale)), Image.ANTIALIAS);
     
 async def send_image(channel,image,**kwargs):
-    global images_served;
-    images_served += 1;
+    game.Stats.images_served += 1;
     content = kwargs.get('content',"");
     file_name = kwargs.get('file_name',"");
     output = BytesIO()
-    img.save(output,format="PNG")
+    image.save(output,format="PNG")
     output.seek(0);
-    await get_client(message.server.id).send_file(message.channel, fp=output, filename=file_name,content=content);
+    await util.get_client(channel.server.id).send_file(channel, fp=output, filename=file_name,content=content);
     output.close();
 
 async def level_up_screen(channel,player,cash):
@@ -94,7 +95,7 @@ async def new_quest_screen(channel,quest,player):
         avatar = resize_avatar(quest,channel.server,54,54);
         image.paste(avatar, (10, 10));
     except:
-        pass;
+       pass;
     draw = ImageDraw.Draw(image)
     
     draw.text((72, 20), get_text_limit_len(draw,util.clear_markdown_escapes(quest.info.task),font_med,167), 
@@ -150,47 +151,48 @@ async def awards_screen(channel,player,page,**kwargs):
     
     await send_image(image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
 
-def stats_screen(channel,player):
+async def stats_screen(channel,player):
   
     screen = Image.open("screens/info_screen.png");   
 
     try:
-        img = Image.open("backgrounds/" + player.background);
+        image = Image.open("backgrounds/" + player.background);
     except:
-        img = Image.open("backgrounds/default.png");
+        image = Image.open("backgrounds/default.png");
 
 
-    draw = ImageDraw.Draw(img);
-    img.paste(screen,(0,0),screen)
+    draw = ImageDraw.Draw(image);
+    image.paste(screen,(0,0),screen)
     
     #draw_banner
     banner = player.banner.image;
-    img.paste(banner,(91,34),banner);
+    image.paste(banner,(91,34),banner);
     
     #draw_avatar slot
-    img.paste(info_avatar,(3,6),info_avatar);
+    image.paste(info_avatar,(3,6),info_avatar);
      
     try:
-        avatar = resize_avatar(player,channel.server, 80, 80);
-        img.paste(avatar, (9, 12));
+        image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12));
     except:
         pass;
      
     if player.benfont:
-        name=get_text_limit_len(draw,filter_func(name.replace(u"\u2026","...")),font_epic,149)
-        draw.text((96, 42),name, get_rank_colour(int(level / 10) + 1), font=font_epic)
+        name=get_text_limit_len(draw,filter_func(player.name.replace(u"\u2026","...")),font_epic,149)
+        draw.text((96, 42),name,player.rank_colour,font=font_epic)
     else:
-        name=get_text_limit_len(draw,name,font,149)
-        draw.text((96, 42), name, get_rank_colour(int(level / 10) + 1), font=font)
-        
-    draw.text((96, 62), "LEVEL " + str(level), (255, 255, 255), font=font_big)
-    
+        name=get_text_limit_len(draw,player.name,font,149)
+        draw.text((96, 42), name, player.rank_colour,font=font)
+            
     level = str(math.trunc(player.level));
     attk = str(round(player.attack, 2));
     strg = str(round(player.strg, 2));
     accy = str(round(player.accy, 2));
+    money = str(player.money);
     
     # Fill data
+    
+    draw.text((96, 62), "LEVEL " + level, (255, 255, 255), font=font_big)
+        
     width = draw.textsize(attk, font=font)[0];
     draw.text((241 - width, 122), attk, (255, 255, 255), font=font);
 
@@ -200,8 +202,8 @@ def stats_screen(channel,player):
     width = draw.textsize(accy, font=font)[0];
     draw.text((241 - width, 178), accy, (255, 255, 255), font=font);
 
-    width = draw.textsize("$" + util.to_money(player.money,True) , font=font)[0];
-    draw.text((241 - width, 204), "$" + util.to_money(player.money,True) , (255, 255, 255), font=font);
+    width = draw.textsize("$" + money, font=font)[0];
+    draw.text((241 - width, 204), "$" + money, (255, 255, 255), font=font);
     
     width= draw.textsize(str(player.quests_won), font=font)[0];
     draw.text((241 - width, 253), str(player.quests_won), (255, 255, 255), font=font);
@@ -209,7 +211,7 @@ def stats_screen(channel,player):
     width = draw.textsize(str(player.wagers_won), font=font)[0];
     draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font);
     
-    wep = get_text_limit_len(draw,util.clear_markdown_escapes(player.weapon.name),font,95);
+    wep = get_text_limit_len(draw,player.weapon.name,font,95);
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
         
@@ -218,9 +220,9 @@ def stats_screen(channel,player):
     first_even = True;
     for x in range(len(player.awards) - 1, -1, -1):
          if (c % 2 == 0):
-             img.paste(award_icons[player.awards[x]], (18, 121 + 35 * l));
+             image.paste(game.Award.get_award(player.awards[x]).icon, (18, 121 + 35 * l));
          else:
-             img.paste(award_icons[player.awards[x]], (53, 121 + 35 * l));
+             image.paste(game.Award.get_award(player.awards[x]).icon, (53, 121 + 35 * l));
              l = l + 1;
          c = c + 1;
          if(c == 8):
@@ -230,9 +232,8 @@ def stats_screen(channel,player):
     if(len(player.awards) == 0):
         draw.text((38, 183), "None", (48, 48, 48), font=font);
 
-    #await util.get_client(message.server.id).send_file(message.channel, fp=output, filename="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information.");
-    return image;
-    
+    await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information."); 
+       
 async def quest_screen(quest, message):
     global images_served;
     images_served = images_served +1;
