@@ -1,7 +1,8 @@
 import discord
 import os
 import botstuff.util;
-from fun import battlesquests;
+import fun.players;
+import fun.quests;
 import sys;
 import urllib.request as url3;
 import asyncio;

@@ -10,7 +10,7 @@ import math
 import sys
 from html.parser import HTMLParser
 import time;
-import fun.battlesquests;
+import fun.players;
 import zipfile;
 import shutil;
 import jsonpickle;
@@ -125,7 +125,15 @@ def load_json(path):
         data = json.load(data_file);
         unpickled = jsonpickle.decode(data);
         return unpickled;
-                
+
+def filter_string(string):
+    new = "";
+    for i in range(0, len(string)):
+        if(32 <= ord(string[i]) <= 126):
+            new = new + string[i];
+        else:
+            new = new + "?";
+    return new;                
         
 def load(shards):
     global shard_clients;

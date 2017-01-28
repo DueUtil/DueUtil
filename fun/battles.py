@@ -1,100 +1,4 @@
-weapons = dict();         #Weapons
-NO_WEAPON_ID = "000000000000000000_none";
-STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"];
-
-class Weapon:
-  
-    """A simple weapon that can be used by a monster or player in DueUtil"""
-    
-    def __init__(self,message,name,accy,damage,**kwargs):
-      
-        if does_weapon_exist(server,name):
-            raise util.DueUtilException(message.channel,"A weapon with that name already exists on this server!");
-            
-        if len(name) > 30 or len(name) == 0 or name.strip == "":
-            raise util.DueUtilException(message.channel,"Weapon names must be between 1 and 30 characters!");
-            
-        if accy == 0 or damage == 0:
-            raise util.DueUtilException(message.channel,"No weapon stats can be zero!");
-        
-        if accy > 86 or accy < 1:
-            raise util.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!");
-        
-        self.server_id = message.server_id;
-        self.icon = kwargs.get('icon',"!")
-        self.hit_text = kwargs.get('hit_text',"hits");
-        self.melee = kwargs.get('melee',True);
-        self.image_url = kwargs.get('image_url',"");
-  
-        self.name = name;
-        self.damage = damage;
-        self.accy = accy;
-        self.price = self.__price();
-        self.w_id = self.__weapon_id();
-        self.weapon_sum = self.__weapon_sum();
-        
-        add_weapon(self);
-            
-    def __weapon_id(self):
-        return self.server_id+"_"+self.name.lower();
-        
-    def __weapon_sum(self):
-        return '"'+str(self.price)+'"'+str(self.damage)+str(weapon.accy);
-      
-    def __price(self):
-        return (self.accy/100 * self.damage) / 0.04375; 
-        
-    def does_hit(self,holder):
-        return random.random()<(holder.weapon_accy/100);
-      
-    @staticmethod
-    def get_weapon_from_id(id):
-        if(id in Weapons):
-            return Weapons[id]
-        else:
-            if(id != no_weapon_id):
-                return Weapons[no_weapon_id];
-    @staticmethod
-    def does_weapon_exist(server_id,weapon_name):   
-        if(get_weapon_for_server(server_id,weapon_name) != None):
-            return True;
-        return False;
-    
-    @staticmethod
-    def get_weapon_for_server(server_id,weapon_name):
-        if(weapon_name.lower() in stock_weapons):
-            return Weapons["000000000000000000_"+weapon_name.lower()];
-        else:
-            weapon_id = server_id+"_"+weapon_name.lower();
-            if(weapon_id in Weapons):
-                return Weapons[weapID]
-            else:
-                return None;
-                
-    @staticmethod
-    def remove_weapon_from_shop(player,wname):
-        for weapon in player.owned_weps:
-            stored_weapon = get_weapon_from_id(weapon[0]);
-            if(stored_weapon != None and stored_weapon.name.lower() == wname.lower()):
-                wID = weapon[0];
-                sum = weapon[1];
-                del player.owned_weps[player.owned_weps.index(weapon)];
-                return [wID,sum];
-        return None;
-        
-    @staticmethod
-    def save_weapon(weapon):
-        data = jsonpickle.encode(weapon);
-        with open("saves/weapons/" + str(hashlib.md5(weapon.wID.encode('utf-8')).hexdigest()) + ".json", 'w') as outfile:
-            json.dump(data, outfile);   
-            
-class BattleRequest:
-  
-    """A class to hold a wager"""
-  
-    def __init__(self,message,wager_amount):
-        self.sender_id = message.author.id;
-        self.wager_amount = wagers_amount;
+import fun.players;
                 
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
@@ -414,3 +318,8 @@ def load_weapons():
                     Weapons[w.wID] = w;
                 except:
                     print("Weapon data corrupt!");
+
+def add_weapon(weapon):
+    global weapons;
+    weapons[weapon.w_id] = weapon;
+    save_weapon(weapon);

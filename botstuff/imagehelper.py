@@ -1,4 +1,4 @@
-from fun import battlesquests;
+from fun import players;
 from io import BytesIO;
 from PIL import Image, ImageDraw, ImageFont
 

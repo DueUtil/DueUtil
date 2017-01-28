@@ -1,92 +1,4 @@
-quests_given=0;
-quests_attempted=0;
-servers_quests = dict();  #ServerQuests
-
-class Quest:
-  
-    """A class to hold info about a server quest"""
-  
-    def __init__(self,message,name,base_attack,base_strg,base_accy,base_hp,**kwargs):
-      
-        if message.server.id in server_quests:
-            if name.strip().lower() in server_quests[message.server.id]:
-                raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!");
-      
-        if base_accy < 1 or base_attack < 1 or base_strg < 1:
-            raise util.DueUtilException(message.channel,"No quest stats can be less than 1!");
-
-        if base_hp < 30:
-            raise util.DueUtilException(message.channel,"Base HP must be at least 30!");
-
-        if len(name) > 30 or len(name) == 0 or name.strip == "":
-            raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
-      
-        self.task = kwargs.get('task',"Battle a");
-        self.w_id = kwargs.get('weapon_id',no_weapon_id);
-        self.spawn_chance = kwargs.get('spawn_chance',4);
-        self.image_url = kwargs.get('image_url',"");
-        
-        self.monster_name = name;
-        self.base_attack = base_attack;
-        self.server_id = message.server_id;
-        self.base_strg = base_strg;
-        self.base_accy = base_accy;
-        self.base_hp = base_hp;
-        
-        created_by = message.author.id;
-        
-        base_reward = self__reward();
-        self.q_id = self.__quest_id();
-        
-        add_quest(self);
-        
-    def __quest_id(self):
-        return self.server_id+'/'+self.monster_name.lower();
-      
-    def __reward(self):
-        if(Weapon.get_weapon_from_id(self.w_id).melee):
-            base_reward = (self.base_attack + self.base_strg) / 10 / 0.0883;
-        else:
-            base_reward = (self.base_accy + self.base_strg) / 10 / 0.0883;
-    
-        base_reward += base_reward * math.log10(self.base_hp) / 20 / 0.75;
-        base_reward *= self.base_hp / abs(self.base_hp - 0.01);
-        
-        return base_reward;
-                        
-    @property
-    def made_on():
-        return self.server_id;
-        
-    @staticmethod
-    def get_game_quest_from_id(id):
-        id  = str(id);
-        args = util.get_strings(id);
-        if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
-            return ServersQuests[args[0]][args[1]];
-        else:
-            return None;
-            
-    def save(self):
-        data = jsonpickle.encode(quest);
-        quest_id = self.q_id.split('/',1);
-        file_name = str(hashlib.md5(quest.monsterName.lower().encode('utf-8')).hexdigest())+".json";
-        with open("saves/gamequests/" + quest_id[0] + "_"+file_name+".json", 'w') as outfile:
-            json.dump(data, outfile);
-            
-class ActiveQuest(Player):
-  
-    def __init__(self,q_id):
-        self.q_id = q_id;
-        super(ActiveQuest,self).__init__();
-        
-    def get_avatar_url(self,*args):
-        return self.info.image_url;
-  
-    @property
-    def info(self):
-        quest_id = self.q_id.split('/',1);
-        return ServersQuests[quest_id[0]][quest_id[1]];            
+from fun import players;
 
 def get_server_quest_list(server):
     number = 0;
@@ -200,3 +112,11 @@ def load_quests():
                         print("Failed to load quest!")
                 except:
                     print("Quest data corrupt!");  
+
+    
+def add_quest(quest):
+    global server_quests;
+    
+    server_quests[quest.server_id][quest.monster_name.lower()] = quest;
+    save_quest(quest);
+    
