@@ -18,8 +18,12 @@ class CommandEvent(MessageEvent):
     
     """
     
+    def command_list(self,*args):
+         filter_func = (lambda command : command) if len(args) == 0 else args[0];
+         return ', '.join([command.__name__ for command in filter(filter_func,self) if not command.is_hidden]);
+    
     def __str__(self):
-        return ', '.join([command.__name__ for command in self]);
+         return self.command_list();
   
     async def __call__(self,ctx):
         if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
@@ -31,7 +35,7 @@ class CommandEvent(MessageEvent):
                 
 message_event = MessageEvent();
 command_event = CommandEvent();
-        
+
 async def on_message_event(ctx):
     await message_event(ctx);
     await command_event(ctx);

@@ -1,19 +1,27 @@
+from discord import Permissions;
 from functools import wraps
 from fun import game;
 from botstuff import events,util;
 
+
 def command(**command_rules):
   
     """A command wrapper for command functions"""
+    
+    
+    def check(user,command):
+        if command.admin_only:
+            return user.server_permissions.manage_server; 
+        return True;
   
     def wrap(command_func):
   
         @wraps(command_func)
         async def wrapped_command(ctx, *args,**kwargs):
-            if(args[0].lower() != command_func.__name__):
+            if args[0].lower() != command_func.__name__:
                 return False;
-            if(ctx.author.id != "IDK"):
-                print(ctx.author.server_permissions);
+            if check(ctx.author,wrapped_command):
+                print();
                 args_pattern = command_rules.get('args_pattern',"");
                 if not await check_pattern(args_pattern,args[1]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
@@ -24,10 +32,16 @@ def command(**command_rules):
                 raise util.DueUtilException(ctx.channel,"You can't use that command!");
             return True;
         events.register_command(wrapped_command);
+        
+        wrapped_command.is_hidden = command_rules.get('hidden',False);
+        wrapped_command.admin_only = command_rules.get('admin_only',False);
+        wrapped_command.bot_mod_only = command_rules.get('bot_mod_only',False);
+        wrapped_command.bot_admin_only = command_rules.get('bot_admin_only',False);
+            
         return wrapped_command;
         
     return wrap;
-        
+  
 def parse(command_message):
   
     """A basic command parser with support for escape strings."""
@@ -105,6 +119,22 @@ async def check_pattern(pattern,args):
         try: 
             return float(string)
         except:return False 
+        
+    def check_optional():
+        nonlocal pattern,args;
+        pattern_pos = len(pattern)-1
+        while pattern_pos >= 0:
+            if len(pattern.replace('?','')) == len(args):
+                break;
+            elif pattern_pos == 0:
+                return False;
+            if pattern[pattern_pos] == '?':
+                pattern = pattern[:pattern_pos-1];
+                pattern_pos = len(pattern)-1;
+                continue;
+            pattern_pos -= 1;
+        pattern = pattern.replace('?','');
+        return True;
     
     if pattern == None and len(args) > 0:
         return False;
@@ -114,12 +144,7 @@ async def check_pattern(pattern,args):
     if len(pattern) == 0:
         return True;
     
-    if pattern[0] == '?' and len(args) == 0:
-        return True;
-    elif pattern[0] == '?':
-        pattern = pattern[1:];
-    
-    if len(pattern) != len(args):
+    if not check_optional():
         return False;
         
     for pos in range(0,len(pattern)):
@@ -129,7 +154,7 @@ async def check_pattern(pattern,args):
             'I': represents_int(args[pos]),
             'C': represents_count(args[pos]),
             'R': represents_float(args[pos]),
-            'P': game.Player.find_player(args[pos])
+            'P': game.Player.find_player(args[pos]),
         }
         value = switch.get(current_rule)
         if not value:

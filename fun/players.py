@@ -194,22 +194,12 @@ def load_backgrounds():
              background_name = filename.lower().replace("stats_", "").replace(".png", "").replace("_", " ").title();
              Backgrounds[background_name] = filename;
              
-async def give_award(message, player, id, text):
-    if(id not in player.awards):
-        player.awards.append(id);
-        savePlayer(player)
-        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util.mutedchan):
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
-
-async def give_award_id(message, userid, id, text):
-    player = findPlayer(userid);
-    if player == None:
-        return;
-    if(id not in player.awards):
-        player.awards.append(id);
-        savePlayer(player)
-        if  message.channel.is_private or not(message.server.id+"/"+message.channel.id in util.mutedchan):
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** :trophy: **Award!** " + text);
+async def give_award(channel, player, award_id, text):
+    if award_id not in player.awards:
+        player.awards.append(award_id);
+        player.save();
+        if not channel.is_private: #or not (message.server.id+"/"+message.channel.id in util.mutedchan):
+            await util.get_client(channel.server.id).send_message(channel, "**"+player.name+"** :trophy: **Award!** " + text);
 
 async def does_bg_pass(channel,url):
     bg_to_test = loadImageFromURL(url);

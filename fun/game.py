@@ -13,12 +13,17 @@ weapons = dict();         #Weapons
 
 class Stats:
     money_created = 0;
-    money_transferred =0;
-    players_leveled=0;
-    new_players_joined=0;
-    quests_given=0;
-    quests_attempted=0;  
+    money_transferred = 0;
+    players_leveled = 0;
+    new_players_joined = 0;
+    quests_given = 0;
+    quests_attempted = 0;  
     images_served = 0;
+    
+    @staticmethod
+    def get_stats():
+        return {key: value for key,
+                value in Stats.__dict__.items() if not callable(key)}
     
 class Weapons:
     NO_WEAPON_ID = "000000000000000000_none";
@@ -144,6 +149,10 @@ class Player:
             player.banner_id = "discord blue";
             return banners["discord blue"];
         return banner;
+        
+    @property
+    def clean_name(self):
+        return util.filter_string(self.name);
         
     def get_avatar_url(self,*args):
         server = args[0];

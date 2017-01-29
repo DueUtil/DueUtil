@@ -53,6 +53,6 @@ async def declinequest(ctx,*args):
     else:
         await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**");
 
-@commands.command(manage_server=True)
+@commands.command(admin_only=True)
 async def serverquests(ctx,*args):
     await show_quest_list(ctx);
