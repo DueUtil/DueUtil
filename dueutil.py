@@ -1,21 +1,17 @@
 import discord
+from botstuff import util,events,loader;
 import os
-import botstuff.util;
-import fun.players;
-import fun.quests;
 import sys;
 import urllib.request as url3;
 import asyncio;
 import urllib.parse as url1;
 import urllib;
 import requests;
-from threading import Thread, local
+from threading import Thread;
 import time;
 import json;
 import configparser
-from concurrent.futures import ProcessPoolExecutor
 import traceback
-from botstuff import events,loader,util;
 
 last_backup = 0;
 stopped = False;

@@ -1,7 +1,7 @@
 from fun import quests,game;
 from botstuff import commands,util;
 
-@commands.command(args_pattern="I")
+@commands.command(args_pattern='I')
 async def questinfo(ctx,*args): 
     player = game.Player.find_player(ctx.author.id);
     quest_index = int(args[0]);

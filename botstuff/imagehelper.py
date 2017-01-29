@@ -119,7 +119,7 @@ async def awards_screen(channel,player,page,**kwargs):
         suffix += page_info;
         page_no_string_len = draw.textsize(page_info,font=font)[0];
         
-    name = get_text_limit_len(draw,util.clear_markdown_escapes(player.name),font,175-page_no_string_len); 
+    name = get_text_limit_len(draw,player.name,font,175-page_no_string_len); 
     title=name+suffix;
         
     draw.text((15, 17),title,(255,255,255),font=font)
@@ -149,7 +149,7 @@ async def awards_screen(channel,player,page,**kwargs):
     width = draw.textsize(msg, font=font_small)[0];
     draw.text(((256-width)/2, 42 + 44 * count),msg,  (255, 255, 255), font=font_small);
     
-    await send_image(image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
+    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
 
 async def stats_screen(channel,player):
   
@@ -159,7 +159,6 @@ async def stats_screen(channel,player):
         image = Image.open("backgrounds/" + player.background);
     except:
         image = Image.open("backgrounds/default.png");
-
 
     draw = ImageDraw.Draw(image);
     image.paste(screen,(0,0),screen)
@@ -215,28 +214,28 @@ async def stats_screen(channel,player):
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
         
-    c = 0;
-    l = 0;
+    count = 0;
+    row = 0;
     first_even = True;
-    for x in range(len(player.awards) - 1, -1, -1):
-         if (c % 2 == 0):
-             image.paste(game.Award.get_award(player.awards[x]).icon, (18, 121 + 35 * l));
+    for player_award in range(len(player.awards) - 1, -1, -1):
+         if count % 2 == 0:
+             image.paste(game.Award.get_award(player.awards[player_award]).icon, (18, 121 + 35 * row));
          else:
-             image.paste(game.Award.get_award(player.awards[x]).icon, (53, 121 + 35 * l));
-             l = l + 1;
-         c = c + 1;
-         if(c == 8):
+             image.paste(game.Award.get_award(player.awards[player_award]).icon, (53, 121 + 35 * row));
+             row +=1;
+         count += 1;
+         if count == 8:
              break;
-    if(len(player.awards) > 8):
+             
+    if len(player.awards) > 8:
         draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", (48, 48, 48), font=font);
-    if(len(player.awards) == 0):
+    elif len(player.awards) == 0:
         draw.text((38, 183), "None", (48, 48, 48), font=font);
 
     await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information."); 
        
-async def quest_screen(quest, message):
-    global images_served;
-    images_served = images_served +1;
+async def quest_screen(channel,quest):
+
     await get_client(message.server.id).send_typing(message.channel);
     try:
         avatar = resize_avatar(quest, message.server, True, 72, 72);
@@ -291,8 +290,7 @@ async def quest_screen(quest, message):
     output.close()
     
 async def battle_screen(channel, player_one, player_two, battle_text):
-    global images_served;
-    images_served = images_served +1;
+
     sender = findPlayer(message.author.id);
     sender.last_image_request = time.time();
     await get_client(message.server.id).send_typing(message.channel);

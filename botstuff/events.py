@@ -1,6 +1,6 @@
 import discord;
 import asyncio;
-from botstuff import commands
+from botstuff import commands,util;
 
 class MessageEvent(list):
   
@@ -17,10 +17,16 @@ class CommandEvent(MessageEvent):
     """Command event subscription.
     
     """
+    
+    def __str__(self):
+        return ', '.join([command.__name__ for command in self]);
   
     async def __call__(self,ctx):
+        if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
+            return;
+        args = commands.parse(ctx);
         for command in self:
-            if await command(ctx, *commands.parse(ctx)):
+            if await command(ctx,*args):
                 break;
                 
 message_event = MessageEvent();
@@ -42,3 +48,8 @@ def register_command(command_function):
 def remove_command(command_function):
     command_event.remove(command_function);
 
+def get_command(command_name):
+    for command in command_event:
+        if command.__name__ == command_name.lower():
+            return command;
+    return None;

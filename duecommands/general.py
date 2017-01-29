@@ -5,14 +5,56 @@ from botstuff import commands,util,imagehelper;
 async def myinfo(ctx,*args):
   
     """
+    [CMD_KEY]myinfo
+    
     Shows your info!
     """
     
     await imagehelper.stats_screen(ctx.channel,game.Player.find_player(ctx.author.id));
+    
+@commands.command(args_pattern='P')
+async def info(ctx,*args):
+  
+    """
+    [CMD_KEY]info @player
+    
+    Shows the info of another player!
+    """
+    
+    await imagehelper.stats_screen(ctx.channel,args[0]);
+    
+@commands.command(args_pattern='?C')
+async def myawards(ctx,*args):
+    
+    """
+    [CMD_KEY]myawards
+    
+    Shows your awards!
+    """
+    
+    player = game.Player.find_player(ctx.author.id);
+    
+    if len(args) == 0:
+        page = 0;
+    else:
+        page = args[0]-1;
+        
+    if page > len(player.awards)/5:
+        raise util.DueUtilException(ctx.channel,"Page not found");
+        
+    await imagehelper.awards_screen(ctx.channel,player,page);
 
 @commands.command()
 async def resetme(ctx,*args): 
-    player = Player.find_player(ctx.author.id);
+  
+    """
+    [CMD_KEY]resetme
+    
+    Resets all your stats & any customization.
+    This cannot be reversed!
+    """
+    
+    player = game.Player.find_player(ctx.author.id);
     player.reset();
     await util.say(ctx.channel, "Your user has been reset.");
     if util.is_mod(player.user_id):
@@ -22,13 +64,26 @@ async def resetme(ctx,*args):
 
 @commands.command()
 async def myweapons(ctx,*args):
+  
+    """
+    [CMD_KEY]myweapons
+    
+    Shows the contents of your weapon inventory.
+    """
+         
     await show_weapons(ctx,Player.find_player(ctx.author.id),False);
 
 @commands.command()
 async def shop(ctx,*args):
+  
+    """
+    [CMD_KEY]shop (page number)
+    
+    Shows DueUtil's weapon store!
+    """
     await shop(ctx);
 
-@commands.command()
+@commands.command(hidden=True)
 async def benfont(ctx,*args):
     player = Player.find_player(ctx.author.id);
     player.benfont = not player.benfont;

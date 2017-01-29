@@ -43,18 +43,19 @@ def parse(command_message):
     
     def replace_mentions():
         nonlocal user_mentions,current_arg;
+        print(user_mentions);
         for mention in user_mentions: #Replade mentions
             if mention in current_arg and len(current_arg)-len(mention) < 6:
                 current_arg = mention;
                 del user_mentions[user_mentions.index(mention)];
                 
     def add_arg():
-        replace_mentions();
         nonlocal current_arg,args;
         if len(current_arg) > 0:
+            replace_mentions();
             args = args + [current_arg,];
             current_arg = "";
-
+    
     for char_pos in range(0,len(command_string)+1):
         current_char = command_string[char_pos] if char_pos < len(command_string) else ' ';
         next_char = command_string[char_pos +1] if char_pos + 1 < len(command_string) else ' ';
@@ -92,13 +93,19 @@ async def check_pattern(pattern,args):
         try: 
             return int(string)
         except:return False  
+        
+    def represents_count(string):
+        value = represents_int(string);
+        if not value:
+            return False;
+        elif value-1 >= 0:
+            return value;
     
     def represents_float(string):
         try: 
             return float(string)
         except:return False 
     
-        
     if pattern == None and len(args) > 0:
         return False;
     elif pattern == None and len(args) == 0:
@@ -107,14 +114,20 @@ async def check_pattern(pattern,args):
     if len(pattern) == 0:
         return True;
     
+    if pattern[0] == '?' and len(args) == 0:
+        return True;
+    elif pattern[0] == '?':
+        pattern = pattern[1:];
+    
     if len(pattern) != len(args):
         return False;
         
     for pos in range(0,len(pattern)):
         current_rule = pattern[pos];
         switch = {
-            'S': not args[pos].isspace(),
+            'S': args[pos] if not args[pos].isspace() else False,
             'I': represents_int(args[pos]),
+            'C': represents_count(args[pos]),
             'R': represents_float(args[pos]),
             'P': game.Player.find_player(args[pos])
         }
@@ -122,6 +135,7 @@ async def check_pattern(pattern,args):
         if not value:
             return False;
         args[pos] = value;
+        
     return True;
         
     
