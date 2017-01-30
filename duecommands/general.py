@@ -2,6 +2,7 @@ from fun import game,players;
 from botstuff import commands,util,imagehelper;
 
 @commands.command(args_pattern=None)
+@commands.imagecommand()
 async def myinfo(ctx,*args):
   
     """
@@ -14,6 +15,7 @@ async def myinfo(ctx,*args):
     await imagehelper.stats_screen(ctx.channel,game.Player.find_player(ctx.author.id));
     
 @commands.command(args_pattern='P')
+@commands.imagecommand()
 async def info(ctx,*args):
   
     """
@@ -39,6 +41,7 @@ async def show_awards(ctx,player,*args):
     await imagehelper.awards_screen(ctx.channel,player,page);
     
 @commands.command(args_pattern='C?')
+@commands.imagecommand()
 async def myawards(ctx,*args):
     """
     [CMD_KEY]myawards (page number)
@@ -50,6 +53,7 @@ async def myawards(ctx,*args):
     await show_awards(ctx,game.Player.find_player(ctx.author.id),*args);
     
 @commands.command(args_pattern='PC?')
+@commands.imagecommand()
 async def awards(ctx,*args):
   
     """

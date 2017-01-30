@@ -43,7 +43,7 @@ async def help(ctx,*args):
        
         help.description='Welcome to the help! Simply do '+server_key+'help (command name).';
         help.add_field(name='Commands for everyone',value=events.command_event.command_list(lambda command: not command.admin_only));
-        help.add_field(name='Admin only',value=events.command_event.command_list(lambda command: command.admin_only));
+        help.add_field(name='Admins only',value=events.command_event.command_list(lambda command: command.admin_only));
         
         help.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.");
       

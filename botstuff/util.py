@@ -41,12 +41,20 @@ class DueUtilException(ValueError):
     
 async def say(channel,*args,**kwargs):
       await get_client(channel.server.id).send_message(channel,*args,**kwargs);
+      
+async def typing(channel):
+      await get_client(channel.server.id).send_typing(channel);
 
 def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients);
 
-def get_client(server_id):
-    return shard_clients[get_shard_index(server_id)];
+def get_client(source):
+    if isinstance(source,str):
+        return shard_clients[get_shard_index(source)];
+    elif hasattr(source,'server'):
+        return shard_clients[get_shard_index(source.server.id)];
+    else:
+        return shard_clients[get_shard_index(source.id)];
 
 def get_server_cmd_key(server):
     server_key = server_keys.setdefault(server.id,"!");

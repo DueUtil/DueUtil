@@ -153,6 +153,8 @@ async def awards_screen(channel,player,page,**kwargs):
 
 async def stats_screen(channel,player):
   
+   # await util.get_client(channel).send_typing(channel);
+  
     screen = Image.open("screens/info_screen.png");   
 
     try:
@@ -293,7 +295,6 @@ async def battle_screen(channel, player_one, player_two, battle_text):
 
     sender = findPlayer(message.author.id);
     sender.last_image_request = time.time();
-    await get_client(message.server.id).send_typing(message.channel);
     try:
         if(not isinstance(pone, activeQuest)):
             avatar_one = resize_avatar(pone, message.server, False, 54, 54);

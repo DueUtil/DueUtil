@@ -1,3 +1,4 @@
+import time;
 from discord import Permissions;
 from functools import wraps
 from fun import game;
@@ -41,7 +42,25 @@ def command(**command_rules):
         return wrapped_command;
         
     return wrap;
-  
+    
+def imagecommand(**command_rules):
+
+    def wrap(command_func):
+        @wraps(command_func)
+        async def wrapped_command(ctx, *args,**kwargs):
+            rate_limit = command_rules.get('rate_limit',True);
+            player = game.Player.find_player(ctx.author.id);
+            if rate_limit:
+                if time.time() - player.last_image_request < 10:
+                    await util.say(ctx.channel,":cold_sweat: Please don't break me!");
+                    return;
+                else:
+                    player.last_image_request = time.time();
+            await command_func(ctx,*args,**kwargs);
+        return wrapped_command;
+    return wrap;
+          
+          
 def parse(command_message):
   
     """A basic command parser with support for escape strings."""
@@ -140,11 +159,11 @@ async def check_pattern(pattern,args):
         return False;
     elif pattern == None and len(args) == 0:
         return True;
-   
     if len(pattern) == 0:
         return True;
-    
     if not check_optional():
+        return False;
+    if len(args) > len(pattern):
         return False;
         
     for pos in range(0,len(pattern)):
