@@ -49,64 +49,51 @@ def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients);
 
 def get_client(source):
-    if isinstance(source,str):
-        return shard_clients[get_shard_index(source)];
-    elif hasattr(source,'server'):
-        return shard_clients[get_shard_index(source.server.id)];
-    else:
-        return shard_clients[get_shard_index(source.id)];
-
+    try:
+        if isinstance(source,str):
+            return shard_clients[get_shard_index(source)];
+        elif hasattr(source,'server'):
+            return shard_clients[get_shard_index(source.server.id)];
+        else:
+            return shard_clients[get_shard_index(source.id)];
+    except:
+        return None;
+        
 def get_server_cmd_key(server):
     server_key = server_keys.setdefault(server.id,"!");
     return server_key if server_key != '`' else '\`';
     
-def to_money(amount,short):
-    if(short):
-      return number_format(amount);
-    else:
-      return number_format_text(amount);
-    
-def number_format_text(number):
-    return '{:20,.0f}'.format(number).strip();
-    
-def number_format(number):
-    if(number < 1000000):
-        return number_format_text(number);
-    else:
-        return really_large_number_format(number);
+def format_number(number,**kwargs):
+  
+    def small_format():
+        nonlocal number;
+        return '{0:g}'.format(number);
 
-def really_large_number_format(number):
-    units = ["Million","Billion","Trillion", "Quadrillion","Quintillion","Sextillion","Septillion","Octillion"];
-    if(number >= 1000000):
-      reg = len(str(math.floor(number/1000)));
-      if ((reg-1) % 3 != 0):
-        reg -= (reg-1) % 3;
-      num = number/pow(10,reg+2)
-      try:
-          string = units[math.floor(reg/3) -1];
-      except:
-          string = "Fucktonillion";
-      num = (int(num*100)/float(100));
-      formatted = format_float_drop_zeros_drop(num,False) + " " + string;
-      return formatted if len(formatted) < 17 else format_float_drop_zeros_drop(num,True) + " " + string;
+    def really_large_format():
+        nonlocal number;
+        units = ["Million","Billion","Trillion", "Quadrillion","Quintillion","Sextillion","Septillion","Octillion"];
+        reg = len(str(math.floor(number/1000)));
+        if (reg-1) % 3 != 0:
+            reg -= (reg-1) % 3;
+        number = number/pow(10,reg+2)
+        try:
+            string = units[math.floor(reg/3) -1];
+        except:
+            string = "Fucktonillion";
+        number = int(number*100)/float(100);
+        formatted = '{0:g}'.format(number);
+        return formatted if len(formatted) < 17 else str(math.trunc(number)) + " " + string;
+        
+    if number >= 1000000 and not kwargs.get('full_precision',False):
+        formatted = really_large_format();
     else:
-      return number_format(number);
-      
-def format_float_drop_zeros(number):
-    return format_float_drop_zeros_drop(number,False);
-    
-def format_float_drop_zeros_drop(number,drop):
-    num = str(number);
-    if(len(num) > 3 and drop):
-        num = str(math.trunc(number));
-    return (num+"-").replace(".0-","").replace("-","")
-
-def escape_markdown(text):
-    return text.translate(str.maketrans({"`":  r"\`"})).replace("\n","");
-    
-def get_server_name(server,id):
+        formatted = small_format();
+    return formatted if not kwargs.get('money',False) else '¤'+formatted;
+  
+  
+def get_server_name(server,user_id):
     try:
-        return server.get_member(id).name;
+        return server.get_member(user_id).name;
     except:
         return "Unknown User"
     

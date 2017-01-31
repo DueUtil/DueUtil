@@ -306,12 +306,23 @@ class Quest:
         self.base_accy = base_accy;
         self.base_hp = base_hp;
         
-        created_by = message.author.id;
+        self.created_by = message.author.id;
         
-        base_reward = self__reward();
+        self.base_reward = self__reward();
         self.q_id = self.__quest_id();
         
         add_quest(self);
+        
+    @property    
+    def creator(self):
+        game.Player.find_player(quest_info.created_by);
+    
+    @property
+    def home(self):
+        try:
+            util.get_client(self.server_id).get_server(server_id);
+        except:
+            return None;
         
     def __quest_id(self):
         return self.server_id+'/'+self.monster_name.lower();
@@ -358,8 +369,11 @@ class ActiveQuest(Player):
   
     @property
     def info(self):
-        quest_id = self.q_id.split('/',1);
-        return ServersQuests[quest_id[0]][quest_id[1]];            
+        try:
+            quest_id = self.q_id.split('/',1);
+            return ServersQuests[quest_id[0]][quest_id[1]];
+        except:
+            return None;
 
 class Award:
 

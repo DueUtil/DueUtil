@@ -22,7 +22,6 @@ def command(**command_rules):
             if args[0].lower() != command_func.__name__:
                 return False;
             if check(ctx.author,wrapped_command):
-                print();
                 args_pattern = command_rules.get('args_pattern',"");
                 if not await check_pattern(args_pattern,args[1]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
@@ -56,6 +55,7 @@ def imagecommand(**command_rules):
                     return;
                 else:
                     player.last_image_request = time.time();
+            await util.get_client(ctx).send_typing(ctx.channel);
             await command_func(ctx,*args,**kwargs);
         return wrapped_command;
     return wrap;

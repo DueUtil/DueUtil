@@ -43,6 +43,7 @@ async def show_awards(ctx,player,*args):
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
 async def myawards(ctx,*args):
+  
     """
     [CMD_KEY]myawards (page number)
     
@@ -125,7 +126,16 @@ async def benfont(ctx,*args):
         await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
 
 @commands.command()
-async def mywagers(ctx,*args):      
+async def mywagers(ctx,*args):    
+  
+    """
+    [CMD_KEY]mywagers
+    
+    Shows your active wager requests.
+    Note: Wagers expire if you don't accept them within one hour.
+    
+    """
+    
     player = Player.find_player(ctx.author.id);
     WagerT = "```\n" + player.name + "'s received wagers\n";
     if(len(player.battlers) > 0):
@@ -137,51 +147,51 @@ async def mywagers(ctx,*args):
     WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
     await get_client(message.server.id).send_message(message.channel, WagerT);
 
-@commands.command()
+@commands.command(args_pattern='PCS?')
 async def sendcash(ctx,*args):
+  
+    """
+    [CMD_KEY]sendcash @player amount (optional message)
+    
+    Sends some cash to another player.
+    Note: The maximum amount someone can receive is ten times their limit.
+    
+    Example usage:
+    
+    [CMD_KEY]sendcash @MacDue 1000000 "for the lit bot fam"
+    
+    or
+    
+    [CMD_KEY]sendcash @MrAwais 1
+    
+    """
+    
     sender = Player.find_player(ctx.author.id);
-    mentions = message.raw_mentions;
-    if(len(mentions) < 1):
-        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention one player!**");
-        return True;
-    elif (len(mentions) > 1):
-        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must mention only one player!**");
-        return True;
-    try:
-        cmd = util.clearmentions(message.content);
-        args = re.sub("\s\s+" , " ", cmd).split(sep =" ",maxsplit=2);
-        amount = int(args[1]);
-        other =findPlayer(mentions[0]);
-        if(other == None):
-            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,mentions[0])+"** has not joined!");
-            return True;
-        if(other.userid == sender.userid):
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **There is no reason to send money to yourself!**");
-            return True;
-        if(amount <= 0):
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **You must send at least $1!**");
-            return True;
-        if(sender.money - amount < 0):
-            if(sender.money > 0):
-                await get_client(message.server.id).send_message(message.channel, "You do not have **$"+ util.to_money(amount,False)+"**! The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**");
-            else:
-                await get_client(message.server.id).send_message(message.channel, "You do not have any money to transfer!");
-            return True
-        max_receive =  int(max_value_for_player(other)*10);
-        if(amount > max_receive):
-            await get_client(message.server.id).send_message(message.channel, "**$"+util.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util.to_money(max_receive,False)+"**!");
-            return True;
-        sender.money = sender.money - amount;
-        other.money = other.money + amount;
-        savePlayer(sender);
-        savePlayer(other);
-        money_transferred = money_transferred + amount;
-        print(filter_func(other.name)+" ("+other.userid+") has received $"+util.to_money(amount,False)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
-        msg ="";
-        if(amount >= 50):
-            await give_award(message, sender, 17, "Sugar daddy!")
-        if(len(args) == 3 and len(args[2].strip()) > 0):
-            msg = "**Attached note**: ```"+args[2]+" ```\n";
-        await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
-    except:
-        await get_client(message.server.id).send_message(message.channel, ":bangbang: **I don't understand your arguments**");
+    receiver = args[0];
+    transaction_amount = args[1];
+    
+    if receiver.user_id == sender.user_id:
+        raise util.DueUtilException(ctx.channel,"There is no reason to send money to yourself!");
+   
+    if sender.money - transaction_amount < 0:
+        if sender.money > 0:
+            await util.say(ctx.channel, ("You do not have **$"+ util.to_money(amount,False)+"**!"
+                                        "The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**"));
+        else:
+            await util.say(ctx.channel,"You do not have any money to transfer!");
+        
+    max_receive =  int(max_value_for_player(other)*10);
+    if(amount > max_receive):
+        await get_client(message.server.id).send_message(message.channel, "**$"+util.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util.to_money(max_receive,False)+"**!");
+    sender.money = sender.money - amount;
+    other.money = other.money + amount;
+    savePlayer(sender);
+    savePlayer(other);
+    money_transferred = money_transferred + amount;
+    print(filter_func(other.name)+" ("+other.userid+") has received $"+util.to_money(amount,False)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
+    msg ="";
+    if(amount >= 50):
+        await give_award(message, sender, 17, "Sugar daddy!")
+    if(len(args) == 3 and len(args[2].strip()) > 0):
+        msg = "**Attached note**: ```"+args[2]+" ```\n";
+    await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");

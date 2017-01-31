@@ -16,6 +16,14 @@ font_small = ImageFont.truetype("fonts/Due_Robo.ttf", 11);
 font_epic = ImageFont.truetype("fonts/benfont.ttf", 12);
 
 info_avatar = Image.open("screens/info_avatar.png");
+level_up_template = Image.open("screens/level_up.png");
+new_quest_template = Image.open("screens/new_quest.png"); 
+awards_screen_template = Image.open("screens/awards_screen.png"); 
+stats_screen_template = Image.open("screens/info_screen.png"); 
+quest_info_template = Image.open("screens/stats_page_quest.png");
+battle_screen_template = Image.open("screens/battle_screen.png");   
+award_slot = Image.open("screens/award_slot.png");
+
 
 def set_opacity(image,opacity_level):
     # Opaque is 1.0, input between 0-1.0
@@ -77,7 +85,7 @@ async def send_image(channel,image,**kwargs):
     output.close();
 
 async def level_up_screen(channel,player,cash):
-    image = Image.open("screens/level_up.png");
+    image = level_up_template.copy();
     level = math.trunc(player.level);
     try:
         avatar = resize_avatar(player,channel.server,54,54);
@@ -90,7 +98,7 @@ async def level_up_screen(channel,player,cash):
     await send_image(channel,image,file_name="level_up.png",content=":point_up_2: **"+player.name+"** Level Up!");
 
 async def new_quest_screen(channel,quest,player):
-    image = Image.open("screens/new_quest.png"); 
+    image = new_quest_template.copy();
     try:
         avatar = resize_avatar(quest,channel.server,54,54);
         image.paste(avatar, (10, 10));
@@ -109,8 +117,8 @@ async def new_quest_screen(channel,quest,player):
     
 async def awards_screen(channel,player,page,**kwargs):
     for_player = kwargs.get('is_player_sender',False);
-    image = Image.open("screens/awards_screen.png"); 
-    award_slot = Image.open("screens/award_slot.png"); 
+    image = awards_screen_template.copy();
+     
     draw = ImageDraw.Draw(image);
     suffix = "'s Awards";
     page_no_string_len = 0;
@@ -152,10 +160,6 @@ async def awards_screen(channel,player,page,**kwargs):
     await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!");
 
 async def stats_screen(channel,player):
-  
-   # await util.get_client(channel).send_typing(channel);
-  
-    screen = Image.open("screens/info_screen.png");   
 
     try:
         image = Image.open("backgrounds/" + player.background);
@@ -163,7 +167,7 @@ async def stats_screen(channel,player):
         image = Image.open("backgrounds/default.png");
 
     draw = ImageDraw.Draw(image);
-    image.paste(screen,(0,0),screen)
+    image.paste(stats_screen_template,(0,0),screen)
     
     #draw_banner
     banner = player.banner.image;
@@ -188,7 +192,7 @@ async def stats_screen(channel,player):
     attk = str(round(player.attack, 2));
     strg = str(round(player.strg, 2));
     accy = str(round(player.accy, 2));
-    money = str(player.money);
+    money = str(util.format_number(player.money,money=True));
     
     # Fill data
     
@@ -203,8 +207,8 @@ async def stats_screen(channel,player):
     width = draw.textsize(accy, font=font)[0];
     draw.text((241 - width, 178), accy, (255, 255, 255), font=font);
 
-    width = draw.textsize("$" + money, font=font)[0];
-    draw.text((241 - width, 204), "$" + money, (255, 255, 255), font=font);
+    width = draw.textsize(money, font=font)[0];
+    draw.text((241 - width, 204),money, (255, 255, 255), font=font);
     
     width= draw.textsize(str(player.quests_won), font=font)[0];
     draw.text((241 - width, 253), str(player.quests_won), (255, 255, 255), font=font);
@@ -238,38 +242,43 @@ async def stats_screen(channel,player):
        
 async def quest_screen(channel,quest):
 
-    await get_client(message.server.id).send_typing(message.channel);
+    image = quest_info_template.copy();
+        
     try:
-        avatar = resize_avatar(quest, message.server, True, 72, 72);
+        image.paste(resize_avatar(quest,channel.server, 72, 72), (9, 12));
     except:
-        avatar = None;
-    level = math.trunc(quest.level);
-    attk = round(quest.attack, 2);
-    strg = round(quest.strg, 2);
-    shooting = round(quest.shooting, 2)
-    img = Image.open("screens/stats_page_quest.png");
-    draw = ImageDraw.Draw(img)
+        pass;
+        
+    level = str(math.trunc(quest.level));
+    attk = str(round(quest.attack, 2));
+    strg = str(round(quest.strg, 2));
+    accy = str(round(quest.accy, 2));
+    reward = util.number_format(quest.money,money=True);
+
+    draw = ImageDraw.Draw(image)
     name = get_text_limit_len(draw,util.clear_markdown_escapes(quest.name),font,114);
-    g_quest = get_game_quest_from_id(quest.qID);
-    draw.text((88, 38), name, getRankColour(int(level / 10) + 1), font=font)
-    draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
-    # Fill data
-    width = draw.textsize(str(attk), font=font)[0]
-    draw.text((203 - width, 123), str(attk), (255, 255, 255), font=font)
-
-    width= draw.textsize(str(strg), font=font)[0]
-    draw.text((203 - width, 151), str(strg), (255, 255, 255), font=font)
-
-    width = draw.textsize(str(shooting), font=font)[0]
-    draw.text((203 - width, 178), str(shooting), (255, 255, 255), font=font)
-
-    wep = get_text_limit_len(draw,util.clear_markdown_escapes(get_weapon_from_id(quest.wID).name),font,136);
-    width = draw.textsize(str(wep), font=font)[0]
-    draw.text((203 - width, 207), str(wep), (255, 255, 255), font=font)
     
-    if(g_quest != None):
-        creator = get_text_limit_len(draw,g_quest.created_by,font,119);
-        home = get_text_limit_len(draw,g_quest.made_on,font,146);
+    quest_info = quest.info;
+    draw.text((88, 38), name, quest.rank_colour, font=font)
+    draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
+   
+    # Fill data
+    width = draw.textsize(attk, font=font)[0]
+    draw.text((203 - width, 123), attk, (255, 255, 255), font=font)
+
+    width= draw.textsize(strg, font=font)[0]
+    draw.text((203 - width, 151), strg, (255, 255, 255), font=font)
+
+    width = draw.textsize(accy, font=font)[0]
+    draw.text((203 - width, 178), accy, (255, 255, 255), font=font)
+
+    weapon_name = get_text_limit_len(draw,quest.weapon.name,font,136);
+    width = draw.textsize(weapon_name, font=font)[0]
+    draw.text((203 - width, 207), weapon_name, (255, 255, 255), font=font)
+    
+    if quest_info != None:
+        creator = get_text_limit_len(draw,quest.creator.name,font,119);
+        home = get_text_limit_len(draw,str(quest_info.home),font,146);
     else:
         creator = "Unknown";
         home = "Unknown";
@@ -280,40 +289,30 @@ async def quest_screen(channel,quest):
     width = draw.textsize(home, font=font)[0]
     draw.text((203 - width, 242), home, (255, 255, 255), font=font)
     
-    width = draw.textsize("$" + util.to_money(quest.money,True), font=font_med)[0]
-    draw.text((203 - width, 266), "$" + util.to_money(quest.money,True), (48, 48, 48), font=font_med)
+    width = draw.textsize(reward, font=font_med)[0]
+    draw.text((203 - width, 266),reward, (48, 48, 48), font=font_med)
 
-    if(avatar != None):
-        img.paste(avatar, (9, 12));
-    output = BytesIO()
-    img.save(output,format="PNG")
-    output.seek(0);
-    await get_client(message.server.id).send_file(message.channel, fp=output, filename="questinfo.png",content=":pen_fountain: Here you go.");
-    output.close()
+    await send_image(channel,image,file_name="questinfo.png",content=":pen_fountain: Here you go."); 
+
     
-async def battle_screen(channel, player_one, player_two, battle_text):
+async def battle_screen(channel,player_one,player_two,battle_text):
 
-    sender = findPlayer(message.author.id);
-    sender.last_image_request = time.time();
+    image = battle_screen_template.copy();
+    width, height = image.size;
+        
     try:
-        if(not isinstance(pone, activeQuest)):
-            avatar_one = resize_avatar(pone, message.server, False, 54, 54);
-        else:
-            avatar_one = resize_avatar(pone, message.server, True, 54, 54);
+        image.paste(resize_avatar(player_one,channel.server, 54, 54), (9, 9));
     except:
-        avatar_one = None;
-
+        pass;
+        
     try:
-        if(not isinstance(ptwo, activeQuest)):
-            avatar_two = resize_avatar(ptwo, message.server, False, 54, 54);
-        else:
-            avatar_two = resize_avatar(ptwo, message.server, True, 54, 54);
+        image.paste(resize_avatar(player_two,channel.server, 54, 54),  (width - 9 - 55, 9));
     except:
-        avatar_two = None;
-    weapon_one = get_weapon_from_id(pone.wID);
-    weapon_two = get_weapon_from_id(ptwo.wID);
-    img = Image.open("screens/battle_screen.png");   
-    width, height = img.size;
+        pass;
+        
+    weapon_one = player_one.weapon;
+    weapon_two = player_two.weapon;
+   
     if(avatar_one != None):
         img.paste(avatar_one, (9, 9));
     if(avatar_two != None):
@@ -345,12 +344,11 @@ async def battle_screen(channel, player_one, player_two, battle_text):
     width = draw.textsize(weap_one_name, font=font)[0]
     draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
     draw.text((132, 103), get_text_limit_len(draw,util.clear_markdown_escapes(weapon_two.name),font,85), (255, 255, 255), font=font)
-    output = BytesIO()
-    img.save(output,format="PNG")
-    output.seek(0);
-    await get_client(message.server.id).send_file(message.channel, fp=output, filename="battle.png");
-    await get_client(message.server.id).send_message(message.channel,btext);
-    output.close()
+   
+    await send_image(channel,image,file_name="battle.png"); 
+    
+    #await get_client(message.server.id).send_message(message.channel,battle_text);
+
 
 def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False;
