@@ -167,7 +167,7 @@ async def stats_screen(channel,player):
         image = Image.open("backgrounds/default.png");
 
     draw = ImageDraw.Draw(image);
-    image.paste(stats_screen_template,(0,0),screen)
+    image.paste(stats_screen_template,(0,0),stats_screen_template)
     
     #draw_banner
     banner = player.banner.image;

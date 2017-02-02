@@ -1,6 +1,7 @@
 import discord;
 import jsonpickle;
 import json;
+import math;
 from botstuff import util,imagehelper;
 from PIL import Image, ImageDraw, ImageFont
 
@@ -56,7 +57,7 @@ class Player:
         self.weapon_sum = '"0"01'     #price/attack/sum;
         self.name = "Put name here";
         self.w_id = Weapons.NO_WEAPON_ID;
-        self.money = 0;
+        self.money = 100000;
         self.last_progress = 0;
         self.last_quest = 0;
         self.wagers_won = 0;
@@ -86,11 +87,12 @@ class Player:
         new_accy = weapon.chance if new_accy > weapon.chance else new_accy;
         return new_accy if price > max_value else self.weapon.chance;
     
-    def max_value_for_player(self):
-        if not util.is_admin(self.user_id):
+    @property
+    def item_value_limit(self):
+       # if not util.is_admin(self.user_id):
             return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
-        else:
-            return math.inf;  #Best new feature!
+       # else:
+       #     return math.inf;  #Best new feature!
             
     async def unequip_weapon(self,channel):
         if weapon.w_id != no_weapon_id:

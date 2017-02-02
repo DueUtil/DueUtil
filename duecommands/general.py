@@ -1,3 +1,4 @@
+import discord;
 from fun import game,players;
 from botstuff import commands,util,imagehelper;
 
@@ -166,7 +167,7 @@ async def sendcash(ctx,*args):
     
     """
     
-    sender = Player.find_player(ctx.author.id);
+    sender = game.Player.find_player(ctx.author.id);
     receiver = args[0];
     transaction_amount = args[1];
     
@@ -179,19 +180,35 @@ async def sendcash(ctx,*args):
                                         "The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**"));
         else:
             await util.say(ctx.channel,"You do not have any money to transfer!");
+        return;
         
-    max_receive =  int(max_value_for_player(other)*10);
-    if(amount > max_receive):
-        await get_client(message.server.id).send_message(message.channel, "**$"+util.to_money(amount,False)+"** is more than ten times **"+other.name+"**'s limit!\nThe maximum **"+other.name+"** can receive is **$"+util.to_money(max_receive,False)+"**!");
-    sender.money = sender.money - amount;
-    other.money = other.money + amount;
-    savePlayer(sender);
-    savePlayer(other);
-    money_transferred = money_transferred + amount;
-    print(filter_func(other.name)+" ("+other.userid+") has received $"+util.to_money(amount,False)+" from "+filter_func(sender.name)+" ("+sender.userid+").");
-    msg ="";
-    if(amount >= 50):
-        await give_award(message, sender, 17, "Sugar daddy!")
-    if(len(args) == 3 and len(args[2].strip()) > 0):
-        msg = "**Attached note**: ```"+args[2]+" ```\n";
-    await get_client(message.server.id).send_message(message.channel, ":money_with_wings: **Transaction complete!**\n**"+sender.name+ "** sent $"+ util.to_money(amount,False)+" to **"+other.name+"**\n"+msg+"ᴾˡᵉᵃˢᵉ ᵏᵉᵉᵖ ᵗʰᶦˢ ʳᵉᶜᵉᶦᵖᵗ ᶠᵒʳ ʸᵒᵘʳ ʳᵉᶜᵒʳᵈˢ");
+    max_receive =  int(receiver.item_value_limit*10);
+    
+    amount_string = util.format_number(transaction_amount,money=True,full_precision=True);
+    
+    if transaction_amount > max_receive:
+        await util.say(ctx.channel, ("**"+amount_string
+                                     +"** is more than ten times **"+receiver.name
+                                     +"**'s limit!\nThe maximum **"+receiver.name
+                                     +"** can receive is **"
+                                     +util.format_number(max_receive,money=True)+"**!"));
+        return;
+        
+    sender.money -= transaction_amount;
+    receiver.money += transaction_amount;
+    
+    sender.save();
+    receiver.save();
+    
+    game.Stats.money_transferred += transaction_amount;
+    if transaction_amount >= 50:
+        await players.give_award(ctx.channel, sender, 17, "Sugar daddy!");
+        
+    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978);
+    transaction_log.add_field(name="Sender",value=sender.name);
+    transaction_log.add_field(name="Recipient",value=receiver.name);
+    transaction_log.add_field(name="Transaction amount:",value=amount_string,inline=False);
+    transaction_log.set_footer(text="Please keep this receipt for your records.");
+    
+    await util.say(ctx.channel,embed=transaction_log);
+  

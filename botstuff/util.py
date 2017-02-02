@@ -67,7 +67,7 @@ def format_number(number,**kwargs):
   
     def small_format():
         nonlocal number;
-        return '{0:g}'.format(number);
+        return '{:,g}'.format(number);
 
     def really_large_format():
         nonlocal number;

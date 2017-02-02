@@ -1,4 +1,5 @@
 import time;
+import asyncio;
 from discord import Permissions;
 from functools import wraps
 from fun import game;
@@ -56,10 +57,9 @@ def imagecommand(**command_rules):
                 else:
                     player.last_image_request = time.time();
             await util.get_client(ctx).send_typing(ctx.channel);
-            await command_func(ctx,*args,**kwargs);
+            await asyncio.ensure_future(command_func(ctx,*args,**kwargs));
         return wrapped_command;
     return wrap;
-          
           
 def parse(command_message):
   

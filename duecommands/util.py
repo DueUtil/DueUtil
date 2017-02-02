@@ -65,7 +65,7 @@ async def dustats(ctx,*args):
     stats.add_field(name="Level Ups",value=game_stats['players_leveled']);
     stats.add_field(name="New Players",value=game_stats['new_players_joined']);
     
-    stats.set_footer(text="DueUtil Shard "+str(util.get_client(ctx.server.id).shard_id+1))
+    stats.set_footer(text="DueUtil Shard "+str(util.get_client(ctx.server.id).shard_id+1));
     
     await util.say(ctx.channel,embed=stats);
              
