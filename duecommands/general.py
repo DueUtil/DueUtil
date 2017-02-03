@@ -205,9 +205,11 @@ async def sendcash(ctx,*args):
         await players.give_award(ctx.channel, sender, 17, "Sugar daddy!");
         
     transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978);
-    transaction_log.add_field(name="Sender",value=sender.name);
-    transaction_log.add_field(name="Recipient",value=receiver.name);
-    transaction_log.add_field(name="Transaction amount:",value=amount_string,inline=False);
+    transaction_log.add_field(name="Sender:",value=sender.name);
+    transaction_log.add_field(name="Recipient:",value=receiver.name);
+    transaction_log.add_field(name="Transaction amount (DUT):",value=amount_string,inline=False);
+    if len(args) > 2:
+      transaction_log.add_field(name=":pencil: Attached note:",value=args[2],inline=False);
     transaction_log.set_footer(text="Please keep this receipt for your records.");
     
     await util.say(ctx.channel,embed=transaction_log);

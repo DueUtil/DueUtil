@@ -16,6 +16,13 @@ def command(**command_rules):
             return user.server_permissions.manage_server; 
         return True;
   
+    def is_spam_command(ctx,command,*args):
+        if not command.admin_only:
+          return (sum(isinstance(arg,game.Player) for arg in args)
+                  < len(ctx.raw_mentions) or ctx.mention_everyone
+                  or '@here' in ctx.content or '@everyone' in ctx.content);
+        return False;
+      
     def wrap(command_func):
   
         @wraps(command_func)
@@ -26,9 +33,11 @@ def command(**command_rules):
                 args_pattern = command_rules.get('args_pattern',"");
                 if not await check_pattern(args_pattern,args[1]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753");
-                else:
+                elif not is_spam_command(ctx,wrapped_command,*args):
                     await util.say(ctx.channel,str(args));
                     await command_func(ctx,*args[1],**kwargs);
+                else:
+                    raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.");
             else:
                 raise util.DueUtilException(ctx.channel,"You can't use that command!");
             return True;
