@@ -2,7 +2,7 @@ import discord;
 import jsonpickle;
 import json;
 import math;
-from botstuff import util,imagehelper;
+from botstuff import dbconn,util,imagehelper;
 from PIL import Image, ImageDraw, ImageFont
 
 players = dict();         #Players
@@ -110,10 +110,8 @@ class Player:
             raise util.DueUtilException(channel,"You don't have anything equiped anyway!");
             
     def save(self):
-        data = jsonpickle.encode(self);
-        with open("saves/players/" + self.user_id + ".json", 'w') as outfile:
-            json.dump(data, outfile);
-            
+        dbconn.players_collection().update({'_id':self.user_id},{'data':jsonpickle.encode(self)},upsert=True);
+
     @property
     def weapon(self):
         return weapons[self.w_id];
@@ -166,13 +164,18 @@ class Player:
         
     @staticmethod
     def find_player(user_id):
-        global players;
-        
         if(user_id in players):
             return players[user_id]
         else:
             return None;
 
+    @staticmethod
+    def load():
+        global players;
+        for player in dbconn.players_collection().find():
+            loaded_player = jsonpickle.decode(player['data']); 
+            players[loaded_player.user_id] = loaded_player;
+        
 class Weapon:
   
     """A simple weapon that can be used by a monster or player in DueUtil"""
@@ -464,3 +467,4 @@ class PlayerInfoBanner:
 PlayerInfoBanner.load();
 Award.load();
 Weapon.load();
+Player.load();
