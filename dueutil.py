@@ -12,6 +12,7 @@ import time;
 import json;
 import configparser
 import traceback
+from websockets.exceptions import ConnectionClosed;
 
 last_backup = 0;
 stopped = False;
@@ -41,8 +42,12 @@ class DueUtilClient(discord.Client):
         print("Joined server");
     
     @asyncio.coroutine
-    async def on_error(self,event,ctx):
+    async def on_error(self,event,*args):
+        ctx = args[0] if len(args) == 1 else None;
         error = sys.exc_info()[1];
+        if ctx == None:
+            print("None message/command error:"+str(error));
+            return;
         if isinstance(error,util.DueUtilException):
             await self.send_message(error.channel,error.get_message());
         elif isinstance(ctx, discord.Message):

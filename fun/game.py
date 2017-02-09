@@ -110,7 +110,7 @@ class Player:
             raise util.DueUtilException(channel,"You don't have anything equiped anyway!");
             
     def save(self):
-        dbconn.players_collection().update({'_id':self.user_id},{'data':jsonpickle.encode(self)},upsert=True);
+        dbconn.insert_object(self.user_id,self);
 
     @property
     def weapon(self):
@@ -172,7 +172,7 @@ class Player:
     @staticmethod
     def load():
         global players;
-        for player in dbconn.players_collection().find():
+        for player in dbconn.get_collection_for_object(Player).find():
             loaded_player = jsonpickle.decode(player['data']); 
             players[loaded_player.user_id] = loaded_player;
         
@@ -261,10 +261,8 @@ class Weapon:
         return None;
         
     def save():
-        data = jsonpickle.encode(self);
-        with open("saves/weapons/" + str(hashlib.md5(self.w_id.encode('utf-8')).hexdigest()) + ".json", 'w') as outfile:
-            json.dump(data, outfile);  
-            
+        dbconn.insert_object(self.w_id,self);
+
     @staticmethod
     def load():
         global weapons;
@@ -357,11 +355,15 @@ class Quest:
             return None;
             
     def save(self):
-        data = jsonpickle.encode(quest);
-        quest_id = self.q_id.split('/',1);
-        file_name = str(hashlib.md5(quest.monsterName.lower().encode('utf-8')).hexdigest())+".json";
-        with open("saves/gamequests/" + quest_id[0] + "_"+file_name+".json", 'w') as outfile:
-            json.dump(data, outfile);
+        dbconn.insert_object(self.q_id,self);
+            
+    @staticmethod
+    def load():
+        global servers_quests;
+        for quest in dbconn.get_collection_for_object(Quest).find():
+            loaded_quest = jsonpickle.decode(quest['data']); 
+            location = quest.q_id.split('/',1);
+            servers_quests[location[0]][location[1]] = loaded_quest;
             
 class ActiveQuest(Player):
   
@@ -454,15 +456,13 @@ class PlayerInfoBanner:
         self.image = imagehelper.set_opacity(Image.open('screens/info_banners/'+self.image_name),0.9);
         
     def save(self):
-        data = jsonpickle.encode(self);
-        with open("screens/info_banners/" + self.name.lower().replace(" ","_")+ ".json", 'w') as outfile:
-            json.dump(data, outfile);
+        dbconn.insert_object(self.name.lower().replace(" ","_"),self);
         
     @staticmethod
     def load():
-        print("BANNER LOAD");
         global banners;
         banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png");
+        
       
 PlayerInfoBanner.load();
 Award.load();

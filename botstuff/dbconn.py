@@ -2,16 +2,18 @@ import jsonpickle;
 from pymongo import MongoClient
 import json;
 
+db = None;
+
 def conn():
-    return MongoClient();
+    global db;
+    if db == None:
+       db = MongoClient().dueutil;
+       return db;
+    else:
+       return db;
 
-def players_collection():
-    return conn().dueutil.players;
-    
-def quests_collection():
-    return conn().dueutil.quests;
-    
-def weapons_collection():
-    return conn().dueutil.weapons;
-    
+def insert_object(id,object):
+    conn()[type(object).__name__].update({'_id':id},{'data':jsonpickle.encode(object)},upsert=True);
 
+def get_collection_for_object(object_class):
+    return conn()[object_class.__name__]

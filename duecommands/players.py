@@ -28,7 +28,6 @@ async def info(ctx,*args):
     
     await imagehelper.stats_screen(ctx.channel,args[0]);
     
-    
 async def show_awards(ctx,player,*args):
   
     if len(args) == 0:
@@ -84,70 +83,8 @@ async def resetme(ctx,*args):
     if util.is_mod(player.user_id):
         await give_award(message,player,22,"Become an mod!")
     if util.is_admin(player.userid):
-        await give_award(message,player,21,"Become an admin!")       
-
-@commands.command()
-async def myweapons(ctx,*args):
-  
-    """
-    [CMD_KEY]myweapons
-    
-    Shows the contents of your weapon inventory.
-    
-    """
-         
-    await show_weapons(ctx,Player.find_player(ctx.author.id),False);
-
-@commands.command()
-async def shop(ctx,*args):
-  
-    """
-    [CMD_KEY]shop (page number)
-    
-    Shows DueUtil's weapon store!
-    
-    """
-    await shop(ctx);
-
-@commands.command(hidden=True)
-async def benfont(ctx,*args):
-  
-    """
-    [CMD_KEY]benfont 
-    
-    Shhhhh...
-    
-    """
-    
-    player = game.Player.find_player(ctx.author.id);
-    player.benfont = not player.benfont;
-    player.save();
-    if(player.benfont):
-        await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif');
-        await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
-
-@commands.command()
-async def mywagers(ctx,*args):    
-  
-    """
-    [CMD_KEY]mywagers
-    
-    Shows your active wager requests.
-    Note: Wagers expire if you don't accept them within one hour.
-    
-    """
-    
-    player = Player.find_player(ctx.author.id);
-    WagerT = "```\n" + player.name + "'s received wagers\n";
-    if(len(player.battlers) > 0):
-        for x in range(0, len(player.battlers)):
-            WagerT = WagerT + str(x + 1) + ". $" +  util.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
-    else:
-        WagerT = WagerT + "You have no requests!\n";
-    WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n";
-    WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
-    await get_client(message.server.id).send_message(message.channel, WagerT);
-
+        await give_award(message,player,21,"Become an admin!")    
+        
 @commands.command(args_pattern='PCS?')
 async def sendcash(ctx,*args):
   
@@ -214,3 +151,42 @@ async def sendcash(ctx,*args):
     
     await util.say(ctx.channel,embed=transaction_log);
   
+@commands.command()
+async def mywagers(ctx,*args):    
+  
+    """
+    [CMD_KEY]mywagers
+    
+    Shows your active wager requests.
+    Note: Wagers expire if you don't accept them within one hour.
+    
+    """
+    
+    player = Player.find_player(ctx.author.id);
+    WagerT = "```\n" + player.name + "'s received wagers\n";
+    if(len(player.battlers) > 0):
+        for x in range(0, len(player.battlers)):
+            WagerT = WagerT + str(x + 1) + ". $" +  util.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
+    else:
+        WagerT = WagerT + "You have no requests!\n";
+    WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n";
+    WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
+    await get_client(message.server.id).send_message(message.channel, WagerT);
+    
+@commands.command(hidden=True)
+async def benfont(ctx,*args):
+  
+    """
+    [CMD_KEY]benfont 
+    
+    Shhhhh...
+    
+    """
+    
+    player = game.Player.find_player(ctx.author.id);
+    player.benfont = not player.benfont;
+    player.save();
+    if(player.benfont):
+        await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif');
+        await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
+
