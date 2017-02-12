@@ -467,7 +467,7 @@ class Weapons:
             weapons[loaded_weapon.w_id] = loaded_weapon;
                 
 class Misc:
-    POSTIVE_BOOLS = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
+    POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh');
     
     @staticmethod
     def load():
