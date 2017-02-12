@@ -9,8 +9,6 @@ async def test(ctx,*args):
     await util.say(ctx.channel,("Yo!!! What up dis be my test command fo show.\n"
                                     "I got deedz args ```"+str(args)+"```!"));
                                     
-
-
 @commands.command(args_pattern="II")
 async def add(ctx,*args):
     first_number = args[0];

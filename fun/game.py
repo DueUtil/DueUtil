@@ -2,36 +2,16 @@ import discord;
 import jsonpickle;
 import json;
 import math;
+import emoji; #The emoji list in this is outdated.
 from botstuff import dbconn,util,imagehelper;
 from PIL import Image, ImageDraw, ImageFont
 
-players = dict();         #Players
+players = dict();         
 awards = [];
-banners = dict();         #Banners
-backgrounds = dict();     #Backgrounds
-servers_quests = dict();  #ServerQuests
-weapons = dict();         #Weapons
-
-class Stats:
-    money_created = 0;
-    money_transferred = 0;
-    players_leveled = 0;
-    new_players_joined = 0;
-    quests_given = 0;
-    quests_attempted = 0;  
-    images_served = 0;
-    
-    @staticmethod
-    def get_stats():
-        return {key: value for key,
-                value in Stats.__dict__.items() if not callable(key)}
-    
-class Weapons:
-    NO_WEAPON_ID = "000000000000000000_none";
-    STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"];
-    
-class Misc:
-    POSTIVE_BOOLS = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
+banners = dict();         
+backgrounds = dict();     
+servers_quests = dict();  
+weapons = dict();         
     
 class Player:
   
@@ -89,10 +69,7 @@ class Player:
     
     @property
     def item_value_limit(self):
-       # if not util.is_admin(self.user_id):
-            return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
-       # else:
-       #     return math.inf;  #Best new feature!
+        return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
             
     async def unequip_weapon(self,channel):
         if weapon.w_id != no_weapon_id:
@@ -162,28 +139,14 @@ class Player:
         else:
            return member.default_avatar_url;
         
-    @staticmethod
-    def find_player(user_id):
-        if(user_id in players):
-            return players[user_id]
-        else:
-            return None;
-
-    @staticmethod
-    def load():
-        global players;
-        for player in dbconn.get_collection_for_object(Player).find():
-            loaded_player = jsonpickle.decode(player['data']); 
-            players[loaded_player.user_id] = loaded_player;
-        
 class Weapon:
   
     """A simple weapon that can be used by a monster or player in DueUtil"""
     
-    def __init__(self,message,name,accy,damage,**kwargs):
-      
+    def __init__(self,name,hit_message,damage,accy,**extras):
+        message = extras.get('ctx',None);
         if message != None:
-            if does_weapon_exist(message.server.id,name):
+            if Weapons.does_weapon_exist(message.server.id,name):
                 raise util.DueUtilException(message.channel,"A weapon with that name already exists on this server!");
             
             if len(name) > 30 or len(name) == 0 or name.strip == "":
@@ -194,15 +157,19 @@ class Weapon:
         
             if accy > 86 or accy < 1:
                 raise util.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!");
+                
+            if not util.char_is_emoji(emoji.emojize(extras.get('icon',":hocho:"))):
+                raise util.DueUtilException(message.channel,":eyes: Weapon icons must be emojis! :ok_hand:");
         
-            self.server_id = message.server_id;
+            self.server_id = message.server.id;
+            
         else:
             self.server_id = "000000000000000000";
             
-        self.icon = kwargs.get('icon',"!")
-        self.hit_text = kwargs.get('hit_text',"hits");
-        self.melee = kwargs.get('melee',True);
-        self.image_url = kwargs.get('image_url',"");
+        self.icon = extras.get('icon',":gun:")
+        self.hit_message = hit_message;
+        self.melee = extras.get('melee',True);
+        self.image_url = extras.get('image_url',"https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png");
   
         self.name = name;
         self.damage = damage;
@@ -211,7 +178,7 @@ class Weapon:
         self.w_id = self.__weapon_id();
         self.weapon_sum = self.__weapon_sum();
         
-        #add_weapon(self);
+        self.__add();
             
     def __weapon_id(self):
         return self.server_id+"_"+self.name.lower();
@@ -220,55 +187,18 @@ class Weapon:
         return '"'+str(self.price)+'"'+str(self.damage)+str(self.accy);
       
     def __price(self):
-        return (self.accy/100 * self.damage) / 0.04375; 
+        return int((self.accy/100 * self.damage) / 0.04375); 
         
-    def does_hit(self,holder):
-        return random.random()<(holder.weapon_accy/100);
-      
-    @staticmethod
-    def get_weapon_from_id(id):
-        if(id in Weapons):
-            return Weapons[id]
-        else:
-            if(id != no_weapon_id):
-                return Weapons[no_weapon_id];
-    @staticmethod
-    def does_weapon_exist(server_id,weapon_name):   
-        if(get_weapon_for_server(server_id,weapon_name) != None):
-            return True;
-        return False;
-    
-    @staticmethod
-    def get_weapon_for_server(server_id,weapon_name):
-        if(weapon_name.lower() in stock_weapons):
-            return Weapons["000000000000000000_"+weapon_name.lower()];
-        else:
-            weapon_id = server_id+"_"+weapon_name.lower();
-            if(weapon_id in Weapons):
-                return Weapons[weapID]
-            else:
-                return None;
-                
-    @staticmethod
-    def remove_weapon_from_shop(player,wname):
-        for weapon in player.owned_weps:
-            stored_weapon = get_weapon_from_id(weapon[0]);
-            if(stored_weapon != None and stored_weapon.name.lower() == wname.lower()):
-                wID = weapon[0];
-                sum = weapon[1];
-                del player.owned_weps[player.owned_weps.index(weapon)];
-                return [wID,sum];
-        return None;
-        
-    def save():
-        dbconn.insert_object(self.w_id,self);
-
-    @staticmethod
-    def load():
+    def __add(self):
         global weapons;
-        weapon = Weapon(None,'None',100,1);
-        weapons[weapon.w_id] = weapon;
+        weapons[self.w_id] = self;
+        self.save();
         
+    def weapon_hit(self,holder):
+        return random.random()<(holder.weapon_accy/100);
+        
+    def save(self):
+        dbconn.insert_object(self.w_id,self);
             
 class BattleRequest:
   
@@ -345,26 +275,9 @@ class Quest:
     def made_on():
         return self.server_id;
         
-    @staticmethod
-    def get_game_quest_from_id(id):
-        id  = str(id);
-        args = util.get_strings(id);
-        if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
-            return ServersQuests[args[0]][args[1]];
-        else:
-            return None;
-            
     def save(self):
         dbconn.insert_object(self.q_id,self);
-            
-    @staticmethod
-    def load():
-        global servers_quests;
-        for quest in dbconn.get_collection_for_object(Quest).find():
-            loaded_quest = jsonpickle.decode(quest['data']); 
-            location = quest.q_id.split('/',1);
-            servers_quests[location[0]][location[1]] = loaded_quest;
-            
+        
 class ActiveQuest(Player):
   
     def __init__(self,q_id):
@@ -388,45 +301,6 @@ class Award:
         self.name = name;
         self.description = description;
         self.icon = Image.open(icon_path);
-        
-    @staticmethod
-    def register(icon_path,text):
-        global awards;
-        info = text.split('\n');
-        awards.append(Award(icon_path,info[0],info[1]));
-        
-    @staticmethod
-    def get_award(award_id):
-        return awards[award_id]; 
-
-    @staticmethod          
-    def load():
-        Award.register("awards/Duseless.png","Duseless\nIgnore DueUtil");  # 0
-        Award.register("awards/questDone.png","Save The Server\nComplete a quest");  # 1
-        Award.register("awards/rank2.png","Attain Rank 2\nGet to level 10");  # 2
-        Award.register("awards/redmist.png","Red Mist\nFail a quest");  # 3
-        Award.register("awards/spender.png","Licence To Kill\nBuy a weapon");  # 4
-        Award.register("awards/rank3.png","Attain Rank 3\nGet to level 20");  # 5
-        Award.register("awards/rank4.png","Attain Rank 4\nGet to level 30");  # 6
-        Award.register("awards/rank5.png","Attain Rank 5\nGet to level 40");  # 7
-        Award.register("awards/rank6.png","Attain Rank 6\nGet to level 50");  # 8
-        Award.register("awards/rank7.png","Attain Rank 7\nGet to level 60");  # 9
-        Award.register("awards/rank8.png","Attain Rank 8\nGet to level 70");  # 10
-        Award.register("awards/rank9.png","Attain Rank 9\nGet to level 80");  # 11
-        Award.register("awards/forharambe.png","For Harambe\n???");  # 12
-        Award.register("awards/youwin.png","Win A Wager\nDon't not win a wager");  # 13
-        Award.register("awards/beat.png","Lose A Wager\nDon't win a wager");  # 14
-        Award.register("awards/daddy.png","Dumbledore\n???"); # 15
-        Award.register("awards/benfont.png","One True Type Font\n???"); # 16
-        Award.register("awards/givecash.png","Sugar Daddy\nGive another player over or $50"); # 17
-        Award.register("awards/potato.png","Bringer Of Potatoes\nGive a potato"); # 18
-        Award.register("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 19
-        Award.register("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
-        Award.register("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
-        Award.register("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
-        Award.register("awards/bg_accepted.png","Background Accepted!\nGet a background submission accepted");#23
-        Award.register("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
-        Award.register("awards/donor_award.png","All MacDue Ever Wanted!\nDonate to DueUtil"); #25
 
 class PlayerInfoBanner:
     
@@ -457,14 +331,164 @@ class PlayerInfoBanner:
         
     def save(self):
         dbconn.insert_object(self.name.lower().replace(" ","_"),self);
+
+class Awards:
+  
+    @staticmethod
+    def register(icon_path,text):
+        global awards;
+        info = text.split('\n');
+        awards.append(Award(icon_path,info[0],info[1]));
         
+    @staticmethod
+    def get_award(award_id):
+        return awards[award_id]; 
+
+    @staticmethod          
+    def load():
+        Awards.register("awards/Duseless.png","Duseless\nIgnore DueUtil");  # 0
+        Awards.register("awards/questDone.png","Save The Server\nComplete a quest");  # 1
+        Awards.register("awards/rank2.png","Attain Rank 2\nGet to level 10");  # 2
+        Awards.register("awards/redmist.png","Red Mist\nFail a quest");  # 3
+        Awards.register("awards/spender.png","Licence To Kill\nBuy a weapon");  # 4
+        Awards.register("awards/rank3.png","Attain Rank 3\nGet to level 20");  # 5
+        Awards.register("awards/rank4.png","Attain Rank 4\nGet to level 30");  # 6
+        Awards.register("awards/rank5.png","Attain Rank 5\nGet to level 40");  # 7
+        Awards.register("awards/rank6.png","Attain Rank 6\nGet to level 50");  # 8
+        Awards.register("awards/rank7.png","Attain Rank 7\nGet to level 60");  # 9
+        Awards.register("awards/rank8.png","Attain Rank 8\nGet to level 70");  # 10
+        Awards.register("awards/rank9.png","Attain Rank 9\nGet to level 80");  # 11
+        Awards.register("awards/forharambe.png","For Harambe\n???");  # 12
+        Awards.register("awards/youwin.png","Win A Wager\nDon't not win a wager");  # 13
+        Awards.register("awards/beat.png","Lose A Wager\nDon't win a wager");  # 14
+        Awards.register("awards/daddy.png","Dumbledore\n???"); # 15
+        Awards.register("awards/benfont.png","One True Type Font\n???"); # 16
+        Awards.register("awards/givecash.png","Sugar Daddy\nGive another player over or $50"); # 17
+        Awards.register("awards/potato.png","Bringer Of Potatoes\nGive a potato"); # 18
+        Awards.register("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 19
+        Awards.register("awards/kingtat.png","Potato King\nGive out 100 potatoes"); # 20
+        Awards.register("awards/admin.png","DueUtil Admin\nOnly DueUtil admins can have this."); # 21
+        Awards.register("awards/mod.png","DueUtil Mod\nOnly DueUtil mods can have this."); # 22
+        Awards.register("awards/bg_accepted.png","Background Accepted!\nGet a background submission accepted");#23
+        Awards.register("awards/top_dog.png","TOP DOG\nWhile you have this award you're undefeated"); #24
+        Awards.register("awards/donor_award.png","All MacDue Ever Wanted!\nDonate to DueUtil"); #25
+        
+class Players:
+  
+    @staticmethod
+    def find_player(user_id):
+        if(user_id in players):
+            return players[user_id]
+        else:
+            return None;
+
+    @staticmethod
+    def load():
+        global players;
+        for player in dbconn.get_collection_for_object(Player).find():
+            loaded_player = jsonpickle.decode(player['data']); 
+            players[loaded_player.user_id] = loaded_player;
+
+class Quests:
+  
+    @staticmethod
+    def get_game_quest_from_id(id):
+        id  = str(id);
+        args = util.get_strings(id);
+        if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
+            return ServersQuests[args[0]][args[1]];
+        else:
+            return None;
+            
+            
+    @staticmethod
+    def load():
+        global servers_quests;
+        for quest in dbconn.get_collection_for_object(Quest).find():
+            loaded_quest = jsonpickle.decode(quest['data']); 
+            location = quest.q_id.split('/',1);
+            servers_quests[location[0]][location[1]] = loaded_quest;
+                    
+
+class Weapons:
+    NO_WEAPON_ID = "000000000000000000_none";
+    STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"];
+    
+    @staticmethod
+    def get_weapon_from_id(id):
+        if id in weapons:
+            return weapons[id]
+        else:
+            if id != no_weapon_id:
+                return weapons[no_weapon_id];
+                
+    @staticmethod
+    def does_weapon_exist(server_id,weapon_name):   
+        if Weapons.get_weapon_for_server(server_id,weapon_name) != None:
+            return True;
+        return False;
+    
+    @staticmethod
+    def get_weapon_for_server(server_id,weapon_name):
+        if weapon_name.lower() in Weapons.STOCK_WEAPONS:
+            return weapons["000000000000000000_"+weapon_name.lower()];
+        else:
+            weapon_id = server_id+"_"+weapon_name.lower();
+            if weapon_id in weapons:
+                return weapons[weapon_id]
+            else:
+                return None;
+                
+    @staticmethod
+    def remove_weapon_from_shop(player,wname):
+        for weapon in player.owned_weps:
+            stored_weapon = Weapons.get_weapon_from_id(weapon[0]);
+            if stored_weapon != None and stored_weapon.name.lower() == wname.lower():
+                wID = weapon[0];
+                sum = weapon[1];
+                del player.owned_weps[player.owned_weps.index(weapon)];
+                return [wID,sum];
+        return None;
+        
+    @staticmethod
+    def get_weapons_for_server(id):
+        return {weapon_id: weapons[weapon_id] for weapon_id in weapons
+                           if weapons[weapon_id].name.lower() in Weapons.STOCK_WEAPONS
+                           or weapon_id.startswith(id)}
+        
+    @staticmethod
+    def load():
+        global weapons;
+        none = Weapon('None',None,1,100);
+        weapons[none.w_id] = none;
+        for weapon in dbconn.get_collection_for_object(Weapon).find():
+            loaded_weapon= jsonpickle.decode(weapon['data']);
+            weapons[loaded_weapon.w_id] = loaded_weapon;
+                
+class Misc:
+    POSTIVE_BOOLS = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh'];
+    
     @staticmethod
     def load():
         global banners;
         banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png");
-        
-      
-PlayerInfoBanner.load();
-Award.load();
-Weapon.load();
-Player.load();
+
+class Stats:
+    money_created = 0;
+    money_transferred = 0;
+    players_leveled = 0;
+    new_players_joined = 0;
+    quests_given = 0;
+    quests_attempted = 0;  
+    images_served = 0;
+    
+    @staticmethod
+    def get_stats():
+        return {key: value for key,
+                value in Stats.__dict__.items() if not callable(key)}
+
+Misc.load();
+Awards.load();
+Weapons.load();
+Quests.load();
+Players.load();

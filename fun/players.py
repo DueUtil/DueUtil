@@ -17,7 +17,7 @@ import dueutil;
 import json;
 from io import StringIO
 import numpy
-from fun.game import Player,PlayerInfoBanner,Stats,Weapons;
+from fun.game import Players,PlayerInfoBanner,Stats,Weapons;
 from botstuff import events, util, imagehelper;
 
 """ DueUtil battles & quests. The main meat of the bot. """
@@ -32,9 +32,8 @@ async def on_message(message):
     await player_progress(message);
 
 async def player_progress(message):
-    #global money_created,new_players_joined,players_leveled,players;
 
-    player = Player.find_player(message.author.id);
+    player = Players.find_player(message.author.id);
     if(player != None):
         if(player.w_id != Weapons.NO_WEAPON_ID):
             if(player.weapon_sum != player.weapon.weapon_sum):
@@ -64,13 +63,13 @@ async def player_progress(message):
             player.hp = 10 * player.level;
             
             if math.trunc(player.level) > math.trunc(start_level):
-                level_up_reward = math.trunc(gplayer.level) * 10;
+                level_up_reward = math.trunc(player.level) * 10;
                 player.money += level_up_reward;
                 Stats.money_created += level_up_reward;
                 Stats.players_leveled += 1;
                 
-                if not(message.server.id+"/"+message.channel.id in util.muted_channels):
-                    await level_up_image(message,player, level_up_reward);
+                if not (message.server.id+"/"+message.channel.id in util.muted_channels):
+                    await imagehelper.level_up_screen(message.channel,player,level_up_reward);
                 else:
                     print("Won't send level up image - channel blocked.");
                     
@@ -78,9 +77,7 @@ async def player_progress(message):
                 if(rank == 2):
                     await give_award(message, player, 2, "Attain rank 2.");
                 elif (rank > 2 and rank <=9):
-                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".");  
-                print(filter_func(player.name)+" ("+player.userid+") has leveled up!");
-                
+                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".");                  
             player.save();
     if player == None:
         new_player = Player(message.author);

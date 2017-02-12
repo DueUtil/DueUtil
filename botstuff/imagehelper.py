@@ -94,7 +94,7 @@ async def level_up_screen(channel,player,cash):
         pass;
     draw = ImageDraw.Draw(image)
     draw.text((159, 18), str(level), (255, 255, 255), font=font_big)
-    draw.text((127, 40), "$" + util.to_money(cash,True), (255, 255, 255), font=font_big)
+    draw.text((127, 40),util.format_number(cash,money=True), (255, 255, 255), font=font_big)
     await send_image(channel,image,file_name="level_up.png",content=":point_up_2: **"+player.name+"** Level Up!");
 
 async def new_quest_screen(channel,quest,player):

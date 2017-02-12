@@ -58,7 +58,7 @@ def imagecommand(**command_rules):
         @wraps(command_func)
         async def wrapped_command(ctx, *args,**kwargs):
             rate_limit = command_rules.get('rate_limit',True);
-            player = game.Player.find_player(ctx.author.id);
+            player = game.Players.find_player(ctx.author.id);
             if rate_limit:
                 if time.time() - player.last_image_request < 10:
                     await util.say(ctx.channel,":cold_sweat: Please don't break me!");
@@ -178,11 +178,13 @@ async def check_pattern(pattern,args):
     for pos in range(0,len(pattern)):
         current_rule = pattern[pos];
         switch = {
-            'S': args[pos] if not args[pos].isspace() else False,
+            'S': args[pos] if not (args[pos].isspace() and len(args[pos]) == 0) else False,
             'I': represents_int(args[pos]),
             'C': represents_count(args[pos]),
             'R': represents_float(args[pos]),
-            'P': game.Player.find_player(args[pos]),
+            'P': game.Players.find_player(args[pos]),
+            # This one is for page selectors that could be a page number or a string like a weapon name.
+            'M': represents_count(args[pos]) if represents_count(args[pos]) else args[pos],
         }
         value = switch.get(current_rule)
         if not value:
