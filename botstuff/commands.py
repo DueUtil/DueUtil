@@ -178,16 +178,17 @@ async def check_pattern(pattern,args):
     for pos in range(0,len(pattern)):
         current_rule = pattern[pos];
         switch = {
-            'S': args[pos] if not (args[pos].isspace() and len(args[pos]) == 0) else False,
+            'S': args[pos].strip('`') if not (args[pos].isspace() and len(args[pos]) == 0) else False,
             'I': represents_int(args[pos]),
             'C': represents_count(args[pos]),
             'R': represents_float(args[pos]),
             'P': game.Players.find_player(args[pos]),
-            # This one is for page selectors that could be a page number or a string like a weapon name.
+             # This one is for page selectors that could be a page number or a string like a weapon name.
             'M': represents_count(args[pos]) if represents_count(args[pos]) else args[pos],
+            'B': args[pos].lower() in game.Misc.POSTIVE_BOOLS,
         }
         value = switch.get(current_rule)
-        if not value:
+        if not value and current_rule != 'B':
             return False;
         args[pos] = value;
         

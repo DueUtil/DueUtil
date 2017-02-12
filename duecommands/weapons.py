@@ -30,7 +30,6 @@ async def shop(ctx,*args):
     if type(page) is int:
     
         shop_weapons = list(game.Weapons.get_weapons_for_server(ctx.server.id).values());
-
         if 12 * page + 12 < len (shop_weapons):
             footer = "But wait there's more! Do "+util.get_server_cmd_key(ctx.server)+"shop "+str(page+2);
         else:
@@ -41,7 +40,7 @@ async def shop(ctx,*args):
             if stock_number >= len(shop_weapons):
                 break;
             weapon = shop_weapons[stock_number];
-            shop.add_field(name=weapon.icon+' '+weapon.name,value=util.format_number(weapon.price,full_precision=True,money=True));
+            shop.add_field(name=weapon.icon+' | '+weapon.name,value='```'+util.format_number(weapon.price,full_precision=True,money=True)+'```');
         
         shop.set_footer(text=footer);
         
@@ -50,7 +49,7 @@ async def shop(ctx,*args):
         weapon = game.Weapons.get_weapon_for_server(ctx.server.id,page);
         if weapon == None:
             raise util.DueUtilException(ctx.channel,"Weapon not found");
-        weapon_info = discord.Embed(title=weapon.icon+' '+weapon.name,type="rich",color=16038978);
+        weapon_info = discord.Embed(title=weapon.icon+' | '+weapon.name,type="rich",color=16038978);
         weapon_info.set_thumbnail(url=weapon.image_url);
         weapon_info.add_field(name='Damage',value=util.format_number(weapon.damage));
         weapon_info.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%');
@@ -60,7 +59,7 @@ async def shop(ctx,*args):
 
         await util.say(ctx.channel,embed=weapon_info);
         
-@commands.command(admin_only=True,args_pattern='SSCCS?S?')
+@commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args):
     
     """
@@ -72,12 +71,19 @@ async def createweapon(ctx,*args):
     
     [CMD_KEY]createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50
     
-    If you want exta customization you can also do:
+    For extra customization you add the following:
     
-    [CMD_KEY]createweapon "weapon name" "hit message" damage accy (image url) (melee)
+    (ranged) (icon) (image url)
 
     """
-
-    weapon = game.Weapon(*args[:4],ctx=ctx);
+    extras = dict();
+    if len(args) >= 5:
+        extras['melee'] = args[4];
+    if len(args) >= 6:
+        extras['icon'] = args[5];
+    if len(args) == 7:
+        extras['image_url'] = args[6];
+        
+    weapon = game.Weapon(*args[:4],**extras,ctx=ctx);
     await util.say(ctx.channel,(weapon.icon+" **"+weapon.name.strip('*')+"** is available in the shop for "
                                 +util.format_number(weapon.price,money=True)+"!"));

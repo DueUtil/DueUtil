@@ -453,14 +453,15 @@ class Weapons:
     @staticmethod
     def get_weapons_for_server(id):
         return {weapon_id: weapons[weapon_id] for weapon_id in weapons
-                           if weapons[weapon_id].name.lower() in Weapons.STOCK_WEAPONS
-                           or weapon_id.startswith(id)}
+                           if (weapons[weapon_id].name.lower() in Weapons.STOCK_WEAPONS
+                           and weapon_id != Weapons.NO_WEAPON_ID) or weapon_id.startswith(id)}
         
     @staticmethod
     def load():
         global weapons;
         none = Weapon('None',None,1,100);
         weapons[none.w_id] = none;
+  
         for weapon in dbconn.get_collection_for_object(Weapon).find():
             loaded_weapon= jsonpickle.decode(weapon['data']);
             weapons[loaded_weapon.w_id] = loaded_weapon;
