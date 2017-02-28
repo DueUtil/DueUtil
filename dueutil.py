@@ -87,13 +87,10 @@ class DueUtilClient(discord.Client):
         print('------')
 
 def is_due_loaded():
-    return False#battlesquests.loaded and util.loaded;
+    return False;
 
 def load_due():
     load_config();
-    
-    #Testing
-    #battlesquests.load(shard_clients);
     util.load(shard_clients);
     
 def setup_due_thread(loop,shard_id):

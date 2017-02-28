@@ -13,11 +13,10 @@ import time
 import re;
 import os;
 import shutil
-import dueutil;
 import json;
 from io import StringIO
 import numpy
-from fun.game import Players,PlayerInfoBanner,Stats,Weapons;
+from fun.game import Player,Players,PlayerInfoBanner,Stats,Weapons;
 from botstuff import events, util, imagehelper;
 
 """ DueUtil battles & quests. The main meat of the bot. """

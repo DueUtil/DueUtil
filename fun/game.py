@@ -3,7 +3,7 @@ import jsonpickle;
 import json;
 import math;
 import emoji; #The emoji list in this is outdated.
-from botstuff import dbconn,util,imagehelper;
+from botstuff import dbconn,util;
 from PIL import Image, ImageDraw, ImageFont
 
 players = dict();         
@@ -11,7 +11,9 @@ awards = [];
 banners = dict();         
 backgrounds = dict();     
 servers_quests = dict();  
-weapons = dict();         
+weapons = dict();   
+
+print (util.say);      
     
 class Player:
   
@@ -50,7 +52,7 @@ class Player:
         self.quests = [];
         self.battlers = [];
         self.awards = [];
-        self.owned_weps = [];
+        self.weapon_inventory = [];
         self.save();
         
     def owns_weapon(self,weapon_name):
@@ -212,39 +214,46 @@ class Quest:
   
     """A class to hold info about a server quest"""
   
-    def __init__(self,message,name,base_attack,base_strg,base_accy,base_hp,**kwargs):
+    def __init__(self,name,base_attack,base_strg,base_accy,base_hp,**extras):
+        message = extras.get('ctx',None);
       
-        if message.server.id in server_quests:
-            if name.strip().lower() in server_quests[message.server.id]:
-                raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!");
+        if message != None:
+            if message.server.id in server_quests:
+                if name.strip().lower() in server_quests[message.server.id]:
+                    raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!");
       
-        if base_accy < 1 or base_attack < 1 or base_strg < 1:
-            raise util.DueUtilException(message.channel,"No quest stats can be less than 1!");
+            if base_accy < 1 or base_attack < 1 or base_strg < 1:
+                raise util.DueUtilException(message.channel,"No quest stats can be less than 1!");
 
-        if base_hp < 30:
-            raise util.DueUtilException(message.channel,"Base HP must be at least 30!");
+            if base_hp < 30:
+                raise util.DueUtilException(message.channel,"Base HP must be at least 30!");
 
-        if len(name) > 30 or len(name) == 0 or name.strip == "":
-            raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
+            if len(name) > 30 or len(name) == 0 or name.strip == "":
+                raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!");
+                
+            self.server_id = message.server.id;
+            self.created_by = message.author.id;
+        else:
+            self.server_id = "";
+            self.created_by = "";
       
-        self.task = kwargs.get('task',"Battle a");
-        self.w_id = kwargs.get('weapon_id',no_weapon_id);
-        self.spawn_chance = kwargs.get('spawn_chance',4);
-        self.image_url = kwargs.get('image_url',"");
+        self.task = extras.get('task',"Battle a");
+        self.w_id = extras.get('weapon_id',Weapons.NO_WEAPON_ID);
+        self.spawn_chance = extras.get('spawn_chance',4);
+        self.image_url = extras.get('image_url',"");
         
         self.monster_name = name;
         self.base_attack = base_attack;
-        self.server_id = message.server_id;
         self.base_strg = base_strg;
         self.base_accy = base_accy;
         self.base_hp = base_hp;
         
-        self.created_by = message.author.id;
         
-        self.base_reward = self__reward();
+        self.base_reward = 0 #self__reward();
         self.q_id = self.__quest_id();
         
-        add_quest(self);
+        if self.server_id != "":
+            self.__add();
         
     @property    
     def creator(self):
@@ -271,8 +280,13 @@ class Quest:
         
         return base_reward;
                         
+    def __add(self):
+        global servers_quests
+        location = self.q_id.split('/',1)
+        servers_quests[location[0]][location[1]]
+    
     @property
-    def made_on():
+    def made_on(self):
         return self.server_id;
         
     def save(self):
@@ -316,8 +330,7 @@ class PlayerInfoBanner:
         
         self.image_name = image_name;
         self.name = name;
-        self.load_image();
-        
+                
     def banner_restricted(self,player):
         return ((not self.admin_only or self.admin_only == util.is_admin(player.userid)) 
                 and (not self.mod_only or self.mod_only == util.is_mod_or_admin(player.userid)));
@@ -325,9 +338,6 @@ class PlayerInfoBanner:
         
     def can_use_banner(self,player):
         return (not self.donor or self.donor == self.donor) and self.banner_restricted(player);
-        
-    def load_image(self):
-        self.image = imagehelper.set_opacity(Image.open('screens/info_banners/'+self.image_name),0.9);
         
     def save(self):
         dbconn.insert_object(self.name.lower().replace(" ","_"),self);
@@ -385,9 +395,10 @@ class Players:
     @staticmethod
     def load():
         global players;
+        reference = Player();
         for player in dbconn.get_collection_for_object(Player).find():
             loaded_player = jsonpickle.decode(player['data']); 
-            players[loaded_player.user_id] = loaded_player;
+            players[loaded_player.user_id] = util.load_and_update(reference,loaded_player);
 
 class Quests:
   
@@ -404,10 +415,11 @@ class Quests:
     @staticmethod
     def load():
         global servers_quests;
+        reference = Quest('Reference',0,0,0,0)
         for quest in dbconn.get_collection_for_object(Quest).find():
             loaded_quest = jsonpickle.decode(quest['data']); 
             location = quest.q_id.split('/',1);
-            servers_quests[location[0]][location[1]] = loaded_quest;
+            servers_quests[location[0]][location[1]] = util.load_and_update(reference,loaded_quest);
                     
 
 class Weapons:
@@ -461,10 +473,10 @@ class Weapons:
         global weapons;
         none = Weapon('None',None,1,100);
         weapons[none.w_id] = none;
-  
+        
         for weapon in dbconn.get_collection_for_object(Weapon).find():
             loaded_weapon= jsonpickle.decode(weapon['data']);
-            weapons[loaded_weapon.w_id] = loaded_weapon;
+            weapons[loaded_weapon.w_id] = util.load_and_update(none,loaded_weapon)
                 
 class Misc:
     POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh');

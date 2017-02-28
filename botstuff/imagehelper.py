@@ -365,3 +365,9 @@ def get_text_limit_len(draw,text,given_font,length):
                 else:
                     return text[:-3] + "...";
             return text;
+
+def init_banners():
+    for banner in game.banners.values():
+        banner.image = set_opacity(Image.open('screens/info_banners/'+banner.image_name),0.9);
+        
+init_banners();

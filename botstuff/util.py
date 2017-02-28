@@ -10,7 +10,6 @@ import math
 import sys
 from html.parser import HTMLParser
 import time;
-import fun.players;
 import zipfile;
 import shutil;
 import jsonpickle;
@@ -52,6 +51,12 @@ async def say(channel,*args,**kwargs):
 async def typing(channel):
       await get_client(channel.server.id).send_typing(channel);
 
+def load_and_update(reference,object):
+    for key in reference.__dict__:
+        if key not in object.__dict__:
+            object.__dict__[key] = reference.__dict__[key]
+    return object
+    
 def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients);
 
@@ -106,8 +111,8 @@ def get_server_name(server,user_id):
     except:
         return "Unknown User"
     
-def paginate():
-    """ This always was shit. Replace it. """
+#def paginate():
+  #  """ This always was shit. Replace it. """
     
 def is_admin(id):
     return id in DueUtilAdmins or id == '132315148487622656';
@@ -136,7 +141,9 @@ def filter_string(string):
             new = new + string[i];
         else:
             new = new + "?";
-    return new;                
+    return new;     
+    
+
         
 def load(shards):
     global shard_clients;

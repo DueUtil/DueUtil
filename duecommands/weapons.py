@@ -58,6 +58,35 @@ async def shop(ctx,*args):
         weapon_info.set_footer(text='Image supplied by weapon creator.');
 
         await util.say(ctx.channel,embed=weapon_info);
+
+
+@commands.command(args_pattern='S')
+async def buy(ctx,*args):
+
+    """
+    [CMD_KEY]buy "weapon name"
+    
+    Buys a weapon from the shop.!
+    
+    """
+    customer = game.Players.find_player(ctx.author.id);
+    weapon = game.Weapons.get_weapon_for_server(ctx.server.id,args[0]);
+    if weapon == None:
+        raise util.DueUtilException(ctx.channel,"Weapon not found");
+    if customer.money - weapon.price < 0:
+        await util.say(ctx.channel,":anger: You can't afford that weapon.");
+    elif weapon.price > customer.item_value_limit:
+        await util.say(ctx.channel,":baby: Awwww. I can't sell you that.");
+    elif customer.weapon != game.Weapons.NO_WEAPON_ID:
+        if len(customer.weapon_inventory) < 6:
+            pass
+            #Buy into bag
+        else:
+            pass
+            #Can't buy
+    else:
+        raise util.DueUtilException("No free weapon slots!");
+        
         
 @commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args):
