@@ -2,6 +2,8 @@ import discord;
 import jsonpickle;
 import json;
 import math;
+import random 
+import numpy
 import emoji; #The emoji list in this is outdated.
 from botstuff import dbconn,util;
 from PIL import Image, ImageDraw, ImageFont
@@ -12,8 +14,6 @@ banners = dict();
 backgrounds = dict();     
 servers_quests = dict();  
 weapons = dict();   
-
-print (util.say);      
     
 class Player:
   
@@ -37,7 +37,7 @@ class Player:
         self.donor = False;
         self.background = "default.png";
         self.weapon_sum = '"0"01'     #price/attack/sum;
-        self.name = "Put name here";
+        self.name = "TEST";
         self.w_id = Weapons.NO_WEAPON_ID;
         self.money = 100000;
         self.last_progress = 0;
@@ -63,11 +63,14 @@ class Player:
         
     @property    
     def weapon_accy(self):
-        max_value = self.max_value_for_player();
+        max_value = self.item_value_limit;
         price = self.weapon.price if self.weapon.price > 0 else 1;
         new_accy = numpy.clip(max_value/price * 100,1,86);
-        new_accy = weapon.chance if new_accy > weapon.chance else new_accy;
-        return new_accy if price > max_value else self.weapon.chance;
+        new_accy = self.weapon.accy if new_accy > self.weapon.accy else new_accy;
+        return new_accy if price > max_value else self.weapon.accy;
+    
+    def weapon_hit(self):
+        return random.random()<(self.weapon_accy/100);
     
     @property
     def item_value_limit(self):
@@ -195,9 +198,6 @@ class Weapon:
         global weapons;
         weapons[self.w_id] = self;
         self.save();
-        
-    def weapon_hit(self,holder):
-        return random.random()<(holder.weapon_accy/100);
         
     def save(self):
         dbconn.insert_object(self.w_id,self);
@@ -471,7 +471,7 @@ class Weapons:
     @staticmethod
     def load():
         global weapons;
-        none = Weapon('None',None,1,100);
+        none = Weapon('None',None,1,66);
         weapons[none.w_id] = none;
         
         for weapon in dbconn.get_collection_for_object(Weapon).find():

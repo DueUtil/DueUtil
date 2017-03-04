@@ -113,6 +113,9 @@ def get_server_name(server,user_id):
     
 #def paginate():
   #  """ This always was shit. Replace it. """
+        
+def clamp(number, min_val, max_val):
+    return max(min(max_val, number), min_val)    
     
 def is_admin(id):
     return id in DueUtilAdmins or id == '132315148487622656';

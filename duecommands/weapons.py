@@ -1,5 +1,5 @@
 import discord;
-from fun import game,players;
+from fun import game,players,battles;
 from botstuff import commands,util,imagehelper;
 
 @commands.command()
@@ -76,18 +76,40 @@ async def buy(ctx,*args):
     if customer.money - weapon.price < 0:
         await util.say(ctx.channel,":anger: You can't afford that weapon.");
     elif weapon.price > customer.item_value_limit:
-        await util.say(ctx.channel,":baby: Awwww. I can't sell you that.");
+        await util.say(ctx.channel,(":baby: Awwww. I can't sell you that.\n"
+                                    +"You can use weapons with a value up to **"+util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"));
     elif customer.weapon != game.Weapons.NO_WEAPON_ID:
         if len(customer.weapon_inventory) < 6:
-            pass
-            #Buy into bag
+            customer.weapon_inventory.append(weapon.w_id);
+            await util.say(ctx.channel,("**"+customer.name+"** bought a **"+weapon.name+" for "+util.format_number(weapon.price,money=True,full_precision=True)
+                                        +"\n:warning: You have not equiped this weapon do **"+util.get_server_cmd_key(ctx.server)+"equip "+weapon.name.lower()+"** to equip this weapon."));
         else:
-            pass
-            #Can't buy
+            raise util.DueUtilException("No free weapon slots!");
     else:
-        raise util.DueUtilException("No free weapon slots!");
+        customer.w_id = weapon.w_id;
+        await util.say(ctx.channel,"**"+customer.name+"** bought a **"+weapon.name+" for "+util.format_number(weapon.price,money=True,full_precision=True))
+    customer.save()
+ 
+@commands.command(args_pattern='PP')
+async def battle(ctx,*args):
+    battle_result = battles.battle(ctx,player_one=args[0],player_two=args[1]);
+    battle_moves = list(battle_result[0].values())
+    
+    battle = discord.Embed( title="A Vs B",type="rich",color=16038978);
+    await util.say(ctx.channel,'https://cdn.discordapp.com/attachments/213007863419764736/269384760130797569/battle.png')
+    battle_log = ""
+    for move in battle_moves:
+        move_repetition = move[1]
+        if move_repetition <= 1:
+            battle_log += move[0] + '\n'
+        else:
+            battle_log += '('+ move[0] +') Xs ' + str(move_repetition) + '\n'
+    battle_log += 'Moves = '+str(battle_result[1])
+    battle.add_field(name='Battle log',value=battle_log)
         
-        
+    
+    await util.say(ctx.channel,embed=battle);
+ 
 @commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args):
     
@@ -112,7 +134,9 @@ async def createweapon(ctx,*args):
         extras['icon'] = args[5];
     if len(args) == 7:
         extras['image_url'] = args[6];
-        
+  
     weapon = game.Weapon(*args[:4],**extras,ctx=ctx);
     await util.say(ctx.channel,(weapon.icon+" **"+weapon.name.strip('*')+"** is available in the shop for "
                                 +util.format_number(weapon.price,money=True)+"!"));
+                                
+                                

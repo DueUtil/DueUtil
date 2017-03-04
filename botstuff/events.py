@@ -12,6 +12,13 @@ class MessageEvent(list):
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
         
+    def append(self,function):
+        old = (find_old(function,self));
+        if old == -1:
+            super(MessageEvent, self).append(function);
+        else:
+            self[old] = function
+        
 class CommandEvent(MessageEvent):
   
     """Command event subscription.
@@ -40,14 +47,18 @@ async def on_message_event(ctx):
     await message_event(ctx);
     await command_event(ctx);
         
+def find_old(function,listeners):
+    return next((index for index,listener in enumerate(listeners) if listener.__name__ == function.__name__),-1)
+    
 def register_message_listener(function):
     message_event.append(function);
-    
+        
 def remove_message_listener(function):
     message_event.remove(function);
 
 def register_command(command_function):
     command_event.append(command_function);
+
     
 def remove_command(command_function):
     command_event.remove(command_function);

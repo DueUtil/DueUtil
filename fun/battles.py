@@ -1,4 +1,7 @@
-import fun.players;
+from fun import game,players;
+from botstuff import util
+import random 
+from collections import OrderedDict
                 
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
@@ -167,7 +170,6 @@ async def sell_weapon(message, uID, recall,weapon_name):
                 sellPrice = int(util.get_strings(player.wep_sum)[0]);
             else:
                 sellPrice = int(util.get_strings(weapon_data[1])[0]);
-            #print(util.get_strings(player.wep_sum));
             await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util.to_money(sellPrice,False) + " refund.");
         if(weapon_name == None):
             player.wID = no_weapon_id;
@@ -177,118 +179,116 @@ async def sell_weapon(message, uID, recall,weapon_name):
     else:
         await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
+# quest, wager normal
+def battle(ctx,**kwargs):
+  
+    current_move = 1
+    
+    player_one = kwargs.get('player_one',None)
+    player_two = kwargs.get('player_two',None)
+    
+    player_one_hp = player_one.hp * (util.clamp(50 - player_one.level,1,8));
+    player_two_hp = player_two.hp * (util.clamp(50 - player_two.level,1,8));
 
-async def battle(message, battlers, wager, quest):  # Quest like wager with diff win text
-    global players, weapons,money_created,money_transferred,quests_attempted;
-    sender = findPlayer(message.author.id);
-    if(time.time() - sender.last_image_request < 10 and (wager == None and quest == False) ):
-        await get_client(message.server.id).send_message(message.channel,":cold_sweat: Please don't break me!");
-        return;
-    if(wager == None and quest == False):
-        player_one = findPlayer(players[0]);
-        player_two = findPlayer(players[1]);
-    elif (quest == True):
-        player_one = findPlayer(players[0]);
-        player_two = players[1];
-        quests_attempted = quests_attempted + 1;
-    else:
-        player_one = findPlayer(message.author.id);
-        player_two = findPlayer(wager.senderID);
-        money_transferred = money_transferred + wager.wager;
-    turns = 0;
-    hp_player_one = 0;
-    hp_player_two = 0;
-    battle_lines = 0;
-    if (player_one != None) and (player_two != None):
-        hp_player_one = player_one.hp;
-        hp_player_two = player_two.hp;
-        weapon_player_one= get_weapon_from_id(player_one.wID);
-        weapon_player_two = get_weapon_from_id(player_two.wID);
-        bText = "```(" + player_one.name + " Vs " + player_two.name + ")\n";
-        while (hp_player_one > 0) and (hp_player_two > 0):
-            player_two_turn = battle_turn(player_two,player_one,weapon_player_two);
-            hp_player_one += -player_two_turn[1];
-            if player_two_turn[0] != None:
-                bText += player_two_turn[0];
-                battle_lines+=1;
-            player_one_turn = battle_turn(player_one,player_two,weapon_player_one);
-            hp_player_two += -player_one_turn[1];
-            if player_one_turn[0] != None:
-                bText += player_one_turn[0];
-                battle_lines+=1;
-            turns = turns + 1;
-        txt = "turns";
-        if(turns == 1):
-            txt = "turn"
-        if(battle_lines > 25):
-            bText = "```(" + player_one.name + " Vs " + player_two.name + ")\nThe battle was too long to display!\n";
-        if(hp_player_one > hp_player_two):
-            if(wager == None):
-                await battle_image(message, player_one, player_two, bText + player_one.name + " Wins in " + str(turns) + " " + txt + "!\n```\n");
-            else:
-                bText = bText +player_one.name + " Wins in " + str(turns) + " " + txt + "!\n";
-                if not quest:
-                    bText = bText + player_one.name + " receives $" + util.to_money(wager.wager,False)+ " in winnings from " + player_two.name + "!\n```\n";
-                    player_one.money = player_one.money + (wager.wager * 2);
-                    player_one.wagers_won = player_one.wagers_won + 1;
-                    await give_award(message, player_one, 13, "Win a wager!");
-                    await give_award(message, player_two, 14, "Lose a wager!");
-                    savePlayer(player_one);
-                    savePlayer(player_two);
-                else:
-                    player_one.money = player_one.money + wager;
-                    money_created = money_created + wager;
-                    bText = bText +player_one.name + " completed a quest and earned $" +  util.to_money(wager,False)+ "!\n```\n";
-                    player_one.quests_won = player_one.quests_won + 1;
-                    if(player_one.quests_completed_today == 0):
-                        player_one.quest_day_start = time.time();
-                    player_one.quests_completed_today  = player_one.quests_completed_today + 1;
-                    await give_award(message, player_one, 1, "*Saved* the server.");
-                    print(filter_func(player_one.name)+" ("+player_one.userid+") has received $"+util.to_money(wager,False)+" from a quest.");
-                    savePlayer(player_one);
-                await battle_image(message, player_one, player_two, bText);
-        elif (hp_player_two > hp_player_one):
-            if(wager == None):
-                await battle_image(message, player_one, player_two, bText +player_two.name + " Wins in " + str(turns) + " " + txt + "!\n```\n");
-            else:
-                if not quest:
-                    bText = bText +player_two.name + " Wins in " + str(turns) + " " + txt + "!\n";
-                    bText = bText + player_two.name + " receives $" + util.to_money(wager.wager,False) + " in winnings from " + player_one.name + "!\n```\n";
-                    player_two.money = player_two.money + (wager.wager * 2);
-                    player_two.wagers_won = player_two.wagers_won + 1;
-                    await give_award(message, player_two, 13, "Win a wager!");
-                    await give_award(message, player_one, 14, "Lose a wager!");
-                    savePlayer(player_one);
-                    savePlayer(player_two);
-                else:
-                    bText = bText + "The " + player_two.name + " Wins in " + str(turns) + " " + txt + "!\n";
-                    bText = bText + ""+player_one.name + " failed a quest and lost $" + util.to_money(int((wager) / 2),False)+ "!\n```\n";
-                    player_one.money = player_one.money - int((wager) / 2);
-                    await give_award(message, player_one, 3, "Red mist.");
-                    savePlayer(player_one);
-                await battle_image(message, player_one, player_two, bText);
+    moves = OrderedDict()
+    
+    def add_move(player,other_player,player_no):
+        nonlocal moves, current_move
+        
+        BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit"]
+          
+        weapon = player.weapon;
+              
+        message = ""
+                                  
+        if weapon.w_id == game.Weapons.NO_WEAPON_ID:
+            message = random.choice(BABY_MOVES) 
         else:
-            if(wager == None):
-                await battle_image(message, player_one, player_two, bText + "Draw in " + str(turns) + " " + txt + "!\n```\n");
-            else:
-                if not quest:
-                    player_two.money = player_two.money + wager.wager;
-                    player_one.money = player_one.money + wager.wager;
-                    await battle_image(message, player_one, player_two, bText + "Draw in " + str(turns) + " " + txt + " wagered money has been returned.\n```\n");
-                    savePlayer(player_one);
-                    savePlayer(player_two);
+            message = weapon.hit_message
+                  
+        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.name +'** __'+ message +'__ **'+other_player.name+'**',1]
+        current_move += 1
+
+    def shrink_repeats(moves):  
+        print(moves)
+        print('\n')
+        last_move = None
+        moves_shrink_repeat = OrderedDict()
+        for move, move_info in moves.items():
+            if last_move != None:
+                if last_move[0] == move[0]:
+                    moves_shrink_repeat[last_move] = [move_info[0],move_info[1] + moves_shrink_repeat[last_move][1]] 
+                    move = last_move
                 else:
-                    await battle_image(message, player_one, player_two, bText + "Quest ended in draw no money has been lost or won.\n```\n");
-                    savePlayer(player_one);
-                    savePlayer(player_two);
-
-    else:
-        if(player_one == None):
-            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,players[0])+"** has not joined!");
-        if(player_two == None):
-            await get_client(message.server.id).send_message(message.channel, "**"+util.get_server_name(message,players[1])+"** has not joined!");
-
-
+                    moves_shrink_repeat[move] = move_info 
+            else:
+                moves_shrink_repeat[move] = move_info
+            last_move = move;
+        print(moves_shrink_repeat)
+        print('\n')
+        return moves_shrink_repeat
+    
+    def shrink_duos(moves):
+        print(moves)
+        print('\n')
+        moves_shrink_duos = OrderedDict()
+        last_move = None
+        count = 0
+        for move, move_info in moves.items():
+            count += 1
+            if last_move != None and count % 2 == 0:
+                moves_shrink_duos[last_move] = [moves[last_move][0],moves[last_move][1] - 1]
+                moves_shrink_duos["Duo"+str(count)] = [moves[last_move][0] +" *AND* " +move_info[0] ,1]
+                moves_shrink_duos[move] = [move_info[0],move_info[1] - 1]
+            last_move = move;
+        if len(moves) % 2 == 1:
+            odd_move = moves.popitem()
+            moves_shrink_duos[odd_move[0]] = odd_move[1]
+        for move, move_info in moves_shrink_duos.copy().items():
+            if move_info[1] <= 0:
+                del moves_shrink_duos[move]
+        print(moves_shrink_duos)
+        print('\n')
+        return moves_shrink_duos
+                
+    def compress_moves():
+        nonlocal moves
+        moves = shrink_repeats(shrink_duos(shrink_repeats(moves)))
+    
+    def hit(successful_hit_from):
+              
+        nonlocal player_one,player_two,player_one_hp,player_two_hp
+        
+        if successful_hit_from == None:
+            successful_hit_from = 1 if bool(random.getrandbits(1)) else 2
+        else:
+            if successful_hit_from == 1:
+                player_two_hp -= player_one.weapon.damage * player_one.attack
+                add_move(player_one,player_two,successful_hit_from)
+            else:
+                player_one_hp -= player_two.weapon.damage * player_two.attack
+                add_move(player_two,player_one,successful_hit_from)
+              
+    print (player_one_hp,player_two_hp)
+    
+    while player_one_hp > 0 and player_two_hp > 0:
+        player_one_hit = player_one.weapon_hit()
+        player_two_hit = player_two.weapon_hit()
+        
+        if player_one_hit:
+            hit(1)
+        if player_two_hit:
+            hit(2)
+        if not (player_one_hit or player_two_hit):
+            hit(None)
+         
+    print(moves)
+    print('\n')
+    compress_moves()
+    print(moves)
+    print('\n')
+    return [moves,current_move-1]
+    
 def battle_turn(player,other_player,weapon):
     battle_line = None;
     player_hit_damage = player.attack;

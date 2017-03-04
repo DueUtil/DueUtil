@@ -61,6 +61,10 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user:
             return
+        # DEBUG 
+        if message.content == "DUERELOAD":
+            loader.reload_modules();
+            await util.say(message.channel,"Done.");
         await events.on_message_event(message);
         #HACKER MAN 
                                 
