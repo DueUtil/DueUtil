@@ -37,7 +37,7 @@ class Player:
         self.donor = False;
         self.background = "default.png";
         self.weapon_sum = '"0"01'     #price/attack/sum;
-        self.name = "TEST";
+        self.name = "😂😂😂😂😂 adssd";
         self.w_id = Weapons.NO_WEAPON_ID;
         self.money = 100000;
         self.last_progress = 0;
@@ -73,7 +73,13 @@ class Player:
         return random.random()<(self.weapon_accy/100);
     
     @property
+    def clean_name(self):
+        print (self.name.decode('utf-8'))
+        return "";
+    
+    @property
     def item_value_limit(self):
+        return math.inf
         return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
             
     async def unequip_weapon(self,channel):
@@ -327,7 +333,7 @@ class PlayerInfoBanner:
         self.admin_only = kwargs.get('admin_only',False);
         self.mod_only = kwargs.get('mod_only',False);
         self.unlock_level = kwargs.get('unlock_level',0);
-        
+        self.image = None
         self.image_name = image_name;
         self.name = name;
                 

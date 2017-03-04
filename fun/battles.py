@@ -187,18 +187,16 @@ def battle(ctx,**kwargs):
     player_one = kwargs.get('player_one',None)
     player_two = kwargs.get('player_two',None)
     
-    player_one_hp = player_one.hp * (util.clamp(50 - player_one.level,1,8));
-    player_two_hp = player_two.hp * (util.clamp(50 - player_two.level,1,8));
+    player_one_hp = player_one.hp * (util.clamp(5 - player_one.level,1,5));
+    player_two_hp = player_two.hp * (util.clamp(5 - player_two.level,1,5));
 
     moves = OrderedDict()
     
     def add_move(player,other_player,player_no):
         nonlocal moves, current_move
         
-        BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit"]
-          
-        weapon = player.weapon;
-              
+        BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
+        weapon = player.weapon;      
         message = ""
                                   
         if weapon.w_id == game.Weapons.NO_WEAPON_ID:
@@ -206,12 +204,10 @@ def battle(ctx,**kwargs):
         else:
             message = weapon.hit_message
                   
-        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.name +'** __'+ message +'__ **'+other_player.name+'**',1]
+        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.name +'** '+ message +' **'+other_player.name+'**',1]
         current_move += 1
 
     def shrink_repeats(moves):  
-        print(moves)
-        print('\n')
         last_move = None
         moves_shrink_repeat = OrderedDict()
         for move, move_info in moves.items():
@@ -224,13 +220,9 @@ def battle(ctx,**kwargs):
             else:
                 moves_shrink_repeat[move] = move_info
             last_move = move;
-        print(moves_shrink_repeat)
-        print('\n')
         return moves_shrink_repeat
     
     def shrink_duos(moves):
-        print(moves)
-        print('\n')
         moves_shrink_duos = OrderedDict()
         last_move = None
         count = 0
@@ -238,7 +230,7 @@ def battle(ctx,**kwargs):
             count += 1
             if last_move != None and count % 2 == 0:
                 moves_shrink_duos[last_move] = [moves[last_move][0],moves[last_move][1] - 1]
-                moves_shrink_duos["Duo"+str(count)] = [moves[last_move][0] +" *AND* " +move_info[0] ,1]
+                moves_shrink_duos["Duo"+str(count)] = [moves[last_move][0] +" ⇆ " +move_info[0] ,1]
                 moves_shrink_duos[move] = [move_info[0],move_info[1] - 1]
             last_move = move;
         if len(moves) % 2 == 1:
@@ -247,8 +239,6 @@ def battle(ctx,**kwargs):
         for move, move_info in moves_shrink_duos.copy().items():
             if move_info[1] <= 0:
                 del moves_shrink_duos[move]
-        print(moves_shrink_duos)
-        print('\n')
         return moves_shrink_duos
                 
     def compress_moves():
@@ -281,31 +271,19 @@ def battle(ctx,**kwargs):
             hit(2)
         if not (player_one_hit or player_two_hit):
             hit(None)
-         
-    print(moves)
-    print('\n')
+
     compress_moves()
-    print(moves)
-    print('\n')
+    winner = None
+    loser = None
+    if player_one_hp > player_two_hp:
+        winner = player_one
+        loser = player_two
+    elif player_one_hp < player_two_hp:
+        winner = player_two
+        loser = player_one
+    moves["winner"] = [":trophy: **"+winner.name+"** wins in **" +str(current_move-1) + "** turns!",1]
     return [moves,current_move-1]
     
-def battle_turn(player,other_player,weapon):
-    battle_line = None;
-    player_hit_damage = player.attack;
-    other_name = "the "+other_player.name if isinstance(other_player,activeQuest) else other_player.name;
-    player_name = "The "+player.name if isinstance(player,activeQuest) else player.name;
-    if(player.wID != no_weapon_id):
-        if(weapon_hit(player,weapon)):
-            if(not weapon.melee):
-                player_hit_damage = weapon.attack * player.shooting;
-            else:
-                player_hit_damage = weapon.attack * player.attack;
-            battle_line = player_name + " " + weapon.useText + " " + other_name + "!\n";
-    damage_dealt = (player_hit_damage / (other_player.strg / 3 +1));
-    if damage_dealt < 0.01:
-        damage_dealt = 0.01;
-    return [battle_line,damage_dealt];
-
     
 def load_weapons():
     global Weaponse;

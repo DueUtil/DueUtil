@@ -95,19 +95,16 @@ async def battle(ctx,*args):
     battle_result = battles.battle(ctx,player_one=args[0],player_two=args[1]);
     battle_moves = list(battle_result[0].values())
     
-    battle = discord.Embed( title="A Vs B",type="rich",color=16038978);
-    await util.say(ctx.channel,'https://cdn.discordapp.com/attachments/213007863419764736/269384760130797569/battle.png')
+    battle = discord.Embed( title=args[0].name+" :vs: "+args[1].name,type="rich",color=16038978);
     battle_log = ""
     for move in battle_moves:
         move_repetition = move[1]
         if move_repetition <= 1:
             battle_log += move[0] + '\n'
         else:
-            battle_log += '('+ move[0] +') Xs ' + str(move_repetition) + '\n'
-    battle_log += 'Moves = '+str(battle_result[1])
+            battle_log += '('+ move[0] +') × ' + str(move_repetition) + '\n'
     battle.add_field(name='Battle log',value=battle_log)
-        
-    
+
     await util.say(ctx.channel,embed=battle);
  
 @commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
