@@ -71,12 +71,8 @@ class Player:
     
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100);
-    
-    @property
-    def clean_name(self):
-        print (self.name.decode('utf-8'))
-        return "";
-    
+
+        
     @property
     def item_value_limit(self):
         return math.inf
@@ -140,7 +136,7 @@ class Player:
         
     @property
     def clean_name(self):
-        return util.filter_string(self.name);
+        return util.ultra_escape_string(self.name);
         
     def get_avatar_url(self,*args):
         server = args[0];

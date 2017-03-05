@@ -183,6 +183,7 @@ async def sell_weapon(message, uID, recall,weapon_name):
 def battle(ctx,**kwargs):
   
     current_move = 1
+    damage_modifier = 1.5
     
     player_one = kwargs.get('player_one',None)
     player_two = kwargs.get('player_two',None)
@@ -193,7 +194,7 @@ def battle(ctx,**kwargs):
     moves = OrderedDict()
     
     def add_move(player,other_player,player_no):
-        nonlocal moves, current_move
+        nonlocal moves, current_move, damage_modifier
         
         BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
         weapon = player.weapon;      
@@ -204,8 +205,9 @@ def battle(ctx,**kwargs):
         else:
             message = weapon.hit_message
                   
-        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.name +'** '+ message +' **'+other_player.name+'**',1]
+        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.clean_name +'** '+ message +' **'+other_player.clean_name+'**',1]
         current_move += 1
+        damage_modifier += 0.5
 
     def shrink_repeats(moves):  
         last_move = None
@@ -247,20 +249,18 @@ def battle(ctx,**kwargs):
     
     def hit(successful_hit_from):
               
-        nonlocal player_one,player_two,player_one_hp,player_two_hp
+        nonlocal player_one,player_two,player_one_hp,player_two_hp, damage_modifier
         
         if successful_hit_from == None:
             successful_hit_from = 1 if bool(random.getrandbits(1)) else 2
         else:
             if successful_hit_from == 1:
-                player_two_hp -= player_one.weapon.damage * player_one.attack
+                player_two_hp -= (player_one.weapon.damage * player_one.attack)/player_two.strg * damage_modifier
                 add_move(player_one,player_two,successful_hit_from)
             else:
-                player_one_hp -= player_two.weapon.damage * player_two.attack
+                player_one_hp -= (player_two.weapon.damage * player_two.attack)/player_one.strg * damage_modifier
                 add_move(player_two,player_one,successful_hit_from)
-              
-    print (player_one_hp,player_two_hp)
-    
+                  
     while player_one_hp > 0 and player_two_hp > 0:
         player_one_hit = player_one.weapon_hit()
         player_two_hit = player_two.weapon_hit()
@@ -271,7 +271,6 @@ def battle(ctx,**kwargs):
             hit(2)
         if not (player_one_hit or player_two_hit):
             hit(None)
-
     compress_moves()
     winner = None
     loser = None
@@ -281,7 +280,7 @@ def battle(ctx,**kwargs):
     elif player_one_hp < player_two_hp:
         winner = player_two
         loser = player_one
-    moves["winner"] = [":trophy: **"+winner.name+"** wins in **" +str(current_move-1) + "** turns!",1]
+    moves["winner"] = [":trophy: **"+winner.clean_name+"** wins in **" +str(current_move-1) + "** turns!",1]
     return [moves,current_move-1]
     
     

@@ -95,7 +95,7 @@ async def battle(ctx,*args):
     battle_result = battles.battle(ctx,player_one=args[0],player_two=args[1]);
     battle_moves = list(battle_result[0].values())
     
-    battle = discord.Embed( title=args[0].name+" :vs: "+args[1].name,type="rich",color=16038978);
+    battle = discord.Embed( title=args[0].clean_name+" :vs: "+args[1].clean_name,type="rich",color=16038978);
     battle_log = ""
     for move in battle_moves:
         move_repetition = move[1]

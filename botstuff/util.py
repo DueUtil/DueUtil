@@ -44,7 +44,6 @@ class DueUtilException(ValueError):
             message += "```css\n"+self.addtional_info+"```";
         return message;
     
-    
 async def say(channel,*args,**kwargs):
       await get_client(channel.server.id).send_message(channel,*args,**kwargs);
       
@@ -52,9 +51,12 @@ async def typing(channel):
       await get_client(channel.server.id).send_typing(channel);
 
 def load_and_update(reference,object):
-    for key in reference.__dict__:
-        if key not in object.__dict__:
-            object.__dict__[key] = reference.__dict__[key]
+    for item in dir(reference):
+        if item not in dir(object):
+            setattr(object,item,getattr(reference,item))
+        elif callable(getattr(reference,item)):
+            if getattr(reference,item) != getattr(object,item):
+                setattr(object,item,getattr(reference,item))
     return object
     
 def get_shard_index(server_id):
@@ -74,6 +76,15 @@ def get_client(source):
 def get_server_cmd_key(server):
     server_key = server_keys.setdefault(server.id,"!");
     return server_key if server_key != '`' else '\`';
+    
+def ultra_escape_string(string):
+    escaped_string = string
+    escaped = []
+    for character in string:
+        if not character.isalnum() and not character.isspace() and character not in escaped:
+            escaped.append(character)
+            escaped_string = escaped_string.replace(character,'\\'+character)
+    return escaped_string
     
 def format_number(number,**kwargs):
   
