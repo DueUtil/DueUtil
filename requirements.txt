@@ -1,0 +1,7 @@
+discord.py
+bs4
+pymongo
+jsonpickle
+pillow
+numpy
+emoji
