@@ -14,45 +14,63 @@ banners = dict();
 backgrounds = dict();     
 servers_quests = dict();  
 weapons = dict();   
+
+class DueUtilObject():
     
-class Player:
+    def __init__(self,id,*args):
+        self.id = id
+        if len(args) > 0:
+            self.name = args[0]
+        
+    @property
+    def clean_name(self):
+        return util.ultra_escape_string(self.name);
+        
+    @property
+    def assii_name(self):
+        return util.filter_string(self.name)
+        
+    def save(self):
+        dbconn.insert_object(self.id,self);
+    
+class Player(DueUtilObject):
   
     """The DueUtil player!"""
   
     def __init__(self,*args):
         global players,new_players_joined;
-        self.user_id = args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "";
+        super().__init__("Player",args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "")
         self.reset();
-        players[self.user_id] = self;
+        players[self.id] = self;
         Stats.new_players_joined += 1;
 
     def reset(self):
-        self.benfont = False;
-        self.level = 1;
-        self.attack = 1;
-        self.strg = 1;
-        self.accy = 1;
-        self.banner_id = "discord blue";
-        self.hp = 10;
-        self.donor = False;
-        self.background = "default.png";
+        self.benfont = False
+        self.level = 1
+        self.attack = 1
+        self.strg = 1
+        self.accy = 1
+        self.banner_id = "discord blue"
+        self.hp = 10
+        self.donor = False
+        self.background = "default.png"
         self.weapon_sum = '"0"01'     #price/attack/sum;
-        self.name = "😂😂😂😂😂 adssd";
-        self.w_id = Weapons.NO_WEAPON_ID;
-        self.money = 100000;
-        self.last_progress = 0;
-        self.last_quest = 0;
-        self.wagers_won = 0;
-        self.quests_won = 0;
-        self.potatos_given = 0;
-        self.quest_day_start = 0;
-        self.potatos = 0;
-        self.quests_completed_today = 0;
-        self.last_image_request = 0;
-        self.quests = [];
-        self.battlers = [];
-        self.awards = [];
-        self.weapon_inventory = [];
+        self.w_id = Weapons.NO_WEAPON_ID
+        self.money = 100000
+        self.last_progress = 0
+        self.last_quest = 0
+        self.wagers_won = 0
+        self.quests_won = 0
+        self.potatos_given = 0
+        self.quest_day_start = 0
+        self.potatos = 0
+        self.quests_completed_today = 0
+        self.last_image_request = 0
+        self.quests = []
+        self.battlers = []
+        self.awards = []
+        self.weapon_inventory = []
+        self.name = "Player"
         self.save();
         
     def owns_weapon(self,weapon_name):
@@ -69,15 +87,13 @@ class Player:
         new_accy = self.weapon.accy if new_accy > self.weapon.accy else new_accy;
         return new_accy if price > max_value else self.weapon.accy;
     
+    @property
+    def user_id(self):
+        self.name
+        
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100);
 
-        
-    @property
-    def item_value_limit(self):
-        return math.inf
-        return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
-            
     async def unequip_weapon(self,channel):
         if weapon.w_id != no_weapon_id:
             if len(self.owned_weps) < 6:
@@ -93,8 +109,10 @@ class Player:
         else:
             raise util.DueUtilException(channel,"You don't have anything equiped anyway!");
             
-    def save(self):
-        dbconn.insert_object(self.user_id,self);
+    @property
+    def item_value_limit(self):
+        return math.inf
+        return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level);
 
     @property
     def weapon(self):
@@ -134,10 +152,6 @@ class Player:
             return banners["discord blue"];
         return banner;
         
-    @property
-    def clean_name(self):
-        return util.ultra_escape_string(self.name);
-        
     def get_avatar_url(self,*args):
         server = args[0];
         member = server.get_member(self.user_id);
@@ -146,7 +160,7 @@ class Player:
         else:
            return member.default_avatar_url;
         
-class Weapon:
+class Weapon(DueUtilObject):
   
     """A simple weapon that can be used by a monster or player in DueUtil"""
     
@@ -172,21 +186,24 @@ class Weapon:
             
         else:
             self.server_id = "000000000000000000";
-            
+        
+        self.name = name
+        super().__init__(self.__weapon_id())    
         self.icon = extras.get('icon',":gun:")
         self.hit_message = hit_message;
         self.melee = extras.get('melee',True);
         self.image_url = extras.get('image_url',"https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png");
-  
-        self.name = name;
         self.damage = damage;
         self.accy = accy;
         self.price = self.__price();
-        self.w_id = self.__weapon_id();
         self.weapon_sum = self.__weapon_sum();
         
         self.__add();
             
+    @property
+    def w_id(self):
+        return self.id
+    
     def __weapon_id(self):
         return self.server_id+"_"+self.name.lower();
         
@@ -200,19 +217,8 @@ class Weapon:
         global weapons;
         weapons[self.w_id] = self;
         self.save();
-        
-    def save(self):
-        dbconn.insert_object(self.w_id,self);
-            
-class BattleRequest:
-  
-    """A class to hold a wager"""
-  
-    def __init__(self,message,wager_amount):
-        self.sender_id = message.author.id;
-        self.wager_amount = wagers_amount;
 
-class Quest:
+class Quest(DueUtilObject):
   
     """A class to hold info about a server quest"""
   
@@ -239,37 +245,23 @@ class Quest:
             self.server_id = "";
             self.created_by = "";
       
+        self.name = name
+        super().__init__(self.__quest_id())
         self.task = extras.get('task',"Battle a");
         self.w_id = extras.get('weapon_id',Weapons.NO_WEAPON_ID);
         self.spawn_chance = extras.get('spawn_chance',4);
         self.image_url = extras.get('image_url',"");
-        
-        self.monster_name = name;
         self.base_attack = base_attack;
         self.base_strg = base_strg;
         self.base_accy = base_accy;
         self.base_hp = base_hp;
-        
-        
         self.base_reward = 0 #self__reward();
-        self.q_id = self.__quest_id();
-        
+                
         if self.server_id != "":
             self.__add();
         
-    @property    
-    def creator(self):
-        game.Player.find_player(quest_info.created_by);
-    
-    @property
-    def home(self):
-        try:
-            util.get_client(self.server_id).get_server(server_id);
-        except:
-            return None;
-        
     def __quest_id(self):
-        return self.server_id+'/'+self.monster_name.lower();
+        return self.server_id+'/'+self.name.lower();
       
     def __reward(self):
         if(Weapon.get_weapon_from_id(self.w_id).melee):
@@ -291,8 +283,21 @@ class Quest:
     def made_on(self):
         return self.server_id;
         
-    def save(self):
-        dbconn.insert_object(self.q_id,self);
+    @property    
+    def creator(self):
+        game.Player.find_player(quest_info.created_by);
+        
+    @property
+    def q_id(self):
+        return self.id
+    
+    @property
+    def home(self):
+        try:
+            util.get_client(self.server_id).get_server(server_id);
+        except:
+            return None;
+        
         
 class ActiveQuest(Player):
   
@@ -310,6 +315,14 @@ class ActiveQuest(Player):
             return ServersQuests[quest_id[0]][quest_id[1]];
         except:
             return None;
+            
+class BattleRequest:
+  
+    """A class to hold a wager"""
+  
+    def __init__(self,message,wager_amount):
+        self.sender_id = message.author.id;
+        self.wager_amount = wagers_amount;
 
 class Award:
 
@@ -413,7 +426,6 @@ class Quests:
         else:
             return None;
             
-            
     @staticmethod
     def load():
         global servers_quests;
@@ -502,8 +514,8 @@ class Stats:
         return {key: value for key,
                 value in Stats.__dict__.items() if not callable(key)}
 
-Misc.load();
-Awards.load();
-Weapons.load();
+Misc.load()
+Awards.load()
+Weapons.load()
 Quests.load();
-Players.load();
+Players.load()

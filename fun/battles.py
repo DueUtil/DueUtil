@@ -24,48 +24,6 @@ async def equip_weapon(message,player,wname):
     else:
         await get_client(message.server.id).send_message(message.channel, ":bangbang: **You do not have that weapon stored!**");
 
-
-async def buy_weapon(message,command_key):
-    messageArg = message.content.lower().replace(command_key + "buy ", "", 1);
-    Found = False;
-    try:
-        weapon = get_weapon_for_server(message.server.id, messageArg.strip());
-        if(weapon != None and weapon.name != "None"):
-            if ((weapon.server == "all") or (weapon.server == message.server.id)) and weapon.price != -1:
-                Found = True;
-                player = findPlayer(message.author.id);
-                if(player == None):
-                    return True;
-                if((player.money - weapon.price) >= 0):
-                    if(weapon.price <= max_value_for_player(player)):
-                        if(len(player.owned_weps) < 6 or player.wID == no_weapon_id):
-                            if(player.wID == no_weapon_id):
-                                player.wID = weapon.wID;
-                                await harambe_check(message,weapon,player);
-                                await give_award(message, player, 4, "License to kill.");
-                                player.wep_sum = get_weapon_sum(weapon.wID)
-                                await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util.to_money(weapon.price,False) + "!");
-                            else:
-                                if not owns_weapon_name(player,weapon.name.lower()):
-                                    player.owned_weps.append([weapon.wID,get_weapon_sum(weapon.wID)]);
-                                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** bought a " + weapon.name + " for $" +  util.to_money(weapon.price,False) + "!");
-                                    await get_client(message.server.id).send_message(message.channel, ":warning: You have not yet equiped this weapon yet.\nIf you want to equip this weapon do **"+command_key+"equipweapon "+weapon.name.lower()+"**.");
-                                else:
-                                    await get_client(message.server.id).send_message(message.channel, ":bangbang: **You already have a weapon with that name stored!**"); 
-                            player.money = player.money - weapon.price;
-                            savePlayer(player);             
-                        else:
-                            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you have no free weapon slots! Sell one of your weapons first!");
-                    else:
-                        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You're currently too weak to wield that weapon!**\nFind a weapon that better suits your limits with **"+command_key+"mylimit**");
-                        
-                else:
-                    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** you can't afford this weapon.\nYou need **$"+util.to_money(weapon.price-player.money,False)+"** more.");
-    except:
-        Found = False;
-    if(not Found):
-        await get_client(message.server.id).send_message(message.channel, "Weapon not found!"); 
-
 async def show_weapons(message,player,not_theirs):
     eweap = get_weapon_from_id(player.wID);
     output = "```"+player.name+"'s stored weapons\nEquipped: "+eweap.icon+" - "+eweap.name+"\n";
@@ -94,31 +52,6 @@ async def show_weapons(message,player,not_theirs):
             output = output + "```";
     await get_client(message.server.id).send_message(message.channel, output);
     
-def get_server_weapon_list(message):
-    global Weapons;
-    weapon_listings = "";
-    count = 0;
-    for key in Weapons.keys():
-        if key.startswith(message.server.id) or key.startswith("000000000000000000"):
-            weapon = Weapons[key];
-            if(weapon.price != -1 and weapon.wID != no_weapon_id):
-                count = count + 1;
-                Type = "";
-                if(weapon.melee == True):
-                    Type = "Melee";
-                else:
-                    Type = "Ranged";
-                accy = round(weapon.chance,2);
-                weapon_listings = weapon_listings + str((count)) + ". " + weapon.icon + " - " + weapon.name + " | DMG: " + util.number_format_text(weapon.attack) + " | ACCY: " + util.format_float_drop_zeros(accy) + "% | Type: " + Type + " | $" +  util.to_money(weapon.price,False)+ " |\n";	
-    return weapon_listings;                     
-
-async def shop(message):
-    normal_title = "Welcome to DueUtil's weapon shop!";
-    #past_page_one_title = "DueUtil's weapon shop";
-    #constant_footer = "Type **" + util.get_server_cmd_key(message.server) + "buy [Weapon Name]** to purchase a weapon.";
-    #final_page_footer = "Want more? Ask a server manager to add stock!";
-    #await util.display_with_pages(message,get_server_weapon_list(message),"shop",normal_title,past_page_one_title,constant_footer,final_page_footer);
-        
 async def validate_weapon_store(message,player):
     weapon_sums = [];
     for ws in player.owned_weps:
@@ -180,24 +113,21 @@ async def sell_weapon(message, uID, recall,weapon_name):
         await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...");
 
 # quest, wager normal
-def battle(ctx,**kwargs):
-  
+def battle(ctx,**battleargs):
     current_move = 1
     damage_modifier = 1.5
     
-    player_one = kwargs.get('player_one',None)
-    player_two = kwargs.get('player_two',None)
-    
-    player_one_hp = player_one.hp * (util.clamp(5 - player_one.level,1,5));
-    player_two_hp = player_two.hp * (util.clamp(5 - player_two.level,1,5));
+    players = [battleargs['player_one'], battleargs['player_two']]
+    hp = [players[0].hp * util.clamp(5 - players[0].level,1,5), players[1].hp * util.clamp(5 - players[1].level,1,5)]
 
     moves = OrderedDict()
     
-    def add_move(player,other_player,player_no):
-        nonlocal moves, current_move, damage_modifier
+    def add_move(player_no):
+        nonlocal players, moves, current_move, damage_modifier
         
+        other_player_no = 0 if player_no == 1 else 1
         BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
-        weapon = player.weapon;      
+        weapon = players[player_no].weapon;      
         message = ""
                                   
         if weapon.w_id == game.Weapons.NO_WEAPON_ID:
@@ -205,7 +135,7 @@ def battle(ctx,**kwargs):
         else:
             message = weapon.hit_message
                   
-        moves[str(player_no)+'/'+str(current_move)] = ['**'+player.clean_name +'** '+ message +' **'+other_player.clean_name+'**',1]
+        moves[str(player_no)+'/'+str(current_move)] = ['**'+players[player_no].clean_name +'** '+ message +' **'+players[other_player_no].clean_name+'**',1]
         current_move += 1
         damage_modifier += 0.5
 
@@ -249,54 +179,38 @@ def battle(ctx,**kwargs):
     
     def hit(successful_hit_from):
               
-        nonlocal player_one,player_two,player_one_hp,player_two_hp, damage_modifier
+        nonlocal players, damage_modifier
         
         if successful_hit_from == None:
-            successful_hit_from = 1 if bool(random.getrandbits(1)) else 2
+            successful_hit_from = 0 if bool(random.getrandbits(1)) else 1
         else:
-            if successful_hit_from == 1:
-                player_two_hp -= (player_one.weapon.damage * player_one.attack)/player_two.strg * damage_modifier
-                add_move(player_one,player_two,successful_hit_from)
-            else:
-                player_one_hp -= (player_two.weapon.damage * player_two.attack)/player_one.strg * damage_modifier
-                add_move(player_two,player_one,successful_hit_from)
+            winner_player = players[successful_hit_from]
+            loser_player = players[0 if successful_hit_from == 1 else 1]
+            weapon_damage_modifier = winner_player.attack
+            if not winner_player.weapon.melee:
+                weapon_damage_modifier = winner_player.accy
+            hp[players.index(loser_player)] -= (winner_player.weapon.damage * weapon_damage_modifier)/loser_player.strg * damage_modifier
+            add_move(successful_hit_from)
                   
-    while player_one_hp > 0 and player_two_hp > 0:
-        player_one_hit = player_one.weapon_hit()
-        player_two_hit = player_two.weapon_hit()
+    while hp[0] > 0 and hp[1] > 0:
+        player_one_hit = players[0].weapon_hit()
+        player_two_hit = players[1].weapon_hit()
         
         if player_one_hit:
-            hit(1)
+            hit(0)
         if player_two_hit:
-            hit(2)
+            hit(1)
         if not (player_one_hit or player_two_hit):
             hit(None)
+            
     compress_moves()
     winner = None
     loser = None
-    if player_one_hp > player_two_hp:
-        winner = player_one
-        loser = player_two
-    elif player_one_hp < player_two_hp:
-        winner = player_two
-        loser = player_one
+    if hp[0] > hp[1]:
+        winner = players[0]
+        loser = players[1]
+    elif hp[0] < hp[1]:
+        winner = players[1]
+        loser = players[0]
     moves["winner"] = [":trophy: **"+winner.clean_name+"** wins in **" +str(current_move-1) + "** turns!",1]
     return [moves,current_move-1]
-    
-    
-def load_weapons():
-    global Weaponse;
-    for file in os.listdir("saves/weapons/"):
-        if file.endswith(".json"):
-            with open("saves/weapons/" + str(file)) as data_file:    
-                try:
-                    data = json.load(data_file);
-                    w = jsonpickle.decode(data);
-                    Weapons[w.wID] = w;
-                except:
-                    print("Weapon data corrupt!");
-
-def add_weapon(weapon):
-    global weapons;
-    weapons[weapon.w_id] = weapon;
-    save_weapon(weapon);

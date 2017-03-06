@@ -62,7 +62,7 @@ def resize(image,width,height):
         return None;
     return image.resize((width, height), Image.ANTIALIAS);        
     
-def resize_avatar(player, server, width, height):    
+def resize_avatar(player, server, width, height): 
     return resize_image_url(player.get_avatar_url(server),width,height);
 
 def resize_image_url(url, width, height):    
@@ -169,8 +169,10 @@ async def stats_screen(channel,player):
     draw = ImageDraw.Draw(image);
     image.paste(stats_screen_template,(0,0),stats_screen_template)
     
-    #draw_banner
+    if player.banner.image == None:
+        init_banners()
     banner = player.banner.image;
+    
     image.paste(banner,(91,34),banner);
     
     #draw_avatar slot
@@ -347,8 +349,6 @@ async def battle_screen(channel,player_one,player_two,battle_text):
    
     await send_image(channel,image,file_name="battle.png"); 
     
-    #await get_client(message.server.id).send_message(message.channel,battle_text);
-
 
 def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False;
@@ -368,5 +368,7 @@ def get_text_limit_len(draw,text,given_font,length):
 
 def init_banners():
     for banner in game.banners.values():
-        banner.image = set_opacity(Image.open('screens/info_banners/'+banner.image_name),0.9);
-init_banners();
+        if banner.image == None:
+            banner.image = set_opacity(Image.open('screens/info_banners/'+banner.image_name),0.9);
+
+init_banners()

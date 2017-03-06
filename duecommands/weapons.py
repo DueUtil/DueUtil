@@ -25,6 +25,7 @@ async def shop(ctx,*args):
     Shows information about a weapon in the shop if given a weapon name.
     
     """
+    
     page = args[0] if len(args) == 1 else 0;
     
     if type(page) is int:
@@ -59,7 +60,6 @@ async def shop(ctx,*args):
 
         await util.say(ctx.channel,embed=weapon_info);
 
-
 @commands.command(args_pattern='S')
 async def buy(ctx,*args):
 
@@ -78,16 +78,16 @@ async def buy(ctx,*args):
     elif weapon.price > customer.item_value_limit:
         await util.say(ctx.channel,(":baby: Awwww. I can't sell you that.\n"
                                     +"You can use weapons with a value up to **"+util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"));
-    elif customer.weapon != game.Weapons.NO_WEAPON_ID:
+    elif customer.weapon.w_id != game.Weapons.NO_WEAPON_ID:
         if len(customer.weapon_inventory) < 6:
             customer.weapon_inventory.append(weapon.w_id);
-            await util.say(ctx.channel,("**"+customer.name+"** bought a **"+weapon.name+" for "+util.format_number(weapon.price,money=True,full_precision=True)
+            await util.say(ctx.channel,("**"+customer.name+"** bought a **"+weapon.name+"** for "+util.format_number(weapon.price,money=True,full_precision=True)
                                         +"\n:warning: You have not equiped this weapon do **"+util.get_server_cmd_key(ctx.server)+"equip "+weapon.name.lower()+"** to equip this weapon."));
         else:
             raise util.DueUtilException("No free weapon slots!");
     else:
         customer.w_id = weapon.w_id;
-        await util.say(ctx.channel,"**"+customer.name+"** bought a **"+weapon.name+" for "+util.format_number(weapon.price,money=True,full_precision=True))
+        await util.say(ctx.channel,"**"+customer.clean_name+"** bought a **"+weapon.name+"** for "+util.format_number(weapon.price,money=True,full_precision=True))
     customer.save()
  
 @commands.command(args_pattern='PP')
@@ -124,6 +124,7 @@ async def createweapon(ctx,*args):
     (ranged) (icon) (image url)
 
     """
+    
     extras = dict();
     if len(args) >= 5:
         extras['melee'] = args[4];

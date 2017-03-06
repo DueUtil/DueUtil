@@ -122,31 +122,9 @@ def get_server_name(server,user_id):
     except:
         return "Unknown User"
     
-#def paginate():
-  #  """ This always was shit. Replace it. """
-        
 def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)    
     
-def is_admin(id):
-    return id in DueUtilAdmins or id == '132315148487622656';
-    
-def is_mod(id):
-    return id in DueUtilMods or id == '132315148487622656';
-    
-def is_mod_or_admin(id):
-    return id in DueUtilAdmins or id in DueUtilMods or id =='132315148487622656';
-
-def save_json(thing,file_path):
-    data = jsonpickle.encode(thing);
-    with open(file_path+'.json', 'w') as outfile:
-        json.dump(data, outfile);
-
-def load_json(path):
-    with open(path) as data_file:    
-        data = json.load(data_file);
-        unpickled = jsonpickle.decode(data);
-        return unpickled;
 
 def filter_string(string):
     new = "";
@@ -157,36 +135,6 @@ def filter_string(string):
             new = new + "?";
     return new;     
     
-
-        
 def load(shards):
     global shard_clients;
     shard_clients = shards;
-    '''
-    global client;
-    global DueUtilAdmins;
-    global DueUtilMods;
-    global AutoReplys;
-    global mutedchan;
-    global serverKeys;
-    global servers;
-    global loaded;
-    global stopped;
-    client = discord_client;
-    test =  load_utils("server_keys");
-    if test != None:
-        serverKeys = test;
-    test =  load_utils("due_admins");
-    if test != None:
-        DueUtilAdmins = test;
-    test =  load_utils("due_mods");
-    if test != None:
-        DueUtilMods = test;
-    test =  load_utils("auto_replys");
-    if test != None:
-        AutoReplys = test;
-    test =  load_utils("mute_channels");
-    if test != None:
-        muted_channels = test;
-    loaded = True;
-    '''
