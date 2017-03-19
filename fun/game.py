@@ -39,7 +39,7 @@ class Player(DueUtilObject):
   
     def __init__(self,*args):
         global players,new_players_joined;
-        super().__init__("Player",args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "")
+        super().__init__(args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "","Player")
         self.reset();
         players[self.id] = self;
         Stats.new_players_joined += 1;
@@ -435,7 +435,6 @@ class Quests:
             location = quest.q_id.split('/',1);
             servers_quests[location[0]][location[1]] = util.load_and_update(reference,loaded_quest);
                     
-
 class Weapons:
     NO_WEAPON_ID = "000000000000000000_none";
     STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"];
@@ -491,7 +490,6 @@ class Weapons:
         for weapon in dbconn.get_collection_for_object(Weapon).find():
             loaded_weapon= jsonpickle.decode(weapon['data']);
             weapons[loaded_weapon.w_id] = util.load_and_update(none,loaded_weapon)
-                
 class Misc:
     POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh');
     
