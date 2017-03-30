@@ -11,6 +11,24 @@ class AutoReply:
         self.server_id = server_id;
         channel = kwargs.get('channel_id',"all");
         
+class DueUtilObject():
+    
+    def __init__(self,id,*args):
+        self.id = id
+        if len(args) > 0:
+            self.name = args[0]
+        
+    @property
+    def clean_name(self):
+        return util.ultra_escape_string(self.name);
+        
+    @property
+    def assii_name(self):
+        return util.filter_string(self.name)
+        
+    def save(self):
+        dbconn.insert_object(self.id,self)
+        
 async def random_word(message):
     response = requests.get("http://randomword.setgetgo.com/get.php");
     await create_glitter_text(message, response.text);

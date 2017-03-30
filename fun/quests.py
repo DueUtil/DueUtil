@@ -1,5 +1,105 @@
 from fun import players;
 
+servers_quests = dict()
+
+class Quest(DueUtilObject):
+  
+    """A class to hold info about a server quest"""
+  
+    def __init__(self,name,base_attack,base_strg,base_accy,base_hp,**extras):
+        message = extras.get('ctx',None)
+      
+        if message != None:
+            if message.server.id in server_quests:
+                if name.strip().lower() in server_quests[message.server.id]:
+                    raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!")
+      
+            if base_accy < 1 or base_attack < 1 or base_strg < 1:
+                raise util.DueUtilException(message.channel,"No quest stats can be less than 1!")
+
+            if base_hp < 30:
+                raise util.DueUtilException(message.channel,"Base HP must be at least 30!")
+
+            if len(name) > 30 or len(name) == 0 or name.strip == "":
+                raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!")
+                
+            self.server_id = message.server.id
+            self.created_by = message.author.id
+        else:
+            self.server_id = ""
+            self.created_by = ""
+      
+        self.name = name
+        super().__init__(self.__quest_id())
+        self.task = extras.get('task',"Battle a")
+        self.w_id = extras.get('weapon_id',Weapons.NO_WEAPON_ID)
+        self.spawn_chance = extras.get('spawn_chance',4)
+        self.image_url = extras.get('image_url',"")
+        self.base_attack = base_attack
+        self.base_strg = base_strg
+        self.base_accy = base_accy
+        self.base_hp = base_hp
+        self.base_reward = 0 #self__reward();
+                
+        if self.server_id != "":
+            self.__add()
+        
+    def __quest_id(self):
+        return self.server_id+'/'+self.name.lower()
+      
+    def __reward(self):
+        if(Weapon.get_weapon_from_id(self.w_id).melee):
+            base_reward = (self.base_attack + self.base_strg) / 10 / 0.0883
+        else:
+            base_reward = (self.base_accy + self.base_strg) / 10 / 0.0883
+    
+        base_reward += base_reward * math.log10(self.base_hp) / 20 / 0.75
+        base_reward *= self.base_hp / abs(self.base_hp - 0.01)
+        
+        return base_reward
+                        
+    def __add(self):
+        global servers_quests
+        location = self.q_id.split('/',1)
+        servers_quests[location[0]][location[1]]
+    
+    @property
+    def made_on(self):
+        return self.server_id
+        
+    @property    
+    def creator(self):
+        game.Player.find_player(quest_info.created_by)
+        
+    @property
+    def q_id(self):
+        return self.id
+    
+    @property
+    def home(self):
+        try:
+            util.get_client(self.server_id).get_server(server_id)
+        except:
+            return None;
+        
+        
+class ActiveQuest(Player):
+  
+    def __init__(self,q_id):
+        self.q_id = q_id
+        super(ActiveQuest,self).__init__()
+        
+    def get_avatar_url(self,*args):
+        return self.info.image_url
+  
+    @property
+    def info(self):
+        try:
+            quest_id = self.q_id.split('/',1)
+            return ServersQuests[quest_id[0]][quest_id[1]]
+        except:
+            return None;
+
 def get_server_quest_list(server):
     number = 0;
     text = "";
@@ -120,3 +220,19 @@ def add_quest(quest):
     server_quests[quest.server_id][quest.monster_name.lower()] = quest;
     save_quest(quest);
     
+
+def get_game_quest_from_id(id):
+    id  = str(id)
+    args = util.get_strings(id)
+    if(len(args) == 2 and args[0] in ServersQuests and args[1] in ServersQuests[args[0]]):
+        return ServersQuests[args[0]][args[1]]
+    else:
+        return None
+            
+def load():
+    global servers_quests;
+    reference = Quest('Reference',0,0,0,0)
+    for quest in dbconn.get_collection_for_object(Quest).find():
+        loaded_quest = jsonpickle.decode(quest['data'])
+        location = quest.q_id.split('/',1)
+        servers_quests[location[0]][location[1]] = util.load_and_update(reference,loaded_quest)

@@ -2,6 +2,16 @@ from fun import game,players;
 from botstuff import util
 import random 
 from collections import OrderedDict
+
+            
+class BattleRequest:
+  
+    """A class to hold a wager"""
+  
+    def __init__(self,message,wager_amount):
+        self.sender_id = message.author.id;
+        self.wager_amount = wagers_amount;
+
                 
 async def equip_weapon(message,player,wname):
     storedWeap = remove_weapon_from_store(player,wname);
@@ -127,7 +137,7 @@ def battle(ctx,**battleargs):
         
         other_player_no = 0 if player_no == 1 else 1
         BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
-        weapon = players[player_no].weapon;      
+        weapon = players[player_no].weapon      
         message = ""
                                   
         if weapon.w_id == game.Weapons.NO_WEAPON_ID:
@@ -151,7 +161,7 @@ def battle(ctx,**battleargs):
                     moves_shrink_repeat[move] = move_info 
             else:
                 moves_shrink_repeat[move] = move_info
-            last_move = move;
+            last_move = move
         return moves_shrink_repeat
     
     def shrink_duos(moves):

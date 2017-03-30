@@ -8,13 +8,14 @@ from botstuff import util;
 from io import BytesIO;
 from PIL import Image, ImageDraw, ImageFont
 
-#DueUtil fonts
+# DueUtil fonts
 font = ImageFont.truetype("fonts/Due_Robo.ttf", 12);
 font_big = ImageFont.truetype("fonts/Due_Robo.ttf", 18);
 font_med = ImageFont.truetype("fonts/Due_Robo.ttf", 14);
 font_small = ImageFont.truetype("fonts/Due_Robo.ttf", 11);
 font_epic = ImageFont.truetype("fonts/benfont.ttf", 12);
 
+# Templates
 info_avatar = Image.open("screens/info_avatar.png");
 level_up_template = Image.open("screens/level_up.png");
 new_quest_template = Image.open("screens/new_quest.png"); 
@@ -175,7 +176,7 @@ async def stats_screen(channel,player):
     
     image.paste(banner,(91,34),banner);
     
-    #draw_avatar slot
+    # draw avatar slot
     image.paste(info_avatar,(3,6),info_avatar);
      
     try:

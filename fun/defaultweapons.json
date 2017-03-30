@@ -1,0 +1,11 @@
+{
+  "gun": {
+    "name": "Gun",
+    "useText": "pew pews",
+    "damage": 10,
+    "accy": 20.5,
+    "melee": false,
+    "icon": "▶",
+    "image": "http://33.media.tumblr.com/1429054d94f06ba1ae44ab5899590fc1/tumblr_n6si4fJ42e1sl3euto1_500.gif"
+  }
+}
