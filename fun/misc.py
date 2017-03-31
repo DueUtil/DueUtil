@@ -14,8 +14,9 @@ class AutoReply:
         
 class DueUtilObject():
     
-    def __init__(self,id,*args):
+    def __init__(self,id,*args,**kwargs):
         self.id = id
+        self.no_save = kwargs.get("no_save",False)
         if len(args) > 0:
             self.name = args[0]
         
@@ -28,7 +29,8 @@ class DueUtilObject():
         return util.filter_string(self.name)
         
     def save(self):
-        dbconn.insert_object(self.id,self)
+        if not self.no_save:
+            dbconn.insert_object(self.id,self)
         
 async def random_word(message):
     response = requests.get("http://randomword.setgetgo.com/get.php")

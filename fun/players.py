@@ -217,6 +217,6 @@ def load():
     reference = Player()
     for player in dbconn.get_collection_for_object(Player).find():
         loaded_player = jsonpickle.decode(player['data'])
-        players[loaded_player.user_id] = util.load_and_update(reference,loaded_player)
+        players[loaded_player.id] = util.load_and_update(reference,loaded_player)
         
 load()

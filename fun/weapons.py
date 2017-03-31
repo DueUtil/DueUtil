@@ -36,7 +36,7 @@ class Weapon(DueUtilObject):
             self.server_id = "000000000000000000"
         
         self.name = name
-        super().__init__(self.__weapon_id())    
+        super().__init__(self.__weapon_id(),**extras)    
         self.icon = extras.get('icon',":gun:")
         self.hit_message = hit_message
         self.melee = extras.get('melee',True)
@@ -113,11 +113,12 @@ def load_stock_weapons():
                         weapon_data["accy"],
                         icon = weapon_data["icon"],
                         image_url = weapon_data["image"],
-                        melee = weapon_data["melee"])
+                        melee = weapon_data["melee"],
+                        no_save = True)
               
 def load():
     global weapons
-    none = Weapon('None',None,1,66)
+    none = Weapon('None', None, 1, 66, no_save = True)
     
     load_stock_weapons()
     
