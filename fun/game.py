@@ -1,16 +1,9 @@
-import discord
-import jsonpickle
-import json
 import math
 import time
-import random 
-import numpy
 import emoji #The emoji list in this is outdated.
-from botstuff import dbconn, util, events
-from PIL import Image, ImageDraw, ImageFont
-from fun.misc import DueUtilObject
+from botstuff import events
+from botstuff import util
 from fun import stats, weapons, players
-import awards
 
 async def player_progress(message):
 
@@ -62,7 +55,7 @@ async def player_progress(message):
                     await give_award(message, player, rank+2, "Attain rank "+str(rank)+".")                
             player.save()
     if player == None:
-        new_player = players.Player(message.author)
+        players.Player(message.author)
         
 async def on_message(message): 
     print("Test")

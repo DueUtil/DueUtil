@@ -1,14 +1,5 @@
-import discord
-import random
-import requests
 import re
-from urllib import request, parse
-from bs4 import BeautifulSoup
-import os.path
-from datetime import datetime
 import math
-import sys
-from html.parser import HTMLParser
 import time;
 import zipfile;
 import shutil;

@@ -224,7 +224,6 @@ async def stats_screen(channel,player):
         
     count = 0
     row = 0
-    first_even = True
     for player_award in range(len(player.awards) - 1, -1, -1):
          if count % 2 == 0:
              image.paste(game.Award.get_award(player.awards[player_award]).icon, (18, 121 + 35 * row))

@@ -1,4 +1,4 @@
-from fun import game,players
+from fun import game
 from botstuff import util
 import random 
 from collections import OrderedDict

@@ -1,6 +1,7 @@
 import discord
 from fun import weapons, players, battles
-from botstuff import commands, util, imagehelper
+from botstuff import commands
+from botstuff import util
 
 @commands.command()
 async def myweapons(ctx,*args):

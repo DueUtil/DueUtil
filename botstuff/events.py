@@ -1,5 +1,3 @@
-import discord
-import asyncio
 from botstuff import commands,util
 
 class MessageEvent(list):

@@ -10,7 +10,7 @@ class AutoReply:
         self.key = key
         self.target = kwargs.get('target_user',None)
         self.server_id = server_id
-        channel = kwargs.get('channel_id',"all")
+        kwargs.get('channel_id',"all")
         
 class DueUtilObject():
     

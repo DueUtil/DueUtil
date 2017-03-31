@@ -1,20 +1,9 @@
 import discord
 import random
 import math
-import sys
-import pickle
-import requests
-import string
 import os
 import jsonpickle
-import hashlib
-from urllib.request import urlopen
-import time
-import re
 import os
-import shutil
-import json
-from io import StringIO
 import numpy
 from fun import weapons, stats
 from fun.misc import DueUtilObject
