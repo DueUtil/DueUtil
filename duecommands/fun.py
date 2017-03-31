@@ -1,11 +1,13 @@
 
 from botstuff import util,commands;
 
-@commands.command(args_pattern='II')
+@commands.command(args_pattern='P')
 async def test(ctx,*args): 
     
     """A test command"""
-  
+    print(args[0].__dict__)
+    args[0].save()
+      
     await util.say(ctx.channel,("Yo!!! What up dis be my test command fo show.\n"
                                     "I got deedz args ```"+str(args)+"```!"));
                                     

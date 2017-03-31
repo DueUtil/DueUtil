@@ -12,8 +12,6 @@ async def player_progress(message):
         if(player.w_id != weapons.NO_WEAPON_ID):
             if(player.weapon_sum != player.weapon.weapon_sum):
                 pass
-                #await sell(message,player.user_id,True)
-        #await validate_weapon_store(message,player)
         
         if  time.time() - player.last_progress >= 60:
             player.last_progress = time.time()
@@ -58,7 +56,6 @@ async def player_progress(message):
         players.Player(message.author)
         
 async def on_message(message): 
-    print("Test")
     await player_progress(message)
     
 events.register_message_listener(on_message)

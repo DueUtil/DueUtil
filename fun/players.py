@@ -11,20 +11,28 @@ from botstuff import util, dbconn
 
 players = dict()   
 banners = dict()
+
 """ DueUtil battles & quests. The main meat of the bot. """
 
 class Player(DueUtilObject):
   
     """The DueUtil player!"""
   
-    def __init__(self,*args):
+    def __init__(self,*args,**kwargs):
         global players,new_players_joined
-        super().__init__(args[0].id if len(args) > 0 and isinstance(args[0],discord.Member) else "","Player")
+        if len(args) > 0 and isinstance(args[0],discord.Member):
+            super().__init__(args[0].id,args[0].name,**kwargs)
+        else:
+            super().__init__("NO_ID","DueUtil Player",**kwargs)
         self.reset()
         players[self.id] = self
         stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
 
-    def reset(self):
+    def reset(self,discord_user = None):
+        if discord_user != None:
+            self.name = discord_user.name
+        else:
+            self.name = "DueUtil Player"
         self.benfont = False
         self.level = 1
         self.attack = 1
@@ -50,7 +58,6 @@ class Player(DueUtilObject):
         self.battlers = []
         self.awards = []
         self.weapon_inventory = []
-        self.name = "Player"
         self.save()
         
     def owns_weapon(self,weapon_name):
@@ -193,7 +200,7 @@ def valid_image(bg_to_test,dimensions):
     return False
     
 def find_player(user_id):
-    if(user_id in players):
+    if user_id in players:
         return players[user_id]
     else:
         return None
@@ -203,7 +210,7 @@ def load():
     
     banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png")
     
-    reference = Player()
+    reference = Player(no_save = True)
     for player in dbconn.get_collection_for_object(Player).find():
         loaded_player = jsonpickle.decode(player['data'])
         players[loaded_player.id] = util.load_and_update(reference,loaded_player)

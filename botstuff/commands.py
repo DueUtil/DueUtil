@@ -204,7 +204,3 @@ def point_error(command_string):
             error_string += ' ' * (char_pos-1)
             break
     return error_string + '^'
-        
-                    
-
-            

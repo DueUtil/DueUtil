@@ -6,7 +6,7 @@ from fun.misc import DueUtilObject
 NO_WEAPON_ID = "000000000000000000_none"
 STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"]
 
-weapons = dict();   
+weapons = dict()
 
 class Weapon(DueUtilObject):
   

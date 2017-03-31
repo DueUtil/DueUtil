@@ -78,7 +78,7 @@ async def resetme(ctx,*args):
     """
     
     player = players.find_player(ctx.author.id);
-    player.reset();
+    player.reset(ctx.author);
     await util.say(ctx.channel, "Your user has been reset.");
     if util.is_mod(player.user_id):
         await give_award(message,player,22,"Become an mod!")

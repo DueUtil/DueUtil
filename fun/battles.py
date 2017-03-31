@@ -1,4 +1,4 @@
-from fun import game
+from fun import players, weapons
 from botstuff import util
 import random 
 from collections import OrderedDict
@@ -140,7 +140,7 @@ def battle(ctx,**battleargs):
         weapon = players[player_no].weapon      
         message = ""
                                   
-        if weapon.w_id == game.Weapons.NO_WEAPON_ID:
+        if weapon.w_id == weapons.NO_WEAPON_ID:
             message = random.choice(BABY_MOVES) 
         else:
             message = weapon.hit_message

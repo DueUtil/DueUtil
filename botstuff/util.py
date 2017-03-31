@@ -45,9 +45,6 @@ def load_and_update(reference,object):
     for item in dir(reference):
         if item not in dir(object):
             setattr(object,item,getattr(reference,item))
-        elif callable(getattr(reference,item)):
-            if getattr(reference,item) != getattr(object,item):
-                setattr(object,item,getattr(reference,item))
     return object
     
 def get_shard_index(server_id):

@@ -178,10 +178,12 @@ async def stats_screen(channel,player):
     # draw avatar slot
     image.paste(info_avatar,(3,6),info_avatar)
      
-    try:
-        image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
-    except:
-        pass
+    print(str((player.id)))
+
+    #try:
+    image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
+    #except:
+       #E pass
      
     if player.benfont:
         name=get_text_limit_len(draw,player.clean_name.replace(u"\u2026","..."),font_epic,149)
@@ -194,6 +196,7 @@ async def stats_screen(channel,player):
     attk = str(round(player.attack, 2))
     strg = str(round(player.strg, 2))
     accy = str(round(player.accy, 2))
+
     money = str(util.format_number(player.money,money=True))
     
     # Fill data
