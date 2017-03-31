@@ -1,5 +1,5 @@
 import discord;
-from fun import game,players;
+from fun import players, stats;
 from botstuff import commands,util,imagehelper;
 
 @commands.command(args_pattern=None)
@@ -13,7 +13,7 @@ async def myinfo(ctx,*args):
     
     """
     
-    await imagehelper.stats_screen(ctx.channel,game.Players.find_player(ctx.author.id));
+    await imagehelper.stats_screen(ctx.channel,players.find_player(ctx.author.id));
     
 @commands.command(args_pattern='P')
 @commands.imagecommand()
@@ -51,7 +51,7 @@ async def myawards(ctx,*args):
     
     """
     
-    await show_awards(ctx,game.Players.find_player(ctx.author.id),*args);
+    await show_awards(ctx,players.find_player(ctx.author.id),*args);
     
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
@@ -77,7 +77,7 @@ async def resetme(ctx,*args):
     
     """
     
-    player = game.Players.find_player(ctx.author.id);
+    player = players.find_player(ctx.author.id);
     player.reset();
     await util.say(ctx.channel, "Your user has been reset.");
     if util.is_mod(player.user_id):
@@ -104,7 +104,7 @@ async def sendcash(ctx,*args):
     
     """
     
-    sender = game.Players.find_player(ctx.author.id);
+    sender = players.find_player(ctx.author.id);
     receiver = args[0];
     transaction_amount = args[1];
     
@@ -137,7 +137,7 @@ async def sendcash(ctx,*args):
     sender.save();
     receiver.save();
     
-    game.Stats.money_transferred += transaction_amount;
+    stats.increment_stat(Stat.MONEY_TRANSFERRED,transaction_amount)
     if transaction_amount >= 50:
         await players.give_award(ctx.channel, sender, 17, "Sugar daddy!");
         
@@ -162,7 +162,7 @@ async def mywagers(ctx,*args):
     
     """
     
-    player = game.Players.find_player(ctx.author.id);
+    player = players.find_player(ctx.author.id);
     WagerT = "```\n" + player.name + "'s received wagers\n";
     if(len(player.battlers) > 0):
         for x in range(0, len(player.battlers)):
@@ -183,7 +183,7 @@ async def benfont(ctx,*args):
     
     """
     
-    player = game.Players.find_player(ctx.author.id);
+    player = players.find_player(ctx.author.id);
     player.benfont = not player.benfont;
     player.save();
     if(player.benfont):
