@@ -108,7 +108,7 @@ async def sendcash(ctx,*args):
     receiver = args[0];
     transaction_amount = args[1];
     
-    if receiver.user_id == sender.user_id:
+    if receiver.id == sender.id:
         raise util.DueUtilException(ctx.channel,"There is no reason to send money to yourself!");
    
     if sender.money - transaction_amount < 0:
@@ -137,7 +137,7 @@ async def sendcash(ctx,*args):
     sender.save();
     receiver.save();
     
-    stats.increment_stat(Stat.MONEY_TRANSFERRED,transaction_amount)
+    stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,transaction_amount)
     if transaction_amount >= 50:
         await players.give_award(ctx.channel, sender, 17, "Sugar daddy!");
         

@@ -3,7 +3,7 @@ import requests
 import math
 import os
 import io
-from fun import players, stats
+from fun import players, stats, game
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -13,6 +13,7 @@ font = ImageFont.truetype("fonts/Due_Robo.ttf", 12)
 font_big = ImageFont.truetype("fonts/Due_Robo.ttf", 18)
 font_med = ImageFont.truetype("fonts/Due_Robo.ttf", 14)
 font_small = ImageFont.truetype("fonts/Due_Robo.ttf", 11)
+font_tiny = ImageFont.truetype("fonts/Due_Robo.ttf", 9)
 font_epic = ImageFont.truetype("fonts/benfont.ttf", 12)
 
 # Templates
@@ -178,19 +179,28 @@ async def stats_screen(channel,player):
     # draw avatar slot
     image.paste(info_avatar,(3,6),info_avatar)
      
-    print(str((player.id)))
-
-    #try:
-    image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
-    #except:
-       #E pass
+    try:
+        image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
+    except:
+        pass
      
     if player.benfont:
         name=get_text_limit_len(draw,player.clean_name.replace(u"\u2026","..."),font_epic,149)
-        draw.text((96, 42),name,player.rank_colour,font=font_epic)
+        draw.text((96, 36),name,player.rank_colour,font=font_epic)
     else:
         name=get_text_limit_len(draw,player.name,font,149)
-        draw.text((96, 42), name, player.rank_colour,font=font)
+        draw.text((96, 36), name, player.rank_colour,font=font)
+        
+    # Draw exp bar
+    next_level_exp = game.get_exp_for_next_level(player.level)
+    exp_bar_width = player.exp / next_level_exp * 140
+    draw.rectangle(((96,70),(240,82)), fill=(122,118,119))
+    draw.rectangle(((97,71),(239,81)), fill="white")
+    draw.rectangle(((98,72),(98 + exp_bar_width,80)), fill=(122,118,119,200))
+    exp = "EXP: "+str(player.exp)+" / "+str(next_level_exp)
+    width = draw.textsize(exp, font=font_tiny)[0]
+    if exp_bar_width >= width + 2:
+        draw.text((98 + exp_bar_width - width, 72), exp, (255, 255, 255), font=font_tiny)
             
     level = str(math.trunc(player.level))
     attk = str(round(player.attack, 2))
@@ -201,7 +211,7 @@ async def stats_screen(channel,player):
     
     # Fill data
     
-    draw.text((96, 62), "LEVEL " + level, (255, 255, 255), font=font_big)
+    draw.text((96, 49), "LEVEL " + level, (255, 255, 255), font=font_big)
         
     width = draw.textsize(attk, font=font)[0]
     draw.text((241 - width, 122), attk, (255, 255, 255), font=font)

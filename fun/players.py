@@ -35,6 +35,8 @@ class Player(DueUtilObject):
             self.name = "DueUtil Player"
         self.benfont = False
         self.level = 1
+        self.exp = 0
+        self.total_exp = 0
         self.attack = 1
         self.strg = 1
         self.accy = 1
@@ -60,6 +62,14 @@ class Player(DueUtilObject):
         self.weapon_inventory = []
         self.save()
         
+    def progress(self,attack,strg,accy):
+        self.attack += attack
+        self.strg += strg
+        self.accy += accy
+        exp = util.clamp((attack + strg + accy) * 1000 , 1, 100)
+        self.exp += exp
+        self.total_exp += exp
+        
     def owns_weapon(self,weapon_name):
         for weapon_slot in self.owned_weps:
             if(Weapon.get_weapon_from_id(weapon_slot[0]).name.lower() == weapon_name.lower()):
@@ -76,7 +86,7 @@ class Player(DueUtilObject):
     
     @property
     def user_id(self):
-        self.name
+        return self.id
         
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100)
@@ -98,7 +108,7 @@ class Player(DueUtilObject):
             
     @property
     def item_value_limit(self):
-        return math.inf
+        return 10000000000000000000000000000000000000000000
         return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level)
 
     @property

@@ -13,7 +13,12 @@ async def myweapons(ctx,*args):
     
     """
          
-    await show_weapons(ctx,players.find_player(ctx.author.id),False)
+    player = players.find_player(ctx.author.id)
+    weapon_store = weapons_page(player.weapon_inventory,0,player.name+"'s Weapons")
+    
+    await util.say(ctx.channel,embed=weapon_store)
+
+    
 
 @commands.command(args_pattern='M?')
 async def shop(ctx,*args):
@@ -36,14 +41,8 @@ async def shop(ctx,*args):
             footer = "But wait there's more! Do "+util.get_server_cmd_key(ctx.server)+"shop "+str(page+2)
         else:
             footer = 'Want more? Ask an admin on '+ctx.server.name+' to add some!'
-    
-        shop = discord.Embed(title="DueUtil's Weapon Shop!",type="rich",color=16038978)
-        for stock_number in range(12*page,12*page+12):
-            if stock_number >= len(shop_weapons):
-                break
-            weapon = shop_weapons[stock_number]
-            shop.add_field(name=weapon.icon+' | '+weapon.name,value='```'+util.format_number(weapon.price,full_precision=True,money=True)+'```')
-        
+
+        shop = weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
         shop.set_footer(text=footer)
         
         await util.say(ctx.channel,embed=shop)
@@ -61,6 +60,15 @@ async def shop(ctx,*args):
 
         await util.say(ctx.channel,embed=weapon_info)
 
+def weapons_page(weapons_list,page,title):
+    weapons = discord.Embed(title=title,type="rich",color=16038978)
+    for weapon_index in range(12*page,12*page+12):
+        if weapon_index >= len(weapons_list):
+            break
+        weapon = weapons_list[weapon_index]
+        weapons.add_field(name=weapon.icon+' | '+weapon.name,value='```'+util.format_number(weapon.price,full_precision=True,money=True)+'```')
+    return weapons    
+
 @commands.command(args_pattern='S')
 async def buy(ctx,*args):
 
@@ -70,7 +78,7 @@ async def buy(ctx,*args):
     Buys a weapon from the shop.!
     
     """
-    customer = playerss.find_player(ctx.author.id)
+    customer = players.find_player(ctx.author.id)
     weapon = weapons.get_weapon_for_server(ctx.server.id,args[0])
     if weapon == None:
         raise util.DueUtilException(ctx.channel,"Weapon not found")
