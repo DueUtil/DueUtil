@@ -84,8 +84,7 @@ def parse(command_message):
     
     def replace_mentions():
         nonlocal user_mentions,current_arg
-        print(user_mentions)
-        for mention in user_mentions: #Replade mentions
+        for mention in user_mentions: # Replade mentions
             if mention in current_arg and len(current_arg)-len(mention) < 6:
                 current_arg = mention
                 del user_mentions[user_mentions.index(mention)]

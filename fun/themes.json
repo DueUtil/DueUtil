@@ -1,0 +1,46 @@
+{
+   "themes":{
+      "default":{
+          "name":"Default",
+          "banner":"discord blue",
+          "fontColour": "#FFF",
+          "background": "default",
+          "avatarBorder": "default",
+          "screen": "default",
+          "expBarColour": ["#FFF","#CCC"],
+          "icons": "default"
+      },
+      "test":{
+          "name":"Test",
+          "banner":"discord blue",
+          "fontColour": "#FF00FF",
+          "background": "default",
+          "avatarBorder": "default",
+          "screen": "default",
+          "expBarColour": ["#00FF00","#0000FF"],
+          "icons": "default",
+          "rankColours": [
+              "#FFFF00",
+              "#EBC42A",
+              "#EB912A",
+              "#2AEB44",
+              "#AE2AEB",
+              "#2A67EB",
+              "#A3665A",
+              "#E0210B",
+              "#0F0F0F"
+          ]
+      }
+   },
+   "rankColours": [
+        "#FFFFFF",
+        "#EBC42A",
+        "#EB912A",
+        "#2AEB44",
+        "#AE2AEB",
+        "#2A67EB",
+        "#A3665A",
+        "#E0210B",
+        "#0F0F0F"
+  ]
+}

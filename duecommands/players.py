@@ -1,6 +1,6 @@
-import discord;
-from fun import players, stats;
-from botstuff import commands,util,imagehelper;
+import discord
+from fun import players, stats, imagehelper, game
+from botstuff import commands,util
 
 @commands.command(args_pattern=None)
 @commands.imagecommand()
@@ -13,7 +13,7 @@ async def myinfo(ctx,*args):
     
     """
     
-    await imagehelper.stats_screen(ctx.channel,players.find_player(ctx.author.id));
+    await imagehelper.stats_screen(ctx.channel,players.find_player(ctx.author.id))
     
 @commands.command(args_pattern='P')
 @commands.imagecommand()
@@ -26,19 +26,19 @@ async def info(ctx,*args):
     
     """
     
-    await imagehelper.stats_screen(ctx.channel,args[0]);
+    await imagehelper.stats_screen(ctx.channel,args[0])
     
 async def show_awards(ctx,player,*args):
   
     if len(args) == 0:
-        page = 0;
+        page = 0
     else:
-        page = args[0]-1;
+        page = args[0]-1
         
     if page > len(player.awards)/5:
-        raise util.DueUtilException(ctx.channel,"Page not found");
+        raise util.DueUtilException(ctx.channel,"Page not found")
         
-    await imagehelper.awards_screen(ctx.channel,player,page);
+    await imagehelper.awards_screen(ctx.channel,player,page)
     
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
@@ -51,7 +51,7 @@ async def myawards(ctx,*args):
     
     """
     
-    await show_awards(ctx,players.find_player(ctx.author.id),*args);
+    await show_awards(ctx,players.find_player(ctx.author.id),*args)
     
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
@@ -77,9 +77,9 @@ async def resetme(ctx,*args):
     
     """
     
-    player = players.find_player(ctx.author.id);
-    player.reset(ctx.author);
-    await util.say(ctx.channel, "Your user has been reset.");
+    player = players.find_player(ctx.author.id)
+    player.reset(ctx.author)
+    await util.say(ctx.channel, "Your user has been reset.")
     if util.is_mod(player.user_id):
         await give_award(message,player,22,"Become an mod!")
     if util.is_admin(player.userid):
@@ -104,52 +104,52 @@ async def sendcash(ctx,*args):
     
     """
     
-    sender = players.find_player(ctx.author.id);
-    receiver = args[0];
-    transaction_amount = args[1];
+    sender = players.find_player(ctx.author.id)
+    receiver = args[0]
+    transaction_amount = args[1]
     
     if receiver.id == sender.id:
-        raise util.DueUtilException(ctx.channel,"There is no reason to send money to yourself!");
+        raise util.DueUtilException(ctx.channel,"There is no reason to send money to yourself!")
    
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
             await util.say(ctx.channel, ("You do not have **$"+ util.to_money(amount,False)+"**!"
-                                        "The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**"));
+                                        "The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**"))
         else:
-            await util.say(ctx.channel,"You do not have any money to transfer!");
-        return;
+            await util.say(ctx.channel,"You do not have any money to transfer!")
+        return
         
-    max_receive =  int(receiver.item_value_limit*10);
+    max_receive =  int(receiver.item_value_limit*10)
     
-    amount_string = util.format_number(transaction_amount,money=True,full_precision=True);
+    amount_string = util.format_number(transaction_amount,money=True,full_precision=True)
     
     if transaction_amount > max_receive:
         await util.say(ctx.channel, ("**"+amount_string
                                      +"** is more than ten times **"+receiver.name
                                      +"**'s limit!\nThe maximum **"+receiver.name
                                      +"** can receive is **"
-                                     +util.format_number(max_receive,money=True)+"**!"));
-        return;
+                                     +util.format_number(max_receive,money=True)+"**!"))
+        return
         
-    sender.money -= transaction_amount;
-    receiver.money += transaction_amount;
+    sender.money -= transaction_amount
+    receiver.money += transaction_amount
     
-    sender.save();
-    receiver.save();
+    sender.save()
+    receiver.save()
     
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,transaction_amount)
     if transaction_amount >= 50:
-        await players.give_award(ctx.channel, sender, 17, "Sugar daddy!");
+        await players.give_award(ctx.channel, sender, 17, "Sugar daddy!")
         
-    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978);
-    transaction_log.add_field(name="Sender:",value=sender.name);
-    transaction_log.add_field(name="Recipient:",value=receiver.name);
-    transaction_log.add_field(name="Transaction amount (DUT):",value=amount_string,inline=False);
+    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978)
+    transaction_log.add_field(name="Sender:",value=sender.name)
+    transaction_log.add_field(name="Recipient:",value=receiver.name)
+    transaction_log.add_field(name="Transaction amount (DUT):",value=amount_string,inline=False)
     if len(args) > 2:
-      transaction_log.add_field(name=":pencil: Attached note:",value=args[2],inline=False);
-    transaction_log.set_footer(text="Please keep this receipt for your records.");
+      transaction_log.add_field(name=":pencil: Attached note:",value=args[2],inline=False)
+    transaction_log.set_footer(text="Please keep this receipt for your records.")
     
-    await util.say(ctx.channel,embed=transaction_log);
+    await util.say(ctx.channel,embed=transaction_log)
   
 @commands.command()
 async def mywagers(ctx,*args):    
@@ -162,16 +162,16 @@ async def mywagers(ctx,*args):
     
     """
     
-    player = players.find_player(ctx.author.id);
-    WagerT = "```\n" + player.name + "'s received wagers\n";
+    player = players.find_player(ctx.author.id)
+    WagerT = "```\n" + player.name + "'s received wagers\n"
     if(len(player.battlers) > 0):
         for x in range(0, len(player.battlers)):
             WagerT = WagerT + str(x + 1) + ". $" +  util.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
     else:
-        WagerT = WagerT + "You have no requests!\n";
-    WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n";
-    WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```";
-    await get_client(message.server.id).send_message(message.channel, WagerT);
+        WagerT = WagerT + "You have no requests!\n"
+    WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n"
+    WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```"
+    await get_client(message.server.id).send_message(message.channel, WagerT)
     
 @commands.command(hidden=True)
 async def benfont(ctx,*args):
@@ -183,10 +183,15 @@ async def benfont(ctx,*args):
     
     """
     
-    player = players.find_player(ctx.author.id);
-    player.benfont = not player.benfont;
-    player.save();
+    player = players.find_player(ctx.author.id)
+    player.benfont = not player.benfont
+    player.save()
     if(player.benfont):
-        await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif');
+        await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
         await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
-
+        
+@commands.command(args_pattern='S')
+async def settheme(ctx,*args):
+    players.find_player(ctx.author.id).theme = args[0]
+    await util.say("Theme set")
+    

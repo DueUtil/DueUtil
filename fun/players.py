@@ -5,12 +5,15 @@ import os
 import jsonpickle
 import os
 import numpy
+import struct
+import json
 from fun import weapons, stats
 from fun.misc import DueUtilObject
 from botstuff import util, dbconn
 
 players = dict()   
 banners = dict()
+profile_themes = dict()
 
 """ DueUtil battles & quests. The main meat of the bot. """
 
@@ -41,6 +44,7 @@ class Player(DueUtilObject):
         self.strg = 1
         self.accy = 1
         self.banner_id = "discord blue"
+        self.theme = "test"
         self.hp = 10
         self.donor = False
         self.background = "default.png"
@@ -88,6 +92,14 @@ class Player(DueUtilObject):
     def user_id(self):
         return self.id
         
+    def get_profile_theme(self):
+        theme = profile_themes[self.theme].copy()
+        if theme["background"] != self.background:
+            theme["background"] = self.background
+        if theme["banner"] != self.banner:
+            theme["banner"] = self.banner
+        return theme
+        
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100)
 
@@ -121,25 +133,7 @@ class Player(DueUtilObject):
         
     @property
     def rank_colour(self):
-        if(self.rank == 1):
-            return (255, 255, 255)
-        elif (self.rank == 2):
-            return (235, 196, 42)
-        elif (self.rank == 3):
-            return (235, 145, 42)
-        elif (self.rank == 4):
-            return (42, 235, 68)
-        elif (self.rank == 5):
-            return (174, 42, 235)
-        elif (self.rank == 6):
-            return (42, 103, 235)
-        elif (self.rank == 7):
-            return (163, 102, 90)
-        elif (self.rank == 8):
-            return (224, 33, 11)
-        elif (self.rank > 8):
-            return (15, 15, 15)
-        return (255, 255, 255)
+        return profile_themes[self.theme]["rankColours"][self.rank - 1]
         
     @property
     def banner(self):
@@ -203,9 +197,9 @@ async def give_award(channel, player, award_id, text):
             await util.get_client(channel.server.id).send_message(channel, "**"+player.name+"** :trophy: **Award!** " + text)
     
 def valid_image(bg_to_test,dimensions):
-    if(bg_to_test != None):
+    if bg_to_test != None:
         width, height = bg_to_test.size
-        if(width == dimensions[0] and height == dimensions[1]):
+        if width == dimensions[0] and height == dimensions[1]:
             return True
     return False
     
@@ -214,7 +208,17 @@ def find_player(user_id):
         return players[user_id]
     else:
         return None
-
+        
+def load_themes():
+    global profile_themes
+    with open('fun/themes.json') as themes_file:  
+        themes = json.load(themes_file)
+    profile_themes = themes["themes"]
+    for theme in profile_themes.values():
+        theme["background"] = theme["background"]+".png"
+        if "rankColours" not in theme:
+            theme["rankColours"] = themes["rankColours"]
+    
 def load():
     global players, banners
     
@@ -224,5 +228,7 @@ def load():
     for player in dbconn.get_collection_for_object(Player).find():
         loaded_player = jsonpickle.decode(player['data'])
         players[loaded_player.id] = util.load_and_update(reference,loaded_player)
+  
+    load_themes()
         
 load()

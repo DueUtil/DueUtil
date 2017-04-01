@@ -17,14 +17,13 @@ font_tiny = ImageFont.truetype("fonts/Due_Robo.ttf", 9)
 font_epic = ImageFont.truetype("fonts/benfont.ttf", 12)
 
 # Templates
-info_avatar = Image.open("screens/info_avatar.png")
 level_up_template = Image.open("screens/level_up.png")
 new_quest_template = Image.open("screens/new_quest.png")
 awards_screen_template = Image.open("screens/awards_screen.png")
-stats_screen_template = Image.open("screens/info_screen.png")
 quest_info_template = Image.open("screens/stats_page_quest.png")
 battle_screen_template = Image.open("screens/battle_screen.png")
 award_slot = Image.open("screens/award_slot.png")
+profile_parts = dict()
 
 def set_opacity(image,opacity_level):
     # Opaque is 1.0, input between 0-1.0
@@ -94,8 +93,8 @@ async def level_up_screen(channel,player,cash):
     except:
         pass
     draw = ImageDraw.Draw(image)
-    draw.text((159, 18), str(level), (255, 255, 255), font=font_big)
-    draw.text((127, 40),util.format_number(cash,money=True), (255, 255, 255), font=font_big)
+    draw.text((159, 18), str(level), "white", font=font_big)
+    draw.text((127, 40),util.format_number(cash,money=True), "white", font=font_big)
     await send_image(channel,image,file_name="level_up.png",content=":point_up_2: **"+player.name+"** Level Up!")
 
 async def new_quest_screen(channel,quest,player):
@@ -107,13 +106,11 @@ async def new_quest_screen(channel,quest,player):
        pass
     draw = ImageDraw.Draw(image)
     
-    draw.text((72, 20), get_text_limit_len(draw,util.clear_markdown_escapes(quest.info.task),font_med,167), 
-                                           (255, 255, 255), font=font_med)
+    draw.text((72, 20), get_text_limit_len(draw,util.clear_markdown_escapes(quest.info.task),font_med,167),"white",font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level))
     width = draw.textsize(level_text, font=font_big)[0]
-    
     draw.text((71, 39), get_text_limit_len(draw,util.clear_markdown_escapes(g_quest.monsterName),
-                                           font_big,168-width) + level_text, (255, 255, 255), font=font_big)
+                                           font_big,168-width) + level_text, "white", font=font_big)
     await send_image(channel,image,file_name="new_quest.png",content=":crossed_swords: **"+player.name+"** New Quest!")
     
 async def awards_screen(channel,player,page,**kwargs):
@@ -129,8 +126,7 @@ async def awards_screen(channel,player,page,**kwargs):
         page_no_string_len = draw.textsize(page_info,font=font)[0]
         
     name = get_text_limit_len(draw,player.name,font,175-page_no_string_len); 
-    title=name+suffix
-        
+    title= name + suffix
     draw.text((15, 17),title,(255,255,255),font=font)
     
     count = 0
@@ -156,28 +152,32 @@ async def awards_screen(channel,player,page,**kwargs):
         name = get_text_limit_len(draw,player.name,font,100)
         msg = name+" doesn't have any awards!"
     width = draw.textsize(msg, font=font_small)[0]
-    draw.text(((256-width)/2, 42 + 44 * count),msg,  (255, 255, 255), font=font_small)
+    draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
     
     await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!")
 
 async def stats_screen(channel,player):
 
+    theme = player.get_profile_theme()
+    font_colour = theme["fontColour"]
+    
     try:
-        image = Image.open("backgrounds/" + player.background)
+        image = Image.open("backgrounds/"+theme["background"])
     except:
         image = Image.open("backgrounds/default.png")
 
     draw = ImageDraw.Draw(image)
-    image.paste(stats_screen_template,(0,0),stats_screen_template)
+    profile_screen = profile_parts["screens"][theme["screen"]]
+    image.paste(profile_screen,(0,0),profile_screen)
     
     if player.banner.image == None:
         init_banners()
     banner = player.banner.image
-    
     image.paste(banner,(91,34),banner)
     
     # draw avatar slot
-    image.paste(info_avatar,(3,6),info_avatar)
+    avatar_border = profile_parts["avatarborders"][theme["avatarBorder"]]
+    image.paste(avatar_border,(3,6),avatar_border)
      
     try:
         image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
@@ -190,51 +190,56 @@ async def stats_screen(channel,player):
     else:
         name=get_text_limit_len(draw,player.name,font,149)
         draw.text((96, 36), name, player.rank_colour,font=font)
-        
+    
+    profile_icons = profile_parts["icons"][theme["icons"]]
+    image.paste(profile_icons,(95,112),profile_icons)
+    
     # Draw exp bar
     next_level_exp = game.get_exp_for_next_level(player.level)
     exp_bar_width = player.exp / next_level_exp * 140
-    draw.rectangle(((96,70),(240,82)), fill=(122,118,119))
-    draw.rectangle(((97,71),(239,81)), fill="white")
-    draw.rectangle(((98,72),(98 + exp_bar_width,80)), fill=(122,118,119,200))
+    draw.rectangle(((96,70),(240,82)), theme["expBarColour"][1])
+    draw.rectangle(((97,71),(239,81)), fill=theme["expBarColour"][0])
+    draw.rectangle(((98,72),(98 + exp_bar_width,80)), theme["expBarColour"][1])
     exp = "EXP: "+str(player.exp)+" / "+str(next_level_exp)
     width = draw.textsize(exp, font=font_tiny)[0]
     if exp_bar_width >= width + 2:
-        draw.text((98 + exp_bar_width - width, 72), exp, (255, 255, 255), font=font_tiny)
+        draw.text((98 + exp_bar_width - width, 72), exp, font_colour, font=font_tiny)
             
     level = str(math.trunc(player.level))
     attk = str(round(player.attack, 2))
     strg = str(round(player.strg, 2))
     accy = str(round(player.accy, 2))
-
     money = str(util.format_number(player.money,money=True))
     
-    # Fill data
+    # Text
+    draw.text((96, 49), "LEVEL " + level,font_colour, font=font_big)
+    draw.text((94, 87), "INFORMATION",font_colour, font=font_big)
+    draw.text((117, 121), "ATK", font_colour, font=font)
+    draw.text((117, 149), "STRG", font_colour, font=font)
+    draw.text((117, 177), "ACCY", font_colour, font=font)
+    draw.text((117, 204), "CASH", font_colour, font=font)
+    draw.text((117, 231), "WPN", font_colour, font=font)
+    draw.text((96, 252), "QUESTS BEAT", font_colour, font=font)
+    draw.text((96, 267), "WAGERS WON", font_colour, font=font)
     
-    draw.text((96, 49), "LEVEL " + level, (255, 255, 255), font=font_big)
-        
+    # Player stats
     width = draw.textsize(attk, font=font)[0]
-    draw.text((241 - width, 122), attk, (255, 255, 255), font=font)
-
+    draw.text((241 - width, 122), attk, font_colour, font=font)
     width = draw.textsize(strg, font=font)[0]
-    draw.text((241 - width, 150), strg, (255, 255, 255), font=font)
-
+    draw.text((241 - width, 150), strg, font_colour, font=font)
     width = draw.textsize(accy, font=font)[0]
-    draw.text((241 - width, 178), accy, (255, 255, 255), font=font)
-
+    draw.text((241 - width, 178), accy, font_colour, font=font)
     width = draw.textsize(money, font=font)[0]
-    draw.text((241 - width, 204),money, (255, 255, 255), font=font)
-    
+    draw.text((241 - width, 204),money, font_colour, font=font)
     width= draw.textsize(str(player.quests_won), font=font)[0]
-    draw.text((241 - width, 253), str(player.quests_won), (255, 255, 255), font=font)
-    
+    draw.text((241 - width, 253), str(player.quests_won), font_colour, font=font)
     width = draw.textsize(str(player.wagers_won), font=font)[0]
-    draw.text((241 - width, 267), str(player.wagers_won), (255, 255, 255), font=font)
-    
+    draw.text((241 - width, 267), str(player.wagers_won), font_colour, font=font)
     wep = get_text_limit_len(draw,player.weapon.name,font,95)
     width = draw.textsize(wep, font=font)[0]
-    draw.text((241 - width, 232), wep, (255, 255, 255), font=font)
+    draw.text((241 - width, 232), wep, font_colour, font=font)
         
+    # Player awards
     count = 0
     row = 0
     for player_award in range(len(player.awards) - 1, -1, -1):
@@ -271,24 +276,20 @@ async def quest_screen(channel,quest):
 
     draw = ImageDraw.Draw(image)
     name = get_text_limit_len(draw,util.clear_markdown_escapes(quest.name),font,114)
-    
     quest_info = quest.info
     draw.text((88, 38), name, quest.rank_colour, font=font)
-    draw.text((134, 58), " " + str(level), (255, 255, 255), font=font_big)
+    draw.text((134, 58), " " + str(level), "white", font=font_big)
    
     # Fill data
     width = draw.textsize(attk, font=font)[0]
-    draw.text((203 - width, 123), attk, (255, 255, 255), font=font)
-
+    draw.text((203 - width, 123), attk, "white", font=font)
     width= draw.textsize(strg, font=font)[0]
-    draw.text((203 - width, 151), strg, (255, 255, 255), font=font)
-
+    draw.text((203 - width, 151), strg, "white", font=font)
     width = draw.textsize(accy, font=font)[0]
-    draw.text((203 - width, 178), accy, (255, 255, 255), font=font)
-
+    draw.text((203 - width, 178), accy, "white", font=font)
     weapon_name = get_text_limit_len(draw,quest.weapon.name,font,136)
     width = draw.textsize(weapon_name, font=font)[0]
-    draw.text((203 - width, 207), weapon_name, (255, 255, 255), font=font)
+    draw.text((203 - width, 207), weapon_name, "white", font=font)
     
     if quest_info != None:
         creator = get_text_limit_len(draw,quest.creator.name,font,119)
@@ -298,11 +299,9 @@ async def quest_screen(channel,quest):
         home = "Unknown"
     
     width = draw.textsize(creator, font=font)[0]
-    draw.text((203 - width, 228), creator, (255, 255, 255), font=font)
-    
+    draw.text((203 - width, 228), creator, "white", font=font)
     width = draw.textsize(home, font=font)[0]
-    draw.text((203 - width, 242), home, (255, 255, 255), font=font)
-    
+    draw.text((203 - width, 242), home, "white", font=font)
     width = draw.textsize(reward, font=font_med)[0]
     draw.text((203 - width, 266),reward, (48, 48, 48), font=font_med)
 
@@ -352,12 +351,12 @@ async def battle_screen(channel,player_one,player_two,battle_text):
         img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30))
         
     draw = ImageDraw.Draw(img)
-    draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), (255, 255, 255), font=font_small)
-    draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), (255, 255, 255), font=font_small)
+    draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), "white", font=font_small)
+    draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), "white", font=font_small)
     weap_one_name = get_text_limit_len(draw,util.clear_markdown_escapes(weapon_one.name),font,85)
     width = draw.textsize(weap_one_name, font=font)[0]
-    draw.text((124 - width, 88), weap_one_name, (255, 255, 255), font=font)
-    draw.text((132, 103), get_text_limit_len(draw,util.clear_markdown_escapes(weapon_two.name),font,85), (255, 255, 255), font=font)
+    draw.text((124 - width, 88), weap_one_name, "white", font=font)
+    draw.text((132, 103), get_text_limit_len(draw,util.clear_markdown_escapes(weapon_two.name),font,85), "white", font=font)
    
     await send_image(channel,image,file_name="battle.png"); 
     
@@ -378,9 +377,25 @@ def get_text_limit_len(draw,text,given_font,length):
                     return text[:-3] + "..."
             return text
 
+def load_profile_parts():
+    global profile_parts
+    profile_parts["icons"] = dict()
+    profile_parts["avatarborders"] = dict()
+    profile_parts["screens"] = dict()
+    for path, subdirs, files in os.walk("screens/profiles/"):
+        for name in files:
+            if name.endswith(".png"):
+                file_path = os.path.join(path, name)
+                part_type = path.rsplit("/",1)[-1]
+                name = name.replace('.png','')
+                profile_parts[part_type][name] = Image.open(file_path) 
+   
 def init_banners():
     for banner in players.banners.values():
         if banner.image == None:
             banner.image = set_opacity(Image.open('screens/info_banners/'+banner.image_name),0.9)
+            
+
 
 init_banners()
+load_profile_parts()
