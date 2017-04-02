@@ -193,5 +193,5 @@ async def benfont(ctx,*args):
 @commands.command(args_pattern='S')
 async def settheme(ctx,*args):
     players.find_player(ctx.author.id).theme = args[0]
-    await util.say("Theme set")
+    await util.say(ctx.channel,"Theme set")
     
