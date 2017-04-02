@@ -4,7 +4,7 @@ from botstuff import commands
 from botstuff import util
 
 @commands.command()
-async def myweapons(ctx,*args):
+async def myweapons(ctx,*args,**details):
   
     """
     [CMD_KEY]myweapons
@@ -21,7 +21,7 @@ async def myweapons(ctx,*args):
     
 
 @commands.command(args_pattern='M?')
-async def shop(ctx,*args):
+async def shop(ctx,*args,**details):
   
     """
     [CMD_KEY]shop (page number) or (weapon name)
@@ -38,7 +38,7 @@ async def shop(ctx,*args):
     
         shop_weapons = list(weapons.get_weapons_for_server(ctx.server.id).values())
         if 12 * page + 12 < len (shop_weapons):
-            footer = "But wait there's more! Do "+util.get_server_cmd_key(ctx.server)+"shop "+str(page+2)
+            footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
         else:
             footer = 'Want more? Ask an admin on '+ctx.server.name+' to add some!'
 
@@ -70,7 +70,7 @@ def weapons_page(weapons_list,page,title):
     return weapons    
 
 @commands.command(args_pattern='S')
-async def buy(ctx,*args):
+async def buy(ctx,*args,**details):
 
     """
     [CMD_KEY]buy "weapon name"
@@ -100,7 +100,7 @@ async def buy(ctx,*args):
     customer.save()
  
 @commands.command(args_pattern='PP')
-async def battle(ctx,*args):
+async def battle(ctx,*args,**details):
     battle_result = battles.battle(ctx,player_one=args[0],player_two=args[1])
     battle_moves = list(battle_result[0].values())
     
@@ -117,7 +117,7 @@ async def battle(ctx,*args):
     await util.say(ctx.channel,embed=battle)
  
 @commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
-async def createweapon(ctx,*args):
+async def createweapon(ctx,*args,**details):
     
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy

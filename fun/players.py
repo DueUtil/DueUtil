@@ -80,6 +80,9 @@ class Player(DueUtilObject):
                 return True
         return False
         
+    def get_owned_themes(self):
+        return profile_themes
+        
     @property    
     def weapon_accy(self):
         max_value = self.item_value_limit
@@ -218,7 +221,14 @@ def load_themes():
         theme["background"] = theme["background"]+".png"
         if "rankColours" not in theme:
             theme["rankColours"] = themes["rankColours"]
-    
+            
+def get_theme(theme_name):
+    theme_name = theme_name.lower()
+    if theme_name in profile_themes:
+        return profile_themes[theme_name]
+    else:
+        return None
+  
 def load():
     global players, banners
     

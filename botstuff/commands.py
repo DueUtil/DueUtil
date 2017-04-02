@@ -9,6 +9,7 @@ def command(**command_rules):
   
     """A command wrapper for command functions"""
     
+    # TODO: Include sender, timesent, etc in details
     
     def check(user,command):
         if command.admin_only:
@@ -26,15 +27,16 @@ def command(**command_rules):
   
         @wraps(command_func)
         async def wrapped_command(ctx, *args,**kwargs):
-            if args[0].lower() != command_func.__name__:
+            if args[1].lower() != command_func.__name__:
                 return False
             if check(ctx.author,wrapped_command):
                 args_pattern = command_rules.get('args_pattern',"")
-                if not await check_pattern(args_pattern,args[1]):
+                if not await check_pattern(args_pattern,args[2]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753")
                 elif not is_spam_command(ctx,wrapped_command,*args):
                     await util.say(ctx.channel,str(args))
-                    await command_func(ctx,*args[1],**kwargs)
+                    kwargs["cmd_key"] = args[0]
+                    await command_func(ctx,*args[2],**kwargs)
                 else:
                     raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
             else:
@@ -117,7 +119,7 @@ def parse(command_message):
     if is_string:
         raise util.DueUtilException(command_message.channel,"Unclosed string in command!")
         
-    return (args[0],args[1:])
+    return (key,args[0],args[1:])
     
 async def check_pattern(pattern,args):
     

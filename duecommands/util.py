@@ -4,7 +4,7 @@ from fun import game;
 from botstuff import commands,util,events;
 
 @commands.command(args_pattern="S?")
-async def help(ctx,*args):
+async def help(ctx,*args,**details):
   
     """
     [CMD_KEY]help (command name)
@@ -50,7 +50,7 @@ async def help(ctx,*args):
     await util.say(ctx.channel,embed=help);
 
 @commands.command(args_pattern=None)
-async def dustats(ctx,*args):
+async def dustats(ctx,*args,**details):
     
     game_stats = game.Stats.get_stats();
   

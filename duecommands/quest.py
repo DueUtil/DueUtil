@@ -2,7 +2,7 @@ from fun import quests,game;
 from botstuff import commands,util;
 
 @commands.command(args_pattern='I')
-async def questinfo(ctx,*args): 
+async def questinfo(ctx,*args,**details): 
     player = game.Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
     if (quest_index - 1) >= 0 and (quest_index - 1) <= len(player.quests) - 1:
@@ -11,7 +11,7 @@ async def questinfo(ctx,*args):
         raise util.DueUtilException(ctx.channel,"Quest not found!");
 
 @commands.command()
-async def myquests(ctx,*args): 
+async def myquests(ctx,*args,**details): 
     await quests.show_quests(message);
 
 @commands.command()
@@ -33,7 +33,7 @@ async def acceptquest(ctx, **args):
         raise util.DueUtilException(ctx.channel,"Quest not found!");
  
 @commands.command()
-async def declinequest(ctx,*args):
+async def declinequest(ctx,*args,**details):
     player = Player.find_player(ctx.author.id);
     quest_index = int(args[0]);
     
@@ -54,5 +54,5 @@ async def declinequest(ctx,*args):
         await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**");
 
 @commands.command(admin_only=True)
-async def serverquests(ctx,*args):
+async def serverquests(ctx,*args,**details):
     await show_quest_list(ctx);

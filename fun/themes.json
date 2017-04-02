@@ -2,16 +2,21 @@
    "themes":{
       "default":{
           "name":"Default",
+          "icon":":cd:",
+          "description":"The classic look of DueUtil since 2016.",
           "banner":"discord blue",
           "fontColour": "#FFF",
           "background": "default",
           "avatarBorder": "default",
           "screen": "default",
           "expBarColour": ["#FFF","#CCC"],
-          "icons": "default"
+          "icons": "default",
+          "preview": "http://i.imgur.com/2vkkVmy.png"
       },
       "test":{
           "name":"Test",
+          "icon":":space_invader:",
+          "description":"Hackerman test theme.",
           "banner":"discord blue",
           "fontColour": "#FF00FF",
           "background": "default",
@@ -29,10 +34,13 @@
               "#A3665A",
               "#E0210B",
               "#0F0F0F"
-          ]
+          ],
+          "preview": "http://i.imgur.com/5IgoZLh.png"
       },
       "pink":{
           "name":"Pink",
+          "icon":":kiss:",
+          "description":"hot sexy af pink theme",
           "banner":"hotpink",
           "fontColour": "#FFD1DC",
           "background": "default",
@@ -50,7 +58,9 @@
               "#A3665A",
               "#E0210B",
               "#0F0F0F"
-          ]
+          ],
+          "preview": "http://i.imgur.com/BDtK6xz.png"
+          
       }
    },
    "rankColours": [

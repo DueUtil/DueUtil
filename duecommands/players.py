@@ -4,7 +4,7 @@ from botstuff import commands,util
 
 @commands.command(args_pattern=None)
 @commands.imagecommand()
-async def myinfo(ctx,*args):
+async def myinfo(ctx,*args,**details):
   
     """
     [CMD_KEY]myinfo
@@ -17,7 +17,7 @@ async def myinfo(ctx,*args):
     
 @commands.command(args_pattern='P')
 @commands.imagecommand()
-async def info(ctx,*args):
+async def info(ctx,*args,**details):
   
     """
     [CMD_KEY]info @player
@@ -42,7 +42,7 @@ async def show_awards(ctx,player,*args):
     
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
-async def myawards(ctx,*args):
+async def myawards(ctx,*args,**details):
   
     """
     [CMD_KEY]myawards (page number)
@@ -55,7 +55,7 @@ async def myawards(ctx,*args):
     
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
-async def awards(ctx,*args):
+async def awards(ctx,*args,**details):
   
     """
     [CMD_KEY]awards @player (page number)
@@ -67,7 +67,7 @@ async def awards(ctx,*args):
     await show_awards(ctx,args[0],*args[1:]);     
 
 @commands.command()
-async def resetme(ctx,*args): 
+async def resetme(ctx,*args,**details): 
   
     """
     [CMD_KEY]resetme
@@ -86,7 +86,7 @@ async def resetme(ctx,*args):
         await give_award(message,player,21,"Become an admin!")    
         
 @commands.command(args_pattern='PCS?')
-async def sendcash(ctx,*args):
+async def sendcash(ctx,*args,**details):
   
     """
     [CMD_KEY]sendcash @player amount (optional message)
@@ -152,7 +152,7 @@ async def sendcash(ctx,*args):
     await util.say(ctx.channel,embed=transaction_log)
   
 @commands.command()
-async def mywagers(ctx,*args):    
+async def mywagers(ctx,*args,**details):    
   
     """
     [CMD_KEY]mywagers
@@ -174,7 +174,7 @@ async def mywagers(ctx,*args):
     await get_client(message.server.id).send_message(message.channel, WagerT)
     
 @commands.command(hidden=True)
-async def benfont(ctx,*args):
+async def benfont(ctx,*args,**details):
   
     """
     [CMD_KEY]benfont 
@@ -190,8 +190,35 @@ async def benfont(ctx,*args):
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
         await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
         
-@commands.command(args_pattern='S')
-async def settheme(ctx,*args):
-    players.find_player(ctx.author.id).theme = args[0]
-    await util.say(ctx.channel,"Theme set")
+# Think about clean up & reuse
+@commands.command(args_pattern='M?')
+async def mythemes(ctx,*args,**details):
+  
+    player = players.find_player(ctx.author.id)
+    page = args[0] if len(args) == 1 else 0
     
+    if type(page) is int:
+      
+        themes = list(player.get_owned_themes().values())
+        themes_listings = discord.Embed(title="Available themes",type="rich",color=16038978)      
+        if 12 * page + 12 < len (themes):
+            footer = "But wait there's more! Do "++"mythemes "+str(page+2)
+        else:
+            footer = 'More themes coming soon!'
+
+        for theme_index in range(12 * page,12 * page + 12):
+            if theme_index >= len(themes):
+                break
+            theme = themes[theme_index]
+            themes_listings.add_field(name=theme["icon"]+" | "+theme["name"],value=theme["description"])
+        themes_listings.set_footer(text=footer)
+        await util.say(ctx.channel,embed=themes_listings)
+    else:
+        theme = players.get_theme(page)
+        if theme == None:
+            raise util.DueUtilException(ctx.channel,"Theme not found!")
+        theme_info = discord.Embed(title=theme["icon"]+" | "+theme["name"],type="rich",color=16038978)
+        theme_info.set_image(url=theme["preview"])
+        theme_info.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme["name"].lower()+" to use this theme!")
+        await util.say(ctx.channel,embed=theme_info)
+          
