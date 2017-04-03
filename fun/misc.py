@@ -40,7 +40,7 @@ class Themes(dict):
         self.load_themes()
   
     def load_themes(self):
-        with open('fun/themes.json') as themes_file:  
+        with open('fun/configs/themes.json') as themes_file:  
             themes = json.load(themes_file)
         self.update(themes["themes"])
         for theme in self.values():

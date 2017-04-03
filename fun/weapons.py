@@ -104,7 +104,7 @@ def get_weapons_for_server(id):
             and weapon_id != NO_WEAPON_ID) or weapon_id.startswith(id)}
             
 def load_stock_weapons():
-    with open('fun/defaultweapons.json') as defaults_file:  
+    with open('fun/configs/defaultweapons.json') as defaults_file:  
         defaults = json.load(defaults_file)
     for weapon_data in defaults.values():
         weapon = Weapon(weapon_data["name"],

@@ -86,7 +86,7 @@ def get_exp_for_next_level(level):
 
 def load_game_rules():
     global exp_per_level
-    with open('fun/progression.json') as progression_file:  
+    with open('fun/configs/progression.json') as progression_file:  
         progression = json.load(progression_file)
     exp = progression["dueutil-ranks"]
     for levels, exp_details in exp.items():

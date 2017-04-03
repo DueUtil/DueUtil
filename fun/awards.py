@@ -18,7 +18,7 @@ def get_award(award_id):
 
 def load():
     global awards
-    with open('fun/awards.json') as awards_file:  
+    with open('fun/configs/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
     awards = awards_json["awards"].items()
     

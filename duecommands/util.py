@@ -53,7 +53,13 @@ async def help(ctx,*args,**details):
 @commands.command(args_pattern=None)
 async def dustats(ctx,*args,**details):
     
-
+    
+    """
+    [CMD_KEY]dustats
+    
+    DueUtil's stats since the dawn of fucking time!
+    """
+    
     game_stats = stats.get_stats()
   
     stats_embed = discord.Embed(title="DueUtil's Stats",type="rich",color=16038978)
