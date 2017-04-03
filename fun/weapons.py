@@ -3,10 +3,12 @@ import json
 from botstuff import util, dbconn
 from fun.misc import DueUtilObject
 
-NO_WEAPON_ID = "000000000000000000_none"
-STOCK_WEAPONS = ["stick","laser gun","gun","none","frisbee"]
+NO_WEAPON_ID = "STOCK_none"
+stock_weapons = []
 
 weapons = dict()
+
+# TODO: Consider map between servers & weapons (like quests)
 
 class Weapon(DueUtilObject):
   
@@ -33,7 +35,7 @@ class Weapon(DueUtilObject):
             self.server_id = message.server.id
             
         else:
-            self.server_id = "000000000000000000"
+            self.server_id = "STOCK"
         
         self.name = name
         super().__init__(self.__weapon_id(),**extras)    
@@ -79,14 +81,12 @@ def does_weapon_exist(server_id,weapon_name):
     return False
     
 def get_weapon_for_server(server_id,weapon_name):
-    if weapon_name.lower() in STOCK_WEAPONS:
-        return weapons["000000000000000000_"+weapon_name.lower()]
+    if weapon_name.lower() in stock_weapons:
+        return weapons["STOCK_"+weapon_name.lower()]
     else:
         weapon_id = server_id+"_"+weapon_name.lower()
         if weapon_id in weapons:
             return weapons[weapon_id]
-        else:
-            return None
                 
 def remove_weapon_from_shop(player,wname):
     for weapon in player.owned_weps:
@@ -96,25 +96,32 @@ def remove_weapon_from_shop(player,wname):
             sum = weapon[1]
             del player.owned_weps[player.owned_weps.index(weapon)]
             return [wID,sum]
-    return None
         
 def get_weapons_for_server(id):
     return {weapon_id: weapons[weapon_id] for weapon_id in weapons
-            if (weapons[weapon_id].name.lower() in STOCK_WEAPONS
+            if (weapons[weapon_id].name.lower() in stock_weapons
             and weapon_id != NO_WEAPON_ID) or weapon_id.startswith(id)}
             
+def stock_weapon(weapon_name):
+    if weapon_name in stock_weapons:
+        return "STOCK_" + weapon_name
+    else:
+        return False
+  
 def load_stock_weapons():
+    global stock_weapons
     with open('fun/configs/defaultweapons.json') as defaults_file:  
         defaults = json.load(defaults_file)
-    for weapon_data in defaults.values():
-        weapon = Weapon(weapon_data["name"],
-                        weapon_data["useText"],
-                        weapon_data["damage"],
-                        weapon_data["accy"],
-                        icon = weapon_data["icon"],
-                        image_url = weapon_data["image"],
-                        melee = weapon_data["melee"],
-                        no_save = True)
+    for weapon,weapon_data in defaults.items():
+        stock_weapons.append(weapon)
+        Weapon(weapon_data["name"],
+               weapon_data["useText"],
+               weapon_data["damage"],
+               weapon_data["accy"],
+               icon = weapon_data["icon"],
+               image_url = weapon_data["image"],
+               melee = weapon_data["melee"],
+               no_save = True)
               
 def load():
     global weapons

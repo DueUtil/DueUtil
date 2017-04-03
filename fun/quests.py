@@ -67,7 +67,7 @@ class Quest(DueUtilObject):
             self.server_id = message.server.id
             self.created_by = message.author.id
         else:
-            self.server_id = ""
+            self.server_id = "DEFAULT"
             self.created_by = ""
       
         self.name = name
@@ -82,9 +82,8 @@ class Quest(DueUtilObject):
         self.base_hp = base_hp
         self.base_reward = 0 #self__reward()
         self.channel = extras.get('channel',"ALL")
-                
-        if self.server_id != "":
-            self.__add()
+            
+        self.__add()
         
     def __quest_id(self):
         return self.server_id+'/'+self.name.lower()
@@ -189,9 +188,25 @@ def has_quests(place):
             return next((quest for quest in quest[place.server.id] if quest.channel in ("ALL",place.id)), None) != None
     return False
         
+def load_default_quests():
+    with open('fun/configs/defaultquests.json') as defaults_file:  
+        defaults = json.load(defaults_file)
+    for quest_data in defaults.values():
+        Quest(quest_data["name"],
+              quest_data["baseAttack"],
+              quest_data["baseStrg"],
+              quest_data["baseAccy"],
+              quest_data["baseHP"],
+              task = quest_data["task"],
+              weapon_id = quest_data(quest_data["weapon"]),
+              image_url = quest_data["image"],
+              spawn_chance = quest_data["spawnChance"],
+              no_save = True)
+  
 def load():
     global quest_map
     reference = Quest('Reference',0,0,0,0)
+    load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
         quest_map[loaded_quest.q_id]
