@@ -23,6 +23,11 @@ def command(**command_rules):
                   or '@here' in ctx.content or '@everyone' in ctx.content)
         return False
       
+    def get_command_details(ctx,**details):
+        details["timestamp"] = ctx.timestamp
+        details["author"] = players.find_player(ctx.author.id)
+        return details
+        
     def wrap(command_func):
   
         @wraps(command_func)
@@ -36,7 +41,7 @@ def command(**command_rules):
                 elif not is_spam_command(ctx,wrapped_command,*args):
                     await util.say(ctx.channel,str(args))
                     kwargs["cmd_key"] = args[0]
-                    await command_func(ctx,*args[2],**kwargs)
+                    await command_func(ctx,*args[2],**get_command_details(ctx,**kwargs))
                 else:
                     raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
             else:

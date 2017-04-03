@@ -13,7 +13,7 @@ async def myinfo(ctx,*args,**details):
     
     """
     
-    await imagehelper.stats_screen(ctx.channel,players.find_player(ctx.author.id))
+    await imagehelper.stats_screen(ctx.channel,details["author"])
     
 @commands.command(args_pattern='P')
 @commands.imagecommand()
@@ -51,7 +51,7 @@ async def myawards(ctx,*args,**details):
     
     """
     
-    await show_awards(ctx,players.find_player(ctx.author.id),*args)
+    await show_awards(ctx,details["author"],*args)
     
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
@@ -77,7 +77,7 @@ async def resetme(ctx,*args,**details):
     
     """
     
-    player = players.find_player(ctx.author.id)
+    player = details["author"]
     player.reset(ctx.author)
     await util.say(ctx.channel, "Your user has been reset.")
     if util.is_mod(player.user_id):
@@ -104,7 +104,7 @@ async def sendcash(ctx,*args,**details):
     
     """
     
-    sender = players.find_player(ctx.author.id)
+    sender = details["author"]
     receiver = args[0]
     transaction_amount = args[1]
     
@@ -162,7 +162,7 @@ async def mywagers(ctx,*args,**details):
     
     """
     
-    player = players.find_player(ctx.author.id)
+    player = details["author"]
     WagerT = "```\n" + player.name + "'s received wagers\n"
     if(len(player.battlers) > 0):
         for x in range(0, len(player.battlers)):
@@ -183,7 +183,7 @@ async def benfont(ctx,*args,**details):
     
     """
     
-    player = players.find_player(ctx.author.id)
+    player = details["author"]
     player.benfont = not player.benfont
     player.save()
     if(player.benfont):
@@ -194,7 +194,15 @@ async def benfont(ctx,*args,**details):
 @commands.command(args_pattern='M?')
 async def mythemes(ctx,*args,**details):
   
-    player = players.find_player(ctx.author.id)
+    """
+    [CMD_KEY]mythemes (optional theme name)
+    
+    Shows the amazing themes you can use on your profile.
+    If you use this command with a theme name you can get a preview of the theme!
+    
+    """
+    
+    player = details["author"]
     page = args[0] if len(args) == 1 else 0
     
     if type(page) is int:

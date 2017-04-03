@@ -1,3 +1,5 @@
+import os
+import json
 from botstuff import util, dbconn
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
@@ -32,11 +34,43 @@ class DueUtilObject():
         if not self.no_save:
             dbconn.insert_object(self.id,self)
         
+class Themes(dict):
+  
+    def __init__(self):
+        self.load_themes()
+  
+    def load_themes(self):
+        with open('fun/themes.json') as themes_file:  
+            themes = json.load(themes_file)
+        self.update(themes["themes"])
+        for theme in self.values():
+            theme["background"] = theme["background"]+".png"
+            if "rankColours" not in theme:
+                theme["rankColours"] = themes["rankColours"]
+        
+class Backgrounds(dict):
+    
+    def __init__(self):
+        self.load_backgrounds()
+      
+    def load_backgrounds(self):
+        self.clear()
+        for background in os.listdir("backgrounds"):
+            if background.endswith(".png"):   
+                background_name = background.lower().replace("stats_", "").replace(".png", "").replace("_", " ").title()
+                self[background_name] = background
+        
+def valid_image(bg_to_test,dimensions):
+    if bg_to_test != None:
+        width, height = bg_to_test.size
+        if width == dimensions[0] and height == dimensions[1]:
+            return True
+    return False
+    
 async def random_word(message):
     response = requests.get("http://randomword.setgetgo.com/get.php")
     await create_glitter_text(message, response.text)
         
-
 async def create_glitter_text(channel,gif_text):
     response = requests.get("http://www.gigaglitters.com/procesing.php?text="+parse.quote_plus(gif_text)
     +"&size=90&text_color=img/DCdarkness.gif&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")

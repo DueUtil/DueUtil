@@ -1,4 +1,5 @@
 import json
+from botstuff import util
 
 awards = dict()
 
@@ -20,5 +21,12 @@ def load():
     with open('fun/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
     awards = awards_json["awards"].items()
-
+    
+async def give_award(channel, player, award_id, text):
+    if awards.get_award(award_id) != None:
+        player.awards.append(award_id)
+        player.save()
+        if not channel.is_private: #or not (message.server.id+"/"+message.channel.id in util.mutedchan):
+            await util.say(channel, "**"+player.name+"** :trophy: **Award!** " + text)
+    
 load()

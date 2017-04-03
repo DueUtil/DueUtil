@@ -13,12 +13,10 @@ async def myweapons(ctx,*args,**details):
     
     """
          
-    player = players.find_player(ctx.author.id)
+    player = details["author"]
     weapon_store = weapons_page(player.weapon_inventory,0,player.name+"'s Weapons")
     
     await util.say(ctx.channel,embed=weapon_store)
-
-    
 
 @commands.command(args_pattern='M?')
 async def shop(ctx,*args,**details):
@@ -78,7 +76,7 @@ async def buy(ctx,*args,**details):
     Buys a weapon from the shop.!
     
     """
-    customer = players.find_player(ctx.author.id)
+    customer = details["author"]
     weapon = weapons.get_weapon_for_server(ctx.server.id,args[0])
     if weapon == None:
         raise util.DueUtilException(ctx.channel,"Weapon not found")
@@ -145,5 +143,4 @@ async def createweapon(ctx,*args,**details):
     weapon = weapons.Weapon(*args[:4],**extras,ctx=ctx)
     await util.say(ctx.channel,(weapon.icon+" **"+weapon.name.strip('*')+"** is available in the shop for "
                                 +util.format_number(weapon.price,money=True)+"!"))
-                                
-                                
+                      

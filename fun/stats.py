@@ -15,4 +15,5 @@ def increment_stat(dueutil_stat, increment = 1):
                                   { "$inc" : { "count " : increment } }, upsert=True)
     
 def get_stats():
-    return conn()["stats"]
+    stats_response = dbconn.conn()["stats"].find()
+    return dict((stat['_id'], stat) for stat in stats_response)

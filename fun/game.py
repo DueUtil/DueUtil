@@ -1,15 +1,26 @@
 import math
 import time
 import json
+import time
 import emoji #The emoji list in this is outdated.
 from botstuff import events
 from botstuff import util
-from fun import stats, weapons, players
+from fun import stats, weapons, players, quests
 
 exp_per_level = dict()
+QUEST_DAY = 86400
+QUEST_COOLDOWN = 360
+MAX_DAILY_QUESTS = 30
+MAX_ACTIVE_QUESTS = 7
 
 async def player_progress(message):
-
+    
+    """ 
+    W.I.P. Function to allow a small amount of exp
+    to be gained from messaging.
+    
+    """
+  
     player = players.find_player(message.author.id)
     if(player != None):
         if(player.w_id != weapons.NO_WEAPON_ID):
@@ -51,6 +62,20 @@ async def player_progress(message):
     if player == None:
         players.Player(message.author)
         
+async def manage_quests(message):
+    player = players.find_player(message.author.id)
+    if time.time() - player.quest_day_start > QUEST_DAY and player.quest_day_start != 0:
+        player.quests_completed_today = 0
+        player.quest_day_start = 0
+        # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
+    if time.time() - player.last_quest >= QUEST_COOLDOWN:
+        player.last_quest = time.time()
+        if quests.has_quests(message.channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
+            quest = quests.get_random_quest_in_channel(message.channel)
+            quests.ActiveQuest(quest.q_id,player)
+            await util.say("DEBUG: NEW QUEST")
+            stats.increment_stat(stats.Stat.QUESTS_GIVEN)
+            # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
         
 def get_exp_for_next_level(level):
     for level_range, exp_details in exp_per_level.items():
@@ -75,4 +100,6 @@ async def on_message(message):
     await player_progress(message)
     
 load_game_rules()
+
 events.register_message_listener(on_message)
+events.register_message_listener(manage_quests)

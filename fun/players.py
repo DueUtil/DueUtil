@@ -7,13 +7,14 @@ import os
 import numpy
 import struct
 import json
-from fun import weapons, stats
-from fun.misc import DueUtilObject
+from fun import weapons, stats, awards
+from fun.misc import DueUtilObject, Themes, Backgrounds
 from botstuff import util, dbconn
 
 players = dict()   
 banners = dict()
-profile_themes = dict()
+backgrounds = Backgrounds()
+profile_themes = Themes()
 
 """ DueUtil battles & quests. The main meat of the bot. """
 
@@ -179,66 +180,22 @@ class PlayerInfoBanner:
     def save(self):
         dbconn.insert_object(self.name.lower().replace(" ","_"),self)
         
-def add_default_banner():
-    global banners
-    discord_blue_banner = player_info_banner("Discord Blue","info_banner.png")
-    banners["discord blue"] = discord_blue_banner
-        
-def load_backgrounds():
-     Backgrounds.clear()
-     for file in os.listdir("backgrounds"):
-         if file.endswith(".png"):
-             filename = str(file)
-             background_name = filename.lower().replace("stats_", "").replace(".png", "").replace("_", " ").title()
-             Backgrounds[background_name] = filename
-             
-async def give_award(channel, player, award_id, text):
-    if award_id not in player.awards:
-        player.awards.append(award_id)
-        player.save()
-        if not channel.is_private: #or not (message.server.id+"/"+message.channel.id in util.mutedchan):
-            await util.get_client(channel.server.id).send_message(channel, "**"+player.name+"** :trophy: **Award!** " + text)
-    
-def valid_image(bg_to_test,dimensions):
-    if bg_to_test != None:
-        width, height = bg_to_test.size
-        if width == dimensions[0] and height == dimensions[1]:
-            return True
-    return False
-    
 def find_player(user_id):
     if user_id in players:
         return players[user_id]
-    else:
-        return None
-        
-def load_themes():
-    global profile_themes
-    with open('fun/themes.json') as themes_file:  
-        themes = json.load(themes_file)
-    profile_themes = themes["themes"]
-    for theme in profile_themes.values():
-        theme["background"] = theme["background"]+".png"
-        if "rankColours" not in theme:
-            theme["rankColours"] = themes["rankColours"]
-            
+
 def get_theme(theme_name):
     theme_name = theme_name.lower()
     if theme_name in profile_themes:
         return profile_themes[theme_name]
-    else:
-        return None
-  
+            
 def load():
     global players, banners
     
     banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png")
-    
     reference = Player(no_save = True)
     for player in dbconn.get_collection_for_object(Player).find():
         loaded_player = jsonpickle.decode(player['data'])
         players[loaded_player.id] = util.load_and_update(reference,loaded_player)
-  
-    load_themes()
         
 load()
