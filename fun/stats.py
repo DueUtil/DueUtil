@@ -12,8 +12,8 @@ class Stat(Enum):
 
 def increment_stat(dueutil_stat, increment = 1):
     dbconn.conn()["stats"].update({"stat" : dueutil_stat.value},
-                                  { "$inc" : { "count " : increment } }, upsert=True)
+                                  { "$inc" : { "count" : increment } }, upsert=True)
     
 def get_stats():
     stats_response = dbconn.conn()["stats"].find()
-    return dict((stat['_id'], stat) for stat in stats_response)
+    return dict((stat["stat"], stat["count"]) for stat in stats_response)

@@ -30,7 +30,6 @@ class Player(DueUtilObject):
             super().__init__("NO_ID","DueUtil Player",**kwargs)
         self.reset()
         players[self.id] = self
-        stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
 
     def reset(self,discord_user = None):
         if discord_user != None:

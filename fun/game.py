@@ -61,6 +61,7 @@ async def player_progress(message):
             player.save()
     if player == None:
         players.Player(message.author)
+        stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
         
 async def manage_quests(message):
     player = players.find_player(message.author.id)
