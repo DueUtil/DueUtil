@@ -3,7 +3,7 @@ import requests
 import math
 import os
 import io
-from fun import players, stats, game
+from fun import players, stats, game, awards
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -118,7 +118,7 @@ async def awards_screen(channel,player,page,**kwargs):
     image = awards_screen_template.copy()
      
     draw = ImageDraw.Draw(image)
-    suffix = "'s Awards"
+    suffix = player.get_name_possession()+" Awards"
     page_no_string_len = 0
     if(page > 0):
         page_info = ": Page "+str(page+1)
@@ -133,9 +133,10 @@ async def awards_screen(channel,player,page,**kwargs):
     player_award = 0
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
          image.paste(award_slot, (14, 40 + 44 * count))
-         award = game.Award.get_award(player.awards[player_award])
-         draw.text((52, 47 + 44 * count),award.name, (48, 48, 48), font=font_med)
-         draw.text((52, 61 + 44 * count),award.description,(48, 48, 48), font=font_small)
+         award = awards.get_award(player.awards[player_award])
+         draw.text((52, 47 + 44 * count),award["name"], (48, 48, 48), font=font_med)
+         draw.text((52, 61 + 44 * count),award.get('message',"???"),(48, 48, 48), font=font_small)
+         # Hmm consider award class to hold icon
          image.paste(award.icon, (19, 45 + 44 * count))
          count += 1
          msg = ""
@@ -209,7 +210,7 @@ async def stats_screen(channel,player):
     attk = str(round(player.attack, 2))
     strg = str(round(player.strg, 2))
     accy = str(round(player.accy, 2))
-    money = str(util.format_number(player.money,money=True))
+    money = util.format_number(player.money,money=True)
     
     # Text
     draw.text((96, 49), "LEVEL " + level,font_colour, font=font_big)
@@ -257,7 +258,7 @@ async def stats_screen(channel,player):
     elif len(player.awards) == 0:
         draw.text((38, 183), "None", (48, 48, 48), font=font)
 
-    await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.name+"'s** information."); 
+    await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.get_name_possession()+"** information."); 
        
 async def quest_screen(channel,quest):
 
@@ -272,10 +273,10 @@ async def quest_screen(channel,quest):
     attk = str(round(quest.attack, 2))
     strg = str(round(quest.strg, 2))
     accy = str(round(quest.accy, 2))
-    reward = util.number_format(quest.money,money=True)
+    reward = util.format_number(quest.money,money=True)
 
     draw = ImageDraw.Draw(image)
-    name = get_text_limit_len(draw,util.clear_markdown_escapes(quest.name),font,114)
+    name = get_text_limit_len(draw,quest.name,font,114)
     quest_info = quest.info
     draw.text((88, 38), name, quest.rank_colour, font=font)
     draw.text((134, 58), " " + str(level), "white", font=font_big)
@@ -292,8 +293,8 @@ async def quest_screen(channel,quest):
     draw.text((203 - width, 207), weapon_name, "white", font=font)
     
     if quest_info != None:
-        creator = get_text_limit_len(draw,quest.creator.name,font,119)
-        home = get_text_limit_len(draw,str(quest_info.home),font,146)
+        creator = get_text_limit_len(draw,quest_info.creator,font,119)
+        home = get_text_limit_len(draw,quest_info.home,font,146)
     else:
         creator = "Unknown"
         home = "Unknown"
@@ -395,7 +396,5 @@ def init_banners():
         if banner.image == None:
             banner.image = set_opacity(Image.open('screens/info_banners/'+banner.image_name),0.9)
             
-
-
 init_banners()
 load_profile_parts()

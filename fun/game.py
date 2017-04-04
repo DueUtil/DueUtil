@@ -1,6 +1,7 @@
 import math
 import time
 import json
+import random
 import time
 import emoji #The emoji list in this is outdated.
 from botstuff import events
@@ -83,10 +84,8 @@ async def manage_quests(message):
         player.last_quest = time.time()
         if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
             quest = quests.get_random_quest_in_channel(channel)
-            await util.say(channel,"DEBUG: Quest chance")
-            if quest != None:
+            if random.random() <= quest.spawn_chance:
                 quests.ActiveQuest(quest.q_id,player)
-                await util.say(channel,"DEBUG: NEW QUEST")
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
                 # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
             

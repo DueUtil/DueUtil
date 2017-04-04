@@ -1,4 +1,5 @@
 import discord
+import fun.awards
 from fun import players, stats, imagehelper, game
 from botstuff import commands,util
 
@@ -186,9 +187,9 @@ async def benfont(ctx,*args,**details):
     player = details["author"]
     player.benfont = not player.benfont
     player.save()
-    if(player.benfont):
+    if player.benfont:
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
-        await players.give_award(ctx.channel, player, 16, "ONE TRUE *type* FONT")
+        await fun.awards.give_award(ctx.channel, player,"BenFont", "ONE TRUE *type* FONT")
         
 # Think about clean up & reuse
 @commands.command(args_pattern='M?')

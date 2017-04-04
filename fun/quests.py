@@ -2,7 +2,7 @@ import discord
 import json
 import random
 from botstuff import util, dbconn
-from fun import weapons
+from fun import weapons, players
 from fun.misc import DueUtilObject, DueMap
 from fun.players import Player
         
@@ -75,7 +75,11 @@ class Quest(DueUtilObject):
         
     @property    
     def creator(self):
-        game.Player.find_player(quest_info.created_by)
+        creator = players.find_player(self.created_by)
+        if creator != None:
+            return creator.name
+        else:
+            return "Unknown"
         
     @property
     def q_id(self):
@@ -84,9 +88,9 @@ class Quest(DueUtilObject):
     @property
     def home(self):
         try:
-            util.get_client(self.server_id).get_server(server_id)
+            return util.get_client(self.server_id).get_server(server_id).name
         except:
-            return None
+            return "Unknown"
         
 class ActiveQuest(Player):
   
@@ -130,15 +134,14 @@ def get_server_quest_list(server):
     
 def get_quest_from_id(quest_id):
     return quest_map[quest_id]
+    
+def get_channel_quests(channel):
+    return [quest for quest in quest_map[channel.server].values() if quest.channel in ("ALL",channel.id)]
 
 def get_random_quest_in_channel(channel):
     if channel.server in quest_map:
-        quests = quest_map[channel.server].values()
-        for quest in quests:
-            if quest.channel == "ALL" or quest.channel == channel.id:
-                if random.random() <= quest.spawn_chance:
-                    return quest
-                    
+        return random.choice(get_channel_quests(channel))
+        
 def add_default_quest_to_server(server):
     default = random.choice(list(quest_map["DEFAULT"].values()))
     Quest(default.name,
@@ -157,7 +160,7 @@ def has_quests(place):
         return place in quest_map and len(quest_map[place]) > 0
     elif isinstance(place,discord.Channel):
         if place.server in quest_map:
-            return next((quest for quest in quest_map[place.server].values() if quest.channel in ("ALL",place.id)), None) != None
+            return len(get_channel_quests(place)) > 0
     return False
         
 def load_default_quests():
@@ -170,7 +173,7 @@ def load_default_quests():
               quest_data["baseAccy"],
               quest_data["baseHP"],
               task = quest_data["task"],
-              weapon_id = quest_data["weapon"],
+              weapon_id = weapons.stock_weapon(quest_data["weapon"]),
               image_url = quest_data["image"],
               spawn_chance = quest_data["spawnChance"],
               no_save = True)

@@ -105,7 +105,7 @@ def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:
         return "STOCK/" + weapon_name
     else:
-        return False
+        return NO_WEAPON_ID
   
 def load_stock_weapons():
     global stock_weapons

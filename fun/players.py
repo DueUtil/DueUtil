@@ -83,6 +83,11 @@ class Player(DueUtilObject):
     def get_owned_themes(self):
         return profile_themes
         
+    def get_name_possession(self):
+        if self.name.endswith('s'):
+            return self.name + "'"
+        return self.name + "'s"
+        
     @property    
     def weapon_accy(self):
         max_value = self.item_value_limit
@@ -128,6 +133,7 @@ class Player(DueUtilObject):
 
     @property
     def weapon(self):
+        print (self.w_id)
         return weapons.get_weapon_from_id(self.w_id)
         
     @property
