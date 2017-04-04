@@ -1,47 +1,12 @@
-import collections
 import discord
-from fun.misc import DueUtilObject
+import json
+import random
+from botstuff import util, dbconn
+from fun import weapons
+from fun.misc import DueUtilObject, DueMap
 from fun.players import Player
-
-class QuestMap(collections.MutableMapping):
-  
-    """ A 2D Mapping of quests to servers
-    Much wow
-    
-    ServerID/QuestName
-    
-    This class has
-    """
-    
-    def __init__(self):
-        self.quest_servers = dict()
-
-    def __getitem__(self, key):
-        quest_key = self.__parse_key__(key)
-        return self.quest_servers[quest_key[0]][quest_key[1]]
-
-    def __setitem__(self, key, value):
-        quest_key = self.__parse_key__(key)
-        if key[0] not in self.quest_servers:
-            quests = dict()
-            quests[key[1]] = value
-            self.quest_servers[key[0]] = quests
-        else:
-            self.quest_servers[key[0]][key[1]] = value
-
-    def __delitem__(self, key):
-        del self.store[self.__parse_key__(key)[0]]
-
-    def __iter__(self):
-        return iter(self.store)
-
-    def __len__(self):
-        return len(self.store)
-
-    def __parse_key__(self, key):
-        return key.split('/',1)
         
-quest_map = QuestMap()
+quest_map = DueMap()
 
 class Quest(DueUtilObject):
   
@@ -67,13 +32,13 @@ class Quest(DueUtilObject):
             self.server_id = message.server.id
             self.created_by = message.author.id
         else:
-            self.server_id = "DEFAULT"
+            self.server_id = extras.get('server_id',"DEFAULT")
             self.created_by = ""
       
         self.name = name
         super().__init__(self.__quest_id())
         self.task = extras.get('task',"Battle a")
-        self.w_id = extras.get('weapon_id',Weapons.NO_WEAPON_ID)
+        self.w_id = extras.get('weapon_id',weapons.NO_WEAPON_ID)
         self.spawn_chance = extras.get('spawn_chance',4) / 100
         self.image_url = extras.get('image_url',"")
         self.base_attack = base_attack
@@ -100,9 +65,9 @@ class Quest(DueUtilObject):
         return base_reward
                         
     def __add(self):
-        global servers_quests
-        location = self.q_id.split('/',1)
-        servers_quests[location[0]][location[1]]
+        global quest_map
+        if self.server_id != "":
+            quest_map[self.id] = self
     
     @property
     def made_on(self):
@@ -128,15 +93,15 @@ class ActiveQuest(Player):
     def __init__(self,q_id, quester : Player):
         self.q_id = q_id
         super(ActiveQuest,self).__init__()
-        self.__calculate_stats(player)
+        self.__calculate_stats(quester)
         
     def __calculate_stats(self, player):
         quest_info = self.info
-        self.level = random.randrange(player.level, player.level * 2)
-        hp_multiplier = random.randrange(self.level / 2, self.level)
-        accy_multiplier = random.randrange(self.level / 2, self.level) / random.uniform(1.5, 1.9)
-        strg_multiplier = random.randrange(self.level / 2, self.level) / random.uniform(1.5, 1.9)
-        attack_multiplier = random.randrange(self.level / 2, self.level) / random.uniform(1.5, 1.9)
+        self.level = random.uniform(player.level, player.level * 2)
+        hp_multiplier = random.uniform(self.level / 2, self.level)
+        accy_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
+        strg_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
+        attack_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
         self.name = quest_info.name
         self.hp = quest_info.base_hp * hp_multiplier
         self.attack = quest_info.base_attack * attack_multiplier
@@ -156,36 +121,43 @@ class ActiveQuest(Player):
   
     @property
     def info(self):
-        try:
-            quest_id = self.q_id.split('/',1)
-            return ServersQuests[quest_id[0]][quest_id[1]]
-        except:
-            return None
+        return quest_map[self.q_id]
+
 
 def get_server_quest_list(server):
     # TODO
     pass
     
 def get_quest_from_id(quest_id):
-    try:
-        quest_map[quest_id]
-    except:
-        return None
+    return quest_map[quest_id]
 
 def get_random_quest_in_channel(channel):
-    if channel.server.id in quest_map:
-        quests = quest_map[channel.server.id]
+    if channel.server in quest_map:
+        quests = quest_map[channel.server].values()
         for quest in quests:
             if quest.channel == "ALL" or quest.channel == channel.id:
                 if random.random() <= quest.spawn_chance:
                     return quest
                     
+def add_default_quest_to_server(server):
+    default = random.choice(list(quest_map["DEFAULT"].values()))
+    Quest(default.name,
+          default.base_attack, 
+          default.base_strg,
+          default.base_accy,
+          default.base_hp,
+          task = default.task,
+          weapon_id = default.w_id,
+          image_url = default.image_url,
+          spawn_chance = default.spawn_chance * 100,
+          server_id = server.id)
+                    
 def has_quests(place):
     if isinstance(place,discord.Server):
-        return place.id in quest_map and len(quest_map[place.id]) > 0
+        return place in quest_map and len(quest_map[place]) > 0
     elif isinstance(place,discord.Channel):
-        if place.server.id in quest_map:
-            return next((quest for quest in quest[place.server.id] if quest.channel in ("ALL",place.id)), None) != None
+        if place.server in quest_map:
+            return next((quest for quest in quest_map[place.server].values() if quest.channel in ("ALL",place.id)), None) != None
     return False
         
 def load_default_quests():
@@ -198,15 +170,17 @@ def load_default_quests():
               quest_data["baseAccy"],
               quest_data["baseHP"],
               task = quest_data["task"],
-              weapon_id = quest_data(quest_data["weapon"]),
+              weapon_id = quest_data["weapon"],
               image_url = quest_data["image"],
               spawn_chance = quest_data["spawnChance"],
               no_save = True)
   
 def load():
     global quest_map
-    reference = Quest('Reference',0,0,0,0)
+    reference = Quest('Reference',0,0,0,0,server_id="")
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
         quest_map[loaded_quest.q_id]
+
+load()

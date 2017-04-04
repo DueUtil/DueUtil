@@ -1,12 +1,12 @@
 import jsonpickle
 import json
 from botstuff import util, dbconn
-from fun.misc import DueUtilObject
+from fun.misc import DueUtilObject, DueMap
 
-NO_WEAPON_ID = "STOCK_none"
-stock_weapons = []
+NO_WEAPON_ID = "STOCK/none"
+stock_weapons = ["none"]
 
-weapons = dict()
+weapons = DueMap()
 
 # TODO: Consider map between servers & weapons (like quests)
 
@@ -55,7 +55,7 @@ class Weapon(DueUtilObject):
         return self.id
     
     def __weapon_id(self):
-        return self.server_id+"_"+self.name.lower()
+        return self.server_id+"/"+self.name.lower()
         
     def __weapon_sum(self):
         return '"'+str(self.price)+'"'+str(self.damage)+str(self.accy)
@@ -68,11 +68,11 @@ class Weapon(DueUtilObject):
         weapons[self.w_id] = self
         self.save()
     
-def get_weapon_from_id(id):
-    if id in weapons:
-        return weapons[id]
+def get_weapon_from_id(weapon_id):
+    if weapon_id in weapons:
+        return weapons[weapon_id]
     else:
-        if id != NO_WEAPON_ID:
+        if weapon_id != NO_WEAPON_ID:
             return weapons[NO_WEAPON_ID]
                 
 def does_weapon_exist(server_id,weapon_name):   
@@ -82,9 +82,9 @@ def does_weapon_exist(server_id,weapon_name):
     
 def get_weapon_for_server(server_id,weapon_name):
     if weapon_name.lower() in stock_weapons:
-        return weapons["STOCK_"+weapon_name.lower()]
+        return weapons["STOCK/"+weapon_name.lower()]
     else:
-        weapon_id = server_id+"_"+weapon_name.lower()
+        weapon_id = server_id+"/"+weapon_name.lower()
         if weapon_id in weapons:
             return weapons[weapon_id]
                 
@@ -97,14 +97,13 @@ def remove_weapon_from_shop(player,wname):
             del player.owned_weps[player.owned_weps.index(weapon)]
             return [wID,sum]
         
-def get_weapons_for_server(id):
-    return {weapon_id: weapons[weapon_id] for weapon_id in weapons
-            if (weapons[weapon_id].name.lower() in stock_weapons
-            and weapon_id != NO_WEAPON_ID) or weapon_id.startswith(id)}
+def get_weapons_for_server(server):
+    return dict(weapons[server], **weapons["STOCK"])
+
             
 def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:
-        return "STOCK_" + weapon_name
+        return "STOCK/" + weapon_name
     else:
         return False
   
@@ -128,7 +127,6 @@ def load():
     none = Weapon('None', None, 1, 66, no_save = True)
     
     load_stock_weapons()
-    
     # Load from db    
     for weapon in dbconn.get_collection_for_object(Weapon).find():
         loaded_weapon = jsonpickle.decode(weapon['data'])

@@ -22,12 +22,11 @@ async def player_progress(message):
     """
   
     player = players.find_player(message.author.id)
-    if(player != None):
-        if(player.w_id != weapons.NO_WEAPON_ID):
-            if(player.weapon_sum != player.weapon.weapon_sum):
+    if player != None:
+        if player.w_id != weapons.NO_WEAPON_ID:
+            if player.weapon_sum != player.weapon.weapon_sum:
                 pass
-        
-        if  time.time() - player.last_progress >= 60:
+        if time.time() - player.last_progress >= 60:
             player.last_progress = time.time()
             exp_for_next_level = get_exp_for_next_level(player.level)
             add_attack = len(message.content) / 2000
@@ -64,20 +63,33 @@ async def player_progress(message):
         stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
         
 async def manage_quests(message):
+  
+    """ 
+    Give out quests!
+    
+    """
+    channel = message.channel
     player = players.find_player(message.author.id)
     if time.time() - player.quest_day_start > QUEST_DAY and player.quest_day_start != 0:
         player.quests_completed_today = 0
         player.quest_day_start = 0
         # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
+    
+    # Testing
+    if not quests.has_quests(channel):
+        quests.add_default_quest_to_server(message.server)
+    # Testing    
     if time.time() - player.last_quest >= QUEST_COOLDOWN:
         player.last_quest = time.time()
-        if quests.has_quests(message.channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
-            quest = quests.get_random_quest_in_channel(message.channel)
-            quests.ActiveQuest(quest.q_id,player)
-            await util.say("DEBUG: NEW QUEST")
-            stats.increment_stat(stats.Stat.QUESTS_GIVEN)
-            # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
-        
+        if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
+            quest = quests.get_random_quest_in_channel(channel)
+            await util.say(channel,"DEBUG: Quest chance")
+            if quest != None:
+                quests.ActiveQuest(quest.q_id,player)
+                await util.say(channel,"DEBUG: NEW QUEST")
+                stats.increment_stat(stats.Stat.QUESTS_GIVEN)
+                # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
+            
 def get_exp_for_next_level(level):
     for level_range, exp_details in exp_per_level.items():
         if level in level_range:
