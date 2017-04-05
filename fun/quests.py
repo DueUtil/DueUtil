@@ -127,10 +127,11 @@ class ActiveQuest(Player):
     def info(self):
         return quest_map[self.q_id]
 
+def get_quest_threat_level(quest,player):
+    pass
 
 def get_server_quest_list(server):
-    # TODO
-    pass
+    return quest_map[server]
     
 def get_quest_from_id(quest_id):
     return quest_map[quest_id]

@@ -3,6 +3,8 @@ import requests
 import math
 import os
 import io
+import random
+from abc import ABCMeta, abstractmethod
 from fun import players, stats, game, awards
 from botstuff import util
 from io import BytesIO
@@ -23,7 +25,10 @@ awards_screen_template = Image.open("screens/awards_screen.png")
 quest_info_template = Image.open("screens/stats_page_quest.png")
 battle_screen_template = Image.open("screens/battle_screen.png")
 award_slot = Image.open("screens/award_slot.png")
+quest_row = Image.open("screens/quest_row.png")
 profile_parts = dict()
+
+DUE_BLACK = (48,48,48)
 
 def set_opacity(image,opacity_level):
     # Opaque is 1.0, input between 0-1.0
@@ -33,7 +38,18 @@ def set_opacity(image,opacity_level):
         pixel_data[i] = pixel[:3] +(opacity_level,)
     image.putdata(pixel_data)
     return image
-        
+    
+def colourize(image,colour,intensity):
+    pixel_data = list(image.getdata())
+    if len(colour) == 3:
+        colour += (255,)
+    for i,pixel in enumerate(pixel_data):
+        # pi = pixel item
+        # ci = colour item
+        pixel_data[i] = tuple(int(pi * (1-intensity) + ci * intensity) for pi,ci in zip(pixel,colour))
+    image.putdata(pixel_data)
+    return image
+    
 def load_image_url(url,**kwargs):
     do_not_compress = kwargs.get('raw',False)
     file_name = 'imagecache/' + re.sub(r'\W+', '', (url))
@@ -118,25 +134,23 @@ async def awards_screen(channel,player,page,**kwargs):
     image = awards_screen_template.copy()
      
     draw = ImageDraw.Draw(image)
-    suffix = player.get_name_possession()+" Awards"
+    suffix = " Awards"
     page_no_string_len = 0
-    if(page > 0):
+    if page > 0:
         page_info = ": Page "+str(page+1)
         suffix += page_info
         page_no_string_len = draw.textsize(page_info,font=font)[0]
         
-    name = get_text_limit_len(draw,player.name,font,175-page_no_string_len); 
+    name = get_text_limit_len(draw,player.get_name_possession(),font,175-page_no_string_len)
     title= name + suffix
-    draw.text((15, 17),title,(255,255,255),font=font)
-    
+    draw.text((15, 17),title,"white",font=font)
     count = 0
     player_award = 0
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
          image.paste(award_slot, (14, 40 + 44 * count))
          award = awards.get_award(player.awards[player_award])
-         draw.text((52, 47 + 44 * count),award["name"], (48, 48, 48), font=font_med)
-         draw.text((52, 61 + 44 * count),award.get('message',"???"),(48, 48, 48), font=font_small)
-         # Hmm consider award class to hold icon
+         draw.text((52, 47 + 44 * count),award.name, DUE_BLACK, font=font_med)
+         draw.text((52, 61 + 44 * count),award.description,DUE_BLACK, font=font_small)
          image.paste(award.icon, (19, 45 + 44 * count))
          count += 1
          msg = ""
@@ -154,9 +168,48 @@ async def awards_screen(channel,player,page,**kwargs):
         msg = name+" doesn't have any awards!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
-    
-    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.name+"'s** Awards!")
+    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
+        
+        
+async def quests_screen(channel,player,page):
+    image = awards_screen_template.copy()
+     
+    draw = ImageDraw.Draw(image)
 
+    suffix = " Quests"
+    page_no_string_len = 0
+    name = get_text_limit_len(draw,player.get_name_possession(),font,175-page_no_string_len)
+
+    if page > 0:
+        page_info = ": Page "+str(page+1)
+        suffix += page_info
+        page_no_string_len = draw.textsize(page_info,font=font)[0]
+        
+    name = get_text_limit_len(draw,player.get_name_possession(),font,175-page_no_string_len)
+    title= name + suffix
+    draw.text((15, 17),title,"white",font=font)
+    
+    count = 0
+    for quest_index in range(len(player.quests) - 1 - (5 * page), -1, -1):
+         image.paste(quest_row, (14, 40 + 44 * count))
+         quest = player.quests[quest_index]
+         draw.text((52, 47 + 44 * count),quest.name, DUE_BLACK, font=font_med)
+         name_width = draw.textsize(quest.name, font=font)[0]
+         level = "Level "+str(math.trunc(quest.level))
+         name_width = draw.textsize(quest.name, font=font)[0]
+         level_width = draw.textsize(level, font=font)[0]
+         draw.rectangle(((58+name_width,48 + 44*count),(55+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
+         draw.text((58+name_width +1, 48 + 44*count),level, "white", font=font_small)
+         draw.text((52, 61 + 44 * count),quest.info.home,DUE_BLACK, font=font_small)
+         image.paste(resize_avatar(quest,None, 28, 28), (20, 46 + 44 * count))
+         count += 1
+  
+    msg = "Test"
+    width = draw.textsize(msg, font=font_small)[0]
+    draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
+    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
+    
+    
 async def stats_screen(channel,player):
 
     theme = player.get_profile_theme()
@@ -245,18 +298,18 @@ async def stats_screen(channel,player):
     row = 0
     for player_award in range(len(player.awards) - 1, -1, -1):
          if count % 2 == 0:
-             image.paste(game.Award.get_award(player.awards[player_award]).icon, (18, 121 + 35 * row))
+             image.paste(awards.get_award(player.awards[player_award]).icon, (18, 121 + 35 * row))
          else:
-             image.paste(game.Award.get_award(player.awards[player_award]).icon, (53, 121 + 35 * row))
+             image.paste(awards.get_award(player.awards[player_award]).icon, (53, 121 + 35 * row))
              row +=1
          count += 1
          if count == 8:
              break
              
     if len(player.awards) > 8:
-        draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", (48, 48, 48), font=font)
+        draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", DUE_BLACK, font=font)
     elif len(player.awards) == 0:
-        draw.text((38, 183), "None", (48, 48, 48), font=font)
+        draw.text((38, 183), "None", DUE_BLACK, font=font)
 
     await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.get_name_possession()+"** information."); 
        
@@ -265,7 +318,7 @@ async def quest_screen(channel,quest):
     image = quest_info_template.copy()
         
     try:
-        image.paste(resize_avatar(quest,channel.server, 72, 72), (9, 12))
+        image.paste(resize_avatar(quest,None, 72, 72), (9, 12))
     except:
         pass
         
@@ -304,7 +357,7 @@ async def quest_screen(channel,quest):
     width = draw.textsize(home, font=font)[0]
     draw.text((203 - width, 242), home, "white", font=font)
     width = draw.textsize(reward, font=font_med)[0]
-    draw.text((203 - width, 266),reward, (48, 48, 48), font=font_med)
+    draw.text((203 - width, 266),reward, DUE_BLACK, font=font_med)
 
     await send_image(channel,image,file_name="questinfo.png",content=":pen_fountain: Here you go."); 
 

@@ -1,4 +1,5 @@
 import json
+from PIL import Image
 from botstuff import util
 
 awards = dict()
@@ -18,7 +19,8 @@ def load():
     global awards
     with open('fun/configs/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
-    awards = awards_json["awards"]
+    for award_id, award in awards_json["awards"].items():
+        awards[award_id] = Award(award["icon"],award["name"],award.get('message',"???"))
     
 async def give_award(channel, player, award_id, text):
     if get_award(award_id) != None:

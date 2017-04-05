@@ -28,6 +28,7 @@ async def questinfo(ctx,*args,**details):
 @commands.command()
 async def myquests(ctx,*args,**details): 
     player = details["author"]
+    await imagehelper.quests_screen(ctx.channel,player,0)
     # Make image?  
 
 @commands.command()
@@ -71,4 +72,5 @@ async def declinequest(ctx,*args,**details):
 
 @commands.command(admin_only=True)
 async def serverquests(ctx,*args,**details):
-    await show_quest_list(ctx)
+    quest_list = quests.get_server_quest_list(ctx.server)
+    
