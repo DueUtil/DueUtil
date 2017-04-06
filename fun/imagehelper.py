@@ -26,6 +26,7 @@ quest_info_template = Image.open("screens/stats_page_quest.png")
 battle_screen_template = Image.open("screens/battle_screen.png")
 award_slot = Image.open("screens/award_slot.png")
 quest_row = Image.open("screens/quest_row.png")
+mini_icons = Image.open("screens/mini_icons.png")
 profile_parts = dict()
 
 DUE_BLACK = (48,48,48)
@@ -39,16 +40,41 @@ def set_opacity(image,opacity_level):
     image.putdata(pixel_data)
     return image
     
-def colourize(image,colour,intensity):
+def colourize(image,colours,intensity,**extras):
+    image = image.copy()
     pixel_data = list(image.getdata())
-    if len(colour) == 3:
-        colour += (255,)
+    threshold = extras.get('threshold',0)
+    if not isinstance(colours,list):
+        colours = [colours]
+    cycle_colours = extras.get('cycle_colours',image.size[0] // len(colours))
+    if not isinstance(cycle_colours,list):
+        cycle_colours = [cycle_colours]
+    colour_index = -1
+    colour = colours[colour_index]
+    pixel_count = 0
     for i,pixel in enumerate(pixel_data):
         # pi = pixel item
         # ci = colour item
-        pixel_data[i] = tuple(int(pi * (1-intensity) + ci * intensity) for pi,ci in zip(pixel,colour))
+        if cycle_colours[0] != -1 and pixel_count % cycle_colours[colour_index % len(cycle_colours)]  == 0:
+            pixel_count = 0
+            colour_index+=1
+            colour = colours[colour_index % len(colours)]
+        if sum(pixel) > threshold:
+            pixel_data[i] = tuple(int(pi * (1-intensity) + ci * intensity) for pi,ci in zip(pixel[:3],colour))+pixel[3:]
+        pixel_count +=1
     image.putdata(pixel_data)
     return image
+    
+def paste_alpha(background,image,position):
+  
+    """
+    A paste function that does not fuck up the background when
+    pasting with an image with alpha.
+    """
+    r, g, b, a = image.split()
+    image = Image.merge("RGB", (r, g, b))
+    mask = Image.merge("L", (a,))
+    background.paste(image,position, mask)
     
 def load_image_url(url,**kwargs):
     do_not_compress = kwargs.get('raw',False)
@@ -190,19 +216,28 @@ async def quests_screen(channel,player,page):
     draw.text((15, 17),title,"white",font=font)
     
     count = 0
+    row_size = quest_row.size
     for quest_index in range(len(player.quests) - 1 - (5 * page), -1, -1):
-         image.paste(quest_row, (14, 40 + 44 * count))
-         quest = player.quests[quest_index]
-         draw.text((52, 47 + 44 * count),quest.name, DUE_BLACK, font=font_med)
-         name_width = draw.textsize(quest.name, font=font)[0]
-         level = "Level "+str(math.trunc(quest.level))
-         name_width = draw.textsize(quest.name, font=font)[0]
-         level_width = draw.textsize(level, font=font)[0]
-         draw.rectangle(((58+name_width,48 + 44*count),(55+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
-         draw.text((58+name_width +1, 48 + 44*count),level, "white", font=font_small)
-         draw.text((52, 61 + 44 * count),quest.info.home,DUE_BLACK, font=font_small)
-         image.paste(resize_avatar(quest,None, 28, 28), (20, 46 + 44 * count))
-         count += 1
+        image.paste(quest_row, (14, 40 + 44 * count))
+        warning_icons = colourize(mini_icons,[(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,0,255)],0.5,cycle_colours=[10,10,11,10,11])
+        paste_alpha(image,warning_icons,(14+row_size[0] - 53,row_size[1]*2-12+ 44 * count))
+        quest = player.quests[quest_index]
+        draw.text((52, 47 + 44 * count),quest.name, DUE_BLACK, font=font_med)
+        name_width = draw.textsize(quest.name, font=font)[0]
+        level = "Level "+str(math.trunc(quest.level))
+        name_width = draw.textsize(quest.name, font=font)[0]
+        level_width = draw.textsize(level, font=font)[0]
+        draw.rectangle(((58+name_width,48 + 44*count),(55+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
+        draw.text((58+name_width +1, 48 + 44*count),level, "white", font=font_small)
+        draw.text((52, 61 + 44 * count),quest.info.home,DUE_BLACK, font=font_small)
+        image.paste(resize_avatar(quest,None, 28, 28), (20, 46 + 44 * count))
+        quest_bubble_postion = (12,row_size[1]-2+ 44 * count)
+        quest_index = str(quest_index*2183)
+        quest_index_width = draw.textsize(quest_index, font=font)[0]
+        bubble_scale = 6+max(6,quest_index_width)
+        draw.rectangle((quest_bubble_postion,(quest_bubble_postion[0]+bubble_scale,quest_bubble_postion[1]+12)), fill="#2a52be",outline ="#a1caf1")
+        draw.text((12+(bubble_scale+2-quest_index_width)//2, quest_bubble_postion[1]-5),quest_index,"white", font=font_small)
+        count += 1
   
     msg = "Test"
     width = draw.textsize(msg, font=font_small)[0]
@@ -222,16 +257,16 @@ async def stats_screen(channel,player):
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screens"][theme["screen"]]
-    image.paste(profile_screen,(0,0),profile_screen)
+    paste_alpha(image,profile_screen,(0,0))
     
     if player.banner.image == None:
         init_banners()
     banner = player.banner.image
-    image.paste(banner,(91,34),banner)
+    paste_alpha(image,banner,(91,34))
     
     # draw avatar slot
     avatar_border = profile_parts["avatarborders"][theme["avatarBorder"]]
-    image.paste(avatar_border,(3,6),avatar_border)
+    paste_alpha(image,avatar_border,(3,6))
      
     try:
         image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
@@ -246,7 +281,7 @@ async def stats_screen(channel,player):
         draw.text((96, 36), name, player.rank_colour,font=font)
     
     profile_icons = profile_parts["icons"][theme["icons"]]
-    image.paste(profile_icons,(95,112),profile_icons)
+    paste_alpha(image,profile_icons,(95,112))
     
     # Draw exp bar
     next_level_exp = game.get_exp_for_next_level(player.level)
@@ -254,7 +289,7 @@ async def stats_screen(channel,player):
     draw.rectangle(((96,70),(240,82)), theme["expBarColour"][1])
     draw.rectangle(((97,71),(239,81)), fill=theme["expBarColour"][0])
     draw.rectangle(((98,72),(98 + exp_bar_width,80)), theme["expBarColour"][1])
-    exp = "EXP: "+str(player.exp)+" / "+str(next_level_exp)
+    exp = "EXP: "+str(math.trunc(player.exp))+" / "+str(next_level_exp)
     width = draw.textsize(exp, font=font_tiny)[0]
     if exp_bar_width >= width + 2:
         draw.text((98 + exp_bar_width - width, 72), exp, font_colour, font=font_tiny)

@@ -4,6 +4,7 @@ from functools import wraps
 from fun import players,misc
 from botstuff import events,util
 
+IMAGE_REQUEST_COOLDOWN = 5
 
 def command(**command_rules):
   
@@ -66,7 +67,7 @@ def imagecommand(**command_rules):
             rate_limit = command_rules.get('rate_limit',True)
             player = players.find_player(ctx.author.id)
             if rate_limit:
-                if time.time() - player.last_image_request < 10:
+                if time.time() - player.last_image_request < IMAGE_REQUEST_COOLDOWN:
                     await util.say(ctx.channel,":cold_sweat: Please don't break me!")
                     return
                 else:
