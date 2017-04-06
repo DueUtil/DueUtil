@@ -230,4 +230,17 @@ async def mythemes(ctx,*args,**details):
         theme_info.set_image(url=theme["preview"])
         theme_info.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme["name"].lower()+" to use this theme!")
         await util.say(ctx.channel,embed=theme_info)
-          
+         
+@commands.command(args_pattern='S')
+async def settheme(ctx,*args,**details):
+    player = details["author"]
+    theme_name = args[0].lower()
+    theme = players.get_theme(theme_name)
+    if theme != None:
+        player.theme_id = theme_name
+        player.banner_id = theme["banner"]
+        player.backgrounds = theme["background"]
+        player.save()
+        await util.say(ctx.channel,":white_check_mark: Theme set to **"+theme["name"]+"**")
+    else:
+        raise util.DueUtilException(ctx.channel,"Theme not found!")

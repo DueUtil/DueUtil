@@ -6,7 +6,7 @@ import time
 import emoji #The emoji list in this is outdated.
 from botstuff import events
 from botstuff import util
-from fun import stats, weapons, players, quests
+from fun import stats, weapons, players, quests, imagehelper
 
 exp_per_level = dict()
 QUEST_DAY = 86400

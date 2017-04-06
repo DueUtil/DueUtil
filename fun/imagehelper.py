@@ -4,11 +4,17 @@ import math
 import os
 import io
 import random
+from colour import Color
 from abc import ABCMeta, abstractmethod
-from fun import players, stats, game, awards
+from fun import players, stats, game, awards, quests
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+
+"""
+Worst code in the bot.
+Images very ugly throwway code.
+"""
 
 # DueUtil fonts
 font = ImageFont.truetype("fonts/Due_Robo.ttf", 12)
@@ -30,6 +36,14 @@ mini_icons = Image.open("screens/mini_icons.png")
 profile_parts = dict()
 
 DUE_BLACK = (48,48,48)
+
+traffic_lights = list(Color("red").range_to(Color("#ffbf00"),5)) + list(Color("#ffbf00").range_to(Color("green"),5))
+
+def traffic_light(colour_scale):
+    
+    # 0 Red to 1 Green
+    colour = traffic_lights[int((len(traffic_lights)-1) * colour_scale)].rgb
+    return tuple((int(ci * 255) for ci in colour))
 
 def set_opacity(image,opacity_level):
     # Opaque is 1.0, input between 0-1.0
@@ -173,20 +187,22 @@ async def awards_screen(channel,player,page,**kwargs):
     count = 0
     player_award = 0
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
-         image.paste(award_slot, (14, 40 + 44 * count))
-         award = awards.get_award(player.awards[player_award])
-         draw.text((52, 47 + 44 * count),award.name, DUE_BLACK, font=font_med)
-         draw.text((52, 61 + 44 * count),award.description,DUE_BLACK, font=font_small)
-         image.paste(award.icon, (19, 45 + 44 * count))
-         count += 1
-         msg = ""
-         if count == 5:
-             if player_award != 0:
-                 command = "myawards"
-                 if not for_player:
-                     command = "awards @User"
-                 msg = "+ "+str(len(player.awards)-(5*(page+1)))+" More. Do "+util.get_server_cmd_key(channel.server)+command+" "+str(page+2)+" for the next page."
-             break
+        image.paste(award_slot, (14, 40 + 44 * count))
+        award = awards.get_award(player.awards[player_award])
+        draw.text((52, 47 + 44 * count),award.name, DUE_BLACK, font=font_med)
+        draw.text((52, 61 + 44 * count),award.description,DUE_BLACK, font=font_small)
+        image.paste(award.icon, (19, 45 + 44 * count))
+        count += 1
+        msg = ""
+        if count == 5:
+            if player_award != 0:
+                command = "myawards"
+                if not for_player:
+                    command = "awards @User"
+                msg = ("+ "+str(len(player.awards)-(5*(page+1)))+" More. Do "
+                        +util.get_server_cmd_key(channel.server)+command
+                        +" "+str(page+2)+" for the next page.")
+            break
     if player_award == 0:
         msg = "That's all folks!"
     if len(player.awards) == 0:
@@ -196,16 +212,15 @@ async def awards_screen(channel,player,page,**kwargs):
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
     await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
         
-        
+   
+
+    
 async def quests_screen(channel,player,page):
     image = awards_screen_template.copy()
-     
     draw = ImageDraw.Draw(image)
-
     suffix = " Quests"
     page_no_string_len = 0
     name = get_text_limit_len(draw,player.get_name_possession(),font,175-page_no_string_len)
-
     if page > 0:
         page_info = ": Page "+str(page+1)
         suffix += page_info
@@ -214,40 +229,47 @@ async def quests_screen(channel,player,page):
     name = get_text_limit_len(draw,player.get_name_possession(),font,175-page_no_string_len)
     title= name + suffix
     draw.text((15, 17),title,"white",font=font)
-    
     count = 0
     row_size = quest_row.size
+    quest_index = 0
     for quest_index in range(len(player.quests) - 1 - (5 * page), -1, -1):
         image.paste(quest_row, (14, 40 + 44 * count))
-        warning_icons = colourize(mini_icons,[(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,0,255)],0.5,cycle_colours=[10,10,11,10,11])
-        paste_alpha(image,warning_icons,(14+row_size[0] - 53,row_size[1]*2-12+ 44 * count))
         quest = player.quests[quest_index]
-        draw.text((52, 47 + 44 * count),quest.name, DUE_BLACK, font=font_med)
-        name_width = draw.textsize(quest.name, font=font)[0]
+        warning_colours = [traffic_light(danger_level) for danger_level in quests.get_quest_threat_level(quest,player)]
+        warning_icons = colourize(mini_icons,warning_colours,0.5,cycle_colours=[10,10,11,10,11])
+        paste_alpha(image,warning_icons,(14+row_size[0] - 53,row_size[1]*2-12+ 44 * count))
         level = "Level "+str(math.trunc(quest.level))
-        name_width = draw.textsize(quest.name, font=font)[0]
-        level_width = draw.textsize(level, font=font)[0]
-        draw.rectangle(((58+name_width,48 + 44*count),(55+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
-        draw.text((58+name_width +1, 48 + 44*count),level, "white", font=font_small)
-        draw.text((52, 61 + 44 * count),quest.info.home,DUE_BLACK, font=font_small)
+        level_width = draw.textsize(level, font=font_small)[0]+5
+        quest_name = get_text_limit_len(draw,quest.name,font_med,182-level_width)
+        draw.text((52, 47 + 44 * count),quest_name, DUE_BLACK, font=font_med)
+        name_width = draw.textsize(quest_name, font=font_med)[0]
+        draw.rectangle(((53+name_width,48 + 44*count),(50+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
+        draw.text((53+name_width +1, 48 + 44*count),level, "white", font=font_small)
+        draw.text((52, 61 + 44 * count),get_text_limit_len(draw,quest.info.home,font_small,131),DUE_BLACK, font=font_small)
         image.paste(resize_avatar(quest,None, 28, 28), (20, 46 + 44 * count))
         quest_bubble_postion = (12,row_size[1]-2+ 44 * count)
-        quest_index = str(quest_index*2183)
-        quest_index_width = draw.textsize(quest_index, font=font)[0]
-        bubble_scale = 6+max(6,quest_index_width)
-        draw.rectangle((quest_bubble_postion,(quest_bubble_postion[0]+bubble_scale,quest_bubble_postion[1]+12)), fill="#2a52be",outline ="#a1caf1")
-        draw.text((12+(bubble_scale+2-quest_index_width)//2, quest_bubble_postion[1]-5),quest_index,"white", font=font_small)
+        quest_index_text = str(quest_index+1)
+        quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
+        draw.rectangle((quest_bubble_postion,(quest_bubble_postion[0]+quest_index_width+5,quest_bubble_postion[1]+11)), fill="#2a52be",outline ="#a1caf1")
+        draw.text((15, quest_bubble_postion[1]),quest_index_text,"white", font=font_small)
         count += 1
-  
-    msg = "Test"
+        if count == 5:
+            if quest_index != 0:
+                msg = ("+ "+str(len(player.quests)-(5*(page+1)))+" More. Do "
+                        +util.get_server_cmd_key(channel.server)
+                        +"myquests "+str(page+2)+" for the next page.")
+            break
+    if quest_index == 0:
+        msg = "That's all your quests!"
+    if len(player.quests) == 0:
+        msg = "You don't have any quests!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
-    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
-    
+    await send_image(channel,image,file_name="awards_list.png",content=":crossed_swords: **"+player.get_name_possession()+"** Quests!")
     
 async def stats_screen(channel,player):
 
-    theme = player.get_profile_theme()
+    theme = player.theme
     font_colour = theme["fontColour"]
     
     try:

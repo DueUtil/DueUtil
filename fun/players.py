@@ -44,7 +44,7 @@ class Player(DueUtilObject):
         self.strg = 1
         self.accy = 1
         self.banner_id = "discord blue"
-        self.theme = "test"
+        self.theme_id = "test"
         self.hp = 10
         self.donor = False
         self.background = "default.png"
@@ -100,8 +100,9 @@ class Player(DueUtilObject):
     def user_id(self):
         return self.id
         
-    def get_profile_theme(self):
-        theme = profile_themes[self.theme].copy()
+    @property
+    def theme(self):
+        theme = profile_themes[self.theme_id].copy()
         if theme["background"] != self.background:
             theme["background"] = self.background
         if theme["banner"] != self.banner:
@@ -142,7 +143,8 @@ class Player(DueUtilObject):
         
     @property
     def rank_colour(self):
-        return profile_themes[self.theme]["rankColours"][self.rank - 1]
+        rank_colours = profile_themes[self.theme_id]["rankColours"]
+        return profile_themes[self.theme_id]["rankColours"][(self.rank - 1) % len(rank_colours)]
         
     @property
     def banner(self):

@@ -97,11 +97,12 @@ class ActiveQuest(Player):
     def __init__(self,q_id, quester : Player):
         self.q_id = q_id
         super(ActiveQuest,self).__init__()
-        self.__calculate_stats(quester)
+        self.level = random.randint(quester.level, quester.level * 2)
+        self.__calculate_stats__()
+        quester.quests.append(self)
         
-    def __calculate_stats(self, player):
+    def __calculate_stats__(self):
         quest_info = self.info
-        self.level = random.uniform(player.level, player.level * 2)
         hp_multiplier = random.uniform(self.level / 2, self.level)
         accy_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
         strg_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
@@ -118,7 +119,6 @@ class ActiveQuest(Player):
         if self.money == 0:
             self.money = 1
         self.w_id = quest_info.w_id
-        player.quests.append(self)
         
     def get_avatar_url(self,*args):
         return self.info.image_url
@@ -128,8 +128,13 @@ class ActiveQuest(Player):
         return quest_map[self.q_id]
 
 def get_quest_threat_level(quest,player):
-    pass
-
+    return [
+        player.attack/max(player.attack,quest.attack),
+        player.strg/max(player.strg,quest.strg),
+        player.accy/max(player.accy,quest.accy),
+        quest.money/max(player.money,quest.money),
+        player.weapon.damage/max(player.weapon.damage,quest.weapon.damage)
+    ]
 def get_server_quest_list(server):
     return quest_map[server]
     

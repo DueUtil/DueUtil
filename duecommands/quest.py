@@ -1,35 +1,46 @@
 from fun import quests, game, battles, imagehelper
 from botstuff import commands, util
 
-@commands.command(args_pattern="S?",hidden=True)
+@commands.command(args_pattern="S?P?C?",hidden=True)
 async def spawnquest(ctx,*args,**details):
-    player = details["author"]
-    if len(args) != 1:
+    if len(args) == 0:
+        player = details["author"]
         quest = quests.get_random_quest_in_channel(ctx.channel)
     else:
+        player = args[1]
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id+"/"+quest_name)
     try:
-        await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name+"**")
-        quests.ActiveQuest(quest.q_id,player)
+        active_quest = quests.ActiveQuest(quest.q_id,player)
+        if len(args) == 3:
+            active_quest.level = args[2]
+            active_quest.__calculate_stats__()
+        player.save()
+        await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name+"** [Level "+str(active_quest.level)+"]")
     except:
         raise util.DueUtilException(ctx.channel,"Failed to spawn quest!")
   
-@commands.command(args_pattern='I')
+@commands.command(args_pattern='C')
 @commands.imagecommand()
 async def questinfo(ctx,*args,**details): 
     player = details["author"]
-    quest_index = args[0] - 1
+    quest_index = args[0]-1
     if quest_index >= 0 and quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel,player.quests[quest_index])
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
-@commands.command()
+@commands.command(args_pattern='C?')
 async def myquests(ctx,*args,**details): 
     player = details["author"]
-    await imagehelper.quests_screen(ctx.channel,player,0)
-    # Make image?  
+    if len(args) == 0:
+        page = 0
+    else:
+        page = args[0]-1
+        
+    if page > len(player.quests)/5:
+        raise util.DueUtilException(ctx.channel,"Page not found")
+    await imagehelper.quests_screen(ctx.channel,player,page)
 
 @commands.command()
 async def acceptquest(ctx, **args):
