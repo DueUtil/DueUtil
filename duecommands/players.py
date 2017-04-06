@@ -1,6 +1,8 @@
 import discord
 import fun.awards
-from fun import players, stats, imagehelper, game
+from fun import imagehelper
+from fun import players
+from fun import stats
 from botstuff import commands,util
 
 @commands.command(args_pattern=None)

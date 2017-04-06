@@ -1,4 +1,3 @@
-import math
 import time
 import json
 import random
@@ -85,8 +84,9 @@ async def manage_quests(message):
         if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
             quest = quests.get_random_quest_in_channel(channel)
             if random.random() <= quest.spawn_chance:
-                quests.ActiveQuest(quest.q_id,player)
+                new_quest = quests.ActiveQuest(quest.q_id,player)
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
+                await imagehelper.new_quest_screen(channel,new_quest,player)
                 # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
             
 def get_exp_for_next_level(level):

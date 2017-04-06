@@ -1,4 +1,4 @@
-from fun import players, weapons
+from fun import weapons
 from botstuff import util
 import random 
 from collections import OrderedDict
@@ -65,7 +65,7 @@ async def show_weapons(message,player,not_theirs):
 async def validate_weapon_store(message,player):
     weapon_sums = []
     for ws in player.owned_weps:
-        if(ws[1] != get_weapon_sum(ws[0])):
+        if ws[1] != get_weapon_sum(ws[0]):
             weapon_sums.append(ws[1])
             del player.owned_weps[player.owned_weps.index(ws)]
     if len(weapon_sums) > 0:
@@ -123,7 +123,7 @@ async def sell_weapon(message, uID, recall,weapon_name):
         await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...")
 
 # quest, wager normal
-def battle(ctx,**battleargs):
+def battle(**battleargs):
     current_move = 1
     damage_modifier = 1.5
     

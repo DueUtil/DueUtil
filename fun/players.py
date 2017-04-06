@@ -1,13 +1,9 @@
 import discord
 import random
 import math
-import os
 import jsonpickle
-import os
 import numpy
-import struct
-import json
-from fun import weapons, stats, awards
+from fun import weapons
 from fun.misc import DueUtilObject, Themes, Backgrounds
 from botstuff import util, dbconn
 

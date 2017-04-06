@@ -3,9 +3,7 @@ import requests
 import math
 import os
 import io
-import random
 from colour import Color
-from abc import ABCMeta, abstractmethod
 from fun import players, stats, game, awards, quests
 from botstuff import util
 from io import BytesIO

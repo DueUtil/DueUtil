@@ -1,6 +1,5 @@
 import jsonpickle;
 from pymongo import MongoClient
-import json
 
 db = None;
 

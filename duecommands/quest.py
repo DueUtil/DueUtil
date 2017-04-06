@@ -3,11 +3,12 @@ from botstuff import commands, util
 
 @commands.command(args_pattern="S?P?C?",hidden=True)
 async def spawnquest(ctx,*args,**details):
+    player = details["author"]
     if len(args) == 0:
-        player = details["author"]
         quest = quests.get_random_quest_in_channel(ctx.channel)
     else:
-        player = args[1]
+        if len(args) >= 2:
+            player = args[1]
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id+"/"+quest_name)
     try:
@@ -37,7 +38,6 @@ async def myquests(ctx,*args,**details):
         page = 0
     else:
         page = args[0]-1
-        
     if page > len(player.quests)/5:
         raise util.DueUtilException(ctx.channel,"Page not found")
     await imagehelper.quests_screen(ctx.channel,player,page)
@@ -51,7 +51,7 @@ async def acceptquest(ctx, **args):
             if player.quests_completed_today < game.MAX_DAILY_QUESTS:
                 quest = player.quests[quest_index]
                 del player.quests[quest_index]
-                await battles.battle(message, [message.author.id, questToBattle], questToBattle.money, True)
+                await battles.battle(player_one=player,player_two=quest)
                 player.save()
             else:
                 raise util.DueUtilException(ctx.channel,"You can't do more than 50 quests a day!")
@@ -60,28 +60,26 @@ async def acceptquest(ctx, **args):
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
  
-@commands.command()
+@commands.command(args_pattern='C?')
 async def declinequest(ctx,*args,**details):
-    player = Player.find_player(ctx.author.id)
-    quest_index = int(args[0])
-    
-    if (quest_index - 1) >= 0 and (quest_index - 1) <= len(player.quests) - 1:
-        quest = player.quests[quest_index - 1]
-        del player.quests[quest_index - 1]
+    player = details["author"]
+    quest_index = args[0] -1
+    if quest_index >= 0 and quest_index  < len(player.quests):
+        quest = player.quests[quest_index]
+        del player.quests[quest_index]
         player.save()
-        try:
-            main_quest = get_game_quest_from_id(qT.qID)
-            if(main_quest != None):
-                questT = main_quest.quest
-            else:
-                questT = "do a long forgotten quest:"
-        except:
-            questT = "do a long forgotten quest:"
-        await get_client(message.server.id).send_message(message.channel, "**"+player.name + "** declined to " + questT + " **" + qT.name + " [Level " + str(qT.level) + "]**!")
+        quest_info = quest.info
+        if quest_info != None:
+            quest_task = quest_info.task
+        else:
+            quest_task = "do a long forgotten quest:"
+        await util.say(ctx.channel, ("**"+player.name +"** declined to " 
+                                      + quest_task + " **" + quest.name 
+                                      + " [Level " + str(qT.level) + "]**!"))
     else:
-        await get_client(message.server.id).send_message(message.channel, ":bangbang:  **Quest not found!**")
+        raise util.DueUtilException(ctx.channel,"Quest not found!")
 
 @commands.command(admin_only=True)
 async def serverquests(ctx,*args,**details):
-    quest_list = quests.get_server_quest_list(ctx.server)
+    quests.get_server_quest_list(ctx.server)
     

@@ -1,6 +1,5 @@
 import discord
-import time
-from fun import game, stats
+from fun import stats
 from fun.stats import Stat
 from botstuff import commands,util,events
 
@@ -79,7 +78,7 @@ async def dustats(ctx,*args,**details):
                           value = util.format_number(game_stats.get(Stat.PLAYERS_LEVELED.value,0),full_precision=True))
     stats_embed.add_field(name="New Players",
                           value = util.format_number(game_stats.get(Stat.NEW_PLAYERS_JOINED.value,0),full_precision=True))
-    stats_embed.set_footer(text="DueUtil Shard "+str(util.get_client(ctx.server.id).shard_id+1))
+    stats_embed.set_footer(text="DueUtil Shard \""+str(util.get_client(ctx.server.id).name)+"\"")
     
     await util.say(ctx.channel,embed=stats_embed)
 

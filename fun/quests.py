@@ -135,6 +135,7 @@ def get_quest_threat_level(quest,player):
         quest.money/max(player.money,quest.money),
         player.weapon.damage/max(player.weapon.damage,quest.weapon.damage)
     ]
+    
 def get_server_quest_list(server):
     return quest_map[server]
     
