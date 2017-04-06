@@ -99,7 +99,6 @@ def remove_weapon_from_shop(player,wname):
         
 def get_weapons_for_server(server):
     return dict(weapons[server], **weapons["STOCK"])
-
             
 def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:
