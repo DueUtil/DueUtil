@@ -46,7 +46,7 @@ class Player(DueUtilObject):
         self.background = "default.png"
         self.weapon_sum = '"0"01'     # price/attack/sum
         self.w_id = weapons.NO_WEAPON_ID
-        self.money = 100000
+        self.money = 1
         self.last_progress = 0
         self.last_quest = 0
         self.wagers_won = 0
@@ -130,7 +130,6 @@ class Player(DueUtilObject):
 
     @property
     def weapon(self):
-        print (self.w_id)
         return weapons.get_weapon_from_id(self.w_id)
         
     @property

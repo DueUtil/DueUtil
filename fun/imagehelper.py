@@ -210,8 +210,6 @@ async def awards_screen(channel,player,page,**kwargs):
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
     await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
         
-   
-
     
 async def quests_screen(channel,player,page):
     image = awards_screen_template.copy()
@@ -233,7 +231,7 @@ async def quests_screen(channel,player,page):
     for quest_index in range(len(player.quests) - 1 - (5 * page), -1, -1):
         image.paste(quest_row, (14, 40 + 44 * count))
         quest = player.quests[quest_index]
-        warning_colours = [traffic_light(danger_level) for danger_level in quests.get_quest_threat_level(quest,player)]
+        warning_colours = [traffic_light(danger_level) for danger_level in quest.get_threat_level(player)]
         warning_icons = colourize(mini_icons,warning_colours,0.5,cycle_colours=[10,10,11,10,11])
         paste_alpha(image,warning_icons,(14+row_size[0] - 53,row_size[1]*2-12+ 44 * count))
         level = "Level "+str(math.trunc(quest.level))

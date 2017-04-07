@@ -18,47 +18,7 @@ async def myweapons(ctx,*args,**details):
     weapon_store = weapons_page(player.weapon_inventory,0,player.name+"'s Weapons")
     
     await util.say(ctx.channel,embed=weapon_store)
-
-@commands.command(args_pattern='M?')
-async def shop(ctx,*args,**details):
-  
-    """
-    [CMD_KEY]shop (page number) or (weapon name)
-    
-    Shows DueUtil's weapon store!
-    
-    Shows information about a weapon in the shop if given a weapon name.
-    
-    """
-    
-    page = args[0] if len(args) == 1 else 0
-    
-    if type(page) is int:
-    
-        shop_weapons = list(weapons.get_weapons_for_server(ctx.server.id).values())
-        if 12 * page + 12 < len (shop_weapons):
-            footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
-        else:
-            footer = 'Want more? Ask an admin on '+ctx.server.name+' to add some!'
-
-        shop = weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
-        shop.set_footer(text=footer)
-        
-        await util.say(ctx.channel,embed=shop)
-    else:
-        weapon = weapons.get_weapon_for_server(ctx.server.id,page)
-        if weapon == None:
-            raise util.DueUtilException(ctx.channel,"Weapon not found")
-        weapon_info = discord.Embed(title=weapon.icon+' | '+weapon.name,type="rich",color=16038978)
-        weapon_info.set_thumbnail(url=weapon.image_url)
-        weapon_info.add_field(name='Damage',value=util.format_number(weapon.damage))
-        weapon_info.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
-        weapon_info.add_field(name='Price',value=util.format_number(weapon.price,money=True,full_precision=True))
-        weapon_info.add_field(name="Hit Message",value=weapon.hit_message)
-        weapon_info.set_footer(text='Image supplied by weapon creator.')
-
-        await util.say(ctx.channel,embed=weapon_info)
-
+      
 def weapons_page(weapons_list,page,title):
     weapons = discord.Embed(title=title,type="rich",color=16038978)
     for weapon_index in range(12*page,12*page+12):

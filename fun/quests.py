@@ -1,12 +1,15 @@
 import discord
 import json
 import random
+import math
 from botstuff import util, dbconn
 from fun import weapons, players
 from fun.misc import DueUtilObject, DueMap
 from fun.players import Player
         
 quest_map = DueMap()
+MAX_QUEST_IV = 60
+MIN_QUEST_IV = 0
 
 class Quest(DueUtilObject):
   
@@ -45,7 +48,7 @@ class Quest(DueUtilObject):
         self.base_strg = base_strg
         self.base_accy = base_accy
         self.base_hp = base_hp
-        self.base_reward = 0 #self__reward()
+        self.base_reward = self.__reward()
         self.channel = extras.get('channel',"ALL")
             
         self.__add()
@@ -54,20 +57,25 @@ class Quest(DueUtilObject):
         return self.server_id+'/'+self.name.lower()
       
     def __reward(self):
-        if(Weapon.get_weapon_from_id(self.w_id).melee):
+        if weapons.get_weapon_from_id(self.w_id).melee:
             base_reward = (self.base_attack + self.base_strg) / 10 / 0.0883
         else:
             base_reward = (self.base_accy + self.base_strg) / 10 / 0.0883
     
         base_reward += base_reward * math.log10(self.base_hp) / 20 / 0.75
         base_reward *= self.base_hp / abs(self.base_hp - 0.01)
-        
         return base_reward
                         
     def __add(self):
         global quest_map
         if self.server_id != "":
             quest_map[self.id] = self
+            
+    def base_values(self):
+        return (self.base_hp,self.base_attack,
+                self.base_strg,self.base_accy,
+                self.base_reward,)
+        
     
     @property
     def made_on(self):
@@ -97,28 +105,35 @@ class ActiveQuest(Player):
     def __init__(self,q_id, quester : Player):
         self.q_id = q_id
         super(ActiveQuest,self).__init__()
+        self.name = self.info.name
+        self.quester_id = quester.id
+        self.w_id = self.info.w_id
         self.level = random.randint(quester.level, quester.level * 2)
         self.__calculate_stats__()
         quester.quests.append(self)
         
-    def __calculate_stats__(self):
-        quest_info = self.info
-        hp_multiplier = random.uniform(self.level / 2, self.level)
-        accy_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
-        strg_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
-        attack_multiplier = random.uniform(self.level / 2, self.level) / random.uniform(1.5, 1.9)
-        self.name = quest_info.name
-        self.hp = quest_info.base_hp * hp_multiplier
-        self.attack = quest_info.base_attack * attack_multiplier
-        self.strg = quest_info.base_strg * strg_multiplier
-        self.accy = quest_info.base_accy * accy_multiplier
-        self.money = abs(quest_info.base_reward) * (hp_multiplier
-                                                    + accy_multiplier 
-                                                    + strg_multiplier 
-                                                    + attack_multiplier) // 4
-        if self.money == 0:
-            self.money = 1
-        self.w_id = quest_info.w_id
+    def __calculate_stats__(self,**spoof_values):
+        base_quest = self.info
+        quester = players.find_player(self.quester_id)
+        base_values = base_quest.base_values()
+        stats = []
+        # For testing purposes only
+        quester_money = spoof_values.get('q_money',quester.money)
+        weapon_damage = spoof_values.get('w_damage',self.weapon.damage)
+        weapon_accy = spoof_values.get('w_accy',self.weapon.accy)
+        for stat_calculation in range(0,4):
+            iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV)
+            stat = ((((base_values[stat_calculation]+iv)*2 
+                    + quester_money**0.5/2) * self.level**1.5/100) + self.level)
+            stats.append(stat)
+        self.hp =  stats[0] 
+        self.attack = stats[1]
+        self.strg = stats[2]
+        self.accy = stats[3] 
+        cash_iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV/5)*weapon_damage*(weapon_accy/100)
+        avg_stat = min((self.hp,self.attack,self.strg,self.accy))
+        reward = int((avg_stat // quester.level) * (cash_iv + base_values[4]) + 1)
+        self.money = reward
         
     def get_avatar_url(self,*args):
         return self.info.image_url
@@ -127,14 +142,14 @@ class ActiveQuest(Player):
     def info(self):
         return quest_map[self.q_id]
 
-def get_quest_threat_level(quest,player):
-    return [
-        player.attack/max(player.attack,quest.attack),
-        player.strg/max(player.strg,quest.strg),
-        player.accy/max(player.accy,quest.accy),
-        quest.money/max(player.money,quest.money),
-        player.weapon.damage/max(player.weapon.damage,quest.weapon.damage)
-    ]
+    def get_threat_level(self,player):
+        return [
+            player.attack/max(player.attack,self.attack),
+            player.strg/max(player.strg,self.strg),
+            player.accy/max(player.accy,self.accy),
+            self.money/max(player.money,self.money),
+            player.weapon.damage/max(player.weapon.damage,self.weapon.damage)
+        ]
     
 def get_server_quest_list(server):
     return quest_map[server]
@@ -187,7 +202,7 @@ def load_default_quests():
   
 def load():
     global quest_map
-    reference = Quest('Reference',0,0,0,0,server_id="")
+    reference = Quest('Reference',1,1,1,1,server_id="")
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])

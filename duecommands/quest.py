@@ -1,7 +1,7 @@
 from fun import quests, game, battles, imagehelper
 from botstuff import commands, util
 
-@commands.command(args_pattern="S?P?C?",hidden=True)
+@commands.command(args_pattern="S?P?C?I?I?I?",hidden=True)
 async def spawnquest(ctx,*args,**details):
     player = details["author"]
     if len(args) == 0:
@@ -13,9 +13,13 @@ async def spawnquest(ctx,*args,**details):
         quest = quests.get_quest_from_id(ctx.server.id+"/"+quest_name)
     try:
         active_quest = quests.ActiveQuest(quest.q_id,player)
-        if len(args) == 3:
+        if len(args) >= 3:
             active_quest.level = args[2]
-            active_quest.__calculate_stats__()
+            spoofs = args[3:]
+            spoof_values = {}
+            if len(spoofs) == 3:
+                spoof_values = {'q_money' : spoofs[0], 'w_damage' : spoofs[1], 'w_accy' : spoofs[2]}
+            active_quest.__calculate_stats__(**spoof_values)
         player.save()
         await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name+"** [Level "+str(active_quest.level)+"]")
     except:

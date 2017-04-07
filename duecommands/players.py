@@ -205,33 +205,7 @@ async def mythemes(ctx,*args,**details):
     
     """
     
-    player = details["author"]
-    page = args[0] if len(args) == 1 else 0
-    
-    if type(page) is int:
-      
-        themes = list(player.get_owned_themes().values())
-        themes_listings = discord.Embed(title="Available themes",type="rich",color=16038978)      
-        if 12 * page + 12 < len (themes):
-            footer = "But wait there's more! Do "++"mythemes "+str(page+2)
-        else:
-            footer = 'More themes coming soon!'
-
-        for theme_index in range(12 * page,12 * page + 12):
-            if theme_index >= len(themes):
-                break
-            theme = themes[theme_index]
-            themes_listings.add_field(name=theme["icon"]+" | "+theme["name"],value=theme["description"])
-        themes_listings.set_footer(text=footer)
-        await util.say(ctx.channel,embed=themes_listings)
-    else:
-        theme = players.get_theme(page)
-        if theme == None:
-            raise util.DueUtilException(ctx.channel,"Theme not found!")
-        theme_info = discord.Embed(title=theme["icon"]+" | "+theme["name"],type="rich",color=16038978)
-        theme_info.set_image(url=theme["preview"])
-        theme_info.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme["name"].lower()+" to use this theme!")
-        await util.say(ctx.channel,embed=theme_info)
+    pass
          
 @commands.command(args_pattern='S')
 async def settheme(ctx,*args,**details):
