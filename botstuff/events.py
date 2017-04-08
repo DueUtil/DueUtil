@@ -17,7 +17,7 @@ class MessageEvent(list):
         else:
             self[old] = function
         
-class CommandEvent(MessageEvent):
+class CommandEvent(dict):
   
     """Command event subscription.
     
@@ -25,18 +25,21 @@ class CommandEvent(MessageEvent):
     
     def command_list(self,*args):
          filter_func = (lambda command : command) if len(args) == 0 else args[0]
-         return ', '.join([command.__name__ for command in filter(filter_func,self) if not command.is_hidden])
+         return ', '.join([command.__name__ for command in filter(filter_func,self.values()) if not command.is_hidden])
     
     def __str__(self):
-         return self.command_list()
+         return "Command(%s)" % self.command_list()
+         
+    def __repr__(self):
+        return "Command(%s)" % dict.__repr__(self)
   
     async def __call__(self,ctx):
         if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
             return
         args = commands.parse(ctx)
-        for command in self:
-            if await command(ctx,*args):
-                break
+        command = args[1]
+        if command in self:
+            await self[command](ctx,*args)
                 
 message_event = MessageEvent()
 command_event = CommandEvent()
@@ -55,14 +58,12 @@ def remove_message_listener(function):
     message_event.remove(function)
 
 def register_command(command_function):
-    command_event.append(command_function)
+    command_event[command_function.__name__] = command_function
 
-    
 def remove_command(command_function):
-    command_event.remove(command_function)
+    del command_event[command_function.__name__]
 
 def get_command(command_name):
-    for command in command_event:
-        if command.__name__ == command_name.lower():
-            return command
-    return None
+    command_name = command_name.lower()
+    if command_name in command_event:
+        return command_event[command_name]

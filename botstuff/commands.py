@@ -2,7 +2,8 @@ import time
 import asyncio
 from functools import wraps
 from fun import players,misc
-from botstuff import events,util
+from botstuff import events,util,permissions
+from botstuff.permissions import Permission
 
 IMAGE_REQUEST_COOLDOWN = 5
 
@@ -13,12 +14,11 @@ def command(**command_rules):
     # TODO: Include sender, timesent, etc in details
     
     def check(user,command):
-        if command.admin_only:
-            return user.server_permissions.manage_server; 
-        return True
+        return permissions.has_permission(user,command.permission)
+
   
     def is_spam_command(ctx,command,*args):
-        if not command.admin_only:
+        if command.permission != Permission.SERVER_ADMIN:
           return (sum(isinstance(arg,players.Player) for arg in args)
                   < len(ctx.raw_mentions) or ctx.mention_everyone
                   or '@here' in ctx.content or '@everyone' in ctx.content)
@@ -51,9 +51,7 @@ def command(**command_rules):
         events.register_command(wrapped_command)
         
         wrapped_command.is_hidden = command_rules.get('hidden',False)
-        wrapped_command.admin_only = command_rules.get('admin_only',False)
-        wrapped_command.bot_mod_only = command_rules.get('bot_mod_only',False)
-        wrapped_command.bot_admin_only = command_rules.get('bot_admin_only',False)
+        wrapped_command.permission = command_rules.get('permission',Permission.ANYONE)
             
         return wrapped_command
         

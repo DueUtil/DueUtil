@@ -36,7 +36,7 @@ class DueUtilException(ValueError):
         return message;
     
 async def say(channel,*args,**kwargs):
-      await get_client(channel.server.id).send_message(channel,*args,**kwargs);
+      return await get_client(channel.server.id).send_message(channel,*args,**kwargs);
       
 async def typing(channel):
       await get_client(channel.server.id).send_typing(channel);

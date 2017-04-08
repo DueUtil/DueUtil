@@ -1,5 +1,6 @@
 from fun import quests, game, battles, imagehelper
 from botstuff import commands, util
+from botstuff.permissions import Permission
 
 @commands.command(args_pattern="S?P?C?I?I?I?",hidden=True)
 async def spawnquest(ctx,*args,**details):
@@ -83,7 +84,7 @@ async def declinequest(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
-@commands.command(admin_only=True)
+@commands.command(permission = Permission.SERVER_ADMIN)
 async def serverquests(ctx,*args,**details):
     quests.get_server_quest_list(ctx.server)
     

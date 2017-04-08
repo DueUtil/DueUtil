@@ -2,6 +2,7 @@ import discord
 from fun import stats
 from fun.stats import Stat
 from botstuff import commands,util,events
+from botstuff.permissions import Permission
 
 @commands.command(args_pattern="S?")
 async def help(ctx,*args,**details):
@@ -42,8 +43,8 @@ async def help(ctx,*args,**details):
         help.set_thumbnail(url=util.get_client(ctx.server.id).user.avatar_url)
        
         help.description='Welcome to the help! Simply do '+server_key+'help (command name).'
-        help.add_field(name='Commands for everyone',value=events.command_event.command_list(lambda command: not command.admin_only))
-        help.add_field(name='Admins only',value=events.command_event.command_list(lambda command: command.admin_only))
+        help.add_field(name='Commands for everyone',value=events.command_event.command_list(lambda command: command.permission == Permission.ANYONE))
+        help.add_field(name='Admins only',value=events.command_event.command_list(lambda command: command.permission == Permission.SERVER_ADMIN))
         
         help.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
       

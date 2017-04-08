@@ -111,7 +111,7 @@ def load_config():
         shard_count = config["shardCount"]
         shard_names = config["shardNames"]
     except:
-        sys.exit(1)
+        sys.exit("Config file missing!")
 		
 def get_help_page(help_file,page,key,server):
     with open (help_file, "r") as myfile:

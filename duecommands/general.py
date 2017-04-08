@@ -21,7 +21,6 @@ async def shop(ctx,*args,**details):
     [CMD_KEY]buy command!
     """
     
-    
     #if type(page) is int:
     
     # Think more shop logic

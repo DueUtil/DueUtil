@@ -3,6 +3,7 @@ from fun import battles
 from fun import weapons
 from botstuff import commands
 from botstuff import util
+from botstuff.permissions import Permission
 
 @commands.command()
 async def myweapons(ctx,*args,**details):
@@ -82,7 +83,7 @@ async def battle(ctx,*args,**details):
 
     await util.say(ctx.channel,embed=battle)
  
-@commands.command(admin_only=True,args_pattern='SSCCB?S?S?')
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args,**details):
     
     """

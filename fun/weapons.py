@@ -72,8 +72,7 @@ def get_weapon_from_id(weapon_id):
     if weapon_id in weapons:
         return weapons[weapon_id]
     else:
-        if weapon_id != NO_WEAPON_ID:
-            return weapons[NO_WEAPON_ID]
+        return weapons[NO_WEAPON_ID]
                 
 def does_weapon_exist(server_id,weapon_name):   
     if get_weapon_for_server(server_id,weapon_name) != None:

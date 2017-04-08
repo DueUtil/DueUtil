@@ -124,15 +124,15 @@ class ActiveQuest(Player):
         for stat_calculation in range(0,4):
             iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV)
             stat = ((((base_values[stat_calculation]+iv)*2 
-                    + quester_money**0.5/2) * self.level**1.5/100) + self.level)
+                    + quester_money**0.8/2) * self.level**1.5/100) + self.level)
             stats.append(stat)
         self.hp =  stats[0] 
         self.attack = stats[1]
         self.strg = stats[2]
         self.accy = stats[3] 
         cash_iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV/5)*weapon_damage*(weapon_accy/100)
-        avg_stat = min((self.hp,self.attack,self.strg,self.accy))
-        reward = int((avg_stat // quester.level) * (cash_iv + base_values[4]) + 1)
+        avg_stat = sum((self.hp,self.attack,self.strg,self.accy))/5
+        reward = int((avg_stat / quester.level) * (cash_iv + base_values[4]) + 1)
         self.money = reward
         
     def get_avatar_url(self,*args):

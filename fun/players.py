@@ -20,7 +20,7 @@ class Player(DueUtilObject):
   
     def __init__(self,*args,**kwargs):
         global players,new_players_joined
-        if len(args) > 0 and isinstance(args[0],discord.Member):
+        if len(args) > 0 and isinstance(args[0],discord.User):
             super().__init__(args[0].id,args[0].name,**kwargs)
         else:
             super().__init__("NO_ID","DueUtil Player",**kwargs)
@@ -30,8 +30,6 @@ class Player(DueUtilObject):
     def reset(self,discord_user = None):
         if discord_user != None:
             self.name = discord_user.name
-        else:
-            self.name = "DueUtil Player"
         self.benfont = False
         self.level = 1
         self.exp = 0

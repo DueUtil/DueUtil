@@ -2,6 +2,7 @@ import os
 import collections
 import json
 import discord
+from abc import ABC, abstractmethod
 from botstuff import util, dbconn
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
@@ -114,6 +115,23 @@ class DueMap(collections.MutableMapping):
         elif "/" not in key:
             return key
         return key.split('/',1)
+        
+class Wizzard(ABC):
+    
+    def __init__(self,name,question_count):
+        self.name = name
+        self.complete = 0
+        self.question_count = 0
+        #self.message = util.say("Wizzard")
+        
+    def progress_bar():
+        bar_width = 20
+        progress = self.complete/self.question_count 
+        bar_complete_len = progress* bar_width
+        bar_incomplete_len = bar_width - bar_complete_len
+        return '['+('"'*bar_complete_len)+(' '*bar_incomplete_len)+']'
+        
+    
         
 def valid_image(bg_to_test,dimensions):
     if bg_to_test != None:
