@@ -1,6 +1,6 @@
 from fun import imagehelper
 from botstuff import util,commands
-from botstuff.permissions import Permission
+import botstuff.permissions
 
 @commands.command(args_pattern=None)
 async def test(ctx,*args,**details): 
@@ -12,14 +12,13 @@ async def test(ctx,*args,**details):
     await util.say(ctx.channel,("Yo!!! What up dis be my test command fo show.\n"
                                     "I got deedz args ```"+str(args)+"```!"))
    
-@commands.command(permission = Permission.DUEUTIL_MOD,args_pattern=None)
-async def amimod(ctx,*args,**details): 
-    await util.say(ctx.channel,"Yep!")
-    
-@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
-async def amiadmin(ctx,*args,**details): 
-    await util.say(ctx.channel,"Yep!")
-                                    
+@commands.command(hidden = True,args_pattern=None)
+async def permissions(ctx,*args,**details):
+    permissions_report = ""
+    for permission in botstuff.permissions.permissions:
+        permissions_report += "``"+permission.value[1]+"`` → "+ (":white_check_mark:" if permission.value[0](ctx.author) else ":no_entry:")+"\n"
+    await util.say(ctx.channel,permissions_report)
+
 @commands.command(args_pattern="II")
 async def add(ctx,*args,**details):
     first_number = args[0]

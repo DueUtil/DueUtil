@@ -40,7 +40,7 @@ class CommandEvent(dict):
         command = args[1]
         if command in self:
             await self[command](ctx,*args)
-                
+
 message_event = MessageEvent()
 command_event = CommandEvent()
 

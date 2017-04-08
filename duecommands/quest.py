@@ -2,7 +2,7 @@ from fun import quests, game, battles, imagehelper
 from botstuff import commands, util
 from botstuff.permissions import Permission
 
-@commands.command(args_pattern="S?P?C?I?I?I?",hidden=True)
+@commands.command(args_pattern="S?P?C?I?I?R?",hidden=True)
 async def spawnquest(ctx,*args,**details):
     player = details["author"]
     if len(args) == 0:
@@ -37,6 +37,7 @@ async def questinfo(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
 @commands.command(args_pattern='C?')
+@commands.imagecommand()
 async def myquests(ctx,*args,**details): 
     player = details["author"]
     if len(args) == 0:

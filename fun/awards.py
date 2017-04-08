@@ -28,5 +28,5 @@ async def give_award(channel, player, award_id, text):
         player.save()
         if not channel.is_private: #or not (message.server.id+"/"+message.channel.id in util.mutedchan):
             await util.say(channel, "**"+player.name+"** :trophy: **Award!** " + text)
-    
+
 load()

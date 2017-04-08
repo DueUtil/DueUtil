@@ -112,6 +112,5 @@ async def on_message(message):
     await player_progress(message)
     
 load_game_rules()
-
 events.register_message_listener(on_message)
 events.register_message_listener(manage_quests)
