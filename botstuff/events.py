@@ -37,7 +37,7 @@ class CommandEvent(dict):
         if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
             return
         args = commands.parse(ctx)
-        command = args[1]
+        command = args[1].lower()
         if command in self:
             await self[command](ctx,*args)
 

@@ -1,5 +1,6 @@
 import discord
-from botstuff import util,events,loader
+from botstuff import util ,events, loader, permissions
+from botstuff.permissions import Permission
 import os
 import sys
 import asyncio
@@ -110,6 +111,9 @@ def load_config():
         bot_key = config["botToken"]
         shard_count = config["shardCount"]
         shard_names = config["shardNames"]
+        owner = discord.Member(user={"id":config["owner"]})
+        if not permissions.has_permission(owner,Permission.DUEUTIL_ADMIN):
+            permissions.give_permission(owner,Permission.DUEUTIL_ADMIN)
     except:
         sys.exit("Config file missing!")
 		

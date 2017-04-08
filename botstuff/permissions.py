@@ -21,30 +21,22 @@ permissions = [permission for permission in Permission]
 def has_permission(member : discord.Member,permission):
     if permission.value[0](member): return True
     else:
-        for permission in permissions[permissions.index(permission):]:
-           if permission.value[0](member): return True
+        for higher_permission in permissions[permissions.index(permission):]:
+           if higher_permission.value[0](member): return True
     return False
       
 def give_permission(member : discord.Member,permission):
-    dbconn.conn()["permissions"].update({"member": member.id},{"permission": permission.value[1]}, upsert=True)
+    global special_permissions
+    dbconn.conn()["permissions"].update({'_id': member.id},{"$set": {'permission':permission.value[1]}},upsert=True)
+    special_permissions[member.id] = permission.value[1]
     
 def strip_permissions(member : discord.Member):
-    dbconn.conn()["permissions"].remove({"member": member.id})
+    dbconn.conn()["permissions"].remove({'_id': member.id})
+    del special_permissions[member.id]
     
 def load_dueutil_roles():
     permissions = dbconn.conn()["permissions"].find()
     for permission in permissions:
-        special_permissions[permission["member"]] = permission["permission"]
-    
+        special_permissions[permission["_id"]] = permission["permission"]
+
 load_dueutil_roles()
-"""
-
-def increment_stat(dueutil_stat, increment = 1):
-    dbconn.conn()["stats"].update({"stat" : dueutil_stat.value},
-                                  { "$inc" : { "count" : increment } }, upsert=True)
-    
-def get_stats():
-    stats_response = dbconn.conn()["stats"].find()
-    return dict((stat["stat"], stat["count"]) for stat in stats_response)
-
-"""

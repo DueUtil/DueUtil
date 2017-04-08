@@ -16,7 +16,8 @@ async def test(ctx,*args,**details):
 async def permissions(ctx,*args,**details):
     permissions_report = ""
     for permission in botstuff.permissions.permissions:
-        permissions_report += "``"+permission.value[1]+"`` → "+ (":white_check_mark:" if permission.value[0](ctx.author) else ":no_entry:")+"\n"
+        permissions_report += ("``"+permission.value[1]+"`` → "
+                               + (":white_check_mark:" if botstuff.permissions.has_permission(ctx.author,permission) else ":no_entry:")+"\n")
     await util.say(ctx.channel,permissions_report)
 
 @commands.command(args_pattern="II")

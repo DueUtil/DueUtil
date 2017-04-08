@@ -1,5 +1,5 @@
 import discord
-from fun import weapons, game
+from fun import weapons, players
 from duecommands import weapons as weap_cmds
 from botstuff import commands
 from botstuff import util
@@ -25,32 +25,6 @@ async def shop(ctx,*args,**details):
     
     # Think more shop logic
     
-    if len(args) == 0:
-        await util.say("Welcome to the shop")
-    elif len(args) == 1:
-        if args[0] in ("weapons","weaps"):
-            shop_weapons_list()
-        elif args[0] in ("themes","skins"):
-            shop_theme_list()
-        else:
-            weapon_exists = does_weapon_exist(ctx.server.id,args[0])
-            theme_exists = game.get_theme(args[0]) != None
-            if weapon_exists and not theme_exists:
-                shop_weapon_info(args[0])
-            elif theme_exists and not weapon_exists:
-                shop_theme_info(args[0])
-            elif weapon_exists and theme_exists:
-                await util.say("Conflict")
-            else:
-                await util.say("Not found")
-    else:
-        if type(args[1]) is int:  
-            if args[0] in ("weapons","weaps"):
-                shop_weapons_list(args[1])
-            elif args[0] in ("themes","skins"):
-                shop_theme_list(args[1])
-                
-
     async def shop_weapons_list(page):
         nonlocal ctx
         shop_weapons = list(weapons.get_weapons_for_server(ctx.server.id).values())
@@ -80,7 +54,7 @@ async def shop(ctx,*args,**details):
         await util.say(ctx.channel,embed=weapon_info)
         
     async def shop_theme_list(page):
-        themes = list(player.get_owned_themes().values())
+        themes = list(players.get_themes().values())
         themes_listings = discord.Embed(title="Available themes",type="rich",color=16038978)      
         if 12 * page + 12 < len (themes):
             footer = "But wait there's more! Do "++"mythemes "+str(page+2)
@@ -104,3 +78,56 @@ async def shop(ctx,*args,**details):
         theme_info.set_image(url=theme["preview"])
         theme_info.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme["name"].lower()+" to use this theme!")
         await util.say(ctx.channel,embed=theme_info)
+    
+    
+    departments = {
+                     "weapons":{
+                        "alisas":[
+                           "weapons",
+                           "weaps"
+                        ],
+                        "actions":{
+                           "info_action": shop_weapon_info,
+                           "list_action": shop_weapons_list
+                        },
+                        "item_exists": lambda name : weapons.does_weapon_exist(ctx.server.id,name)
+                     },
+                    "themes":{
+                        "alisas":[
+                           "themes",
+                           "skins"
+                        ],
+                        "actions":{
+                           "info_action": shop_theme_info,
+                           "list_action": shop_theme_list
+                        },
+                        "item_exists": lambda name : players.get_theme(name) != None
+                     }
+                  }
+
+    if len(args) == 0:
+        await util.say(ctx.channel,"Welcome to the shop")
+    else:
+        department = next((department_info for department_info in departments.values() if args[0].lower() in department_info["alisas"]),None)
+        if department != None:
+            list_action = department["actions"]["list_action"]
+            info_action = department["actions"]["info_action"]
+            if len(args) == 1:
+                await list_action(0)
+            else:
+                if type(args[1]) is int:
+                    await list_action(args[1])
+                else:
+                    await info_action(args[1])
+        elif len(args) == 1:
+            item_name = args[0].lower()
+            possible_departments = [department_info for department_info in departments.values() if department_info["item_exists"](item_name)]
+            if len(possible_departments) > 1:
+                await util.say(ctx.channel,"Item conflict")
+            elif len(possible_departments) == 0:
+                await util.say(ctx.channel,"Item not found")
+            else:
+                department = possible_departments[0]
+                await department["actions"]["info_action"](item_name)
+        else:
+            await util.say(ctx.channel,"Department not found")

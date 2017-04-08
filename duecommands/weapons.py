@@ -38,6 +38,7 @@ async def buy(ctx,*args,**details):
     Buys a weapon from the shop.!
     
     """
+    
     customer = details["author"]
     weapon = weapons.get_weapon_for_server(ctx.server.id,args[0])
     if weapon == None:

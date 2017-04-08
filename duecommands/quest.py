@@ -2,8 +2,18 @@ from fun import quests, game, battles, imagehelper
 from botstuff import commands, util
 from botstuff.permissions import Permission
 
-@commands.command(args_pattern="S?P?C?I?I?R?",hidden=True)
+@commands.command(permission = Permission.DUEUTIL_MOD,args_pattern="S?P?C?I?I?R?",hidden=True)
 async def spawnquest(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]spawnquest (name) (@user) (level) (money,wep damage,wep accy)
+    
+    A command for TESTING only please (awais) do not abuse this power.
+    All arguments are optional however the final three must all be entered
+    to use them. 
+    
+    """
+  
     player = details["author"]
     if len(args) == 0:
         quest = quests.get_random_quest_in_channel(ctx.channel)
@@ -29,6 +39,13 @@ async def spawnquest(ctx,*args,**details):
 @commands.command(args_pattern='C')
 @commands.imagecommand()
 async def questinfo(ctx,*args,**details): 
+    
+    """
+    [CMD_KEY]questinfo index
+    
+    Shows a simple stats page for the quest
+    """
+  
     player = details["author"]
     quest_index = args[0]-1
     if quest_index >= 0 and quest_index < len(player.quests):
@@ -39,6 +56,14 @@ async def questinfo(ctx,*args,**details):
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
 async def myquests(ctx,*args,**details): 
+  
+    """
+    [CMD_KEY]myquests
+    
+    Shows the list of active quests you have pending.
+    
+    """
+    
     player = details["author"]
     if len(args) == 0:
         page = 0
@@ -68,6 +93,14 @@ async def acceptquest(ctx, **args):
  
 @commands.command(args_pattern='C?')
 async def declinequest(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]declinequest index
+
+    Declines a quest because you're too wimpy to accept it.
+    
+    """
+    
     player = details["author"]
     quest_index = args[0] -1
     if quest_index >= 0 and quest_index  < len(player.quests):
@@ -80,8 +113,8 @@ async def declinequest(ctx,*args,**details):
         else:
             quest_task = "do a long forgotten quest:"
         await util.say(ctx.channel, ("**"+player.name +"** declined to " 
-                                      + quest_task + " **" + quest.name 
-                                      + " [Level " + str(qT.level) + "]**!"))
+                                     + quest_task + " **" + quest.name 
+                                     + " [Level " + str(qT.level) + "]**!"))
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 

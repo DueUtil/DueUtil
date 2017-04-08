@@ -188,6 +188,9 @@ def get_theme(theme_name):
     theme_name = theme_name.lower()
     if theme_name in profile_themes:
         return profile_themes[theme_name]
+        
+def get_themes():
+    return profile_themes
             
 def load():
     global players, banners
