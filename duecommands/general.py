@@ -58,6 +58,9 @@ def theme_info(theme_name,**details):
     embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"],money=True,full_precision=True))
     return embed
     
+def get_department_from_name(name):
+    return next((department_info for department_info in departments.values() if name.lower() in department_info["alisas"]),None)
+        
 async def item_action(item_name,action,**details):
     possible_departments = [department_info for department_info in departments.values() if department_info["item_exists"](details["server_id"],item_name)]
     if len(possible_departments) > 1:
@@ -70,7 +73,9 @@ async def item_action(item_name,action,**details):
         raise util.DueUtilException(details["channel"],"Item not found!")
     else:
         department = possible_departments[0]
-        await util.say(details["channel"], embed = department["actions"][action](item_name,**details))
+        action_result = await department["actions"][action](item_name,**details)
+        if isinstance(action_result,discord.Embed):
+            await util.say(details["channel"], embed = action_result)
 
 departments = {
    "weapons":{
@@ -81,7 +86,7 @@ departments = {
       "actions":{
          "info_action":weapon_info,
          "list_action":shop_weapons_list,
-         "buy_action:": None
+         "buy_action":weap_cmds.buy
       },
       "item_exists":lambda server_id,name:weapons.does_weapon_exist(server_id,name)
    },
@@ -93,7 +98,7 @@ departments = {
       "actions":{
          "info_action":theme_info,
          "list_action":shop_theme_list,
-         "buy_action:": None
+         "buy_action": None
       },
       "item_exists":lambda _,name:players.get_theme(name) != None
    }
@@ -127,7 +132,7 @@ async def shop(ctx,*args,**details):
         help = "For more info on the new shop do ``"+details["cmd_key"]+"help shop``"
         await util.say(ctx.channel,greet+department_available+help)
     else:
-        department = next((department_info for department_info in departments.values() if args[0].lower() in department_info["alisas"]),None)
+        department = get_department_from_name(args[0])
         if department != None:
             list_action = department["actions"]["list_action"]
             info_action = department["actions"]["info_action"]
@@ -143,6 +148,19 @@ async def shop(ctx,*args,**details):
         else:
             raise util.DueUtilException(ctx.channel,"Department not found")
 
-@commands.command(args_pattern='S')
+@commands.command(args_pattern='S?S?')
 async def buy(ctx,*args,**details):
-    pass
+  
+    """
+    [CMD_KEY]buy item
+    
+    """
+
+    if len(args) == 1:
+        await item_action(args[0].lower(),"buy_action",**details)
+    else:
+        department = get_department_from_name(args[0])
+        if department != None:
+            await department["actions"]["buy_action"](args[1],**details)
+        else:
+            raise util.DueUtilException(ctx.channel,"Department not found")

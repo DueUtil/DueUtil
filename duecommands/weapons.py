@@ -28,45 +28,6 @@ def weapons_page(weapons_list,page,title):
         weapon = weapons_list[weapon_index]
         weapons.add_field(name=weapon.icon+' | '+weapon.name,value='``'+util.format_number(weapon.price,full_precision=True,money=True)+'``')
     return weapons    
-
-@commands.command(args_pattern='S')
-async def buy(ctx,*args,**details):
-
-    """
-    [CMD_KEY]buy "weapon name"
-    
-    Buys a weapon from the shop.!
-    
-    """
-    
-    customer = details["author"]
-    weapon = weapons.get_weapon_for_server(ctx.server.id,args[0])
-    if weapon == None:
-        raise util.DueUtilException(ctx.channel,"Weapon not found")
-    if customer.money - weapon.price < 0:
-        await util.say(ctx.channel,":anger: You can't afford that weapon.")
-    elif weapon.price > customer.item_value_limit:
-        await util.say(ctx.channel,(":baby: Awwww. I can't sell you that.\n"
-                                    +"You can use weapons with a value up to **"
-                                    +util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"))
-    elif customer.weapon.w_id != weapons.NO_WEAPON_ID:
-        if len(customer.weapon_inventory) < 6:
-            if weapon.w_id not in customer.weapon_inventory:
-                customer.weapon_inventory.append(weapon.w_id)
-                await util.say(ctx.channel,("**"+customer.name+"** bought a **"+weapon.name+"** for "
-                                            +util.format_number(weapon.price,money=True,full_precision=True)
-                                            +"\n:warning: You have not equiped this weapon do **"
-                                            +util.get_server_cmd_key(ctx.server)+"equip "
-                                            +weapon.name.lower()+"** to equip this weapon."))
-            else:
-                raise util.DueUtilException("Cannot store new weapon! A you already have a weapon with the same name!")
-        else:
-            raise util.DueUtilException("No free weapon slots!")
-    else:
-        customer.w_id = weapon.w_id
-        await util.say(ctx.channel,("**"+customer.clean_name+"** bought a **"
-                                    +weapon.name+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
-    customer.save()
  
 @commands.command(args_pattern='PP')
 async def battle(ctx,*args,**details):
@@ -113,4 +74,37 @@ async def createweapon(ctx,*args,**details):
     weapon = weapons.Weapon(*args[:4],**extras,ctx=ctx)
     await util.say(ctx.channel,(weapon.icon+" **"+weapon.name.strip('*')+"** is available in the shop for "
                                 +util.format_number(weapon.price,money=True)+"!"))
-                      
+  
+# Part of the shop buy command
+async def buy(weapon_name,**details):
+    
+    customer = details["author"]
+    weapon = weapons.get_weapon_for_server(details["server_id"],weapon_name)
+    channel = details["channel"]
+    
+    if weapon == None:
+        raise util.DueUtilException(channel,"Weapon not found")
+    if customer.money - weapon.price < 0:
+        await util.say(channel,":anger: You can't afford that weapon.")
+    elif weapon.price > customer.item_value_limit:
+        await util.say(channel,(":baby: Awwww. I can't sell you that.\n"
+                                    +"You can use weapons with a value up to **"
+                                    +util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"))
+    elif customer.weapon.w_id != weapons.NO_WEAPON_ID:
+        if len(customer.weapon_inventory) < 6:
+            if weapon.w_id not in customer.weapon_inventory:
+                customer.weapon_inventory.append(weapon.w_id)
+                await util.say(channel,("**"+customer.name+"** bought a **"+weapon.name+"** for "
+                                            + util.format_number(weapon.price,money=True,full_precision=True)
+                                            + "\n:warning: You have not equiped this weapon do **"
+                                            + details["cmd_key"]+"equip "
+                                            + weapon.name.lower()+"** to equip this weapon."))
+            else:
+                raise util.DueUtilException("Cannot store new weapon! A you already have a weapon with the same name!")
+        else:
+            raise util.DueUtilException("No free weapon slots!")
+    else:
+        customer.w_id = weapon.w_id
+        await util.say(channel,("**"+customer.clean_name+"** bought a **"
+                                    +weapon.name+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
+    customer.save()

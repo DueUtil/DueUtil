@@ -13,24 +13,31 @@ class Permission(Enum):
     ANYONE = (lambda member: players.find_player(member.id) != None,"anyone",)
     SERVER_ADMIN = (lambda member: (member.server_permissions.manage_server 
                                     or next((role for role in member.roles if role.name == "Due Commander"),False)),"server_admin",)
-    DUEUTIL_MOD = (lambda member: member.id in special_permissions and special_permissions[member.id] == "dueutil_mod" ,"dueutil_mod",)
-    DUEUTIL_ADMIN = (lambda member: member.id in special_permissions and special_permissions[member.id] == "dueutil_admin","dueutil_admin",)
+    DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[2]) ,"dueutil_mod",)
+    DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[3]),"dueutil_admin",)
     
 permissions = [permission for permission in Permission]
 
 def has_permission(member : discord.Member,permission):
-    if permission.value[0](member): return True
+    if permission.value[0](member) or has_special_permission(member,permission): return True
     else:
         for higher_permission in permissions[permissions.index(permission):]:
            if higher_permission.value[0](member): return True
     return False
+    
+def has_special_permission(member : discord.Member,permission):
+    return member.id in special_permissions and special_permissions[member.id] == permission.value[1]
       
 def give_permission(member : discord.Member,permission):
     global special_permissions
-    dbconn.conn()["permissions"].update({'_id': member.id},{"$set": {'permission':permission.value[1]}},upsert=True)
-    special_permissions[member.id] = permission.value[1]
-    
+    if permission != Permission.ANYONE:
+        dbconn.conn()["permissions"].update({'_id': member.id},{"$set": {'permission':permission.value[1]}},upsert=True)
+        special_permissions[member.id] = permission.value[1]
+    else:
+        strip_permissions(member)
+        
 def strip_permissions(member : discord.Member):
+    global special_permissions
     dbconn.conn()["permissions"].remove({'_id': member.id})
     del special_permissions[member.id]
     
