@@ -31,20 +31,25 @@ class Player(DueUtilObject):
         if discord_user != None:
             self.name = discord_user.name
         self.benfont = False
+        
+        ##### STATS #####
         self.level = 1
         self.exp = 0
         self.total_exp = 0
         self.attack = 1
         self.strg = 1
         self.accy = 1
+        self.hp = 10
+        self.money = 1
+        
+        ##### CUSTOMIZATIONS #####
         self.banner_id = "discord blue"
         self.theme_id = "test"
-        self.hp = 10
-        self.donor = False
         self.background = "default.png"
         self.weapon_sum = '"0"01'     # price/attack/sum
         self.w_id = weapons.NO_WEAPON_ID
-        self.money = 1
+        
+        ##### USAGE STATS #####
         self.last_progress = 0
         self.last_quest = 0
         self.wagers_won = 0
@@ -54,10 +59,16 @@ class Player(DueUtilObject):
         self.potatos = 0
         self.quests_completed_today = 0
         self.last_image_request = 0
+        
+        ##### THINGS #####
         self.quests = []
         self.battlers = []
         self.awards = []
         self.weapon_inventory = []
+        self.themes = []
+        self.backgrounds = []
+        
+        self.donor = False
         self.save()
         
     def progress(self,attack,strg,accy):
@@ -75,8 +86,8 @@ class Player(DueUtilObject):
         return False
         
     def get_owned_themes(self):
-        return profile_themes
-        
+        return {theme_id:theme for theme_id,theme in profile_themes.items() if theme_id in self.themes}
+            
     def get_name_possession(self):
         if self.name.endswith('s'):
             return self.name + "'"
@@ -96,7 +107,10 @@ class Player(DueUtilObject):
         
     @property
     def theme(self):
-        theme = profile_themes[self.theme_id].copy()
+        if self.theme_id in profile_themes: 
+            theme = profile_themes[self.theme_id].copy()
+        else:
+            theme = profile_themes["default"].copy()
         if theme["background"] != self.background:
             theme["background"] = self.background
         if theme["banner"] != self.banner:
@@ -136,8 +150,9 @@ class Player(DueUtilObject):
         
     @property
     def rank_colour(self):
-        rank_colours = profile_themes[self.theme_id]["rankColours"]
-        return profile_themes[self.theme_id]["rankColours"][(self.rank - 1) % len(rank_colours)]
+        theme = self.theme
+        rank_colours = theme["rankColours"]
+        return theme["rankColours"][(self.rank - 1) % len(rank_colours)]
         
     @property
     def banner(self):

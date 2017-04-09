@@ -26,7 +26,7 @@ def weapons_page(weapons_list,page,title):
         if weapon_index >= len(weapons_list):
             break
         weapon = weapons_list[weapon_index]
-        weapons.add_field(name=weapon.icon+' | '+weapon.name,value='```'+util.format_number(weapon.price,full_precision=True,money=True)+'```')
+        weapons.add_field(name=weapon.icon+' | '+weapon.name,value='``'+util.format_number(weapon.price,full_precision=True,money=True)+'``')
     return weapons    
 
 @commands.command(args_pattern='S')

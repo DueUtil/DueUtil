@@ -4,6 +4,8 @@ from duecommands import weapons as weap_cmds
 from botstuff import commands
 from botstuff import util
 
+SHOP_PAGE_MAX_ITEMS = 12
+
 @commands.command(args_pattern='S?M?')
 async def shop(ctx,*args,**details):
   
@@ -28,7 +30,7 @@ async def shop(ctx,*args,**details):
     async def shop_weapons_list(page):
         nonlocal ctx
         shop_weapons = list(weapons.get_weapons_for_server(ctx.server.id).values())
-        if 12 * page + 12 < len (shop_weapons):
+        if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
             footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
         else:
             footer = 'Want more? Ask an admin on '+ctx.server.name+' to add some!'
@@ -55,17 +57,18 @@ async def shop(ctx,*args,**details):
         
     async def shop_theme_list(page):
         themes = list(players.get_themes().values())
-        themes_listings = discord.Embed(title="Available themes",type="rich",color=16038978)      
-        if 12 * page + 12 < len (themes):
+        themes_listings = discord.Embed(title="DueUtil's Theme Shop!",type="rich",color=16038978)      
+        if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (themes):
             footer = "But wait there's more! Do "++"mythemes "+str(page+2)
         else:
             footer = 'More themes coming soon!'
 
-        for theme_index in range(12 * page,12 * page + 12):
+        for theme_index in range(SHOP_PAGE_MAX_ITEMS * page,SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS):
             if theme_index >= len(themes):
                 break
             theme = themes[theme_index]
-            themes_listings.add_field(name=theme["icon"]+" | "+theme["name"],value=theme["description"])
+            themes_listings.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
+                                                                                    +util.format_number(theme["price"],money=True,full_precision=True)+"``"))
         themes_listings.set_footer(text=footer)
         await util.say(ctx.channel,embed=themes_listings)
 
@@ -76,9 +79,8 @@ async def shop(ctx,*args,**details):
             raise util.DueUtilException(ctx.channel,"Theme not found!")
         theme_info = discord.Embed(title=theme["icon"]+" | "+theme["name"],type="rich",color=16038978)
         theme_info.set_image(url=theme["preview"])
-        theme_info.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme["name"].lower()+" to use this theme!")
+        theme_info.set_footer(text="Buy this theme for "+util.format_number(theme["price"],money=True,full_precision=True))
         await util.say(ctx.channel,embed=theme_info)
-    
     
     departments = {
                      "weapons":{
@@ -106,7 +108,12 @@ async def shop(ctx,*args,**details):
                   }
 
     if len(args) == 0:
-        await util.say(ctx.channel,"Welcome to the shop")
+        greet = ":wave: **Welcome to the DueUtil general store!**\n"
+        department_available = "Please have a look in some of our splendiferous departments!\n"
+        for department_info in departments.values():
+            department_available += "``"+details["cmd_key"]+"shop "+department_info["alisas"][0]+"``\n"
+        help = "For more info on the new shop do ``"+details["cmd_key"]+"help shop``"
+        await util.say(ctx.channel,greet+department_available+help)
     else:
         department = next((department_info for department_info in departments.values() if args[0].lower() in department_info["alisas"]),None)
         if department != None:
@@ -123,11 +130,15 @@ async def shop(ctx,*args,**details):
             item_name = args[0].lower()
             possible_departments = [department_info for department_info in departments.values() if department_info["item_exists"](item_name)]
             if len(possible_departments) > 1:
-                await util.say(ctx.channel,"Item conflict")
+                error = (":confounded: An item with that name exists in multiple departments!\n"
+                         +"Please be more specific!\n")
+                for department_info in possible_departments:
+                    error += "``"+details["cmd_key"]+"shop "+department_info["alisas"][0]+" "+item_name+"``\n"
+                await util.say(ctx.channel,error)
             elif len(possible_departments) == 0:
-                await util.say(ctx.channel,"Item not found")
+                raise util.DueUtilException(ctx.channel,"Item not found!")
             else:
                 department = possible_departments[0]
                 await department["actions"]["info_action"](item_name)
         else:
-            await util.say(ctx.channel,"Department not found")
+            raise util.DueUtilException(ctx.channel,"Department not found")

@@ -11,10 +11,11 @@
           "screen": "default",
           "expBarColour": ["#FFF","#CCC"],
           "icons": "default",
-          "preview": "http://i.imgur.com/2vkkVmy.png"
+          "preview": "http://i.imgur.com/2vkkVmy.png",
+          "price": 0
       },
-      "test":{
-          "name":"Test",
+      "gun":{
+          "name":"Gun",
           "icon":":space_invader:",
           "description":"Hackerman test theme.",
           "banner":"discord blue",
@@ -35,7 +36,8 @@
               "#E0210B",
               "#0F0F0F"
           ],
-          "preview": "http://i.imgur.com/5IgoZLh.png"
+          "preview": "http://i.imgur.com/5IgoZLh.png",
+          "price": 5000
       },
       "pink":{
           "name":"Pink",
@@ -59,7 +61,8 @@
               "#E0210B",
               "#0F0F0F"
           ],
-          "preview": "http://i.imgur.com/BDtK6xz.png"
+          "preview": "http://i.imgur.com/BDtK6xz.png",
+          "price": 10000
           
       }
    },
