@@ -27,6 +27,9 @@ def command(**command_rules):
     def get_command_details(ctx,**details):
         details["timestamp"] = ctx.timestamp
         details["author"] = players.find_player(ctx.author.id)
+        details["server_id"] = ctx.server.id
+        details["server_name"] = ctx.server.name
+        details["channel"] = ctx.channel
         return details
         
     def wrap(command_func):
