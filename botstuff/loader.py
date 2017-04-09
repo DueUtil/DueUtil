@@ -52,4 +52,5 @@ def refresh_modules():
     loader(module_refresh)
     
 load_modules()
-print('Bot extensions loaded with '+str(len(events.command_event))+' commands');
+print('Bot extensions loaded with '+str(len(events.command_event))+' commands')
+print(', '.join(events.command_event.command_list()))

@@ -67,46 +67,51 @@ class DueMap(collections.MutableMapping):
   
     """ 
     
-    A 2D Mapping for servers & items
-    Key "ServerID/Name"
+    A 2D Mapping for things & items
+    E.g. Key "ServerID/Name"
     or Server & Item
     where the key is Server.id/Item.name
    
     This mapping will return an empty dict or None
     if the server or item does not exist!
+    
+    Happens to be quite useful
     """
     
     def __init__(self):
-        self.servers = dict()
+        self.collection = dict()
 
     def __getitem__(self, key):
         key = self.__parse_key__(key)
         if isinstance(key,list):
-            if key[0] in self.servers and key[1] in self.servers[key[0]]:
-                return self.servers[key[0]][key[1]]
+            if key[0] in self.collection and key[1] in self.collection[key[0]]:
+                return self.collection[key[0]][key[1]]
             return None
-        if key in self.servers:
-            return self.servers[key]
+        if key in self.collection:
+            return self.collection[key]
         return {}
 
     def __setitem__(self, key, value):
         key = self.__parse_key__(key, value)
-        if key[0] not in self.servers:
+        if key[0] not in self.collection:
             items = dict()
             items[key[1]] = value
-            self.servers[key[0]] = items
+            self.collection[key[0]] = items
         else:
-            self.servers[key[0]][key[1]] = value
+            self.collection[key[0]][key[1]] = value
 
     def __delitem__(self, key):
-        del self.servers[self.__parse_key__(key)[0]]
+        del self.collection[self.__parse_key__(key)[0]]
 
     def __iter__(self):
-        return iter(self.servers)
+        return iter(self.collection)
 
     def __len__(self):
-        return len(self.servers)
-
+        return len(self.collection)
+        
+    def __str__(self):
+         return "DueMap(%s)" % str(self.collection)
+         
     def __parse_key__(self, key, value = None):
         if isinstance(key,discord.Server):
             if value != None:

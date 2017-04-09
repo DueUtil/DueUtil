@@ -26,61 +26,57 @@ async def shop(ctx,*args,**details):
     #if type(page) is int:
     
     # Think more shop logic
+    shop = discord.Embed(type="rich",color=16038978)
     
     async def shop_weapons_list(page):
-        nonlocal ctx
         shop_weapons = list(weapons.get_weapons_for_server(ctx.server.id).values())
         if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
             footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
         else:
             footer = 'Want more? Ask an admin on '+ctx.server.name+' to add some!'
-
         shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
         shop.set_footer(text=footer)
         
         await util.say(ctx.channel,embed=shop)    
 
     async def shop_weapon_info(weapon_name):
-        nonlocal ctx
         weapon = weapons.get_weapon_for_server(ctx.server.id,weapon_name)
         if weapon == None:
             raise util.DueUtilException(ctx.channel,"Weapon not found")
-        weapon_info = discord.Embed(title=weapon.icon+' | '+weapon.name,type="rich",color=16038978)
-        weapon_info.set_thumbnail(url=weapon.image_url)
-        weapon_info.add_field(name='Damage',value=util.format_number(weapon.damage))
-        weapon_info.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
-        weapon_info.add_field(name='Price',value=util.format_number(weapon.price,money=True,full_precision=True))
-        weapon_info.add_field(name="Hit Message",value=weapon.hit_message)
-        weapon_info.set_footer(text='Image supplied by weapon creator.')
+        shop.title = weapon.icon+' | '+weapon.name
+        shop.set_thumbnail(url=weapon.image_url)
+        shop.add_field(name='Damage',value=util.format_number(weapon.damage))
+        shop.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
+        shop.add_field(name='Price',value=util.format_number(weapon.price,money=True,full_precision=True))
+        shop.add_field(name="Hit Message",value=weapon.hit_message)
+        shop.set_footer(text='Image supplied by weapon creator.')
 
-        await util.say(ctx.channel,embed=weapon_info)
+        await util.say(ctx.channel,embed=shop)
         
     async def shop_theme_list(page):
         themes = list(players.get_themes().values())
-        themes_listings = discord.Embed(title="DueUtil's Theme Shop!",type="rich",color=16038978)      
+        shop.title = "DueUtil's Theme Shop"
         if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (themes):
             footer = "But wait there's more! Do "++"mythemes "+str(page+2)
         else:
             footer = 'More themes coming soon!'
-
         for theme_index in range(SHOP_PAGE_MAX_ITEMS * page,SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS):
             if theme_index >= len(themes):
                 break
             theme = themes[theme_index]
-            themes_listings.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
-                                                                                    +util.format_number(theme["price"],money=True,full_precision=True)+"``"))
-        themes_listings.set_footer(text=footer)
-        await util.say(ctx.channel,embed=themes_listings)
+            shop.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
+                                                                         +util.format_number(theme["price"],money=True,full_precision=True)+"``"))
+        shop.set_footer(text=footer)
+        await util.say(ctx.channel,embed=shop)
 
     async def shop_theme_info(theme_name):
-        nonlocal ctx
         theme = players.get_theme(theme_name)
         if theme == None:
             raise util.DueUtilException(ctx.channel,"Theme not found!")
-        theme_info = discord.Embed(title=theme["icon"]+" | "+theme["name"],type="rich",color=16038978)
-        theme_info.set_image(url=theme["preview"])
-        theme_info.set_footer(text="Buy this theme for "+util.format_number(theme["price"],money=True,full_precision=True))
-        await util.say(ctx.channel,embed=theme_info)
+        shop.title = theme["icon"]+" | "+theme["name"]
+        shop.set_image(url=theme["preview"])
+        shop.set_footer(text="Buy this theme for "+util.format_number(theme["price"],money=True,full_precision=True))
+        await util.say(ctx.channel,embed=shop)
     
     departments = {
                      "weapons":{
@@ -123,7 +119,7 @@ async def shop(ctx,*args,**details):
                 await list_action(0)
             else:
                 if type(args[1]) is int:
-                    await list_action(args[1])
+                    await list_action(args[1]-1)
                 else:
                     await info_action(args[1])
         elif len(args) == 1:

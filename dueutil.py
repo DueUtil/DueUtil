@@ -8,6 +8,8 @@ from threading import Thread
 import json
 import traceback
 
+MAX_RECOVERY_ATTEMPS = 100
+
 stopped = False
 start_time = 0
 bot_key = ""
@@ -40,7 +42,7 @@ class DueUtilClient(discord.Client):
         ctx = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
         if ctx == None:
-            print("None message/command error:"+str(error))
+            print("None message/command error: "+str(error))
             return
         if isinstance(error,util.DueUtilException):
             await self.send_message(error.channel,error.get_message())
@@ -91,7 +93,7 @@ def load_due():
     load_config()
     util.load(shard_clients)
     
-def setup_due_thread(loop,shard_id):
+def setup_due_thread(loop,shard_id, level = 0):
     global shard_clients
     asyncio.set_event_loop(loop)
     client = DueUtilClient(shard_id=shard_id,shard_count=shard_count)
@@ -99,7 +101,10 @@ def setup_due_thread(loop,shard_id):
     try:
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop)
     except:
-        print("DON'T YOU DIE ON ME!")
+        if level < MAX_RECOVERY_ATTEMPS:
+            setup_due_thread(loop,shard_id,level+1)
+        else:
+            print("FALTAL ERROR: Shard down!")
     finally:
         print("A shard died.")
 

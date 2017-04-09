@@ -1,4 +1,6 @@
+import inspect
 from botstuff import commands,util
+from fun.misc import DueMap
 
 class MessageEvent(list):
   
@@ -23,16 +25,34 @@ class CommandEvent(dict):
     
     """
     
+    def __init__(self,*args,**kwargs):
+        self.command_categories = DueMap()
+    
     def command_list(self,*args):
          filter_func = (lambda command : command) if len(args) == 0 else args[0]
-         return ', '.join([command.__name__ for command in filter(filter_func,self.values()) if not command.is_hidden])
+         return [command.__name__ for command in filter(filter_func,self.values()) if not command.is_hidden]
     
+    def category_list(self):
+        return [category for category in self.command_categories.keys()]
+            
     def __str__(self):
          return "Command(%s)" % self.command_list()
          
     def __repr__(self):
         return "Command(%s)" % dict.__repr__(self)
-  
+        
+    def __setitem__(self, key, command):
+        module_name = inspect.getmodule(command).__name__.split('.')[1]
+        self.command_categories[module_name+"/"+command.__name__] = command
+        command.category = module_name
+        super(CommandEvent, self).__setitem__(key,command)
+        
+    def __delitem__(self, key):
+        command = self[key]
+        module_name = inspect.getmodule(command).__name__.split('.')[1]
+        del self.command_categories[module_name+"/"+command.__name__]
+        super(CommandEvent, self).__delitem__(key)
+        
     async def __call__(self,ctx):
         if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
             return
