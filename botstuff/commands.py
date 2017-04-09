@@ -45,6 +45,7 @@ def command(**command_rules):
                 elif not is_spam_command(ctx,wrapped_command,*args):
                     await util.say(ctx.channel,str(args))
                     kwargs["cmd_key"] = args[0]
+                    kwargs["command_name"] = args[1]
                     await command_func(ctx,*args[2],**get_command_details(ctx,**kwargs))
                 else:
                     raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
