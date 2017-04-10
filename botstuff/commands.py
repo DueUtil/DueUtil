@@ -29,6 +29,9 @@ def command(**command_rules):
         details["author"] = players.find_player(ctx.author.id)
         details["server_id"] = ctx.server.id
         details["server_name"] = ctx.server.name
+        details["server_name_clean"] = util.ultra_escape_string(ctx.server.name)
+        details["author_name"] = ctx.author.name
+        details["author_name_clean"] = util.ultra_escape_string(ctx.author.name)
         details["channel"] = ctx.channel
         return details
         

@@ -4,7 +4,7 @@ import math
 import jsonpickle
 import numpy
 from fun import weapons
-from fun.misc import DueUtilObject, Themes, Backgrounds
+from fun.misc import DueUtilObject, Themes, Backgrounds, Ring
 from botstuff import util, dbconn
 
 players = dict()   
@@ -59,6 +59,8 @@ class Player(DueUtilObject):
         self.potatos = 0
         self.quests_completed_today = 0
         self.last_image_request = 0
+        self.last_message_hashes = Ring(10)
+        self.spam_detections = 0
         
         ##### THINGS #####
         self.quests = []
@@ -92,6 +94,9 @@ class Player(DueUtilObject):
         if self.name.endswith('s'):
             return self.name + "'"
         return self.name + "'s"
+       
+    def get_name_possession_clean(self):
+        return util.ultra_escape_string(self.get_name_possession())
         
     @property    
     def weapon_accy(self):
@@ -199,10 +204,10 @@ def find_player(user_id):
     if user_id in players:
         return players[user_id]
 
-def get_theme(theme_name):
-    theme_name = theme_name.lower()
-    if theme_name in profile_themes:
-        return profile_themes[theme_name]
+def get_theme(theme_id):
+    theme_id = theme_id.lower()
+    if theme_id in profile_themes:
+        return profile_themes[theme_id]
         
 def get_themes():
     return profile_themes

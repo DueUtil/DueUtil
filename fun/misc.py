@@ -18,6 +18,8 @@ class AutoReply:
         kwargs.get('channel_id',"all")
         
 class DueUtilObject():
+  
+    NAME_LENGTH_RANGE = range(1,33)
     
     def __init__(self,id,*args,**kwargs):
         self.id = id
@@ -26,11 +28,11 @@ class DueUtilObject():
             self.name = args[0]
         
     @property
-    def clean_name(self):
+    def name_clean(self):
         return util.ultra_escape_string(self.name)
         
     @property
-    def assii_name(self):
+    def name_assii(self):
         return util.filter_string(self.name)
         
     def save(self):
@@ -120,6 +122,34 @@ class DueMap(collections.MutableMapping):
         elif "/" not in key:
             return key
         return key.split('/',1)
+        
+class Ring(list):
+    
+    def __init__(self,size):
+        self += [None] * size
+        self.size = size
+        self.wrap_index = 0
+        
+    def __getitem__(self, index):
+        return super(Ring,self).__getitem__(index % self.size)
+
+    def __setitem__(self, index, value):
+        try:
+            super(Ring,self).__setitem__(index % self.size,value)
+        except:
+            self.__init__(self.size)
+            self[index] = value
+            
+    def __delitem__(self, index):
+        super(Ring,self).__delitem__(index % self.size)
+        
+    def append(self,item):
+        try:
+            next_index = self.index(None)
+            self[next_index] = item
+        except:
+            self[self.wrap_index] = item
+            self.wrap_index += 1
         
 class Wizzard(ABC):
     

@@ -5,6 +5,30 @@ from fun import players
 from fun import stats
 from botstuff import commands,util
 
+@commands.command(args_pattern="S?")
+async def battlename(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]battlename (name)
+    
+    Sets your name in DueUtil.
+    To reset your name to your discord name run the
+    command with no arguments
+    
+    """
+    player = details["author"]
+    if len(args) == 1:
+        name = args[0]
+        name_len_range = players.Player.NAME_LENGTH_RANGE
+        if len(name) not in name_len_range:
+            raise util.DueUtilException(ctx.channel,("Battle name must be between **"
+                                        +str(min(name_len_range))+"-"+str(max(name_len_range))+"** characters long!"))
+        player.name = name
+    else:
+        player.name = details["author_name"]
+    player.save()
+    await util.say(ctx.channel,"Your battle name has been set to **"+player.name_clean+"**!")
+    
 @commands.command(args_pattern=None)
 @commands.imagecommand()
 async def myinfo(ctx,*args,**details):
@@ -110,28 +134,29 @@ async def sendcash(ctx,*args,**details):
     sender = details["author"]
     receiver = args[0]
     transaction_amount = args[1]
+    amount_string = util.format_number(transaction_amount,money=True,full_precision=True)
     
     if receiver.id == sender.id:
         raise util.DueUtilException(ctx.channel,"There is no reason to send money to yourself!")
    
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
-            await util.say(ctx.channel, ("You do not have **$"+ util.to_money(amount,False)+"**!"
-                                        "The maximum you can transfer is **$"+ util.to_money(sender.money,False)+"**"))
+            await util.say(ctx.channel, ("You do not have **"+amount_string+"**!\n"
+                                        "The maximum you can transfer is **"
+                                        + util.format_number(sender.money,money = True,full_precision= True)+"**"))
         else:
             await util.say(ctx.channel,"You do not have any money to transfer!")
         return
         
     max_receive =  int(receiver.item_value_limit*10)
     
-    amount_string = util.format_number(transaction_amount,money=True,full_precision=True)
     
     if transaction_amount > max_receive:
         await util.say(ctx.channel, ("**"+amount_string
-                                     +"** is more than ten times **"+receiver.name
-                                     +"**'s limit!\nThe maximum **"+receiver.name
+                                     +"** is more than ten times **"+receiver.name_clean
+                                     +"**'s limit!\nThe maximum **"+receiver.name_clean
                                      +"** can receive is **"
-                                     +util.format_number(max_receive,money=True)+"**!"))
+                                     +util.format_number(max_receive,money=True,full_precision = True)+"**!"))
         return
         
     sender.money -= transaction_amount
@@ -145,8 +170,8 @@ async def sendcash(ctx,*args,**details):
         await players.give_award(ctx.channel, sender, 17, "Sugar daddy!")
         
     transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978)
-    transaction_log.add_field(name="Sender:",value=sender.name)
-    transaction_log.add_field(name="Recipient:",value=receiver.name)
+    transaction_log.add_field(name="Sender:",value=sender.name_clean)
+    transaction_log.add_field(name="Recipient:",value=receiver.name_clean)
     transaction_log.add_field(name="Transaction amount (DUT):",value=amount_string,inline=False)
     if len(args) > 2:
       transaction_log.add_field(name=":pencil: Attached note:",value=args[2],inline=False)
@@ -210,9 +235,9 @@ async def mythemes(ctx,*args,**details):
 @commands.command(args_pattern='S')
 async def settheme(ctx,*args,**details):
     player = details["author"]
-    theme_name = args[0].lower()
-    theme = players.get_theme(theme_name)
-    if theme != None:
+    theme_id = args[0].lower()
+    if theme_id in player.themes:
+        theme = players.get_theme(theme_id)
         player.theme_id = theme_name
         player.banner_id = theme["banner"]
         player.backgrounds = theme["background"]
@@ -220,3 +245,27 @@ async def settheme(ctx,*args,**details):
         await util.say(ctx.channel,":white_check_mark: Theme set to **"+theme["name"]+"**")
     else:
         raise util.DueUtilException(ctx.channel,"Theme not found!")
+
+# Part of the shop buy command
+async def buy_theme(theme_id,**details):
+    customer = details["author"]
+    channel = details["channel"]
+    
+    if theme_id in customer.themes:
+        raise util.DueUtilException(channel,"You already own that theme!")
+    theme = players.get_theme(theme_id)
+    if theme != None:
+        if customer.money - theme["price"] > 0:
+            customer.themes.append(theme_id)
+            customer.money -= theme["price"]
+            customer.save()
+            await util.say(channel,("**"+customer.name_clean+"** bought the theme **"
+                                    +theme["name"]+"** for "
+                                    +util.format_number(theme["price"],money=True,full_precision=True)))
+        else:
+            await util.say(channel,":anger: You can't afford that theme.")
+    else:
+        raise util.DueUtilException(channel,"Theme not found!")
+
+async def buy_background(background_name,**details):
+    pass

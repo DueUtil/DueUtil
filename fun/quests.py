@@ -51,6 +51,7 @@ class Quest(DueUtilObject):
         self.base_reward = self.__reward()
         self.channel = extras.get('channel',"ALL")
             
+        self.times_beaten = 0
         self.__add()
         
     def __quest_id(self):

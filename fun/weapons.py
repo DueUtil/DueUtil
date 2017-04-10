@@ -1,3 +1,4 @@
+import hashlib
 import jsonpickle
 import json
 from botstuff import util, dbconn
@@ -40,7 +41,7 @@ class Weapon(DueUtilObject):
         self.name = name
         super().__init__(self.__weapon_id(),**extras)    
         self.icon = extras.get('icon',":gun:")
-        self.hit_message = hit_message
+        self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee',True)
         self.image_url = extras.get('image_url',"https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png")
         self.damage = damage
@@ -58,7 +59,9 @@ class Weapon(DueUtilObject):
         return self.server_id+"/"+self.name.lower()
         
     def __weapon_sum(self):
-        return '"'+str(self.price)+'"'+str(self.damage)+str(self.accy)
+        summary_string = '"'+str(self.price)+'"'+str(self.damage)+str(self.accy)
+        summary_hash = hashlib.sha1(summary_string.encode())
+        return summary_hash.hexdigest()
       
     def __price(self):
         return int((self.accy/100 * self.damage) / 0.04375); 

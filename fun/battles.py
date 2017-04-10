@@ -33,34 +33,6 @@ async def equip_weapon(message,player,wname):
         savePlayer(player)
     else:
         await get_client(message.server.id).send_message(message.channel, ":bangbang: **You do not have that weapon stored!**")
-
-async def show_weapons(message,player,not_theirs):
-    eweap = get_weapon_from_id(player.wID)
-    output = "```"+player.name+"'s stored weapons\nEquipped: "+eweap.icon+" - "+eweap.name+"\n"
-    #check wep not removed/replaced
-    num = 1
-    for ws in player.owned_weps:
-        weap = get_weapon_from_id(ws[0])
-        if(weap != None):
-            if(weap.melee == True):
-                Type = "Melee"
-            else:
-                Type = "Ranged"
-            accy = round(weap.chance,2)
-            output = output+str(num)+". "+weap.icon + " - " + weap.name + " | DMG: " + util.number_format_text(weap.attack) + " | ACCY: " + (str(accy)+"-").replace(".0-","").replace("-","") + "% | Type: " + Type + " |\n"
-            num=num+1
-    if(len(player.owned_weps) == 0):
-        if(not not_theirs):
-            output = output + "You don't have any weapons stored!```"
-        else:
-            output = output + player.name+" does not have any weapons stored!```"
-    else:
-        if(not not_theirs):
-            cmd = util.get_server_cmd_key(message.server)
-            output = output+"Use "+cmd+"equipweapon [Weapon Name] to equip a stored weapon!\nUse "+cmd+"unequipweapon to store your equiped weapon.```"
-        else:
-            output = output + "```"
-    await get_client(message.server.id).send_message(message.channel, output)
     
 async def validate_weapon_store(message,player):
     weapon_sums = []
@@ -145,7 +117,7 @@ def battle(**battleargs):
         else:
             message = weapon.hit_message
                   
-        moves[str(player_no)+'/'+str(current_move)] = ['**'+players[player_no].clean_name +'** '+ message +' **'+players[other_player_no].clean_name+'**',1]
+        moves[str(player_no)+'/'+str(current_move)] = ['**'+players[player_no].name_clean +'** '+ message +' **'+players[other_player_no].name_clean+'**',1]
         current_move += 1
         damage_modifier += 0.5
 
@@ -222,5 +194,5 @@ def battle(**battleargs):
     elif hp[0] < hp[1]:
         winner = players[1]
         loser = players[0]
-    moves["winner"] = [":trophy: **"+winner.clean_name+"** wins in **" +str(current_move-1) + "** turns!",1]
+    moves["winner"] = [":trophy: **"+winner.name_clean+"** wins in **" +str(current_move-1) + "** turns!",1]
     return [moves,current_move-1]

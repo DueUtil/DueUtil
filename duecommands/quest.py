@@ -32,7 +32,7 @@ async def spawnquest(ctx,*args,**details):
                 spoof_values = {'q_money' : spoofs[0], 'w_damage' : spoofs[1], 'w_accy' : spoofs[2]}
             active_quest.__calculate_stats__(**spoof_values)
         player.save()
-        await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name+"** [Level "+str(active_quest.level)+"]")
+        await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name_clean+"** [Level "+str(active_quest.level)+"]")
     except:
         raise util.DueUtilException(ctx.channel,"Failed to spawn quest!")
   
@@ -112,13 +112,13 @@ async def declinequest(ctx,*args,**details):
             quest_task = quest_info.task
         else:
             quest_task = "do a long forgotten quest:"
-        await util.say(ctx.channel, ("**"+player.name +"** declined to " 
-                                     + quest_task + " **" + quest.name 
+        await util.say(ctx.channel, ("**"+player.name_clean +"** declined to " 
+                                     + quest_task + " **" + quest.name_clean 
                                      + " [Level " + str(qT.level) + "]**!"))
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
 @commands.command(permission = Permission.SERVER_ADMIN)
 async def serverquests(ctx,*args,**details):
-    quests.get_server_quest_list(ctx.server)
+    quests = quests.get_server_quest_list(ctx.server)
     

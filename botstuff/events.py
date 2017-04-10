@@ -25,7 +25,7 @@ class CommandEvent(dict):
     
     """
     
-    def __init__(self,*args,**kwargs):
+    def __init__(self):
         self.command_categories = DueMap()
     
     def command_list(self,*args):

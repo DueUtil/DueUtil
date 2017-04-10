@@ -208,7 +208,7 @@ async def awards_screen(channel,player,page,**kwargs):
         msg = name+" doesn't have any awards!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
-    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession()+"** Awards!")
+    await send_image(channel,image,file_name="awards_list.png",content=":trophy: **"+player.get_name_possession_clean()+"** Awards!")
         
     
 async def quests_screen(channel,player,page):
@@ -261,7 +261,7 @@ async def quests_screen(channel,player,page):
         msg = "You don't have any quests!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256-width)/2, 42 + 44 * count),msg,  "white", font=font_small)
-    await send_image(channel,image,file_name="awards_list.png",content=":crossed_swords: **"+player.get_name_possession()+"** Quests!")
+    await send_image(channel,image,file_name="awards_list.png",content=":crossed_swords: **"+player.get_name_possession_clean()+"** Quests!")
     
 async def stats_screen(channel,player):
 
@@ -292,7 +292,7 @@ async def stats_screen(channel,player):
         pass
      
     if player.benfont:
-        name=get_text_limit_len(draw,player.clean_name.replace(u"\u2026","..."),font_epic,149)
+        name=get_text_limit_len(draw,player.name_clean.replace(u"\u2026","..."),font_epic,149)
         draw.text((96, 36),name,player.rank_colour,font=font_epic)
     else:
         name=get_text_limit_len(draw,player.name,font,149)
@@ -364,7 +364,7 @@ async def stats_screen(channel,player):
     elif len(player.awards) == 0:
         draw.text((38, 183), "None", DUE_BLACK, font=font)
 
-    await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.get_name_possession()+"** information."); 
+    await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.get_name_possession_clean()+"** information."); 
        
 async def quest_screen(channel,quest):
 

@@ -51,6 +51,12 @@ def reload_modules():
 def refresh_modules():
     loader(module_refresh)
     
+def get_loaded_modules():
+    loaded = "Loaded:\n"
+    for module in loaded_modules:
+        loaded += "``"+module+"``\n"
+    return loaded
+    
 load_modules()
 print('Bot extensions loaded with '+str(len(events.command_event))+' commands')
 print(', '.join(events.command_event.command_list()))

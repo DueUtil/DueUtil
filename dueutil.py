@@ -46,6 +46,9 @@ class DueUtilClient(discord.Client):
             return
         if isinstance(error,util.DueUtilException):
             await self.send_message(error.channel,error.get_message())
+        elif isinstance(error,util.DueReloadException):
+            loader.reload_modules()
+            await util.say(error.channel,loader.get_loaded_modules())
         elif isinstance(ctx, discord.Message):
             await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**\n"
                                                  "``"+str(error)+"``"))
@@ -57,12 +60,7 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user:
             return
-        # DEBUG 
-        if message.content == "DUERELOAD":
-            loader.reload_modules()
-            await util.say(message.channel,"Done.")
         await events.on_message_event(message)
-        #HACKER MAN 
                                 
     async def change_avatar(self,channel,avatar_name):
         try:
@@ -102,7 +100,7 @@ def setup_due_thread(loop,shard_id, level = 0):
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop)
     except:
         if level < MAX_RECOVERY_ATTEMPS:
-            setup_due_thread(loop,shard_id,level+1)
+            setup_due_thread(asyncio.new_event_loop(),shard_id,level+1)
         else:
             print("FALTAL ERROR: Shard down!")
     finally:

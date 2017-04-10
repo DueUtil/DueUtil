@@ -1,6 +1,8 @@
 import discord
+import inspect
 from fun import weapons, players
 from duecommands import weapons as weap_cmds
+from duecommands import players as player_cmds
 from botstuff import commands
 from botstuff import util
 
@@ -12,7 +14,7 @@ def shop_weapons_list(page,**details):
     if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
         footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
     else:
-        footer = 'Want more? Ask an admin on '+details["server_name"]+' to add some!'
+        footer = 'Want more? Ask an admin on '+details["server_name_clean"]+' to add some!'
     shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
     shop.set_footer(text=footer)
     return shop 
@@ -22,7 +24,7 @@ def weapon_info(weapon_name,**details):
     weapon = weapons.get_weapon_for_server(details["server_id"],weapon_name)
     if weapon == None:
         raise util.DueUtilException(details["channel"],"Weapon not found")
-    embed.title = weapon.icon+' | '+weapon.name
+    embed.title = weapon.icon+' | '+weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
     embed.add_field(name='Damage',value=util.format_number(weapon.damage))
     embed.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
@@ -73,10 +75,19 @@ async def item_action(item_name,action,**details):
         raise util.DueUtilException(details["channel"],"Item not found!")
     else:
         department = possible_departments[0]
-        action_result = await department["actions"][action](item_name,**details)
+        action = department["actions"][action]
+        if inspect.iscoroutinefunction(action):
+            action_result = await action(item_name,**details)
+        else:
+            action_result = action(item_name,**details)
         if isinstance(action_result,discord.Embed):
             await util.say(details["channel"], embed = action_result)
-
+            
+def placeholder(_,**details):
+    embed = details["embed"]
+    embed.title = "Department closed"
+    return embed
+  
 departments = {
    "weapons":{
       "alisas":[
@@ -86,7 +97,7 @@ departments = {
       "actions":{
          "info_action":weapon_info,
          "list_action":shop_weapons_list,
-         "buy_action":weap_cmds.buy
+         "buy_action":weap_cmds.buy_weapon
       },
       "item_exists":lambda server_id,name:weapons.does_weapon_exist(server_id,name)
    },
@@ -98,9 +109,21 @@ departments = {
       "actions":{
          "info_action":theme_info,
          "list_action":shop_theme_list,
-         "buy_action": None
+         "buy_action":player_cmds.buy_theme
       },
       "item_exists":lambda _,name:players.get_theme(name) != None
+   },
+   "backgrounds":{
+      "alisas":[
+         "backgrounds",
+         "bgs"
+      ],
+      "actions":{
+         "info_action":placeholder,
+         "list_action":placeholder,
+         "buy_action":placeholder
+      },
+      "item_exists":lambda _,__:False
    }
 }
     
@@ -161,6 +184,10 @@ async def buy(ctx,*args,**details):
     else:
         department = get_department_from_name(args[0])
         if department != None:
-            await department["actions"]["buy_action"](args[1],**details)
+            await department["actions"]["buy_action"](args[1].lower(),**details)
         else:
             raise util.DueUtilException(ctx.channel,"Department not found")
+
+@commands.command(args_pattern='S?S?')
+async def sell(ctx,*args,**details):
+    pass

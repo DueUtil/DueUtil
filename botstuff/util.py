@@ -1,18 +1,18 @@
 import re
 import math
-import time;
-import zipfile;
-import shutil;
-import jsonpickle;
-import json;
+import time
+import zipfile
+import shutil
+import jsonpickle
+import json
 
-loaded = False;
-due_admins=[];
-due_mods=[];
-muted_channels = [];
-servers = dict();
-server_keys = dict();
-shard_clients = [];
+loaded = False
+due_admins=[]
+due_mods=[]
+muted_channels = []
+servers = dict()
+server_keys = dict()
+shard_clients = []
     
 emoji_pattern = re.compile("["
         u"\U0001F600-\U0001F64F"  # emoticons
@@ -26,20 +26,24 @@ class DueUtilException(ValueError):
     def __init__(self, channel,message, *args,**kwargs):
         self.message = message 
         self.channel = channel
-        self.addtional_info = kwargs.get('addtional_info',"");
-        super(DueUtilException, self).__init__(message,channel,*args) 
+        self.addtional_info = kwargs.get('addtional_info',"")
         
     def get_message(self):
-        message = ":bangbang: **"+self.message+"**";
+        message = ":bangbang: **"+self.message+"**"
         if  self.addtional_info != "":
-            message += "```css\n"+self.addtional_info+"```";
-        return message;
+            message += "```css\n"+self.addtional_info+"```"
+        return message
     
+class DueReloadException(RuntimeError):
+    
+    def __init__(self,result_channel):
+        self.channel = result_channel
+
 async def say(channel,*args,**kwargs):
-      return await get_client(channel.server.id).send_message(channel,*args,**kwargs);
+      return await get_client(channel.server.id).send_message(channel,*args,**kwargs)
       
 async def typing(channel):
-      await get_client(channel.server.id).send_typing(channel);
+      await get_client(channel.server.id).send_typing(channel)
 
 def load_and_update(reference,object):
     for item in dir(reference):
@@ -48,24 +52,26 @@ def load_and_update(reference,object):
     return object
     
 def get_shard_index(server_id):
-    return (int(server_id) >> 22) % len(shard_clients);
+    return (int(server_id) >> 22) % len(shard_clients)
 
 def get_client(source):
     try:
         if isinstance(source,str):
-            return shard_clients[get_shard_index(source)];
+            return shard_clients[get_shard_index(source)]
         elif hasattr(source,'server'):
-            return shard_clients[get_shard_index(source.server.id)];
+            return shard_clients[get_shard_index(source.server.id)]
         else:
-            return shard_clients[get_shard_index(source.id)];
+            return shard_clients[get_shard_index(source.id)]
     except:
-        return None;
+        return None
         
 def get_server_cmd_key(server):
-    server_key = server_keys.setdefault(server.id,"!");
-    return server_key if server_key != '`' else '\`';
+    server_key = server_keys.setdefault(server.id,"!")
+    return server_key if server_key != '`' else '\`'
     
 def ultra_escape_string(string):
+    if not isinstance(string, str):
+        return string
     escaped_string = string
     escaped = []
     for character in string:
@@ -77,36 +83,36 @@ def ultra_escape_string(string):
 def format_number(number,**kwargs):
   
     def small_format():
-        nonlocal number;
-        return '{:,g}'.format(number);
+        nonlocal number
+        return '{:,g}'.format(number)
 
     def really_large_format():
-        nonlocal number;
-        units = ["Million","Billion","Trillion", "Quadrillion","Quintillion","Sextillion","Septillion","Octillion"];
-        reg = len(str(math.floor(number/1000)));
+        nonlocal number
+        units = ["Million","Billion","Trillion", "Quadrillion","Quintillion","Sextillion","Septillion","Octillion"]
+        reg = len(str(math.floor(number/1000)))
         if (reg-1) % 3 != 0:
-            reg -= (reg-1) % 3;
+            reg -= (reg-1) % 3
         number = number/pow(10,reg+2)
         try:
-            string = units[math.floor(reg/3) -1];
+            string = " "+units[math.floor(reg/3) -1]
         except:
-            string = "Fucktonillion";
-        number = int(number*100)/float(100);
-        formatted = '{0:g}'.format(number);
-        return formatted if len(formatted) < 17 else str(math.trunc(number)) + " " + string;
+            string = " Fucktonillion"
+        number = int(number*100)/float(100)
+        formatted = '{0:g}'.format(number)
+        return formatted + string if len(formatted) < 17 else str(math.trunc(number)) + string
         
     if number >= 1000000 and not kwargs.get('full_precision',False):
-        formatted = really_large_format();
+        formatted = really_large_format()
     else:
-        formatted = small_format();
-    return formatted if not kwargs.get('money',False) else '¤'+formatted;
+        formatted = small_format()
+    return formatted if not kwargs.get('money',False) else '¤'+formatted
  
 def char_is_emoji(character):
-    return emoji_pattern.match(character);
+    return emoji_pattern.match(character)
   
 def get_server_name(server,user_id):
     try:
-        return server.get_member(user_id).name;
+        return server.get_member(user_id).name
     except:
         return "Unknown User"
     
@@ -115,14 +121,14 @@ def clamp(number, min_val, max_val):
     
 
 def filter_string(string):
-    new = "";
+    new = ""
     for i in range(0, len(string)):
         if(32 <= ord(string[i]) <= 126):
-            new = new + string[i];
+            new = new + string[i]
         else:
-            new = new + "?";
+            new = new + "?"
     return new;     
     
 def load(shards):
-    global shard_clients;
-    shard_clients = shards;
+    global shard_clients
+    shard_clients = shards

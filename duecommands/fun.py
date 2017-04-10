@@ -59,9 +59,14 @@ async def setpermlevel(ctx,*args,**details):
     if permission_index < len(permissions):
         permission = permissions[permission_index]
         botstuff.permissions.give_permission(member,permission)
-        await util.say(ctx.channel,"**"+player.name+"** permission level set to ``"+permission.value[1]+"``.")
+        await util.say(ctx.channel,"**"+player.name_clean+"** permission level set to ``"+permission.value[1]+"``.")
     else:
         raise util.DueUtilException(ctx.channel,"Permission not found")
+        
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def duereload(ctx,*args,**details):
+    await util.say(ctx.channel,":ferris_wheel: Reloading DueUtil modules!")
+    raise util.DueReloadException(ctx.channel)
 
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PI")
 async def givecash(ctx,*args,**details):
@@ -70,7 +75,7 @@ async def givecash(ctx,*args,**details):
     player.money += amount
     amount_str = util.format_number(abs(amount),money = True, full_precision = True)
     if amount >= 0:
-        await util.say(ctx.channel,"Added ``"+amount_str+"`` to **"+player.get_name_possession()+"** account!")
+        await util.say(ctx.channel,"Added ``"+amount_str+"`` to **"+player.get_name_possession_clean()+"** account!")
     else:
-        await util.say(ctx.channel,"Subtracted ``"+amount_str+"`` from **"+player.get_name_possession()+"** account!")
+        await util.say(ctx.channel,"Subtracted ``"+amount_str+"`` from **"+player.get_name_possession_clean()+"** account!")
     player.save()

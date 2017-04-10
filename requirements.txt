@@ -5,3 +5,5 @@ jsonpickle
 pillow
 numpy
 emoji
+pyenchant
+ssdeep
