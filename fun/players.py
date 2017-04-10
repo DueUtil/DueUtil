@@ -204,7 +204,9 @@ class PlayerInfoBanner:
 def find_player(user_id):
     if user_id in players:
         return players[user_id]
-
+    elif load_player(user_id):
+        return players[user_id]
+      
 def get_theme(theme_id):
     theme_id = theme_id.lower()
     if theme_id in profile_themes:
@@ -213,13 +215,17 @@ def get_theme(theme_id):
 def get_themes():
     return profile_themes
             
+def load_player(player_id):
+    global players
+    response = dbconn.get_collection_for_object(Player).find_one({"_id":player_id})
+    if response != None and 'data' in response:
+        player_data = response['data']
+        loaded_player = jsonpickle.decode(player_data)
+        players[loaded_player.id] = util.load_and_update(Player(no_save = True),loaded_player)
+        return True
+  
 def load():
-    global players, banners
-    
+    global banners
     banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png")
-    reference = Player(no_save = True)
-    for player in dbconn.get_collection_for_object(Player).find():
-        loaded_player = jsonpickle.decode(player['data'])
-        players[loaded_player.id] = util.load_and_update(reference,loaded_player)
-        
+
 load()

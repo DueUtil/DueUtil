@@ -1,5 +1,5 @@
 import discord
-from fun import stats
+from fun import stats, dueserverconfig
 from fun.stats import Stat
 from botstuff import commands,util,events
 from botstuff.permissions import Permission
@@ -54,7 +54,9 @@ async def help(ctx,*args,**details):
        
         help.description='Welcome to the help!\n Simply do '+server_key+'help (category) or (command name).'
         help.add_field(name='Command categories',value = ', '.join(categories))
-
+        help.add_field(name="Links",value = ( "Official site: https://dueutil.tech/"
+                                              +"\nOfficial server: https://discord.gg/ZzYvt8J"
+                                              +"\nMrAwais' guide: http://dueutil.weebly.com/ (currenly outdated)"))
         help.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
       
     await util.say(ctx.channel,embed=help)
@@ -92,4 +94,39 @@ async def dustats(ctx,*args,**details):
     
     await util.say(ctx.channel,embed=stats_embed)
 
-            
+@commands.command(args_pattern="S")
+async def setcmdkey(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]setcmdkey
+    
+    Sets the prefix for commands on your server.
+    The default is '!'
+    """
+    
+    new_key = args[0]
+    if len(new_key) in (1,2):
+        dueserverconfig.server_cmd_key(ctx.server,new_key)
+        await util.say(ctx.channel,"Command preix on **"+details["server_name_clean"]+"** set to ``"+new_key+"``!")
+    else:
+        raise util.DueUtilException(ctx.channel,"Command prefixes can only be one or two characters!")
+    
+@commands.command(args_pattern="S?")
+async def shutupdue(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]shutupdue 
+    
+    Mutes DueUtil in the channel the command is used in.
+    By default the ``[CMD_KEY]shutupdue`` will stop alerts (level ups, ect)
+    using ``[CMD_KEY]shutupdue all`` will make DueUtil ignore all commands
+    from non-admins.
+  
+    """
+    
+    pass
+    
+    #if dueserverconfig.mute_channel(ctx.channel):
+        #await util.say("Okay I've won't send any alerts in "
+    
+    

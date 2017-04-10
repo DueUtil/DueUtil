@@ -4,7 +4,7 @@ import math
 import os
 import io
 from colour import Color
-from fun import players, stats, game, awards, quests
+from fun import players, stats, game, awards, quests, dueserverconfig
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -198,7 +198,7 @@ async def awards_screen(channel,player,page,**kwargs):
                 if not for_player:
                     command = "awards @User"
                 msg = ("+ "+str(len(player.awards)-(5*(page+1)))+" More. Do "
-                        +util.get_server_cmd_key(channel.server)+command
+                        +dueserverconfig.server_cmd_key(channel.server)+command
                         +" "+str(page+2)+" for the next page.")
             break
     if player_award == 0:
@@ -252,7 +252,7 @@ async def quests_screen(channel,player,page):
         if count == 5:
             if quest_index != 0:
                 msg = ("+ "+str(len(player.quests)-(5*(page+1)))+" More. Do "
-                        +util.get_server_cmd_key(channel.server)
+                        +dueserverconfig.server_cmd_key(channel.server)
                         +"myquests "+str(page+2)+" for the next page.")
             break
     if quest_index == 0:

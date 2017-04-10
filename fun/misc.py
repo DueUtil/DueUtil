@@ -95,12 +95,15 @@ class DueMap(collections.MutableMapping):
 
     def __setitem__(self, key, value):
         key = self.__parse_key__(key, value)
-        if key[0] not in self.collection:
-            items = dict()
-            items[key[1]] = value
-            self.collection[key[0]] = items
+        if isinstance(key,list):
+            if key[0] not in self.collection:
+                items = dict()
+                items[key[1]] = value
+                self.collection[key[0]] = items
+            else:
+                self.collection[key[0]][key[1]] = value
         else:
-            self.collection[key[0]][key[1]] = value
+            self.collection[key] = value
 
     def __delitem__(self, key):
         del self.collection[self.__parse_key__(key)[0]]

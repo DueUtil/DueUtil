@@ -1,6 +1,7 @@
 import inspect
 from botstuff import commands,util
 from fun.misc import DueMap
+from fun import dueserverconfig
 
 class MessageEvent(list):
   
@@ -54,7 +55,7 @@ class CommandEvent(dict):
         super(CommandEvent, self).__delitem__(key)
         
     async def __call__(self,ctx):
-        if not ctx.content.startswith(util.get_server_cmd_key(ctx.server)):
+        if not ctx.content.startswith(dueserverconfig.server_cmd_key(ctx.server)):
             return
         args = commands.parse(ctx)
         command = args[1].lower()

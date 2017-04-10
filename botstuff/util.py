@@ -6,12 +6,6 @@ import shutil
 import jsonpickle
 import json
 
-loaded = False
-due_admins=[]
-due_mods=[]
-muted_channels = []
-servers = dict()
-server_keys = dict()
 shard_clients = []
     
 emoji_pattern = re.compile("["
@@ -54,21 +48,20 @@ def load_and_update(reference,object):
 def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients)
 
+def get_server_id(source):
+    if isinstance(source,str):
+        return source
+    elif hasattr(source,'server'):
+        return source.server.id
+    elif isinstance(source,discord.Server):
+        return source.id
+  
 def get_client(source):
     try:
-        if isinstance(source,str):
-            return shard_clients[get_shard_index(source)]
-        elif hasattr(source,'server'):
-            return shard_clients[get_shard_index(source.server.id)]
-        else:
-            return shard_clients[get_shard_index(source.id)]
+        return shard_clients[get_shard_index(get_server_id(source))]
     except:
         return None
         
-def get_server_cmd_key(server):
-    server_key = server_keys.setdefault(server.id,"!")
-    return server_key if server_key != '`' else '\`'
-    
 def ultra_escape_string(string):
     if not isinstance(string, str):
         return string
@@ -119,15 +112,14 @@ def get_server_name(server,user_id):
 def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)    
     
-
 def filter_string(string):
     new = ""
     for i in range(0, len(string)):
-        if(32 <= ord(string[i]) <= 126):
+        if 32 <= ord(string[i]) <= 126:
             new = new + string[i]
         else:
             new = new + "?"
-    return new;     
+    return new
     
 def load(shards):
     global shard_clients

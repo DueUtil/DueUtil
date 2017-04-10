@@ -1,7 +1,7 @@
 import time
 import asyncio
 from functools import wraps
-from fun import players,misc
+from fun import players,misc,dueserverconfig
 from botstuff import events,util,permissions
 from botstuff.permissions import Permission
 
@@ -16,7 +16,6 @@ def command(**command_rules):
     def check(user,command):
         return permissions.has_permission(user,command.permission)
 
-  
     def is_spam_command(ctx,command,*args):
         if command.permission != Permission.SERVER_ADMIN:
           return (sum(isinstance(arg,players.Player) for arg in args)
@@ -33,6 +32,8 @@ def command(**command_rules):
         details["author_name"] = ctx.author.name
         details["author_name_clean"] = util.ultra_escape_string(ctx.author.name)
         details["channel"] = ctx.channel
+        details["channel_name"] = ctx.channel.name
+        details["channel_name_clean"] = util.ultra_escape_string(ctx.channel.name)
         return details
         
     def wrap(command_func):
@@ -87,7 +88,7 @@ def parse(command_message):
     """A basic command parser with support for escape strings."""
     
     
-    key = util.get_server_cmd_key(command_message.server)
+    key = dueserverconfig.server_cmd_key(command_message.server)
     command_string = command_message.content.replace(key,'',1)
     user_mentions = command_message.raw_mentions
     escaped = False
