@@ -10,21 +10,23 @@ DueUtil permissions
 """
 
 class Permission(Enum):
+    BANNED = (lambda member: has_special_permission(member,permissions[0]),"banned","NoInherit")
     ANYONE = (lambda member: players.find_player(member.id) != None,"anyone",)
     SERVER_ADMIN = (lambda member: (member.server_permissions.manage_server 
                                     or next((role for role in member.roles if role.name == "Due Commander"),False)),"server_admin",)
-    DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[2]) ,"dueutil_mod",)
-    DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[3]),"dueutil_admin",)
+    DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[3]) ,"dueutil_mod",)
+    DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[4]),"dueutil_admin",)
     
 permissions = [permission for permission in Permission]
 
 def has_permission(member : discord.Member,permission):
-    if permission.value[0](member) or has_special_permission(member,permission): return True
-    else:
-        for higher_permission in permissions[permissions.index(permission):]:
-           if higher_permission.value[0](member): return True
+    if permission != Permission.BANNED and not has_special_permission(member,Permission.BANNED):
+        if permission.value[0](member) or has_special_permission(member,permission): return True
+        elif len(permission.value) < 3:
+            for higher_permission in permissions[permissions.index(permission):]:
+               if higher_permission.value[0](member): return True
     return False
-    
+
 def has_special_permission(member : discord.Member,permission):
     return member.id in special_permissions and special_permissions[member.id] == permission.value[1]
       

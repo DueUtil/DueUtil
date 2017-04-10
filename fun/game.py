@@ -1,5 +1,6 @@
 import enchant
 #import language_check
+from guess_language import guess_language
 import ssdeep
 import time
 import json
@@ -17,7 +18,6 @@ QUEST_COOLDOWN = 360
 MAX_DAILY_QUESTS = 30
 MAX_ACTIVE_QUESTS = 7
 SPAM_TOLERANCE = 50
-SPELLING_DICT = enchant.Dict("en_GB")
 #LANG_TOOL = language_check.LanguageTool('en-GB')
 
 def get_spam_level(player,message_content):
@@ -38,71 +38,69 @@ async def player_message(player,message):
     to be gained from messaging.
     
     """
+    
     def get_words():
         return re.compile('\w+').findall(message.content)
     
     if player != None:
       
         if time.time() - player.last_progress >= 60 and get_spam_level(player,message.content) < SPAM_TOLERANCE:
-          
-            ### NEW TEST STUFF
+            
+            exp_for_next_level = get_exp_for_next_level(player.level)
+
+            ### DueUtil - the hidden spelling game!
+            
+            lang = guess_language(message.content)
+            if lang == "UNKNOWN":
+                spelling_dict = enchant.Dict("en_GB")
+            else:
+                spelling_dict = enchant.Dict(lang)
             spelling_score = 0
+            big_word_count = 1
+            big_word_spelling_score = 0
             message_words = get_words()
             for word in message_words:
-                if SPELLING_DICT.check(word):
+                if len(word) > 4:
+                    big_word_count += 1
+                if spelling_dict.check(word):
                     spelling_score += 3
+                    if len(word) > 4:
+                        big_word_spelling_score += 1
                 else:
                     spelling_score -= 1
-            spelling_score = (spelling_score/(len(message_words)*3))*100
+                                   
+            spelling_score = max(0,(spelling_score/(len(message_words)*3)))
+            spelling_avg =  player.average_spelling_correctness
+            spelling_accy = 1 - abs(spelling_score - spelling_avg)
+            spelling_strg = big_word_spelling_score/big_word_count
+            player.average_spelling_correctness = (player.average_spelling_correctness + spelling_score) / 2
             
-            #await util.say(message.channel,"Spelling score: "+str(spelling_score))
-            #grammer_score = 100 - ((len(LANG_TOOL.check(message.content))/len(message_words))*100)
-            #await util.say(message.channel,"Grammer score: "+str(grammer_score))
+            player.progress(spelling_score, spelling_strg, spelling_avg)
             
-            # await util.say(message.channel,"Spam level: "+str(get_spam_level(player,message.content)))
+            player.hp = 10 * player.level
 
-            # print (list(player.last_message_hashes))
-
-            """
-            if player.w_id != weapons.NO_WEAPON_ID:
-                if player.weapon_sum != player.weapon.weapon_sum:
-                    pass
-            if time.time() - player.last_progress >= 60:
-                player.last_progress = time.time()
-                exp_for_next_level = get_exp_for_next_level(player.level)
-                add_attack = len(message.content) / 2000
-                add_strg = sum(1 for char in message.content if char.isupper()) / 1400
-                add_accy = ((message.content.count(' ') 
-                            + message.content.count('.') 
-                            + message.content.count("'")) / 3 / 2000)
-
-                player.progress(add_attack, add_strg, add_accy)
-                #player.hp = 10 * player.level
-                
-                if player.exp >= exp_for_next_level:
-                    player.exp -= exp_for_next_level
-                    player.level += 1
-                    level_up_reward = player.level * 10
-                    player.money += level_up_reward
+            if player.exp >= exp_for_next_level:
+                player.exp -= exp_for_next_level
+                player.level += 1
+                level_up_reward = player.level * 10
+                player.money += level_up_reward
                     
-                    stats.increment_stat(stats.Stat.MONEY_CREATED,level_up_reward)
-                    stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
+                stats.increment_stat(stats.Stat.MONEY_CREATED,level_up_reward)
+                stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
                     
-                    if not (message.server.id+"/"+message.channel.id in util.muted_channels):
-                        await imagehelper.level_up_screen(message.channel,player,level_up_reward)
-                    else:
-                        print("Won't send level up image - channel blocked.")
+                if not (message.server.id+"/"+message.channel.id in util.muted_channels):
+                    await imagehelper.level_up_screen(message.channel,player,level_up_reward)
+                else:
+                    print("Won't send level up image - channel blocked.")
                         
-                    rank = int(player.level / 10) + 1
-                    if(rank == 2):
-                        await give_award(message, player, 2, "Attain rank 2.")
-                    elif (rank > 2 and rank <= 9):
-                        await give_award(message, player, rank+2, "Attain rank "+str(rank)+".")      
-                        
-                                  
-                player.save()
-            """
-
+                rank = player.rank
+                if rank == 2:
+                    await give_award(message, player, 2, "Attain rank 2.")
+                elif rank > 2 and rank <= 9:
+                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".")     
+               
+            player.save()
+            
     else:
         players.Player(message.author)
         stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)

@@ -41,6 +41,7 @@ class Player(DueUtilObject):
         self.accy = 1
         self.hp = 10
         self.money = 1
+        self.average_spelling_correctness = 1
         
         ##### CUSTOMIZATIONS #####
         self.banner_id = "discord blue"
@@ -74,10 +75,10 @@ class Player(DueUtilObject):
         self.save()
         
     def progress(self,attack,strg,accy):
-        self.attack += attack
-        self.strg += strg
-        self.accy += accy
-        exp = util.clamp((attack + strg + accy) * 1000 , 1, 100)
+        self.attack += attack / 10
+        self.strg += strg / 10
+        self.accy += accy / 10
+        exp = (attack + strg + accy) * 5
         self.exp += exp
         self.total_exp += exp
         

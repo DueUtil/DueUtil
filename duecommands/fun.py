@@ -62,7 +62,21 @@ async def setpermlevel(ctx,*args,**details):
         await util.say(ctx.channel,"**"+player.name_clean+"** permission level set to ``"+permission.value[1]+"``.")
     else:
         raise util.DueUtilException(ctx.channel,"Permission not found")
-        
+  
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def ban(ctx,*args,**details):
+    player = args[0]
+    member = discord.Member(user={"id":player.id})
+    botstuff.permissions.give_permission(member,Permission.BANNED)
+    await util.say(ctx.channel,":hammer: **"+player.name_clean+"** banned!")
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def unban(ctx,*args,**details):
+    player = args[0]
+    member = discord.Member(user={"id":player.id})
+    botstuff.permissions.give_permission(member,Permission.ANYONE)
+    await util.say(ctx.channel,":unicorn: **"+player.name_clean+"** has been unbanned!")
+    
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def duereload(ctx,*args,**details):
     await util.say(ctx.channel,":ferris_wheel: Reloading DueUtil modules!")

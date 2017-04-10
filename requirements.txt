@@ -7,3 +7,6 @@ numpy
 emoji
 pyenchant
 ssdeep
+guess_language-spirit
+# Other
+All aspell langs
