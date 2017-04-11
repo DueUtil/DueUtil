@@ -121,4 +121,4 @@ async def declinequest(ctx,*args,**details):
 @commands.command(permission = Permission.SERVER_ADMIN)
 async def serverquests(ctx,*args,**details):
     quests = quests.get_server_quest_list(ctx.server)
-    
+

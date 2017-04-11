@@ -42,6 +42,15 @@ def command(**command_rules):
         async def wrapped_command(ctx, *args,**kwargs):
             if args[1].lower() != command_func.__name__:
                 return False
+            is_admin = permissions.has_permission(ctx.author,Permission.SERVER_ADMIN)
+            if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:
+                return True
+            command_whitelist = dueserverconfig.whitelisted_commands(ctx.channel)
+            if command_whitelist != None and not is_admin and args[1].lower() not in command_whitelist:
+                await util.say(ctx.channel,(":anger: That command is not whitelisted in this channel!\n"
+                                            +" You can only use the following commands: ``"
+                                            +', '.join(command_whitelist)+"``."))
+                return True
             if check(ctx.author,wrapped_command):
                 args_pattern = command_rules.get('args_pattern',"")
                 if not await check_pattern(args_pattern,args[2]):
@@ -182,29 +191,50 @@ async def check_pattern(pattern,args):
         return True
     if len(pattern) == 0:
         return True
-    if not check_optional():
-        return False
-    if len(args) > len(pattern):
-        return False
+    if '*' not in pattern:
+        if not check_optional():
+            return False
+        if len(args) > len(pattern):
+            return False
         
-    for pos in range(0,len(pattern)):
-        current_rule = pattern[pos]
+    pos = 0
+    args_index = 0
+    current_rule = ''
+    checks_satisfied = 0
+    while pos < len(pattern) and args_index < len(args):
+        pos_change = pattern[pos] != '*'
+        if pos_change:
+            current_rule = pattern[pos]
+        if pos + 1 < len(pattern) and pattern[pos + 1] == '*':
+            pos += 1
+            pos_change = False
         switch = {
-            'S': args[pos].strip('`') if not (args[pos].isspace() and len(args[pos]) == 0) else False,
-            'I': represents_int(args[pos]),
-            'C': represents_count(args[pos]),
-            'R': represents_float(args[pos]),
-            'P': players.find_player(args[pos]),
-             # This one is for page selectors that could be a page number or a string like a weapon name.
-            'M': represents_count(args[pos]) if represents_count(args[pos]) else args[pos],
-            'B': args[pos].lower() in misc.POSTIVE_BOOLS,
+            'S': args[args_index].strip('`') if not (args[args_index].isspace() and len(args[args_index]) == 0) else False,
+            'I': represents_int(args[args_index]),
+            'C': represents_count(args[args_index]),
+            'R': represents_float(args[args_index]),
+            'P': players.find_player(args[args_index]),
+            # This one is for page selectors that could be a page number or a string like a weapon name.
+            'M': represents_count(args[args_index]) if represents_count(args[args_index]) else args[args_index],
+            'B': args[args_index].lower() in misc.POSTIVE_BOOLS,
         }
         value = switch.get(current_rule)
-        if not value and current_rule != 'B':
-            return False
-        args[pos] = value
-        
-    return True
+        if value is False and current_rule != 'B':
+            if pattern[pos] != '*':
+                return False
+            else:
+                if pos + 1 < len(pattern):
+                    args_index -= 1
+                    pos_change = True
+                else:
+                    return False
+        else:
+            args[args_index] = value
+            checks_satisfied+=1
+        args_index+=1
+        if pos_change:
+            pos+=1
+    return checks_satisfied == len(args)
         
     
 def point_error(command_string):

@@ -10,7 +10,7 @@ import time
 import emoji #The emoji list in this is outdated.
 from botstuff import events
 from botstuff import util
-from fun import stats, weapons, players, quests, imagehelper
+from fun import stats, weapons, players, quests, imagehelper, dueserverconfig
 
 exp_per_level = dict()
 QUEST_DAY = 86400
@@ -51,10 +51,11 @@ async def player_message(player,message):
             ### DueUtil - the hidden spelling game!
             
             lang = guess_language(message.content)
-            if lang == "UNKNOWN":
-                spelling_dict = enchant.Dict("en_GB")
-            else:
+            if lang in enchant.list_languages():
                 spelling_dict = enchant.Dict(lang)
+            else:
+                spelling_dict = enchant.Dict("en_GB")
+   
             spelling_score = 0
             big_word_count = 1
             big_word_spelling_score = 0
@@ -88,7 +89,7 @@ async def player_message(player,message):
                 stats.increment_stat(stats.Stat.MONEY_CREATED,level_up_reward)
                 stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
                     
-                if not (message.server.id+"/"+message.channel.id in util.muted_channels):
+                if dueserverconfig.mute_level(message.channel) < 0:
                     await imagehelper.level_up_screen(message.channel,player,level_up_reward)
                 else:
                     print("Won't send level up image - channel blocked.")
@@ -128,7 +129,8 @@ async def manage_quests(player,message):
             if random.random() <= quest.spawn_chance:
                 new_quest = quests.ActiveQuest(quest.q_id,player)
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
-                await imagehelper.new_quest_screen(channel,new_quest,player)
+                if dueserverconfig.mute_level(message.channel) < 0:
+                    await imagehelper.new_quest_screen(channel,new_quest,player)
                 # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
             
 def get_exp_for_next_level(level):

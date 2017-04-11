@@ -2,6 +2,7 @@ from botstuff import dbconn
 from fun.misc import DueMap
 
 muted_channels = DueMap()
+command_whitelist = DueMap()
 server_keys = dict()
 DEFAULT_SERVER_KEY = "!"
 
@@ -12,16 +13,34 @@ def update_server_config(server,**update):
                                   },
                                   upsert=True)
 
-def is_mute(channel):
+def mute_level(channel):
     key = channel.server.id+'/'+channel.id
-    return key in muted_channels
+    if key in muted_channels:
+        return muted_channels[key]
+    return -1
+    
+def whitelisted_commands(channel):
+    key = channel.server.id+'/'+channel.id
+    if key in command_whitelist:
+        return command_whitelist[key]
+        
+def set_command_whitelist(channel,command_list):
+    global command_whitelist
+    key = channel.server.id+'/'+channel.id
+    if len(command_list) != 0:
+        command_whitelist[key] = command_list
+    elif key in command_whitelist:
+        del command_whitelist[key]
+    update_server_config(channel.server,**{"command_whitelist":command_whitelist[channel.server]})
 
-def mute_channel(channel):
+def mute_channel(channel,**options):
     global muted_channels
     key = channel.server.id+'/'+channel.id
-    if key not in muted_channels:
-        muted_channels[key] = True
-        update_server_config(channel.server,**{"muted_channels":mute_channels[channel.server]})
+    pior_mute_level = mute_level(channel)
+    new_level = options.get('mute_all',False)
+    if pior_mute_level != new_level:
+        muted_channels[key] = new_level
+        update_server_config(channel.server,**{"muted_channels":muted_channels[channel.server]})
         return True
     return False
     
@@ -30,7 +49,7 @@ def unmute_channel(channel):
     key = channel.server.id+'/'+channel.id
     if key in muted_channels:
         del muted_channels[key]
-        update_server_config(channel.server,**{"muted_channels":mute_channels[channel.server]})
+        update_server_config(channel.server,**{"muted_channels":muted_channels[channel.server]})
         return True
     return False
     
@@ -46,11 +65,14 @@ def server_cmd_key(server,*args):
             return DEFAULT_SERVER_KEY
 
 def load():
-     configs = dbconn.conn()["serverconfigs"].find()
-     for config in configs:
+    global server_keys,muted_channels
+    configs = dbconn.conn()["serverconfigs"].find()
+    for config in configs:
         server_id = config["_id"]
         if "server_key" in config:
             server_keys[server_id] = config["server_key"]
         if "muted_channels" in config:
-            print(config["muted_channels"])
+            muted_channels[server_id] = config["muted_channels"] 
+        if "command_whitelist" in config:
+            command_whitelist[server_id] = config["command_whitelist"] 
 load()

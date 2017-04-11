@@ -94,7 +94,7 @@ async def dustats(ctx,*args,**details):
     
     await util.say(ctx.channel,embed=stats_embed)
 
-@commands.command(args_pattern="S")
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S")
 async def setcmdkey(ctx,*args,**details):
     
     """
@@ -111,7 +111,7 @@ async def setcmdkey(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Command prefixes can only be one or two characters!")
     
-@commands.command(args_pattern="S?")
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S?")
 async def shutupdue(ctx,*args,**details):
     
     """
@@ -124,9 +124,61 @@ async def shutupdue(ctx,*args,**details):
   
     """
     
-    pass
+    if len(args) == 0:
+        mute_success = dueserverconfig.mute_channel(ctx.channel)
+        if mute_success:
+            await util.say(ctx.channel,(":mute: I won't send any alerts in this channel!\n"
+                                        +"If you meant to disable commands too do ``"+details["cmd_key"]+"shutupdue all``."))
+        else:
+            await util.say(ctx.channel,(":mute: I've already been set not to send alerts in this channel!\n"
+                                     +"If you want to disable commands too do ``"+details["cmd_key"]+"shutupdue all``.\n"
+                                     +"To unmute me do ``"+details["cmd_key"]+"unshutupdue``."))
+    else:
+        mute_level = args[0].lower()
+        if mute_level == "all":
+            mute_success = dueserverconfig.mute_channel(ctx.channel,mute_all=True)
+            if mute_success:
+                await util.say(ctx.channel,(":mute: Disabled all commands in this channel for non-admins!"))
+            else:
+                await util.say(ctx.channel,(":mute: Already mute af in this channel!.\n"
+                                         +"To allow commands & alerts again do ``"+details["cmd_key"]+"unshutupdue``."))
+        else:
+            await util.say(ctx.channel,":thinking: If you wanted to mute all the command is ``"+details["cmd_key"]+"shutupdue all``.")
+            
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern=None)
+async def unshutupdue(ctx,*args,**details):
+    if dueserverconfig.unmute_channel(ctx.channel):
+        await util.say(ctx.channel,":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
+    else:
+        await util.say(ctx.channel,":thinking: Okay... I'm unmuted but I was not muted anyway.")
+
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S*")
+async def whitelist(ctx,*args,**details):
+
+    """
+    [CMD_KEY]whitelist
     
-    #if dueserverconfig.mute_channel(ctx.channel):
-        #await util.say("Okay I've won't send any alerts in "
+    Choose what DueUtil commands you want to allow in a channel.
+    E.g. ``[CMD_KEY]whitelist help battle shop myinfo info``
     
+    Normal users will not be able to use any other commands than the ones you
+    choose.
+    The whitelist does not effect server admins.
     
+    To reset the whitelist run the command with no arguments.
+    """
+    
+    if len(args) > 0:
+        due_commands = events.command_event.command_list()
+        whitelisted_commands = set([command.lower() for command in args])
+        if whitelisted_commands.issubset(due_commands):
+            dueserverconfig.set_command_whitelist(ctx.channel,list(whitelisted_commands))
+            await util.say(ctx.channel,(":notepad_spiral: Whitelist in this channel set to the following commands: ``"
+                                        +', '.join(whitelisted_commands)+"``"))
+        else:
+            incorrect_commands = whitelisted_commands.difference(due_commands)
+            await util.say(ctx.channel,(":confounded: Cannot set white list! The following commands don't exist: ``"
+                                        +', '.join(incorrect_commands)+"``"))
+    else:
+        dueserverconfig.set_command_whitelist(ctx.channel,[])
+        await util.say(ctx.channel,":pencil: Command whitelist set back to all commands.")

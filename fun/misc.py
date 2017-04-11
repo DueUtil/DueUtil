@@ -92,6 +92,12 @@ class DueMap(collections.MutableMapping):
         if key in self.collection:
             return self.collection[key]
         return {}
+        
+    def __contains__(self, key):
+        key = self.__parse_key__(key)
+        if isinstance(key,list):
+            return key[0] in self.collection and key[1] in self.collection[key[0]]
+        return key in self.collection
 
     def __setitem__(self, key, value):
         key = self.__parse_key__(key, value)
@@ -168,8 +174,6 @@ class Wizzard(ABC):
         bar_complete_len = progress* bar_width
         bar_incomplete_len = bar_width - bar_complete_len
         return '['+('"'*bar_complete_len)+(' '*bar_incomplete_len)+']'
-        
-    
         
 def valid_image(bg_to_test,dimensions):
     if bg_to_test != None:

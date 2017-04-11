@@ -33,8 +33,8 @@ class DueUtilClient(discord.Client):
             server_count+= len(self.servers)
         payload = {"key":'macdue0a873a71hjd673o1',"servercount":len(server_count)}
         url = "https://www.carbonitex.net/discord/data/botdata.php"
-        reponse = await aiohttp.post(url, data=payload)
-        reponse.close()
+        #reponse = await aiohttp.post(url, data=payload)
+        #reponse.close()
         print("Joined server")
     
     @asyncio.coroutine

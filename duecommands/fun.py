@@ -4,14 +4,14 @@ from botstuff import util,commands
 import botstuff.permissions
 from botstuff.permissions import Permission
 
-@commands.command(args_pattern=None)
+@commands.command(args_pattern="I*")
 async def test(ctx,*args,**details): 
     
     """A test command"""
     
     # print(args[0].__dict__)
     # args[0].save()
-    await imagehelper.test(ctx.channel)
+    # await imagehelper.test(ctx.channel)
     await util.say(ctx.channel,("Yo!!! What up dis be my test command fo show.\n"
                                     "I got deedz args ```"+str(args)+"```!"))
    
