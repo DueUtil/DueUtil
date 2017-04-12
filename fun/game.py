@@ -7,7 +7,6 @@ import json
 import random
 import re
 import time
-import emoji #The emoji list in this is outdated.
 from botstuff import events
 from botstuff import util
 from fun import stats, weapons, players, quests, imagehelper, dueserverconfig
@@ -44,8 +43,13 @@ async def player_message(player,message):
     
     if player != None:
       
-        if time.time() - player.last_progress >= 60 and get_spam_level(player,message.content) < SPAM_TOLERANCE:
+        if time.time() - player.last_progress >= 0 and get_spam_level(player,message.content) < SPAM_TOLERANCE:
             
+            if len(message.content) > 0:
+                 player.last_progress = time.time()
+            else:
+                return
+                
             exp_for_next_level = get_exp_for_next_level(player.level)
 
             ### DueUtil - the hidden spelling game!
@@ -76,7 +80,8 @@ async def player_message(player,message):
             spelling_strg = big_word_spelling_score/big_word_count
             player.average_spelling_correctness = (player.average_spelling_correctness + spelling_score) / 2
             
-            player.progress(spelling_score, spelling_strg, spelling_avg)
+            len_limit = max(1,120 - len(message.content))
+            player.progress(spelling_score/len_limit, spelling_strg/len_limit, spelling_avg/len_limit)
             
             player.hp = 10 * player.level
 
@@ -119,6 +124,11 @@ async def manage_quests(player,message):
         # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
     
     # Testing
+    #if len(quests.get_channel_quests(channel)) > 0:
+    #    new_quest = quests.ActiveQuest(quests.get_random_quest_in_channel(channel).q_id,player)
+    #    await imagehelper.new_quest_screen(channel,new_quest,player)
+    #print()
+
     if not quests.has_quests(channel):
         quests.add_default_quest_to_server(message.server)
     # Testing    

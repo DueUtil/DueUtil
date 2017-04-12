@@ -3,7 +3,8 @@ import fun.awards
 from fun import imagehelper
 from fun import players
 from fun import stats
-from botstuff import commands,util
+from botstuff import commands,util,permissions
+from botstuff.permissions import Permission
 
 @commands.command(args_pattern="S?")
 async def battlename(ctx,*args,**details):
@@ -107,10 +108,10 @@ async def resetme(ctx,*args,**details):
     player = details["author"]
     player.reset(ctx.author)
     await util.say(ctx.channel, "Your user has been reset.")
-    if util.is_mod(player.user_id):
-        await give_award(message,player,22,"Become an mod!")
-    if util.is_admin(player.userid):
-        await give_award(message,player,21,"Become an admin!")    
+    if permissions.has_special_permission(ctx.author,Permission.DUEUTIL_MOD):
+        await fun.awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+    elif permissions.has_special_permission(ctx.author,Permission.DUEUTIL_ADMIN):
+        await fun.awards.give_award(ctx.channel,player,"Admin","Become an admin!")    
         
 @commands.command(args_pattern='PCS?')
 async def sendcash(ctx,*args,**details):

@@ -36,6 +36,8 @@ def weapon_info(weapon_name,**details):
 def shop_theme_list(page,**details):
     shop = details["embed"]
     themes = list(players.get_themes().values())
+    if page * SHOP_PAGE_MAX_ITEMS >= len(themes):
+        raise util.DueUtilException(None,"Page not found")
     shop.title = "DueUtil's Theme Shop"
     if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (themes):
         footer = "But wait there's more! Do "++"mythemes "+str(page+2)

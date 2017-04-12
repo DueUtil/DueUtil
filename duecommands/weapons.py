@@ -22,6 +22,8 @@ async def myweapons(ctx,*args,**details):
       
 def weapons_page(weapons_list,page,title):
     weapons = discord.Embed(title=title,type="rich",color=16038978)
+    if page * 12 >= len(weapons_list):
+        raise util.DueUtilException(None,"Page not found")
     for weapon_index in range(12*page,12*page+12):
         if weapon_index >= len(weapons_list):
             break

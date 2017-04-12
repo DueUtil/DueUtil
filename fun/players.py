@@ -75,9 +75,9 @@ class Player(DueUtilObject):
         self.save()
         
     def progress(self,attack,strg,accy):
-        self.attack += attack / 10
-        self.strg += strg / 10
-        self.accy += accy / 10
+        self.attack += min(attack,0.1)
+        self.strg += min(strg,0.1)
+        self.accy += min(accy,0.1)
         exp = (attack + strg + accy) * 5
         self.exp += exp
         self.total_exp += exp

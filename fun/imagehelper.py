@@ -160,10 +160,10 @@ async def new_quest_screen(channel,quest,player):
        pass
     draw = ImageDraw.Draw(image)
     
-    draw.text((72, 20), get_text_limit_len(draw,util.clear_markdown_escapes(quest.info.task),font_med,167),"white",font=font_med)
+    draw.text((72, 20), get_text_limit_len(draw,quest.info.task,font_med,167),"white",font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level))
     width = draw.textsize(level_text, font=font_big)[0]
-    draw.text((71, 39), get_text_limit_len(draw,util.clear_markdown_escapes(g_quest.monsterName),
+    draw.text((71, 39), get_text_limit_len(draw,quest.name,
                                            font_big,168-width) + level_text, "white", font=font_big)
     await send_image(channel,image,file_name="new_quest.png",content=":crossed_swords: **"+player.name+"** New Quest!")
     

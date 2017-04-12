@@ -177,8 +177,43 @@ async def whitelist(ctx,*args,**details):
                                         +', '.join(whitelisted_commands)+"``"))
         else:
             incorrect_commands = whitelisted_commands.difference(due_commands)
-            await util.say(ctx.channel,(":confounded: Cannot set white list! The following commands don't exist: ``"
+            await util.say(ctx.channel,(":confounded: Cannot set whitelist! The following commands don't exist: ``"
                                         +', '.join(incorrect_commands)+"``"))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel,[])
         await util.say(ctx.channel,":pencil: Command whitelist set back to all commands.")
+
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S*")
+async def blacklist(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]blacklist
+    
+    Choose what DueUtil commands you want to ban in a channel.
+    E.g. ``[CMD_KEY]blacklist acceptquest battleme sell``
+    
+    Normal users will only be able to use commands not in the blacklist.
+    The blacklist does not effect server admins.
+    
+    To reset the blacklist run the command with no arguments.
+    
+    The blacklist is not independent from the whitelist.
+    """
+    
+    if len(args) > 0:
+        due_commands = events.command_event.command_list()
+        blacklisted_commands = set([command.lower() for command in args])
+        if blacklisted_commands.issubset(due_commands):
+            whitelisted_commands = list(set(due_commands).difference(blacklisted_commands))
+            whitelisted_commands.append("is_blacklist")
+            dueserverconfig.set_command_whitelist(ctx.channel,whitelisted_commands)
+            await util.say(ctx.channel,(":notepad_spiral: Blacklist in this channel set to the following commands: ``"
+                                        +', '.join(blacklisted_commands)+"``"))
+        else:
+            incorrect_commands = blacklisted_commands.difference(due_commands)
+            await util.say(ctx.channel,(":confounded: Cannot set blacklist! The following commands don't exist: ``"
+                                        +', '.join(incorrect_commands)+"``"))
+    else:
+        dueserverconfig.set_command_whitelist(ctx.channel,[])
+        await util.say(ctx.channel,":pencil: Command blacklist removed.")  
+  

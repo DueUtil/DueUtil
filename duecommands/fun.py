@@ -1,5 +1,8 @@
 import discord
-from fun import imagehelper
+import math
+from datetime import datetime
+import repoze.timeago
+from fun import imagehelper, awards, leaderboards
 from botstuff import util,commands
 import botstuff.permissions
 from botstuff.permissions import Permission
@@ -60,6 +63,14 @@ async def setpermlevel(ctx,*args,**details):
         permission = permissions[permission_index]
         botstuff.permissions.give_permission(member,permission)
         await util.say(ctx.channel,"**"+player.name_clean+"** permission level set to ``"+permission.value[1]+"``.")
+        if permission == Permission.DUEUTIL_MOD:
+            await awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+        elif "Mod" in player.awards:
+            player.awards.remove("Mod")
+        if permission == Permission.DUEUTIL_ADMIN:
+            await awards.give_award(ctx.channel,player,"Admin","Become an admin!")
+        elif "Admin" in player.awards:
+            player.awards.remove("Admin")
     else:
         raise util.DueUtilException(ctx.channel,"Permission not found")
   
@@ -93,3 +104,83 @@ async def givecash(ctx,*args,**details):
     else:
         await util.say(ctx.channel,"Subtracted ``"+amount_str+"`` from **"+player.get_name_possession_clean()+"** account!")
     player.save()
+
+@commands.command(args_pattern="C?")
+async def leaderboard(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]leaderboard (page)
+    
+    The global leaderboard of DueUtil!
+    
+    The leaderboard updated every hour.
+    
+    Bet someone's gonna whine about there not being a server leaderboard now.
+    Don't worry I'll add one if there is demand.
+    
+    """
+    
+    page_size = 10
+    page = 0
+
+    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard",type="rich",color=16038978)
+
+    player_leaderboard = leaderboards.get_leaderboard("levels")
+    if player_leaderboard != None:
+      
+        leaderboard_data = player_leaderboard[0]
+        
+        if len(args) == 1:
+            page = args[0] - 1
+        if page > 0:
+            leaderboard_embed.title += ": Page "+str(page+1)
+        if page * page_size >= len(leaderboard_data):
+            raise util.DueUtilException(ctx.channel,"Page not found")
+
+        index = 0
+        for index in range(page_size * page,page_size * page + page_size):
+            if index >= len(leaderboard_data):
+              break
+            bonus = ""
+            if index == 0:
+                bonus = "     :first_place:"
+            elif index == 1:
+                bonus = "     :second_place:"
+            elif index == 2:
+                bonus = "     :third_place:"
+            player = leaderboard_data[index]
+            name = player.name_clean
+            player_id = "<@"+player.id+">"
+            level = str(math.trunc(player.level))
+            leaderboard_embed.add_field(name = "#"+str(index+1)+bonus,value = name+" "+player_id+" ``Level "+level+"``",inline=False)
+            last_updated = datetime.utcfromtimestamp(leaderboards.last_leaderboard_update)
+            leaderboard_embed.set_footer(text="Leaderboard calculated "+repoze.timeago.get_elapsed(last_updated))
+        if index < len(leaderboard_data) - 1:
+            leaderboard_embed.add_field(name = "+"+str(len(leaderboard_data)-(page_size*(page+1)))+" more!",
+                                        value = "Do ``"+details["cmd_key"]+"leaderboard "+str(page+2)+"`` for the next page!",inline=False)
+    else:
+        leaderboard_embed.set_image(url="http://i.imgur.com/KQd9EJ9.gif")
+        leaderboard_embed.add_field(name="Sorry",value=("The leaderboard has yet to be calculated!\n"
+                                                        +"Check again soon!"))
+    await util.say(ctx.channel,embed=leaderboard_embed)
+
+@commands.command(args_pattern=None)
+async def myrank(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]myrank
+    
+    Tells you where you are in the [CMD_KEY]leaderboard. 
+    """
+    
+    player = details["author"]
+    try:
+        leaderboard_data = leaderboards.get_leaderboard("levels")[0]
+        position = leaderboard_data.index(player)
+        page = int(position/10)
+        await util.say(ctx.channel,(":sparkles: You're position **"+str(position+1)+"** on the leaderboard!\n"
+                                   +"That's on page "+str(page+1)+"!"))
+    except:
+        await util.say(ctx.channel,(":confounded: I can't find you in the leaderboard!?\n"
+                                    +"This probably means you're new and leaderboard has not updated yet!"))
+

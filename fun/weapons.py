@@ -1,6 +1,7 @@
 import hashlib
 import jsonpickle
 import json
+import emoji #The emoji list in this is outdated.
 from botstuff import util, dbconn
 from fun.misc import DueUtilObject, DueMap
 

@@ -45,7 +45,10 @@ class DueUtilClient(discord.Client):
             print("None message/command error: "+str(error))
             return
         if isinstance(error,util.DueUtilException):
-            await self.send_message(error.channel,error.get_message())
+            if error.channel != None:
+                await self.send_message(error.channel,error.get_message())
+            else:
+                await self.send_message(ctx.channel,error.get_message())
         elif isinstance(error,util.DueReloadException):
             loader.reload_modules()
             await util.say(error.channel,loader.get_loaded_modules())

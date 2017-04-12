@@ -47,9 +47,12 @@ def command(**command_rules):
                 return True
             command_whitelist = dueserverconfig.whitelisted_commands(ctx.channel)
             if command_whitelist != None and not is_admin and args[1].lower() not in command_whitelist:
-                await util.say(ctx.channel,(":anger: That command is not whitelisted in this channel!\n"
-                                            +" You can only use the following commands: ``"
-                                            +', '.join(command_whitelist)+"``."))
+                if "is_blacklist" not in command_whitelist:
+                    await util.say(ctx.channel,(":anger: That command is not whitelisted in this channel!\n"
+                                                +" You can only use the following commands: ``"
+                                                +', '.join(command_whitelist)+"``."))
+                else:
+                    await util.say(ctx.channel,(":anger: That command is blacklisted in this channel!"))
                 return True
             if check(ctx.author,wrapped_command):
                 args_pattern = command_rules.get('args_pattern',"")
