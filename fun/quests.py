@@ -19,8 +19,8 @@ class Quest(DueUtilObject):
         message = extras.get('ctx',None)
       
         if message != None:
-            if message.server.id in server_quests:
-                if name.strip().lower() in server_quests[message.server.id]:
+            if message.server in quest_map:
+                if name.lower() in quest_map[message.server]:
                     raise util.DueUtilException(message.channel,"A foe with that name already exists on this server!")
       
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
@@ -137,7 +137,9 @@ class ActiveQuest(Player):
         self.money = reward
         
     def get_avatar_url(self,*args):
-        return self.info.image_url
+        quest_info = self.info
+        if quest_info != None:
+            return quest_info.image_url
   
     @property
     def info(self):

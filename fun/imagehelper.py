@@ -89,6 +89,8 @@ def paste_alpha(background,image,position):
     background.paste(image,position, mask)
     
 def load_image_url(url,**kwargs):
+    if url == None:
+        return None
     do_not_compress = kwargs.get('raw',False)
     file_name = 'imagecache/' + re.sub(r'\W+', '', (url))
     if len(file_name) > 128:
@@ -241,8 +243,14 @@ async def quests_screen(channel,player,page):
         name_width = draw.textsize(quest_name, font=font_med)[0]
         draw.rectangle(((53+name_width,48 + 44*count),(50+name_width + level_width,48 + 44 * count + 11)), fill="#C5505B", outline ="#83444A")
         draw.text((53+name_width +1, 48 + 44*count),level, "white", font=font_small)
-        draw.text((52, 61 + 44 * count),get_text_limit_len(draw,quest.info.home,font_small,131),DUE_BLACK, font=font_small)
-        image.paste(resize_avatar(quest,None, 28, 28), (20, 46 + 44 * count))
+        home = "Unknown"
+        quest_info = quest.info
+        if quest_info != None:
+            home = quest_info.home
+        draw.text((52, 61 + 44 * count),get_text_limit_len(draw,home,font_small,131),DUE_BLACK, font=font_small)
+        quest_avatar = resize_avatar(quest,None, 28, 28)
+        if quest_avatar != None:
+            image.paste(quest_avatar, (20, 46 + 44 * count))
         quest_bubble_postion = (12,row_size[1]-2+ 44 * count)
         quest_index_text = str(quest_index+1)
         quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]

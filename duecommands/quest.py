@@ -1,4 +1,4 @@
-from fun import quests, game, battles, imagehelper
+from fun import quests, game, battles, imagehelper, weapons
 from botstuff import commands, util
 from botstuff.permissions import Permission
 
@@ -118,6 +118,22 @@ async def declinequest(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
+@commands.command(args_pattern='SRRRRS?S?S?R?')
+async def createquest(ctx,*args,**details):
+    
+    extras = dict()
+    if len(args) >= 6:
+        extras['task'] = args[5]
+    if len(args) >= 7:
+        extras['weapon_id'] = weapons.get_weapon_for_server(ctx.server,args[6]).w_id
+    if len(args) == 8:
+        extras['image_url'] = args[7]
+    if len(args) == 9:
+        extras['spawn_chance'] = args[8]
+    
+    new_quest = quests.Quest(*args[:5],**extras,ctx=ctx)
+    await util.say(ctx.channel,":white_check_mark: "+util.ultra_escape_string(new_quest.task)+ " **"+new_quest.name_clean+"** is now active!")
+    
 @commands.command(permission = Permission.SERVER_ADMIN)
 async def serverquests(ctx,*args,**details):
     quests = quests.get_server_quest_list(ctx.server)
