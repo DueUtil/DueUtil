@@ -4,7 +4,7 @@ import math
 import os
 import io
 from colour import Color
-from fun import players, stats, game, awards, quests, dueserverconfig
+from fun import players, stats, game, awards, quests, dueserverconfig, weapons
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -132,12 +132,11 @@ def rescale_image(image, scale):
     
 async def send_image(channel,image,**kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
-    content = kwargs.get('content',"")
-    file_name = kwargs.get('file_name',"")
+    kwargs["filename"] = kwargs.pop('file_name',"")
     output = BytesIO()
     image.save(output,format="PNG")
     output.seek(0)
-    await util.get_client(channel.server.id).send_file(channel, fp=output, filename=file_name,content=content)
+    await util.get_client(channel.server.id).send_file(channel, fp=output,**kwargs)
     output.close()
 
 async def level_up_screen(channel,player,cash):
@@ -423,7 +422,7 @@ async def quest_screen(channel,quest):
     await send_image(channel,image,file_name="questinfo.png",content=":pen_fountain: Here you go."); 
 
     
-async def battle_screen(channel,player_one,player_two,battle_text):
+async def battle_screen(channel,player_one,player_two):
 
     image = battle_screen_template.copy()
     width, height = image.size
@@ -440,38 +439,33 @@ async def battle_screen(channel,player_one,player_two,battle_text):
         
     weapon_one = player_one.weapon
     weapon_two = player_two.weapon
-   
-    if(avatar_one != None):
-        img.paste(avatar_one, (9, 9))
-    if(avatar_two != None):
-        img.paste(avatar_two, (width - 9 - 55, 9))
         
     wep_image_one = resize_image_url(weapon_one.image_url, 30, 30)
     
-    if(wep_image_one == None):
-        wep_image_one = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30)
+    if wep_image_one == None:
+        wep_image_one = resize_image_url(weapons.get_weapon_from_id("None").image_url, 30, 30)
 		
     try:
-        img.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
+        image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
     except:
-        img.paste(wep_image_one, (6, height - 6 - 30))
+        image.paste(wep_image_one, (6, height - 6 - 30))
         
     wep_image_two = resize_image_url(weapon_two.image_url, 30, 30)
     
-    if(wep_image_two == None):
-        wep_image_two = resize_image_url(Weapons[no_weapon_id].image_url, 30, 30)
+    if wep_image_two == None:
+        wep_image_two = resize_image_url(weapons.get_weapon_from_id("None").image_url, 30, 30)
     try:
-        img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
+        image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
     except:
-        img.paste(wep_image_two, (width - 30 - 6, height - 6 - 30))
+        image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30))
         
-    draw = ImageDraw.Draw(img)
-    draw.text((7, 64), "LEVEL " + str(math.trunc(pone.level)), "white", font=font_small)
-    draw.text((190, 64), "LEVEL " + str(math.trunc(ptwo.level)), "white", font=font_small)
-    weap_one_name = get_text_limit_len(draw,util.clear_markdown_escapes(weapon_one.name),font,85)
+    draw = ImageDraw.Draw(image)
+    draw.text((7, 64), "LEVEL " + str(math.trunc(player_one.level)), "white", font=font_small)
+    draw.text((190, 64), "LEVEL " + str(math.trunc(player_two.level)), "white", font=font_small)
+    weap_one_name = get_text_limit_len(draw,weapon_one.name,font,85)
     width = draw.textsize(weap_one_name, font=font)[0]
     draw.text((124 - width, 88), weap_one_name, "white", font=font)
-    draw.text((132, 103), get_text_limit_len(draw,util.clear_markdown_escapes(weapon_two.name),font,85), "white", font=font)
+    draw.text((132, 103), get_text_limit_len(draw,weapon_two.name,font,85), "white", font=font)
    
     await send_image(channel,image,file_name="battle.png"); 
     

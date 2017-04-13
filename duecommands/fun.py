@@ -177,7 +177,7 @@ async def myrank(ctx,*args,**details):
     try:
         leaderboard_data = leaderboards.get_leaderboard("levels")[0]
         position = leaderboard_data.index(player)
-        page = int(position/10)
+        page = position//10
         await util.say(ctx.channel,(":sparkles: You're position **"+str(position+1)+"** on the leaderboard!\n"
                                    +"That's on page "+str(page+1)+"!"))
     except:

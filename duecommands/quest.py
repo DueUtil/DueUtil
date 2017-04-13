@@ -73,23 +73,49 @@ async def myquests(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"Page not found")
     await imagehelper.quests_screen(ctx.channel,player,page)
 
-@commands.command()
-async def acceptquest(ctx, **args):
+@commands.command(args_pattern='C')
+async def acceptquest(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]acceptquest (quest number)
+
+    You know what to do. Spam ``[CMD_KEY]acceptquest 1``!
+    
+    """
+    
     player = details["author"]
     quest_index = args[0] - 1
-    if quest_index >= 0 and quest_index < len(player.quests):
-        if player.money - player.quests[quest_index].money // 2 >= 0:
-            if player.quests_completed_today < game.MAX_DAILY_QUESTS:
-                quest = player.quests[quest_index]
-                del player.quests[quest_index]
-                await battles.battle(player_one=player,player_two=quest)
-                player.save()
-            else:
-                raise util.DueUtilException(ctx.channel,"You can't do more than 50 quests a day!")
-        else:
-            raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
-    else:
+    if quest_index >= len(player.quests):
         raise util.DueUtilException(ctx.channel,"Quest not found!")
+    if player.money - player.quests[quest_index].money // 2 < 0:
+        raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
+    if player.quests_completed_today >= game.MAX_DAILY_QUESTS:
+        raise util.DueUtilException(ctx.channel,"You can't do more than 50 quests a day!")
+
+    quest = player.quests.pop(quest_index)
+    battle_details = battles.get_battle_log(player_one=player,player_two=quest,p2_prefix="the ")
+    battle_log = battle_details[0]
+    turns = battle_details[1]
+    winner = battle_details[2]
+    if winner != player:
+        battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
+                                                              +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
+    else:
+        reward = (":sparkles: **"+player.name_clean+"** defeated the **"+quest.name+"** and was rewarded with ``"
+                  +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
+        attr_gain = lambda stat : (stat + quest.money**0.5/4) * quest.level/(10*player.level)
+        add_attack = min(attr_gain(quest.attack),100)
+        add_strg = min(attr_gain(quest.strg),100)
+        add_accy = min(attr_gain(quest.accy),100)
+
+        stats = ":crossed_swords:+%.2f:muscle:+%.2f:gun:+%.2f" %(add_attack,add_strg,add_accy)
+        battle_log.add_field(name = "Quest results", value = reward + stats,inline=False)
+        
+        player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
+        await game.check_for_level_up(ctx,player)
+    player.save()
+    await imagehelper.battle_screen(ctx.channel,player,quest)
+    await util.say(ctx.channel,embed=battle_log)
  
 @commands.command(args_pattern='C?')
 async def declinequest(ctx,*args,**details):

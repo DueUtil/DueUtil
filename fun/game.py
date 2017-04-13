@@ -50,8 +50,6 @@ async def player_message(player,message):
             else:
                 return
                 
-            exp_for_next_level = get_exp_for_next_level(player.level)
-
             ### DueUtil - the hidden spelling game!
             
             lang = guess_language(message.content)
@@ -74,7 +72,7 @@ async def player_message(player,message):
                 else:
                     spelling_score -= 1
                                    
-            spelling_score = max(0,(spelling_score/(len(message_words)*3)))
+            spelling_score = max(1,(spelling_score/(len(message_words)*3)+1))
             spelling_avg =  player.average_spelling_correctness
             spelling_accy = 1 - abs(spelling_score - spelling_avg)
             spelling_strg = big_word_spelling_score/big_word_count
@@ -84,32 +82,38 @@ async def player_message(player,message):
             player.progress(spelling_score/len_limit, spelling_strg/len_limit, spelling_avg/len_limit)
             
             player.hp = 10 * player.level
-
-            if player.exp >= exp_for_next_level:
-                player.exp -= exp_for_next_level
-                player.level += 1
-                level_up_reward = player.level * 10
-                player.money += level_up_reward
-                    
-                stats.increment_stat(stats.Stat.MONEY_CREATED,level_up_reward)
-                stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
-                    
-                if dueserverconfig.mute_level(message.channel) < 0:
-                    await imagehelper.level_up_screen(message.channel,player,level_up_reward)
-                else:
-                    print("Won't send level up image - channel blocked.")
-                        
-                rank = player.rank
-                if rank == 2:
-                    await give_award(message, player, 2, "Attain rank 2.")
-                elif rank > 2 and rank <= 9:
-                    await give_award(message, player, rank+2, "Attain rank "+str(rank)+".")     
-               
+            await check_for_level_up(message,player)
             player.save()
             
     else:
         players.Player(message.author)
         stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+        
+async def check_for_level_up(ctx,player):
+    exp_for_next_level = get_exp_for_next_level(player.level)
+    level_up_reward = 0
+    while player.exp >= exp_for_next_level:
+        player.exp -= exp_for_next_level
+        player.level += 1
+        level_up_reward += (player.level * 10)
+        player.money += level_up_reward
+                    
+        stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
+      
+        exp_for_next_level = get_exp_for_next_level(player.level)
+    stats.increment_stat(stats.Stat.MONEY_CREATED,level_up_reward)
+    if level_up_reward > 0:
+        if dueserverconfig.mute_level(ctx.channel) < 0:
+            await imagehelper.level_up_screen(ctx.channel,player,level_up_reward)
+        else:
+            print("Won't send level up image - channel blocked.")
+                            
+        rank = player.rank
+        if rank == 2:
+            await give_award(ctx.channel, player, 2, "Attain rank 2.")
+        elif rank > 2 and rank <= 9:
+            await give_award(ctx.channel, player, rank+2, "Attain rank "+str(rank)+".")  
+               
         
 async def manage_quests(player,message):
   

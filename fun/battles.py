@@ -1,3 +1,4 @@
+import discord
 from fun import weapons
 from botstuff import util
 import random 
@@ -94,11 +95,28 @@ async def sell_weapon(message, uID, recall,weapon_name):
     else:
         await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...")
 
+def get_battle_log(**battleargs):
+    battle_result = battle(**battleargs)
+    battle_moves = list(battle_result[0].values())
+    battle_embed = discord.Embed(title=(battleargs['player_one'].name_clean
+                                        +" :vs: "+battleargs['player_two'].name_clean),type="rich",color=16038978)
+    battle_log = ""
+    for move in battle_moves:
+        move_repetition = move[1]
+        if move_repetition <= 1:
+            battle_log += move[0] + '\n'
+        else:
+            battle_log += '('+ move[0] +') × ' + str(move_repetition) + '\n'
+    battle_embed.add_field(name='Battle log',value=battle_log)
+    return [battle_embed]+battle_result[1:]
+
 # quest, wager normal
 def battle(**battleargs):
     current_move = 1
     damage_modifier = 1.5
     
+    prefixes = [battleargs.get('p1_prefix',""),battleargs.get('p2_prefix',"")]
+
     players = [battleargs['player_one'], battleargs['player_two']]
     hp = [players[0].hp * util.clamp(5 - players[0].level,1,5), players[1].hp * util.clamp(5 - players[1].level,1,5)]
 
@@ -107,7 +125,7 @@ def battle(**battleargs):
     def add_move(player_no):
         nonlocal players, moves, current_move, damage_modifier
         
-        other_player_no = 0 if player_no == 1 else 1
+        other_player_no = player_no-1
         BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
         weapon = players[player_no].weapon      
         message = ""
@@ -117,7 +135,8 @@ def battle(**battleargs):
         else:
             message = weapon.hit_message
                   
-        moves[str(player_no)+'/'+str(current_move)] = ['**'+players[player_no].name_clean +'** '+ message +' **'+players[other_player_no].name_clean+'**',1]
+        moves[str(player_no)+'/'+str(current_move)] = ([prefixes[player_no].title()+'**'+players[player_no].name_clean 
+                                                       +'** '+ message +' '+prefixes[other_player_no]+'**'+players[other_player_no].name_clean+'**',1])
         current_move += 1
         damage_modifier += 0.5
 
@@ -194,5 +213,8 @@ def battle(**battleargs):
     elif hp[0] < hp[1]:
         winner = players[1]
         loser = players[0]
-    moves["winner"] = [":trophy: **"+winner.name_clean+"** wins in **" +str(current_move-1) + "** turns!",1]
-    return [moves,current_move-1]
+    turns = str(current_move-1)
+    moves["winner"] = [(":trophy: "+prefixes[players.index(winner)].title()+"**"
+                        +winner.name_clean+"** wins in **" +turns+ "** turn"
+                        +("s" if turns != 1 else "")+"!"),1]
+    return [moves,current_move-1,winner,loser,turns]

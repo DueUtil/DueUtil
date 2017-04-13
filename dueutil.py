@@ -29,13 +29,16 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     async def on_server_join(self,server):
         server_count = 0
-        for self in shard_selfs:
-            server_count+= len(self.servers)
-        payload = {"key":'macdue0a873a71hjd673o1',"servercount":len(server_count)}
+        for client in shard_clients:
+            server_count+= len(client.servers)
+        payload = {"key":'macdue0a873a71hjd673o1',"servercount":server_count}
         url = "https://www.carbonitex.net/discord/data/botdata.php"
         #reponse = await aiohttp.post(url, data=payload)
         #reponse.close()
         print("Joined server")
+        
+        if not any(role.name == "Due Commander" for role in server.roles):
+            await self.create_role(server,name="Due Commander",color=discord.Color(16038978))
     
     @asyncio.coroutine
     async def on_error(self,event,*args):

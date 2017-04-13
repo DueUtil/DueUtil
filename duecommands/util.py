@@ -217,3 +217,20 @@ async def blacklist(ctx,*args,**details):
         dueserverconfig.set_command_whitelist(ctx.channel,[])
         await util.say(ctx.channel,":pencil: Command blacklist removed.")  
   
+@commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S*")
+async def setuproles(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]setuproles
+    
+    Creates any discord roles DueUtil needs. These will have been made when
+    DueUtil joined your server but if you deleted any & need them you'll 
+    want to run this command.
+    
+    """
+    server = ctx.server
+    if not any(role.name == "Due Commander" for role in server.roles):
+        await util.get_client(ctx).create_role(server,name="Due Commander",color=discord.Color(16038978))
+        await util.say(ctx.channel,":white_check_mark: Created ``Due Commander`` role!")
+    else:
+        await util.say(ctx.channel,"No roles need to be created!")

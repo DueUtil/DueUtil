@@ -1,6 +1,5 @@
 import discord
-from fun import battles
-from fun import weapons
+from fun import battles, imagehelper, weapons
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission
@@ -33,19 +32,11 @@ def weapons_page(weapons_list,page,title):
  
 @commands.command(args_pattern='PP')
 async def battle(ctx,*args,**details):
-    battle_result = battles.battle(player_one=args[0],player_two=args[1])
-    battle_moves = list(battle_result[0].values())
-    battle = discord.Embed( title=args[0].name_clean+" :vs: "+args[1].name_clean,type="rich",color=16038978)
-    battle_log = ""
-    for move in battle_moves:
-        move_repetition = move[1]
-        if move_repetition <= 1:
-            battle_log += move[0] + '\n'
-        else:
-            battle_log += '('+ move[0] +') × ' + str(move_repetition) + '\n'
-    battle.add_field(name='Battle log',value=battle_log)
-
-    await util.say(ctx.channel,embed=battle)
+    if args[0] == args[1]:
+        raise util.DueUtilException("Don't beat yourself up!")
+    battle_log = battles.get_battle_log(player_one=args[0],player_two=args[1])[0]
+    await imagehelper.battle_screen(ctx.channel,args[0],args[1])
+    await util.say(ctx.channel,embed=battle_log)
  
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args,**details):

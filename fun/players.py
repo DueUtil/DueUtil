@@ -74,11 +74,13 @@ class Player(DueUtilObject):
         self.donor = False
         self.save()
         
-    def progress(self,attack,strg,accy):
-        self.attack += min(attack,0.1)
-        self.strg += min(strg,0.1)
-        self.accy += min(accy,0.1)
-        exp = (attack + strg + accy) * 5
+    def progress(self,attack,strg,accy,**options):
+        max_attr = options.get('max_attr',0.1)
+        max_exp = options.get('max_exp',15)
+        self.attack += min(attack,max_attr)
+        self.strg += min(strg,max_attr)
+        self.accy += min(accy,max_attr)
+        exp = min((attack + strg + accy) * 100,max_exp)
         self.exp += exp
         self.total_exp += exp
         

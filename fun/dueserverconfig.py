@@ -75,4 +75,5 @@ def load():
             muted_channels[server_id] = config["muted_channels"] 
         if "command_whitelist" in config:
             command_whitelist[server_id] = config["command_whitelist"] 
+            
 load()
