@@ -71,6 +71,9 @@ class Weapon(DueUtilObject):
         global weapons
         weapons[self.w_id] = self
         self.save()
+        
+    def __str__(self):
+        return self.icon+' | '+self.name_clean
     
 def get_weapon_from_id(weapon_id):
     if weapon_id in weapons:

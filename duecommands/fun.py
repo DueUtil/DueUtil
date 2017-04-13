@@ -7,7 +7,7 @@ from botstuff import util,commands
 import botstuff.permissions
 from botstuff.permissions import Permission
 
-@commands.command(args_pattern="I*")
+@commands.command(args_pattern="S*")
 async def test(ctx,*args,**details): 
     
     """A test command"""
@@ -52,6 +52,17 @@ async def add(ctx,*args,**details):
     second_number = args[1]
     result = first_number + second_number
     await util.say(ctx.channel,"Is "+str(result))
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="S")
+async def dueeval(ctx,*args,**details):
+
+    """
+    For 1337 haxors only! Go away!
+    """
+    
+    player = details["author"]
+    await util.say(ctx.channel,":ferris_wheel: Eval...\n"
+    "**Result** ```"+str(eval(args[0]))+"```")
  
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PC")
 async def setpermlevel(ctx,*args,**details):

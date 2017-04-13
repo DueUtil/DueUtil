@@ -19,20 +19,6 @@ def shop_weapons_list(page,**details):
     shop.set_footer(text=footer)
     return shop 
 
-def weapon_info(weapon_name,**details):
-    embed = details["embed"]
-    weapon = weapons.get_weapon_for_server(details["server_id"],weapon_name)
-    if weapon == None:
-        raise util.DueUtilException(details["channel"],"Weapon not found")
-    embed.title = weapon.icon+' | '+weapon.name_clean
-    embed.set_thumbnail(url=weapon.image_url)
-    embed.add_field(name='Damage',value=util.format_number(weapon.damage))
-    embed.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
-    embed.add_field(name='Price',value=util.format_number(weapon.price,money=True,full_precision=True))
-    embed.add_field(name="Hit Message",value=weapon.hit_message)
-    embed.set_footer(text='Image supplied by weapon creator.')
-    return embed
-    
 def shop_theme_list(page,**details):
     shop = details["embed"]
     themes = list(players.get_themes().values())
@@ -54,12 +40,13 @@ def shop_theme_list(page,**details):
     
 def theme_info(theme_name,**details):
     embed = details["embed"]
+    price_divisor = details.get('price_divisor',1)
     theme = players.get_theme(theme_name)
     if theme == None:
             raise util.DueUtilException(details["channel"],"Theme not found!")
     embed.title = theme["icon"]+" | "+theme["name"]
     embed.set_image(url=theme["preview"])
-    embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"],money=True,full_precision=True))
+    embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"]//price_divisor,money=True,full_precision=True))
     return embed
     
 def get_department_from_name(name):
@@ -97,11 +84,11 @@ departments = {
          "weaps"
       ],
       "actions":{
-         "info_action":weapon_info,
+         "info_action":weap_cmds.weapon_info,
          "list_action":shop_weapons_list,
          "buy_action":weap_cmds.buy_weapon
       },
-      "item_exists":lambda server_id,name:weapons.does_weapon_exist(server_id,name)
+      "item_exists":lambda server_id,name:name.lower() != "none" and weapons.does_weapon_exist(server_id,name)
    },
    "themes":{
       "alisas":[
@@ -113,7 +100,7 @@ departments = {
          "list_action":shop_theme_list,
          "buy_action":player_cmds.buy_theme
       },
-      "item_exists":lambda _,name:players.get_theme(name) != None
+      "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None
    },
    "backgrounds":{
       "alisas":[
