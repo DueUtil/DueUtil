@@ -1,3 +1,4 @@
+import discord
 from fun import quests, game, battles, imagehelper, weapons
 from botstuff import commands, util
 from botstuff.permissions import Permission
@@ -108,10 +109,12 @@ async def acceptquest(ctx,*args,**details):
         add_strg = min(attr_gain(quest.strg),100)
         add_accy = min(attr_gain(quest.accy),100)
 
-        stats = ":crossed_swords:+%.2f:muscle:+%.2f:gun:+%.2f" %(add_attack,add_strg,add_accy)
+        stats = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" %(add_attack,add_strg,add_accy)
         battle_log.add_field(name = "Quest results", value = reward + stats,inline=False)
         
         player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
+        if quest.info != None:
+            quest.info.times_beaten += 1
         await game.check_for_level_up(ctx,player)
     player.save()
     await imagehelper.battle_screen(ctx.channel,player,quest)
@@ -160,7 +163,26 @@ async def createquest(ctx,*args,**details):
     new_quest = quests.Quest(*args[:5],**extras,ctx=ctx)
     await util.say(ctx.channel,":white_check_mark: "+util.ultra_escape_string(new_quest.task)+ " **"+new_quest.name_clean+"** is now active!")
     
-@commands.command(permission = Permission.SERVER_ADMIN)
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='C?')
 async def serverquests(ctx,*args,**details):
-    quests = quests.get_server_quest_list(ctx.server)
-
+  
+    page = 0
+    if len(args) == 1:
+        page = args[0] - 1
+    embed = discord.Embed(title=(":crossed_swords: Quests on "+details["server_name_clean"]
+                                 +(" : Page "+str(page+1) if page > 0 else "")),type="rich",color=16038978)
+    page_size = 12
+    quests_list = list(quests.get_server_quest_list(ctx.server).values())
+    if page * page_size >= len(quests_list):
+        raise util.DueUtilException(None,"Page not found")
+    quest_index = 0
+    for quest_index in range(page_size*page,page_size*page+page_size):
+        if quest_index >= len(quests_list):
+            break
+        quest = quests_list[quest_index]
+        embed.add_field(name = quest.name_clean, value = "Completed "+str(quest.times_beaten)+" time"+("s" if quest.times_beaten != 1 else ""))
+    if quest_index < len(quests_list) - 1:
+        embed.set_footer(text="But wait there more! Do "+details["cmd_key"]+"serverquests "+str(page+2))
+    else:
+        embed.set_footer(text="That's all!")
+    await util.say(ctx.channel,embed=embed)

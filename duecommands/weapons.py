@@ -39,9 +39,11 @@ async def myweapons(ctx,*args,**details):
 def weapons_page(weapons_list,page,title,**extras):
     price_divisor = extras.get('price_divisor',1)
     weapons_embed = discord.Embed(title=title,type="rich",color=16038978)
-    if page * 12 >= len(weapons_list):
+    page_size = 12
+    
+    if page * page_size >= len(weapons_list):
         raise util.DueUtilException(None,"Page not found")
-    for weapon_index in range(12*page,12*page+12):
+    for weapon_index in range(page_size*page,page_size*page+page_size):
         if weapon_index >= len(weapons_list):
             break
         weapon = weapons_list[weapon_index]
