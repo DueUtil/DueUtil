@@ -126,7 +126,7 @@ async def acceptquest(ctx,*args,**details):
     await imagehelper.battle_screen(ctx.channel,player,quest)
     await util.say(ctx.channel,embed=battle_log)
  
-@commands.command(args_pattern='C?')
+@commands.command(args_pattern='C')
 async def declinequest(ctx,*args,**details):
   
     """
@@ -138,7 +138,7 @@ async def declinequest(ctx,*args,**details):
     
     player = details["author"]
     quest_index = args[0] -1
-    if quest_index >= 0 and quest_index  < len(player.quests):
+    if quest_index  < len(player.quests):
         quest = player.quests[quest_index]
         del player.quests[quest_index]
         player.save()

@@ -59,7 +59,7 @@ def command(**command_rules):
                 if not await check_pattern(args_pattern,args[2]):
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753")
                 elif not is_spam_command(ctx,wrapped_command,*args):
-                    await util.say(ctx.channel,str(args))
+                    # await util.say(ctx.channel,str(args))
                     kwargs["cmd_key"] = args[0]
                     kwargs["command_name"] = args[1]
                     await command_func(ctx,*args[2],**get_command_details(ctx,**kwargs))

@@ -273,7 +273,25 @@ async def acceptwager(ctx,*args,**details):
     
 @commands.command(args_pattern='C')    
 async def declinewager(ctx,*args,**details):
-    pass
+  
+    """
+    [CMD_KEY]declinewager (wager number)
+    
+    Declines a wager.
+    
+    """
+    
+    player = details["author"]
+    wager_index = args[0] -1
+    if wager_index < len(player.battlers):
+        wager = player.battlers[wager_index]
+        del player.battlers[wager_index]
+        player.save()
+        sender = players.find_player(wager.sender_id)
+        await util.say(ctx.channel,"**"+player.name_clean +"** declined a wager from **"+sender.name_clean+"**")
+                                   
+    else:
+        raise util.DueUtilException(ctx.channel,"Request not found!")
     
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args,**details):
