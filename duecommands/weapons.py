@@ -85,7 +85,7 @@ async def equip(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"Can't put your current weapon into storage! There is already a weapon with the same name stored!"); 
         
     if current_weapon != weapons.NO_WEAPON_ID:
-        player.weapon_inventory.append([current_weapon.w_id,current_weapon.weapon_sum])
+        player.store_weapon(current_weapon)
         
     player.set_weapon(weapon)
     player.save()
@@ -134,6 +134,29 @@ async def battle(ctx,*args,**details):
     battle_log = battles.get_battle_log(player_one=player_one,player_two=player_two)[0]
     await imagehelper.battle_screen(ctx.channel,player_one,player_two)
     await util.say(ctx.channel,embed=battle_log)
+  
+@commands.command(args_pattern='PC')
+async def wagerbattle(ctx,*args,**details):
+    sender = details["author"]
+    receiver = args[0]
+    money = args[1]
+    
+    if player == receiver:
+        raise util.DueUtilException(ctx.channel,"You can't wager against yourself!")
+       
+    if sender.money - money < 0:
+        raise util.DueUtilException(ctx.channel,"You can't afford this wager!")
+        
+    wager = battles.BattleRequest(sender,receiver,money)
+
+    await util.say(ctx.channel,("**"+sender.name_clean+"** wagers **"+player.name_clean+"** ``"
+                                    +util.format_number(money,full_precision=True,money=True)+"`` that they will win in a battle!"))
+                                    
+@commands.command(args_pattern='PC')
+async def mywagers(ctx,*args,**details):
+    
+    pass
+
     
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args,**details):
@@ -164,7 +187,26 @@ async def createweapon(ctx,*args,**details):
     weapon = weapons.Weapon(*args[:4],**extras,ctx=ctx)
     await util.say(ctx.channel,(weapon.icon+" **"+weapon.name_clean+"** is available in the shop for "
                                 +util.format_number(weapon.price,money=True)+"!"))
-  
+                                
+   
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='S')
+async def removeweapon(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]removeweapon (weapon name)
+    
+    Screw all the people that bought it :D
+    """
+    
+    weapon_name = args[0].lower()
+    weapon = weapons.get_weapon_for_server(ctx.server.id,weapon_name)
+    if weapon == None or weapon.id == weapons.NO_WEAPON_ID:
+        raise util.DueUtilException(ctx.channel,"Weapon not found")
+    if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
+        raise util.DueUtilException(ctx.channel,"You can't remove stock weapons!")
+    weapons.remove_weapon_from_shop(ctx.server,weapon_name)
+    await util.say(ctx.channel,"**"+weapon.name_clean+"** has been removed from the shop!")
+          
 # Part of the shop buy command
 async def buy_weapon(weapon_name,**details):
     
@@ -205,6 +247,8 @@ async def sell_weapon(weapon_name,**details):
     player = details["author"]
     channel = details["channel"]
     
+    price_divisor=4/3
+    
     if player.weapon.name.lower() == weapon_name:
         weapon_to_sell = player.weapon
         player.set_weapon(weapons.get_weapon_from_id("None"))
@@ -212,12 +256,12 @@ async def sell_weapon(weapon_name,**details):
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),None)
         player.weapon_inventory.remove(weapon_to_sell.w_id)
         
-    sell_price = weapon_to_sell.price // (4/3)
+    sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price
     await util.say(channel,("**"+player.name_clean+"** sold their trusty **"+weapon_to_sell.name_clean
-                    +"** for ``"+util.format_number(sell_price,money=True,full_precision=True)+"``"))
+                            +"** for ``"+util.format_number(sell_price,money=True,full_precision=True)+"``"))
     player.save()
-    
+        
 def weapon_info(weapon_name,**details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor',1)

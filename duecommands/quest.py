@@ -149,7 +149,7 @@ async def declinequest(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 
-@commands.command(args_pattern='SRRRRS?S?S?R?')
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SRRRRS?S?S?R?')
 async def createquest(ctx,*args,**details):
     
     """
@@ -175,6 +175,25 @@ async def createquest(ctx,*args,**details):
     new_quest = quests.Quest(*args[:5],**extras,ctx=ctx)
     await util.say(ctx.channel,":white_check_mark: "+util.ultra_escape_string(new_quest.task)+ " **"+new_quest.name_clean+"** is now active!")
     
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='S')
+async def removequest(ctx,*args,**details):
+
+    """
+    [CMD_KEY]removequest (quest name)
+    
+    Systematically exterminates all instances of the quest...
+    ...Even those yet to be born
+    
+    """
+    
+    quest_name = args[0].lower()
+    quest = quests.get_quest_on_server(ctx.server,quest_name)
+    if quest == None:
+        raise util.DueUtilException(ctx.channel,"Quest not found!")
+    
+    quests.remove_quest_from_server(ctx.server,quest_name)
+    await util.say(ctx.channel,":white_check_mark: **"+quest.name_clean+"** is no more!")
+      
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='C?')
 async def serverquests(ctx,*args,**details):
   
@@ -187,14 +206,18 @@ async def serverquests(ctx,*args,**details):
     quests_list = list(quests.get_server_quest_list(ctx.server).values())
     if page * page_size >= len(quests_list):
         raise util.DueUtilException(None,"Page not found")
-    quest_index = 0
-    for quest_index in range(page_size*page,page_size*page+page_size):
-        if quest_index >= len(quests_list):
-            break
-        quest = quests_list[quest_index]
-        embed.add_field(name = quest.name_clean, value = "Completed "+str(quest.times_beaten)+" time"+("s" if quest.times_beaten != 1 else ""))
-    if quest_index < len(quests_list) - 1:
-        embed.set_footer(text="But wait there more! Do "+details["cmd_key"]+"serverquests "+str(page+2))
+    if len(quests_list) > 0:
+        quest_index = 0
+        for quest_index in range(page_size*page,page_size*page+page_size):
+            if quest_index >= len(quests_list):
+                break
+            quest = quests_list[quest_index]
+            embed.add_field(name = quest.name_clean, value = "Completed "+str(quest.times_beaten)+" time"+("s" if quest.times_beaten != 1 else ""))
+        if quest_index < len(quests_list) - 1:
+            embed.set_footer(text="But wait there more! Do "+details["cmd_key"]+"serverquests "+str(page+2))
+        else:
+            embed.set_footer(text="That's all!")
     else:
-        embed.set_footer(text="That's all!")
+        embed.description = "There are no quests on this server!\nHow sad."
+        
     await util.say(ctx.channel,embed=embed)

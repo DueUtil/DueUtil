@@ -1,4 +1,3 @@
-import hashlib
 import jsonpickle
 import json
 import emoji #The emoji list in this is outdated.
@@ -60,9 +59,8 @@ class Weapon(DueUtilObject):
         return self.server_id+"/"+self.name.lower()
         
     def __weapon_sum(self):
-        summary_string = '"'+str(self.price)+'"'+str(self.damage)+str(self.accy)
-        summary_hash = hashlib.sha1(summary_string.encode())
-        return summary_hash.hexdigest()
+        summary_string = str(self.price)+'/'+str(self.damage)+"/"+str(self.accy)
+        return summary_string
       
     def __price(self):
         return int((self.accy/100 * self.damage) / 0.04375); 
@@ -94,14 +92,13 @@ def get_weapon_for_server(server_id,weapon_name):
         if weapon_id in weapons:
             return weapons[weapon_id]
                 
-def remove_weapon_from_shop(player,wname):
-    for weapon in player.owned_weps:
-        stored_weapon = get_weapon_from_id(weapon[0])
-        if stored_weapon != None and stored_weapon.name.lower() == wname.lower():
-            wID = weapon[0]
-            sum = weapon[1]
-            del player.owned_weps[player.owned_weps.index(weapon)]
-            return [wID,sum]
+def remove_weapon_from_shop(server,weapon_name):
+    weapon_id = server.id+"/"+weapon_name
+    if weapon_id in weapons:
+        del weapons[weapon_id]
+        dbconn.get_collection_for_object(Weapon).remove({'_id': weapon_id})
+        return True
+    return False
         
 def get_weapons_for_server(server):
     return dict(weapons[server], **weapons["STOCK"])

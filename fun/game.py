@@ -30,7 +30,7 @@ def get_spam_level(player,message_content):
         player.spam_detections += 1
     return spam_level
 
-async def player_message(player,message):
+async def player_message(message,player):
     
     """ 
     W.I.P. Function to allow a small amount of exp
@@ -115,7 +115,7 @@ async def check_for_level_up(ctx,player):
             await give_award(ctx.channel, player, rank+2, "Attain rank "+str(rank)+".")  
                
         
-async def manage_quests(player,message):
+async def manage_quests(message,player):
   
     """ 
     Give out quests!
@@ -127,15 +127,10 @@ async def manage_quests(player,message):
         player.quest_day_start = 0
         # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
     
-    # Testing
-    #if len(quests.get_channel_quests(channel)) > 0:
-    #    new_quest = quests.ActiveQuest(quests.get_random_quest_in_channel(channel).q_id,player)
-    #    await imagehelper.new_quest_screen(channel,new_quest,player)
-    #print()
-
+    # Testing   
     if not quests.has_quests(channel):
         quests.add_default_quest_to_server(message.server)
-    # Testing    
+     
     if time.time() - player.last_quest >= QUEST_COOLDOWN and get_spam_level(player,message.content) < SPAM_TOLERANCE:
         player.last_quest = time.time()
         if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
@@ -147,9 +142,25 @@ async def manage_quests(player,message):
                     await imagehelper.new_quest_screen(channel,new_quest,player)
                 # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
    
-async def check_for_recalls():
-    pass
-    
+async def check_for_recalls(ctx,player):
+  
+    current_weapon = [player.w_id,player.weapon_sum]
+    weapons_to_recall = [weapon_info for weapon_info in player.weapon_inventory+[current_weapon]
+                          if (weapons.get_weapon_from_id(weapon_info[0]).id == weapons.NO_WEAPON_ID
+                          and weapon_info[0] != weapons.NO_WEAPON_ID
+                          or weapons.get_weapon_from_id(weapon_info[0]).weapon_sum != weapon_info[1])]
+                          
+    if len(weapons_to_recall) == 0:
+        return
+    if current_weapon in weapons_to_recall:
+        player.set_weapon(weapons.get_weapon_from_id("None"))
+    player.weapon_inventory = [weapon_info for weapon_info in player.weapon_inventory if weapon_info not in weapons_to_recall]
+    recall_amount = sum([int(weapon_info[1].split('/')[0]) for weapon_info in weapons_to_recall])
+    player.money += recall_amount
+    player.save()
+    await util.say(ctx.channel,(":bangbang: "+("One" if len(weapons_to_recall) == 1 else "Some")+" of your weapons has been recalled!\n"
+                                +"You get a refund of ``"+util.format_number(recall_amount,money=True,full_precision=True)+"``"))
+                                
 def get_exp_for_next_level(level):
     for level_range, exp_details in exp_per_level.items():
         if level in level_range:
@@ -171,8 +182,9 @@ def load_game_rules():
 
 async def on_message(message): 
     player = players.find_player(message.author.id)
-    await player_message(player,message)
-    await manage_quests(player,message)
+    await player_message(message,player)
+    await manage_quests(message,player)
+    await check_for_recalls(message,player)
     
 load_game_rules()
 events.register_message_listener(on_message)

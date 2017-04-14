@@ -9,26 +9,13 @@ class BattleRequest:
   
     """A class to hold a wager"""
   
-    def __init__(self,message,wager_amount):
-        self.sender_id = message.author.id
+    def __init__(self,sender,receiver,wager_amount):
+        self.sender_id = sender.id
+        self.receiver_id = receiver.id
         self.wager_amount = wagers_amount
-    
-async def validate_weapon_store(message,player):
-    weapon_sums = []
-    for ws in player.owned_weps:
-        if ws[1] != get_weapon_sum(ws[0]):
-            weapon_sums.append(ws[1])
-            del player.owned_weps[player.owned_weps.index(ws)]
-    if len(weapon_sums) > 0:
-        await mass_recall(message,player,weapon_sums);         
-
-async def mass_recall(message, player, weapon_sums):
-    refund = 0
-    for sum in weapon_sums:
-        refund = refund + int(util.get_strings(sum)[0])
-    player.money = player.money + refund
-    await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util.to_money(refund,False) + " refund.")
-    savePlayer(player)
+        
+    def __add(self,receiver):
+        receiver.battlers.append(self)
 
 def get_battle_log(**battleargs):
     battle_result = battle(**battleargs)

@@ -112,7 +112,11 @@ class DueMap(collections.MutableMapping):
             self.collection[key] = value
 
     def __delitem__(self, key):
-        del self.collection[self.__parse_key__(key)[0]]
+        key = self.__parse_key__(key)
+        if isinstance(key,list):
+            del self.collection[key[0]][key[1]]
+        else:
+            del self.collection[key]
 
     def __iter__(self):
         return iter(self.collection)
