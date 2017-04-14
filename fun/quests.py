@@ -112,6 +112,7 @@ class ActiveQuest(Player):
         self.level = random.randint(quester.level, quester.level * 2)
         self.__calculate_stats__()
         quester.quests.append(self)
+        quester.save()
         
     def __calculate_stats__(self,**spoof_values):
         base_quest = self.info

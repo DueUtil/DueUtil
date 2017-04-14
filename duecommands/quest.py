@@ -1,5 +1,5 @@
 import discord
-from fun import quests, game, battles, imagehelper, weapons
+from fun import quests, game, battles, imagehelper, weapons, stats
 from botstuff import commands, util
 from botstuff.permissions import Permission
 
@@ -98,10 +98,14 @@ async def acceptquest(ctx,*args,**details):
     battle_log = battle_details[0]
     turns = battle_details[1]
     winner = battle_details[2]
+    stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED,level_up_reward)
+
     if winner != player:
         battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
                                                               +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
     else:
+        player.quests_completed_today += 1
+
         reward = (":sparkles: **"+player.name_clean+"** defeated the **"+quest.name+"** and was rewarded with ``"
                   +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
         attr_gain = lambda stat : (stat + quest.money**0.5/4) * quest.level/(10*player.level)

@@ -222,7 +222,7 @@ async def check_pattern(pattern,args):
             'B': args[args_index].lower() in misc.POSTIVE_BOOLS,
         }
         value = switch.get(current_rule)
-        if value is False and current_rule != 'B':
+        if (value is False and current_rule != 'B') or value == None:
             if pattern[pos] != '*':
                 return False
             else:

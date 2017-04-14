@@ -1,5 +1,5 @@
 import discord
-from fun import battles, imagehelper, weapons
+from fun import battles, imagehelper, weapons, players
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission
@@ -137,11 +137,20 @@ async def battle(ctx,*args,**details):
   
 @commands.command(args_pattern='PC')
 async def wagerbattle(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]wagerbattle player amount
+    
+    Money will not be taken from your account after you use this command.
+    If you cannot afford to pay when the wager is accepted you will be forced
+    to sell your weapons.
+    
+    """
     sender = details["author"]
     receiver = args[0]
     money = args[1]
     
-    if player == receiver:
+    if sender == receiver:
         raise util.DueUtilException(ctx.channel,"You can't wager against yourself!")
        
     if sender.money - money < 0:
@@ -149,14 +158,122 @@ async def wagerbattle(ctx,*args,**details):
         
     wager = battles.BattleRequest(sender,receiver,money)
 
-    await util.say(ctx.channel,("**"+sender.name_clean+"** wagers **"+player.name_clean+"** ``"
+    await util.say(ctx.channel,("**"+sender.name_clean+"** wagers **"+receiver.name_clean+"** ``"
                                     +util.format_number(money,full_precision=True,money=True)+"`` that they will win in a battle!"))
-                                    
-@commands.command(args_pattern='PC')
+     
+@commands.command(args_pattern='C?')
 async def mywagers(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]mywagers (page)
     
-    pass
+    Lists your received wagers.
+    
+    """
+    
+    player = details["author"]
+    page_size = 12
+    page = 0
+    if len(args) == 1:
+        page = args[0] - 1
+    title = player.get_name_possession_clean()+" Received Wagers"+(" : Page "+str(page+1) if page > 0 else "")
+    wagers_embed = discord.Embed(title=title,type="rich",color=16038978)
+    wager_list = player.battlers
+    if len(wager_list) > 0:
+        if page * page_size >= len(wager_list):
+            raise util.DueUtilException(ctx.channel,"Page not found")
+        for wager_index in range(page_size*page,page_size*page+page_size):
+            if wager_index >= len(wager_list):
+                break
+            wager = wager_list[wager_index]
+            sender = players.find_player(wager.sender_id)
+            wagers_embed.add_field(name=str(wager_index+1)+". Request from "+sender.name_clean, 
+                                   value="<@"+sender.id+"> ``"+util.format_number(wager.wager_amount,full_precision=True,money=True)+"``")
+        wagers_embed.add_field(name="Actions",value=("Do ``"+details["cmd_key"]+"acceptwager (number)`` to accept a wager \nor ``"
+                                                                +details["cmd_key"]+"declinewager (number)`` to decline"),inline=False)
+        if page_size * page + page_size < len (wager_list):
+            footer = "But wait there's more! Do "+details["cmd_key"]+"mywagers "+str(page+2)
+        else:
+            footer = 'That is all!'
+        wagers_embed.set_footer(text=footer)
+    else:
+        wagers_embed.add_field(name ="No wagers received!",value="Wager requests you get from other players will appear here.")
+    await util.say(ctx.channel,embed=wagers_embed)
 
+@commands.command(args_pattern='C')    
+async def acceptwager(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]acceptwager (wager number)
+    
+    Accepts a wager!
+    
+    """
+    
+    player = details["author"]
+    wager_index = args[0] - 1
+    if wager_index >= len(player.battlers):
+        raise util.DueUtilException(ctx.channel,"Request not found!")
+    if player.money - player.battlers[wager_index].wager_amount // 2 < 0:
+        raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
+
+    wager = player.battlers.pop(wager_index)
+    sender = players.find_player(wager.sender_id)
+    battle_details = battles.get_battle_log(player_one=player,player_two=sender)
+    battle_log = battle_details[0]
+    turns = battle_details[1]
+    winner = battle_details[2]
+    wager_amount_str = util.format_number(wager.wager_amount,full_precision=True,money=True)
+    if winner != player:
+        battle_log.add_field(name = "Wager results", value = (":skull: **"+player.name_clean+"** lost to **"+sender.name_clean+"** and paid ``"
+                                                              +wager_amount_str+"``"),inline=False)
+        player.money -= wager.wager_amount 
+        sender.money += wager.wager_amount  
+    else:
+        payback = ""
+        if sender.money - wager.wager_amount >= 0:
+            payback = ("**"+sender.name_clean+"** paid **"+player.name_clean+"** ``"
+                       +wager_amount_str+"``")
+            player.money += wager.wager_amount 
+            sender.money -= wager.wager_amount  
+        else:
+            weapons_sold = 0             
+            if sender.w_id != weapons.NO_WEAPON_ID:
+                weapons_sold += 1
+                sender.money += int(sender.weapon_sum.split("/")[0])//(4/3)
+                sender.set_weapon(weapons.get_weapon_from_id("None"))
+            if sender.money - wager.wager_amount < 0:
+                for weapon in sender.get_owned_weapons():
+                    weapon_info = sender.pop_from_invetory(weapon)
+                    sender.money += int(weapon_info[1].split("/")[0])//(4/3)
+                    weapons_sold += 1
+                    if sender.money - wager.wager_amount >= 0:
+                        break
+            amount_not_paid = max(0,wager.wager_amount - sender.money)
+            amount_paid = wager.wager_amount-amount_not_paid
+            amount_paied_str = util.format_number(amount_paid,full_precision=True,money=True)
+
+            if weapons_sold == 0:
+                payback = ("**"+sender.name_clean+"** could not afford to pay and had no weapons to sell! \n``"
+                          +amount_paied_str+"`` is all they could pay.")
+            else:
+                payback = ("**"+sender.name_clean+"** could not afford to pay and had to sell "
+                          +str(weapons_sold)+" weapon"+("s" if weapons_sold != 1 else "")+" \n")
+                if amount_paid != wager.wager_amount:
+                    payback += "They were still only able to pay ``"+amount_paied_str+"``. \nPathetic."
+                else:
+                    payback += "They were able to muster up the full ``"+amount_paied_str+"``"
+            sender.money -= amount_paid
+            player.money += amount_paid
+                
+        battle_log.add_field(name = "Wager results", value = ":sparkles: **"+player.name_clean+"** won agaist **"+sender.name_clean+"**!\n"+payback,inline=False)
+    sender.save()
+    player.save()
+    await util.say(ctx.channel,embed=battle_log)
+    
+@commands.command(args_pattern='C')    
+async def declinewager(ctx,*args,**details):
+    pass
     
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSCCB?S?S?')
 async def createweapon(ctx,*args,**details):

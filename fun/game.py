@@ -1,5 +1,5 @@
 import enchant
-#import language_check
+# import language_check
 from guess_language import guess_language
 import ssdeep
 import time
@@ -17,7 +17,7 @@ QUEST_COOLDOWN = 360
 MAX_DAILY_QUESTS = 30
 MAX_ACTIVE_QUESTS = 7
 SPAM_TOLERANCE = 50
-#LANG_TOOL = language_check.LanguageTool('en-GB')
+# LANG_TOOL = language_check.LanguageTool('en-GB')
 
 def get_spam_level(player,message_content):
     message_hash = ssdeep.hash(message_content)
@@ -30,7 +30,13 @@ def get_spam_level(player,message_content):
         player.spam_detections += 1
     return spam_level
 
-async def player_message(message,player):
+def progress_time(player):
+    return time.time() - player.last_progress >= 60
+    
+def quest_time(player):
+    return time.time() - player.last_quest >= QUEST_COOLDOWN
+    
+async def player_message(message,player,spam_level):
     
     """ 
     W.I.P. Function to allow a small amount of exp
@@ -43,7 +49,7 @@ async def player_message(message,player):
         
     if player != None:
       
-        if time.time() - player.last_progress >= 0 and get_spam_level(player,message.content) < SPAM_TOLERANCE:
+        if progress_time(player) and spam_level < SPAM_TOLERANCE:
             
             if len(message.content) > 0:
                  player.last_progress = time.time()
@@ -107,15 +113,16 @@ async def check_for_level_up(ctx,player):
             await imagehelper.level_up_screen(ctx.channel,player,level_up_reward)
         else:
             print("Won't send level up image - channel blocked.")
-                            
+        
+        """                    
         rank = player.rank
         if rank == 2:
             await give_award(ctx.channel, player, 2, "Attain rank 2.")
         elif rank > 2 and rank <= 9:
             await give_award(ctx.channel, player, rank+2, "Attain rank "+str(rank)+".")  
-               
+        """       
         
-async def manage_quests(message,player):
+async def manage_quests(message,player,spam_level):
   
     """ 
     Give out quests!
@@ -130,8 +137,7 @@ async def manage_quests(message,player):
     # Testing   
     if not quests.has_quests(channel):
         quests.add_default_quest_to_server(message.server)
-     
-    if time.time() - player.last_quest >= QUEST_COOLDOWN and get_spam_level(player,message.content) < SPAM_TOLERANCE:
+    if quest_time(player) and spam_level < SPAM_TOLERANCE:
         player.last_quest = time.time()
         if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
             quest = quests.get_random_quest_in_channel(channel)
@@ -182,8 +188,11 @@ def load_game_rules():
 
 async def on_message(message): 
     player = players.find_player(message.author.id)
-    await player_message(message,player)
-    await manage_quests(message,player)
+    spam_level = 100
+    if quest_time(player) or progress_time(player):
+        spam_level = get_spam_level(player,message.content)
+    await player_message(message,player,spam_level)
+    await manage_quests(message,player,spam_level)
     await check_for_recalls(message,player)
     
 load_game_rules()

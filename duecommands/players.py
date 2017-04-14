@@ -179,28 +179,6 @@ async def sendcash(ctx,*args,**details):
     transaction_log.set_footer(text="Please keep this receipt for your records.")
     
     await util.say(ctx.channel,embed=transaction_log)
-  
-@commands.command()
-async def mywagers(ctx,*args,**details):    
-  
-    """
-    [CMD_KEY]mywagers
-    
-    Shows your active wager requests.
-    Note: Wagers expire if you don't accept them within one hour.
-    
-    """
-    
-    player = details["author"]
-    WagerT = "```\n" + player.name + "'s received wagers\n"
-    if(len(player.battlers) > 0):
-        for x in range(0, len(player.battlers)):
-            WagerT = WagerT + str(x + 1) + ". $" +  util.to_money(player.battlers[x].wager,False) + " from " + findPlayer(player.battlers[x].senderID).name + ".\n"
-    else:
-        WagerT = WagerT + "You have no requests!\n"
-    WagerT = WagerT + "Do " + command_key + "acceptwager [Wager Num] to accept a wager.\n"
-    WagerT = WagerT + "Do " + command_key + "declinewager [Wager Num] to decline a wager.\n```"
-    await get_client(message.server.id).send_message(message.channel, WagerT)
     
 @commands.command(hidden=True)
 async def benfont(ctx,*args,**details):

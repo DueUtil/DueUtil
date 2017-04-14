@@ -12,10 +12,12 @@ class BattleRequest:
     def __init__(self,sender,receiver,wager_amount):
         self.sender_id = sender.id
         self.receiver_id = receiver.id
-        self.wager_amount = wagers_amount
+        self.wager_amount = wager_amount
+        self.__add(receiver)
         
     def __add(self,receiver):
         receiver.battlers.append(self)
+        receiver.save()
 
 def get_battle_log(**battleargs):
     battle_result = battle(**battleargs)
