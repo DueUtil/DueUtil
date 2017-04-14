@@ -189,7 +189,7 @@ def load_game_rules():
 async def on_message(message): 
     player = players.find_player(message.author.id)
     spam_level = 100
-    if quest_time(player) or progress_time(player):
+    if player != None and (quest_time(player) or progress_time(player)):
         spam_level = get_spam_level(player,message.content)
     await player_message(message,player,spam_level)
     await manage_quests(message,player,spam_level)
