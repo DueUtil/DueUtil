@@ -1,15 +1,20 @@
-import jsonpickle;
+import json
+import jsonpickle
 from pymongo import MongoClient
 
-db = None;
+db = None
+config = {}
 
 def conn():
-    global db;
+    global db
     if db == None:
-       db = MongoClient().dueutil;
-       return db;
+        client = MongoClient(config['host'])
+        client.admin.authenticate(config['user'], config['pwd'], mechanism='SCRAM-SHA-1')
+        uri = "mongodb://"+config['user']+":"+config['pwd']+"@"+config['host']+"/admin?authMechanism=SCRAM-SHA-1"
+        db = MongoClient(uri).dueutil
+        return db
     else:
-       return db;
+        return db
 
 def insert_object(id,object):
     if id.strip() == "":
@@ -18,3 +23,11 @@ def insert_object(id,object):
 
 def get_collection_for_object(object_class):
     return conn()[object_class.__name__]
+
+
+def load_config():
+    global config
+    with open('dbconfig.json') as config_file:  
+        config = json.load(config_file)
+
+load_config()

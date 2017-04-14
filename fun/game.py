@@ -128,6 +128,7 @@ async def manage_quests(message,player,spam_level):
     Give out quests!
     
     """
+    
     channel = message.channel
     if time.time() - player.quest_day_start > QUEST_DAY and player.quest_day_start != 0:
         player.quests_completed_today = 0
@@ -192,8 +193,9 @@ async def on_message(message):
     if player != None and (quest_time(player) or progress_time(player)):
         spam_level = get_spam_level(player,message.content)
     await player_message(message,player,spam_level)
-    await manage_quests(message,player,spam_level)
-    await check_for_recalls(message,player)
+    if player != None:
+        await manage_quests(message,player,spam_level)
+        await check_for_recalls(message,player)
     
 load_game_rules()
 events.register_message_listener(on_message)
