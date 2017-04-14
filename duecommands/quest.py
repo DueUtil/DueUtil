@@ -113,8 +113,10 @@ async def acceptquest(ctx,*args,**details):
         battle_log.add_field(name = "Quest results", value = reward + stats,inline=False)
         
         player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
-        if quest.info != None:
-            quest.info.times_beaten += 1
+        quest_info = quest.info
+        if quest_info != None:
+            quest_info.times_beaten += 1
+            quest_info.save()
         await game.check_for_level_up(ctx,player)
     player.save()
     await imagehelper.battle_screen(ctx.channel,player,quest)
@@ -149,6 +151,16 @@ async def declinequest(ctx,*args,**details):
 
 @commands.command(args_pattern='SRRRRS?S?S?R?')
 async def createquest(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]createquest
+    
+    Hard mode: figure it out yourself.
+    
+    I'm going to bed.
+    
+    cyka blyat
+    """
     
     extras = dict()
     if len(args) >= 6:

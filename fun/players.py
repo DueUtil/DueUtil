@@ -47,7 +47,7 @@ class Player(DueUtilObject):
         self.banner_id = "discord blue"
         self.theme_id = "test"
         self.background = "default.png"
-        self.weapon_sum = '"0"01'     # price/attack/sum
+        self.weapon_sum = weapons.get_weapon_from_id("None").weapon_sum
         self.w_id = weapons.NO_WEAPON_ID
         
         ##### USAGE STATS #####
@@ -68,7 +68,7 @@ class Player(DueUtilObject):
         self.battlers = []
         self.awards = []
         self.weapon_inventory = []
-        self.themes = []
+        self.themes = ["default"]
         self.backgrounds = []
         
         self.donor = False
@@ -84,20 +84,35 @@ class Player(DueUtilObject):
         self.exp += exp
         self.total_exp += exp
         
-    def owns_weapon(self,weapon_name):
-        for weapon_slot in self.owned_weps:
-            if(Weapon.get_weapon_from_id(weapon_slot[0]).name.lower() == weapon_name.lower()):
-                return True
-        return False
+    def set_weapon(self,weapon):
+        self.w_id = weapon.w_id
+        self.weapon_sum = weapon.weapon_sum
         
     def get_owned_themes(self):
         return {theme_id:theme for theme_id,theme in profile_themes.items() if theme_id in self.themes}
-            
+                
+    def get_owned_weapons(self):
+        return [weapons.get_weapon_from_id(weapon_info[0]) for weapon_info in self.weapon_inventory if weapon_info[0] != weapons.NO_WEAPON_ID]
+        
+    def get_weapon(self,weapon_name):
+        return next((weapon for weapon in self.get_owned_weapons() if weapon.name.lower() == weapon_name.lower()),None)
+        
+    def owns_weapon(self,weapon_name):
+        return self.get_weapon(weapon_name) != None
+        
     def get_name_possession(self):
         if self.name.endswith('s'):
             return self.name + "'"
         return self.name + "'s"
-       
+        
+    def pop_from_invetory(self,weapon):
+        for weapon_info in self.weapon_inventory:
+          if weapon_info[0] == weapon.id:
+              return self.weapon_inventory.pop(self.weapon_inventory.index(weapon_info))
+              
+    def store_weapon(self,weapon):
+        self.weapon_inventory.append([weapon.id,weapon.weapon_sum])
+      
     def get_name_possession_clean(self):
         return util.ultra_escape_string(self.get_name_possession())
         
@@ -128,21 +143,6 @@ class Player(DueUtilObject):
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100)
 
-    async def unequip_weapon(self,channel):
-        if weapon.w_id != no_weapon_id:
-            if len(self.owned_weps) < 6:
-                if not self.owns_weapon(self.weapon.name):
-                    self.owned_weps.append([active_wep.wID,self.weapon_sum])
-                    self.wID = no_weapon_id
-                    self.weapon_sum = weapons(no_weapon_id).weapon_sum
-                    await util.say(channel, ":white_check_mark: **"+active_wep.name+"** unequiped!")
-                else:
-                    raise util.DueUtilException(channel,"You already have a weapon with that name stored!")
-            else:
-                raise util.DueUtilException(channel, "No room in your weapon storage!")
-        else:
-            raise util.DueUtilException(channel,"You don't have anything equiped anyway!")
-            
     @property
     def item_value_limit(self):
         return 10000000000000000000000000000000000000000000

@@ -3,6 +3,7 @@ import math
 from datetime import datetime
 import repoze.timeago
 from fun import imagehelper, awards, leaderboards
+import fun.players, fun.weapons, fun.quests
 from botstuff import util,commands
 import botstuff.permissions
 from botstuff.permissions import Permission
@@ -59,11 +60,14 @@ async def dueeval(ctx,*args,**details):
     """
     For 1337 haxors only! Go away!
     """
+    players = fun.players
+    weapons = fun.weapons
+    quests = fun.quests
     
     player = details["author"]
     await util.say(ctx.channel,":ferris_wheel: Eval...\n"
     "**Result** ```"+str(eval(args[0]))+"```")
- 
+    
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PC")
 async def setpermlevel(ctx,*args,**details):
     player = args[0]

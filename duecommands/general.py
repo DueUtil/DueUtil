@@ -9,10 +9,9 @@ from botstuff import util
 SHOP_PAGE_MAX_ITEMS = 12
 
 def shop_weapons_list(page,**details):
-    shop = details["embed"]
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
-        footer = "But wait there's more! Do "+details["cmd_key"]+"shop "+str(page+2)
+        footer = "But wait there's more! Do "+details["cmd_key"]+"shop weapons"+str(page+2)
     else:
         footer = 'Want more? Ask an admin on '+details["server_name_clean"]+' to add some!'
     shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
@@ -20,42 +19,25 @@ def shop_weapons_list(page,**details):
     return shop 
 
 def shop_theme_list(page,**details):
-    shop = details["embed"]
     themes = list(players.get_themes().values())
-    if page * SHOP_PAGE_MAX_ITEMS >= len(themes):
-        raise util.DueUtilException(None,"Page not found")
-    shop.title = "DueUtil's Theme Shop"
     if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (themes):
-        footer = "But wait there's more! Do "++"mythemes "+str(page+2)
+        footer = "But wait there's more! Do "+details["cmd_key"]+"shop themes "+str(page+2)
     else:
         footer = 'More themes coming soon!'
-    for theme_index in range(SHOP_PAGE_MAX_ITEMS * page,SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS):
-        if theme_index >= len(themes):
-            break
-        theme = themes[theme_index]
-        shop.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
-                                                                      +util.format_number(theme["price"],money=True,full_precision=True)+"``"))
+    shop = player_cmds.theme_page(themes,page,"DueUtil's Theme Shop")
     shop.set_footer(text=footer)
     return shop
-    
-def theme_info(theme_name,**details):
-    embed = details["embed"]
-    price_divisor = details.get('price_divisor',1)
-    theme = players.get_theme(theme_name)
-    if theme == None:
-            raise util.DueUtilException(details["channel"],"Theme not found!")
-    embed.title = theme["icon"]+" | "+theme["name"]
-    embed.set_image(url=theme["preview"])
-    embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"]//price_divisor,money=True,full_precision=True))
-    return embed
-    
+
 def get_department_from_name(name):
     return next((department_info for department_info in departments.values() if name.lower() in department_info["alisas"]),None)
         
 async def item_action(item_name,action,**details):
-    possible_departments = [department_info for department_info in departments.values() if department_info["item_exists"](details["server_id"],item_name)]
+    exists_check = details.get('exists_check',"item_exists")
+    message = details.get('error',"An item with that name exists in multiple departments!")
+    # TODO pass full details
+    possible_departments = [department_info for department_info in departments.values() if department_info[exists_check](details,item_name)]
     if len(possible_departments) > 1:
-        error = (":confounded: An item with that name exists in multiple departments!\n"
+        error = (":confounded: "+message+"\n"
                   +"Please be more specific!\n")
         for department_info in possible_departments:
             error += "``"+details["cmd_key"]+details["command_name"]+" "+department_info["alisas"][0]+" "+item_name+"``\n"
@@ -86,9 +68,12 @@ departments = {
       "actions":{
          "info_action":weap_cmds.weapon_info,
          "list_action":shop_weapons_list,
-         "buy_action":weap_cmds.buy_weapon
+         "buy_action":weap_cmds.buy_weapon,
+         "sell_action":weap_cmds.sell_weapon
       },
-      "item_exists":lambda server_id,name:name.lower() != "none" and weapons.does_weapon_exist(server_id,name)
+      "item_exists":lambda details,name:name.lower() != "none" and weapons.does_weapon_exist(details["server_id"],name),
+      "item_exists_sell": lambda details,name: (name != "none" and details["author"].weapon.name.lower() == name 
+                                                or details["author"].owns_weapon(name))
    },
    "themes":{
       "alisas":[
@@ -96,11 +81,14 @@ departments = {
          "skins"
       ],
       "actions":{
-         "info_action":theme_info,
+         "info_action":player_cmds.theme_info,
          "list_action":shop_theme_list,
-         "buy_action":player_cmds.buy_theme
+         "buy_action":player_cmds.buy_theme,
+         "sell_action":placeholder
       },
-      "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None
+      "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None,
+      "item_exists_sell": lambda details,name: name != "default" and name.lower() in details["author"].themes
+
    },
    "backgrounds":{
       "alisas":[
@@ -110,9 +98,24 @@ departments = {
       "actions":{
          "info_action":placeholder,
          "list_action":placeholder,
-         "buy_action":placeholder
+         "buy_action":placeholder,
+         "sell_action":placeholder
       },
-      "item_exists":lambda _,__:False
+      "item_exists":lambda _,__:False,
+      "item_exists_sell": lambda _,name: False
+   },
+  "banners":{
+      "alisas":[
+         "banners"
+      ],
+      "actions":{
+         "info_action":placeholder,
+         "list_action":placeholder,
+         "buy_action":placeholder,
+         "sell_action":placeholder
+      },
+      "item_exists":lambda _,__:False,
+      "item_exists_sell": lambda _,name: False
    }
 }
     
@@ -179,4 +182,18 @@ async def buy(ctx,*args,**details):
 
 @commands.command(args_pattern='S?S?')
 async def sell(ctx,*args,**details):
-    pass
+  
+    """
+    [CMD_KEY]sell item
+    
+    """
+    error = "You own multiple items with the same name!"
+    
+    if len(args) == 1:
+        await item_action(args[0].lower(),"sell_action",**details,exists_check="item_exists_sell",error=error)
+    else:
+        department = get_department_from_name(args[0])
+        if department != None:
+            await department["actions"]["sell_action"](args[1].lower(),**details,exists_check="item_exists_sell",error=error)
+        else:
+            raise util.DueUtilException(ctx.channel,"Department not found")

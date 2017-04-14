@@ -40,7 +40,7 @@ async def player_message(player,message):
     
     def get_words():
         return re.compile('\w+').findall(message.content)
-    
+        
     if player != None:
       
         if time.time() - player.last_progress >= 0 and get_spam_level(player,message.content) < SPAM_TOLERANCE:
@@ -146,7 +146,10 @@ async def manage_quests(player,message):
                 if dueserverconfig.mute_level(message.channel) < 0:
                     await imagehelper.new_quest_screen(channel,new_quest,player)
                 # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
-            
+   
+async def check_for_recalls():
+    pass
+    
 def get_exp_for_next_level(level):
     for level_range, exp_details in exp_per_level.items():
         if level in level_range:

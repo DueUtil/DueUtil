@@ -15,14 +15,19 @@ async def myweapons(ctx,*args,**details):
     """
          
     player = details["author"]
-    player_weapons = [weapons.get_weapon_from_id(weapon_id) for weapon_id in player.weapon_inventory if weapon_id != weapons.NO_WEAPON_ID]
+    player_weapons = player.get_owned_weapons()
     page = 1
     if len(args) == 1:
         page = args[0]
     
     if type(page) is int:
         page -= 1
-        weapon_store = weapons_page(player_weapons,page,player.name+"'s Weapons"+(" : Page "+str(page+1) if page > 0 else ""),price_divisor=4/3)
+        title = player.get_name_possession_clean()+" Weapons"+(" : Page "+str(page+1) if page > 0 else "")
+        if len(player_weapons) > 0:
+            weapon_store = weapons_page(player_weapons,page,title,price_divisor=4/3)
+        else: 
+            weapon_store = discord.Embed(title=title,type="rich",color=16038978)
+            weapon_store.add_field(name ="No weapons stored!",value="You can buy up to 6 more weapons from the shop and store them here!")
         weapon_store.description = "Currently equipped: "+str(player.weapon)
         weapon_store.set_footer(text="Do "+details["cmd_key"]+"equip (weapon name) to equip a weapon.")
         await util.say(ctx.channel,embed=weapon_store)
@@ -35,7 +40,58 @@ async def myweapons(ctx,*args,**details):
             await util.say(ctx.channel,embed=info)
         else:
             raise util.DueUtilException(ctx.channel,"You don't have a weapon with that name!")
-      
+  
+@commands.command(args_pattern=None)
+async def unequip(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]unequip
+    
+    Unequips your current weapon
+    """
+    
+    player = details["author"]
+    weapon = player.weapon
+    if weapon.w_id == weapons.NO_WEAPON_ID:
+        raise util.DueUtilException(channel,"You don't have anything equiped anyway!")
+    if len(player.weapon_inventory) >= 6:
+        raise util.DueUtilException(channel, "No room in your weapon storage!")
+    if player.owns_weapon(weapon.name):
+        raise util.DueUtilException(channel,"You already have a weapon with that name stored!")
+         
+    player.store_weapon(weapon)
+    player.set_weapon(weapons.get_weapon_from_id("None"))
+    player.save()
+    await util.say(ctx.channel, ":white_check_mark: **"+weapon.name_clean+"** unequiped!")
+            
+@commands.command(args_pattern='S')
+async def equip(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]equip (weapon name)
+    
+    Equips a weapon from your weapon inventory.
+    """
+    
+    player = details["author"]
+    weapon = player.get_weapon(args[0].lower())
+    weapon_info = player.pop_from_invetory(weapon)
+    current_weapon = player.weapon
+    if weapon == None:
+        raise util.DueUtilException(ctx.channel,"You do not have that weapon stored!")            
+
+    if player.owns_weapon(current_weapon.name):
+        player.weapon_inventory.append(weapon_info)
+        raise util.DueUtilException(ctx.channel,"Can't put your current weapon into storage! There is already a weapon with the same name stored!"); 
+        
+    if current_weapon != weapons.NO_WEAPON_ID:
+        player.weapon_inventory.append([current_weapon.w_id,current_weapon.weapon_sum])
+        
+    player.set_weapon(weapon)
+    player.save()
+
+    await util.say(ctx.channel,":white_check_mark: **"+weapon.name_clean+"** equiped!")
+     
 def weapons_page(weapons_list,page,title,**extras):
     price_divisor = extras.get('price_divisor',1)
     weapons_embed = discord.Embed(title=title,type="rich",color=16038978)
@@ -127,7 +183,7 @@ async def buy_weapon(weapon_name,**details):
     elif customer.weapon.w_id != weapons.NO_WEAPON_ID:
         if len(customer.weapon_inventory) < 6:
             if weapon.w_id not in customer.weapon_inventory:
-                customer.weapon_inventory.append(weapon.w_id)
+                customer.store_weapon(weapon)
                 await util.say(channel,("**"+customer.name_clean+"** bought a **"+weapon.name_clean+"** for "
                                             + util.format_number(weapon.price,money=True,full_precision=True)
                                             + "\n:warning: You have not equiped this weapon do **"
@@ -139,10 +195,29 @@ async def buy_weapon(weapon_name,**details):
             raise util.DueUtilException("No free weapon slots!")
     else:
         customer.w_id = weapon.w_id
+        customer.weapon_sum = weapon.weapon_sum
         await util.say(channel,("**"+customer.name_clean+"** bought a **"
                                     +weapon.name_clean+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
     customer.save()
 
+async def sell_weapon(weapon_name,**details):
+  
+    player = details["author"]
+    channel = details["channel"]
+    
+    if player.weapon.name.lower() == weapon_name:
+        weapon_to_sell = player.weapon
+        player.set_weapon(weapons.get_weapon_from_id("None"))
+    else:
+        weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),None)
+        player.weapon_inventory.remove(weapon_to_sell.w_id)
+        
+    sell_price = weapon_to_sell.price // (4/3)
+    player.money += sell_price
+    await util.say(channel,("**"+player.name_clean+"** sold their trusty **"+weapon_to_sell.name_clean
+                    +"** for ``"+util.format_number(sell_price,money=True,full_precision=True)+"``"))
+    player.save()
+    
 def weapon_info(weapon_name,**details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor',1)

@@ -12,28 +12,6 @@ class BattleRequest:
     def __init__(self,message,wager_amount):
         self.sender_id = message.author.id
         self.wager_amount = wagers_amount
-
-                
-async def equip_weapon(message,player,wname):
-    storedWeap = remove_weapon_from_store(player,wname)
-    if(storedWeap != None):
-        if owns_weapon_name(player,get_weapon_from_id(player.wID).name):
-            player.owned_weps.append(storedWeap)
-            await get_client(message.server.id).send_message(message.channel, ":bangbang: **Cannot put your current equiped weapon in your weapon storage as a weapon with the same name is already being stored!**"); 
-            return
-        if(player.wID != no_weapon_id):
-            player.owned_weps.append([player.wID,player.wep_sum])
-        player.wID = storedWeap[0]
-        player.wep_sum = storedWeap[1]
-        newWeap = get_weapon_from_id(player.wID)
-        if(newWeap.wID != no_weapon_id):
-            await harambe_check(message,newWeap,player)
-            await get_client(message.server.id).send_message(message.channel, ":white_check_mark: **"+newWeap.name+"** equiped!")
-        else:
-            await get_client(message.server.id).send_message(message.channel, ":white_check_mark: equiped!")
-        savePlayer(player)
-    else:
-        await get_client(message.server.id).send_message(message.channel, ":bangbang: **You do not have that weapon stored!**")
     
 async def validate_weapon_store(message,player):
     weapon_sums = []
@@ -42,10 +20,7 @@ async def validate_weapon_store(message,player):
             weapon_sums.append(ws[1])
             del player.owned_weps[player.owned_weps.index(ws)]
     if len(weapon_sums) > 0:
-        await mass_recall(message,player,weapon_sums);        
-
-async def sell(message, uID, recall):
-    await sell_weapon(message,uID,recall,None); 
+        await mass_recall(message,player,weapon_sums);         
 
 async def mass_recall(message, player, weapon_sums):
     refund = 0
@@ -54,46 +29,6 @@ async def mass_recall(message, player, weapon_sums):
     player.money = player.money + refund
     await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** a weapon or weapons you have stored have been recalled by the manufacturer. You get a full $" + util.to_money(refund,False) + " refund.")
     savePlayer(player)
-    
-async def sell_weapon(message, uID, recall,weapon_name):
-    global Players
-    global Weapons
-    player = findPlayer(uID)
-    if (player == None):
-        return True
-    weapon_id= no_weapon_id
-    if(weapon_name == None):
-        weapon_id = player.wID
-    else:
-        weapon_data = remove_weapon_from_store(player,weapon_name)
-        if(weapon_data == None):
-            if(get_weapon_from_id(player.wID).name.lower() == weapon_name):
-                weapon_name = None
-                weapon_id = player.wID
-            if(weapon_name != None):
-                await get_client(message.server.id).send_message(message.channel, ":bangbang: **Weapon not found!**")
-                return
-        if(weapon_data != None):
-            weapon_id = weapon_data[0]
-    if (weapon_id != no_weapon_id):
-        weapon = get_weapon_from_id(weapon_id)
-        price = int(((weapon.chance/100) * weapon.attack) / 0.04375)
-        sellPrice = int(price - (price / 4))
-        if(not recall):
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** sold their trusty " +weapon.name + " for $" +util.to_money(sellPrice,False)+ "!")
-        else:
-            if(weapon_name == None):
-                sellPrice = int(util.get_strings(player.wep_sum)[0])
-            else:
-                sellPrice = int(util.get_strings(weapon_data[1])[0])
-            await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** your weapon has been recalled by the manufacturer. You get a full $" + util.to_money(sellPrice,False) + " refund.")
-        if(weapon_name == None):
-            player.wID = no_weapon_id
-            player.wep_sum = get_weapon_sum(no_weapon_id)
-        player.money = player.money + sellPrice
-        savePlayer(player)
-    else:
-        await get_client(message.server.id).send_message(message.channel, "**"+player.name+"** nothing does not fetch a good price...")
 
 def get_battle_log(**battleargs):
     battle_result = battle(**battleargs)

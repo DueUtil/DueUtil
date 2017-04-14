@@ -230,16 +230,38 @@ async def mythemes(ctx,*args,**details):
     If you use this command with a theme name you can get a preview of the theme!
     
     """
+  
+    player = details["author"]
+    page = 1
+    if len(args) == 1:
+        page = args[0]
     
-    pass
-         
+    if type(page) is int:
+        page_size = 12
+        page-= 1
+        themes = list(player.get_owned_themes().values())
+        if page_size * page + page_size < len (themes):
+            footer = "But wait there's more! Do "+details["cmd_key"]+"mythemes "+str(page+2)
+        else:
+            footer = 'That is all!'
+        title = player.get_name_possession_clean()+" Themes"+(" : Page "+str(page+1) if page > 0 else "")
+        themes_embed = theme_page(themes,page,title,price_divisor=4/3)
+        themes_embed.set_footer(text=footer)
+
+        await util.say(ctx.channel,embed = themes_embed)
+    else:
+        theme_name = page.lower()
+        theme_embed = theme_info(theme_name,**details,embed=discord.Embed(type="rich",color=16038978))
+        theme_embed.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme_name+" to equip this theme!")
+        await util.say(ctx.channel,embed=theme_embed)
+        
 @commands.command(args_pattern='S')
 async def settheme(ctx,*args,**details):
     player = details["author"]
     theme_id = args[0].lower()
     if theme_id in player.themes:
         theme = players.get_theme(theme_id)
-        player.theme_id = theme_name
+        player.theme_id = theme_id
         player.banner_id = theme["banner"]
         player.backgrounds = theme["background"]
         player.save()
@@ -247,7 +269,33 @@ async def settheme(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Theme not found!")
 
+def theme_page(theme_list,page,title,**extras):
+    price_divisor = extras.get('price_divisor',1)
+    themes_embed = discord.Embed(title=title,type="rich",color=16038978)
+    page_size = 12
+    if page * page_size >= len(theme_list):
+        raise util.DueUtilException(None,"Page not found")
+    for theme_index in range(page_size*page,page_size*page+page_size):
+        if theme_index >= len(theme_list):
+            break
+        theme = theme_list[theme_index]
+        themes_embed.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
+                                                                      +util.format_number(theme["price"]//price_divisor,money=True,full_precision=True)+"``"))
+    return themes_embed  
+
 # Part of the shop buy command
+
+def theme_info(theme_name,**details):
+    embed = details["embed"]
+    price_divisor = details.get('price_divisor',1)
+    theme = players.get_theme(theme_name)
+    if theme == None:
+        raise util.DueUtilException(details["channel"],"Theme not found!")
+    embed.title = theme["icon"]+" | "+theme["name"]
+    embed.set_image(url=theme["preview"])
+    embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"]//price_divisor,money=True,full_precision=True))
+    return embed
+    
 async def buy_theme(theme_id,**details):
     customer = details["author"]
     channel = details["channel"]
