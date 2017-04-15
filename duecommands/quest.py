@@ -1,4 +1,5 @@
 import discord
+import math
 from fun import quests, game, battles, imagehelper, weapons, stats
 from botstuff import commands, util
 from botstuff.permissions import Permission
@@ -155,7 +156,7 @@ async def declinequest(ctx,*args,**details):
             quest_task = "do a long forgotten quest:"
         await util.say(ctx.channel, ("**"+player.name_clean +"** declined to " 
                                      + quest_task + " **" + quest.name_clean 
-                                     + " [Level " + str(qT.level) + "]**!"))
+                                     + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
         raise util.DueUtilException(ctx.channel,"Quest not found!")
 

@@ -63,7 +63,8 @@ departments = {
    "weapons":{
       "alisas":[
          "weapons",
-         "weaps"
+         "weaps",
+         "weapon"
       ],
       "actions":{
          "info_action":weap_cmds.weapon_info,
@@ -78,7 +79,8 @@ departments = {
    "themes":{
       "alisas":[
          "themes",
-         "skins"
+         "skins",
+         "theme"
       ],
       "actions":{
          "info_action":player_cmds.theme_info,
@@ -93,7 +95,10 @@ departments = {
    "backgrounds":{
       "alisas":[
          "backgrounds",
-         "bgs"
+         "bgs",
+         "bg",
+         "backgrounds"
+         
       ],
       "actions":{
          "info_action":placeholder,
@@ -106,7 +111,8 @@ departments = {
    },
   "banners":{
       "alisas":[
-         "banners"
+         "banners",
+         "banner"
       ],
       "actions":{
          "info_action":placeholder,

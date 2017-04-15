@@ -397,7 +397,7 @@ async def sell_weapon(weapon_name,**details):
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),None)
         if weapon_to_sell == None:
             raise util.DueUtilException(channel,"Weapon not found!")
-        player.weapon_inventory.remove(weapon_to_sell.w_id)
+        player.pop_from_invetory(weapon_to_sell)
         
     sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price
