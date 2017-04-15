@@ -7,9 +7,9 @@ leaderboards = dict()
 last_leaderboard_update = 0
 UPDATE_INTERVAL = 3600
 
-def calculate_player_rankings(rank_name,sort_function):
+def calculate_player_rankings(rank_name,sort_function,reverse = True):
     global leaderboards
-    leaderboards[rank_name] = [sorted(players.players.values(), key=sort_function),sort_function]
+    leaderboards[rank_name] = [sorted(players.players.values(), key=sort_function,reverse=reverse),sort_function,reverse]
 
 def calculate_level_leaderboard():
     calculate_player_rankings("levels",lambda player: player.total_exp)
@@ -27,7 +27,7 @@ async def update_leaderboards(_):
 
 def calculate_updates():
     for rank_name,data in leaderboards.items():
-        calculate_player_rankings(rank_name,data[1])
+        calculate_player_rankings(rank_name,data[1],data[2])
 
 events.register_message_listener(update_leaderboards)
 calculate_level_leaderboard()

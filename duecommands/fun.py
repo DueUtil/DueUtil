@@ -123,7 +123,7 @@ async def givecash(ctx,*args,**details):
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def updateleaderboard(ctx,*args,**details):
     leaderboards.last_leaderboard_update = 0
-    leaderboards.update_leaderboards(ctx)
+    await leaderboards.update_leaderboards(ctx)
     await util.say(ctx.channel,":ferris_wheel: Updating leaderboard!")
 
 @commands.command(args_pattern="C?")
@@ -173,7 +173,8 @@ async def leaderboard(ctx,*args,**details):
             name = player.name_clean
             player_id = "<@"+player.id+">"
             level = str(math.trunc(player.level))
-            leaderboard_embed.add_field(name = "#"+str(index+1)+bonus,value = name+" "+player_id+" ``Level "+level+"``",inline=False)
+            leaderboard_embed.add_field(name = "#"+str(index+1)+bonus,value = (name+" "+player_id+" ``Level "+level+"``"
+                                                +" ``Total Exp: "+str(math.trunc(player.total_exp)))+"``",inline=False)
             last_updated = datetime.utcfromtimestamp(leaderboards.last_leaderboard_update)
             leaderboard_embed.set_footer(text="Leaderboard calculated "+repoze.timeago.get_elapsed(last_updated))
         if index < len(leaderboard_data) - 1:
