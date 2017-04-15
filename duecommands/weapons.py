@@ -109,6 +109,7 @@ def weapons_page(weapons_list,page,title,**extras):
     return weapons_embed    
  
 @commands.command(args_pattern='PP?')
+@commands.imagecommand()
 async def battle(ctx,*args,**details):
   
     """
@@ -200,7 +201,8 @@ async def mywagers(ctx,*args,**details):
         wagers_embed.add_field(name ="No wagers received!",value="Wager requests you get from other players will appear here.")
     await util.say(ctx.channel,embed=wagers_embed)
 
-@commands.command(args_pattern='C')    
+@commands.command(args_pattern='C')   
+@commands.imagecommand() 
 async def acceptwager(ctx,*args,**details):
   
     """

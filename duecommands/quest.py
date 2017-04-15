@@ -75,6 +75,7 @@ async def myquests(ctx,*args,**details):
     await imagehelper.quests_screen(ctx.channel,player,page)
 
 @commands.command(args_pattern='C')
+@commands.imagecommand()
 async def acceptquest(ctx,*args,**details):
   
     """
