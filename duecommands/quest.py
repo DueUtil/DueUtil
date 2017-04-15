@@ -175,7 +175,7 @@ async def createquest(ctx,*args,**details):
     if len(args) >= 6:
         extras['task'] = args[5]
     if len(args) >= 7:
-        extras['weapon_id'] = weapons.get_weapon_for_server(ctx.server,args[6]).w_id
+        extras['weapon_id'] = weapons.get_weapon_for_server(ctx.server.id,args[6]).w_id
     if len(args) >= 8:
         extras['image_url'] = args[7]
     if len(args) == 9:

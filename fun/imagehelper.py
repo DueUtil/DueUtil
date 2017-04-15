@@ -166,7 +166,7 @@ async def new_quest_screen(channel,quest,player):
     width = draw.textsize(level_text, font=font_big)[0]
     draw.text((71, 39), get_text_limit_len(draw,quest.name,
                                            font_big,168-width) + level_text, "white", font=font_big)
-    await send_image(channel,image,file_name="new_quest.png",content=":crossed_swords: **"+player.name+"** New Quest!")
+    await send_image(channel,image,file_name="new_quest.png",content=":crossed_swords: **"+player.name_clean+"** New Quest!")
     
 async def awards_screen(channel,player,page,**kwargs):
     for_player = kwargs.get('is_player_sender',False)

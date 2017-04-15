@@ -53,11 +53,11 @@ async def unequip(ctx,*args,**details):
     player = details["author"]
     weapon = player.weapon
     if weapon.w_id == weapons.NO_WEAPON_ID:
-        raise util.DueUtilException(channel,"You don't have anything equiped anyway!")
+        raise util.DueUtilException(ctx.channel,"You don't have anything equiped anyway!")
     if len(player.weapon_inventory) >= 6:
-        raise util.DueUtilException(channel, "No room in your weapon storage!")
+        raise util.DueUtilException(ctx.channel, "No room in your weapon storage!")
     if player.owns_weapon(weapon.name):
-        raise util.DueUtilException(channel,"You already have a weapon with that name stored!")
+        raise util.DueUtilException(ctx.channel,"You already have a weapon with that name stored!")
          
     player.store_weapon(weapon)
     player.set_weapon(weapons.get_weapon_from_id("None"))
@@ -74,11 +74,13 @@ async def equip(ctx,*args,**details):
     """
     
     player = details["author"]
-    weapon = player.get_weapon(args[0].lower())
-    weapon_info = player.pop_from_invetory(weapon)
     current_weapon = player.weapon
+
+    weapon = player.get_weapon(args[0].lower())
     if weapon == None:
-        raise util.DueUtilException(ctx.channel,"You do not have that weapon stored!")            
+        raise util.DueUtilException(ctx.channel,"You do not have that weapon stored!")    
+                
+    weapon_info = player.pop_from_invetory(weapon)
 
     if player.owns_weapon(current_weapon.name):
         player.weapon_inventory.append(weapon_info)
@@ -103,8 +105,6 @@ def weapons_page(weapons_list,page,title,**extras):
         if weapon_index >= len(weapons_list):
             break
         weapon = weapons_list[weapon_index]
-        if weapon.id == weapons.NO_WEAPON_ID:
-            continue
         weapons_embed.add_field(name=str(weapon),value='``'+util.format_number(weapon.price//price_divisor,full_precision=True,money=True)+'``')
     return weapons_embed    
  
@@ -275,6 +275,7 @@ async def acceptwager(ctx,*args,**details):
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,total_transferred)
     sender.save()
     player.save()
+    await imagehelper.battle_screen(ctx.channel,player,sender)
     await util.say(ctx.channel,embed=battle_log)
     
 @commands.command(args_pattern='C')    

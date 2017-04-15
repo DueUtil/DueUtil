@@ -18,6 +18,7 @@ class Quest(DueUtilObject):
   
     def __init__(self,name,base_attack,base_strg,base_accy,base_hp,**extras):
         message = extras.get('ctx',None)
+        given_spawn_chance = extras.get('spawn_chance',4)
       
         if message != None:
             if message.server in quest_map:
@@ -33,6 +34,9 @@ class Quest(DueUtilObject):
             if len(name) > 30 or len(name) == 0 or name.strip == "":
                 raise util.DueUtilException(message.channel,"Quest names must be between 1 and 30 characters!")
                 
+            if given_spawn_chance > 25:
+                raise util.DueUtilException(message.channel,"Spawn chance cannot be greater than 25%")
+                
             self.server_id = message.server.id
             self.created_by = message.author.id
         else:
@@ -43,7 +47,7 @@ class Quest(DueUtilObject):
         super().__init__(self.__quest_id())
         self.task = extras.get('task',"Battle a")
         self.w_id = extras.get('weapon_id',weapons.NO_WEAPON_ID)
-        self.spawn_chance = extras.get('spawn_chance',4) / 100
+        self.spawn_chance = given_spawn_chance/100
         self.image_url = extras.get('image_url',"")
         self.base_attack = base_attack
         self.base_strg = base_strg
