@@ -64,7 +64,7 @@ class DueUtilClient(discord.Client):
             
     @asyncio.coroutine
     async def on_message(self,message):
-        if message.author == self.user or message.channel.is_private:
+        if message.author == self.user or message.channel.is_private or message.author.bot:
             return
         await events.on_message_event(message)
                                 

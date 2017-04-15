@@ -78,7 +78,7 @@ async def player_message(message,player,spam_level):
                 else:
                     spelling_score -= 1
                                    
-            spelling_score = max(1,(spelling_score/(len(message_words)*3)+1))
+            spelling_score = max(1,spelling_score/((len(message_words)*3)+1))
             spelling_avg =  player.average_spelling_correctness
             spelling_accy = 1 - abs(spelling_score - spelling_avg)
             spelling_strg = big_word_spelling_score/big_word_count

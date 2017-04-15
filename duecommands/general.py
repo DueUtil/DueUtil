@@ -163,7 +163,7 @@ async def shop(ctx,*args,**details):
         else:
             raise util.DueUtilException(ctx.channel,"Department not found")
 
-@commands.command(args_pattern='S?S?')
+@commands.command(args_pattern='SS?')
 async def buy(ctx,*args,**details):
   
     """
@@ -180,7 +180,7 @@ async def buy(ctx,*args,**details):
         else:
             raise util.DueUtilException(ctx.channel,"Department not found")
 
-@commands.command(args_pattern='S?S?')
+@commands.command(args_pattern='SS?')
 async def sell(ctx,*args,**details):
   
     """

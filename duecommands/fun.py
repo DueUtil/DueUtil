@@ -120,6 +120,12 @@ async def givecash(ctx,*args,**details):
         await util.say(ctx.channel,"Subtracted ``"+amount_str+"`` from **"+player.get_name_possession_clean()+"** account!")
     player.save()
 
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def updateleaderboard(ctx,*args,**details):
+    leaderboards.last_leaderboard_update = 0
+    leaderboards.update_leaderboards(ctx)
+    await util.say(ctx.channel,":ferris_wheel: Updating leaderboard!")
+
 @commands.command(args_pattern="C?")
 async def leaderboard(ctx,*args,**details):
     
