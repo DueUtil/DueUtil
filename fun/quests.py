@@ -2,6 +2,7 @@ import discord
 import json
 import random
 import math
+import jsonpickle
 from botstuff import util, dbconn
 from fun import weapons, players
 from fun.misc import DueUtilObject, DueMap
