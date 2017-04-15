@@ -367,6 +367,7 @@ async def buy_weapon(weapon_name,**details):
         if len(customer.weapon_inventory) < 6:
             if weapon.w_id not in customer.weapon_inventory:
                 customer.store_weapon(weapon)
+                customer.money -= weapon.price
                 await util.say(channel,("**"+customer.name_clean+"** bought a **"+weapon.name_clean+"** for "
                                             + util.format_number(weapon.price,money=True,full_precision=True)
                                             + "\n:warning: You have not equiped this weapon do **"
@@ -377,8 +378,8 @@ async def buy_weapon(weapon_name,**details):
         else:
             raise util.DueUtilException("No free weapon slots!")
     else:
-        customer.w_id = weapon.w_id
-        customer.weapon_sum = weapon.weapon_sum
+        customer.set_weapon(weapon)
+        customer.money -= weapon.price
         await util.say(channel,("**"+customer.name_clean+"** bought a **"
                                     +weapon.name_clean+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
     customer.save()
