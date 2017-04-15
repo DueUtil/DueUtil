@@ -98,7 +98,7 @@ async def acceptquest(ctx,*args,**details):
     battle_log = battle_details[0]
     turns = battle_details[1]
     winner = battle_details[2]
-    stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED,level_up_reward)
+    stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
 
     if winner != player:
         battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
@@ -113,8 +113,8 @@ async def acceptquest(ctx,*args,**details):
         add_strg = min(attr_gain(quest.strg),100)
         add_accy = min(attr_gain(quest.accy),100)
 
-        stats = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" %(add_attack,add_strg,add_accy)
-        battle_log.add_field(name = "Quest results", value = reward + stats,inline=False)
+        stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" %(add_attack,add_strg,add_accy)
+        battle_log.add_field(name = "Quest results", value = reward + stats_reward,inline=False)
         
         player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
         quest_info = quest.info
