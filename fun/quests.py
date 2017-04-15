@@ -51,9 +51,9 @@ class Quest(DueUtilObject):
         self.base_hp = base_hp
         self.base_reward = self.__reward()
         self.channel = extras.get('channel',"ALL")
-            
         self.times_beaten = 0
         self.__add()
+        self.save()
         
     def __quest_id(self):
         return self.server_id+'/'+self.name.lower()
@@ -78,7 +78,6 @@ class Quest(DueUtilObject):
                 self.base_strg,self.base_accy,
                 self.base_reward,)
         
-    
     @property
     def made_on(self):
         return self.server_id
@@ -98,7 +97,7 @@ class Quest(DueUtilObject):
     @property
     def home(self):
         try:
-            return util.get_client(self.server_id).get_server(server_id).name
+            return util.get_client(self.server_id).get_server(self.server_id).name
         except:
             return "Unknown"
         
@@ -219,6 +218,6 @@ def load():
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
-        quest_map[loaded_quest.q_id]
+        quest_map[loaded_quest.q_id] = loaded_quest
 
 load()

@@ -22,10 +22,10 @@ class Player(DueUtilObject):
         global players,new_players_joined
         if len(args) > 0 and isinstance(args[0],discord.User):
             super().__init__(args[0].id,args[0].name,**kwargs)
+            players[self.id] = self
         else:
             super().__init__("NO_ID","DueUtil Player",**kwargs)
         self.reset()
-        players[self.id] = self
 
     def reset(self,discord_user = None):
         if discord_user != None:

@@ -13,7 +13,7 @@ def shop_weapons_list(page,**details):
     if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
         footer = "But wait there's more! Do "+details["cmd_key"]+"shop weapons"+str(page+2)
     else:
-        footer = 'Want more? Ask an admin on '+details["server_name_clean"]+' to add some!'
+        footer = 'Want more? Ask an admin on '+details["server_name"]+' to add some!'
     shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
     shop.set_footer(text=footer)
     return shop 

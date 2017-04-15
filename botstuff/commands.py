@@ -119,7 +119,7 @@ def parse(command_message):
         nonlocal current_arg,args
         if len(current_arg) > 0:
             replace_mentions()
-            args = args + [current_arg,]
+            args = args + [current_arg]
             current_arg = ""
     
     for char_pos in range(0,len(command_string)+1):
@@ -143,8 +143,11 @@ def parse(command_message):
     if is_string:
         raise util.DueUtilException(command_message.channel,"Unclosed string in command!")
         
-    return (key,args[0],args[1:])
-    
+    if len(args) > 0:    
+        return (key,args[0],args[1:])
+    else:
+        return (key,"",[])
+        
 async def check_pattern(pattern,args):
     
     """A string to define the expected args of a command

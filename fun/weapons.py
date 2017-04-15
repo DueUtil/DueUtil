@@ -1,6 +1,5 @@
 import jsonpickle
 import json
-import emoji #The emoji list in this is outdated.
 from botstuff import util, dbconn
 from fun.misc import DueUtilObject, DueMap
 
@@ -30,7 +29,7 @@ class Weapon(DueUtilObject):
             if accy > 86 or accy < 1:
                 raise util.DueUtilException(message.channel,"Accuracy must be between 1% and 86%!")
                 
-            if not util.char_is_emoji(emoji.emojize(extras.get('icon',":hocho:"))):
+            if not util.char_is_emoji(extras.get('icon',"🔫")):
                 raise util.DueUtilException(message.channel,":eyes: Weapon icons must be emojis! :ok_hand:")
         
             self.server_id = message.server.id
@@ -40,7 +39,7 @@ class Weapon(DueUtilObject):
         
         self.name = name
         super().__init__(self.__weapon_id(),**extras)    
-        self.icon = extras.get('icon',":gun:")
+        self.icon = extras.get('icon',"🔫")
         self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee',True)
         self.image_url = extras.get('image_url',"https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png")

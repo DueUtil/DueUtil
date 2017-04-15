@@ -104,8 +104,10 @@ async def acceptquest(ctx,*args,**details):
     if winner != player:
         battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
                                                               +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
+        player.money -= quest.money//2
     else:
         player.quests_completed_today += 1
+        player.quests_won += 1
 
         reward = (":sparkles: **"+player.name_clean+"** defeated the **"+quest.name+"** and was rewarded with ``"
                   +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
@@ -118,6 +120,9 @@ async def acceptquest(ctx,*args,**details):
         battle_log.add_field(name = "Quest results", value = reward + stats_reward,inline=False)
         
         player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
+        player.money += quest.money
+        stats.increment_stat(stats.Stat.MONEY_CREATED,quest.money)
+
         quest_info = quest.info
         if quest_info != None:
             quest_info.times_beaten += 1
@@ -158,13 +163,11 @@ async def declinequest(ctx,*args,**details):
 async def createquest(ctx,*args,**details):
     
     """
-    [CMD_KEY]createquest
+    [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
     
-    Hard mode: figure it out yourself.
+    You can also add (task string) (weapon) (image url) (spawn chance)
+    after the first four args.
     
-    I'm going to bed.
-    
-    cyka blyat
     """
     
     extras = dict()
@@ -172,7 +175,7 @@ async def createquest(ctx,*args,**details):
         extras['task'] = args[5]
     if len(args) >= 7:
         extras['weapon_id'] = weapons.get_weapon_for_server(ctx.server,args[6]).w_id
-    if len(args) == 8:
+    if len(args) >= 8:
         extras['image_url'] = args[7]
     if len(args) == 9:
         extras['spawn_chance'] = args[8]

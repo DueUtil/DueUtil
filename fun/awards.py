@@ -1,5 +1,6 @@
 import json
 from PIL import Image
+from fun import dueserverconfig
 from botstuff import util
 
 awards = dict()
@@ -23,10 +24,10 @@ def load():
         awards[award_id] = Award(award["icon"],award["name"],award.get('message',"???"))
     
 async def give_award(channel, player, award_id, text):
-    if get_award(award_id) != None:
+    if get_award(award_id) != None and award_id not in player.awards:
         player.awards.append(award_id)
         player.save()
-        if not channel.is_private: #or not (message.server.id+"/"+message.channel.id in util.mutedchan):
+        if not channel.is_private and dueserverconfig.mute_level(ctx.channel) < 0:
             await util.say(channel, "**"+player.name+"** :trophy: **Award!** " + text)
 
 load()

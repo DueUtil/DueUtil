@@ -1,5 +1,5 @@
 import discord
-from fun import battles, imagehelper, weapons, players
+from fun import battles, imagehelper, weapons, players, stats
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission
@@ -226,12 +226,15 @@ async def acceptwager(ctx,*args,**details):
     turns = battle_details[1]
     winner = battle_details[2]
     wager_amount_str = util.format_number(wager.wager_amount,full_precision=True,money=True)
+    total_transferred = wager.wager_amount 
     if winner != player:
         battle_log.add_field(name = "Wager results", value = (":skull: **"+player.name_clean+"** lost to **"+sender.name_clean+"** and paid ``"
                                                               +wager_amount_str+"``"),inline=False)
         player.money -= wager.wager_amount 
-        sender.money += wager.wager_amount  
+        sender.money += wager.wager_amount 
+         
     else:
+        player.wagers_won += 1
         payback = ""
         if sender.money - wager.wager_amount >= 0:
             payback = ("**"+sender.name_clean+"** paid **"+player.name_clean+"** ``"
@@ -267,8 +270,9 @@ async def acceptwager(ctx,*args,**details):
                     payback += "They were able to muster up the full ``"+amount_paied_str+"``"
             sender.money -= amount_paid
             player.money += amount_paid
-                
+            total_transferred = amount_paid    
         battle_log.add_field(name = "Wager results", value = ":sparkles: **"+player.name_clean+"** won agaist **"+sender.name_clean+"**!\n"+payback,inline=False)
+    stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,total_transferred)
     sender.save()
     player.save()
     await util.say(ctx.channel,embed=battle_log)

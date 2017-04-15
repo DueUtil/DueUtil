@@ -12,7 +12,7 @@ def calculate_player_rankings(rank_name,sort_function):
     leaderboards[rank_name] = [sorted(players.players.values(), key=sort_function),sort_function]
 
 def calculate_level_leaderboard():
-    calculate_player_rankings("levels",lambda player: player.level)
+    calculate_player_rankings("levels",lambda player: player.total_exp)
     
 def get_leaderboard(rank_name):
     if rank_name in leaderboards:

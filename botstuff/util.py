@@ -5,15 +5,9 @@ import zipfile
 import shutil
 import jsonpickle
 import json
+import emoji #The emoji list in this is outdated.
 
 shard_clients = []
-    
-emoji_pattern = re.compile("["
-        u"\U0001F600-\U0001F64F"  # emoticons
-        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-        u"\U0001F680-\U0001F6FF"  # transport & map symbols
-        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                           "]+", flags=re.UNICODE)
     
 class DueUtilException(ValueError):
   
@@ -101,7 +95,11 @@ def format_number(number,**kwargs):
     return formatted if not kwargs.get('money',False) else '¤'+formatted
  
 def char_is_emoji(character):
-    return emoji_pattern.match(character)
+    if len(character) > 1:
+        return False
+    emojize = emoji.emojize(character,use_aliases=True)
+    demojize = emoji.demojize(emojize)
+    return emojize != demojize
   
 def get_server_name(server,user_id):
     try:
