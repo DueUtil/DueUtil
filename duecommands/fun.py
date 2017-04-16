@@ -207,12 +207,13 @@ async def myrank(ctx,*args,**details):
                                     +"This probably means you're new and leaderboard has not updated yet!"))
 
 async def give_emoji(channel,sender,receiver,emoji):
-    if util.char_is_emoji(emoji):
-        receiver.emojis +=1
-        sender.emojis_given += 1
-        await util.say(channel,"**"+receiver.name_clean+"** "+emoji+" :heart: **"+sender.name_clean+"**")
-    else:
+    if not util.char_is_emoji(emoji) and not util.is_server_emoji(channel.server,emoji):
         raise util.DueUtilException(channel,"You can only send emoji!")
+    if sender == receiver:
+        raise util.DueUtilException(channel,"You can't send a "+emoji+" to yourself!")
+    receiver.emojis +=1
+    sender.emojis_given += 1
+    await util.say(channel,"**"+receiver.name_clean+"** "+emoji+" :heart: **"+sender.name_clean+"**")
 
 @commands.command(args_pattern='PS')
 async def giveemoji(ctx,*args,**details):
@@ -237,5 +238,5 @@ async def givepotato(ctx,*args,**details):
     
     Who doesn't like potatoes?
     """
-    
+
     await give_emoji(ctx.channel,details["author"],args[0],'🥔')

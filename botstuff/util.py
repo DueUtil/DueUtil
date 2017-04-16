@@ -101,6 +101,10 @@ def char_is_emoji(character):
     demojize = emoji.demojize(emojize)
     return emojize != demojize
   
+def is_server_emoji(server,possible_emoji):
+    possible_emojis = [str(emoji) for emoji in server.emojis if str(emoji) in possible_emoji]
+    return len(possible_emojis) == 1 and possible_emojis[0] == possible_emoji
+  
 def get_server_name(server,user_id):
     try:
         return server.get_member(user_id).name
