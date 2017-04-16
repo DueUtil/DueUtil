@@ -33,6 +33,8 @@ async def myweapons(ctx,*args,**details):
         await util.say(ctx.channel,embed=weapon_store)
     else:
         weapon_name = page
+        if player.w_id != weapons.NO_WEAPON_ID:
+            player_weapons.append(weapons.get_weapon_from_id(player.w_id))
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()),None)
         if weapon != None:
             embed = discord.Embed(type="rich",color=16038978)
@@ -373,7 +375,7 @@ async def buy_weapon(weapon_name,**details):
                                             + util.format_number(weapon.price,money=True,full_precision=True)
                                             + "\n:warning: You have not equiped this weapon do **"
                                             + details["cmd_key"]+"equip "
-                                            + weapon.name_clean.lower()+"** to equip this weapon."))
+                                            + weapon.name_command_clean.lower()+"** to equip this weapon."))
             else:
                 raise util.DueUtilException(channel,"Cannot store new weapon! A you already have a weapon with the same name!")
         else:

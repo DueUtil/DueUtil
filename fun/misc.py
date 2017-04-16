@@ -35,24 +35,43 @@ class DueUtilObject():
     def name_assii(self):
         return util.filter_string(self.name)
         
+    @property
+    def name_command(self):
+        return '"'+self.name+'"' if " " in self.name else self.name
+        
+    @property
+    def name_command_clean(self):
+        return util.ultra_escape_string(self.name_command)
+        
+    @staticmethod
+    def acceptable_string(string,max_len):
+        return len(string) <= max_len and len(string) != 0 and string.strip != ""
+        
     def save(self):
         if not self.no_save:
             dbconn.insert_object(self.id,self)
+            
+class DueUtilTheme(DueUtilObject,dict):
+    
+    def __init__(self,id,**theme_data):
+        self.update(theme_data)
+        self["background"] += ".png"
+        super().__init__(id,self["name"])
         
 class Themes(dict):
-  
+    
     def __init__(self):
         self.load_themes()
-  
+    
     def load_themes(self):
         with open('fun/configs/themes.json') as themes_file:  
             themes = json.load(themes_file)
-        self.update(themes["themes"])
-        for theme in self.values():
-            theme["background"] = theme["background"]+".png"
+        default_rank_colours = themes["rankColours"]
+        for theme_id,theme in themes["themes"].items():
             if "rankColours" not in theme:
-                theme["rankColours"] = themes["rankColours"]
-        
+                theme["rankColours"] = default_rank_colours
+            self[theme_id] = DueUtilTheme(theme_id,**theme)
+                    
 class Backgrounds(dict):
     
     def __init__(self):

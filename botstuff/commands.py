@@ -215,7 +215,7 @@ async def check_pattern(pattern,args):
             pos += 1
             pos_change = False
         switch = {
-            'S': args[args_index].strip('`') if not (args[args_index].isspace() and len(args[args_index]) == 0) else False,
+            'S': args[args_index].strip() if not len(args[args_index].strip()) == 0 else False,
             'I': represents_int(args[args_index]),
             'C': represents_count(args[args_index]),
             'R': represents_float(args[args_index]),

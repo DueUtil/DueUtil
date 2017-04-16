@@ -229,8 +229,9 @@ async def mythemes(ctx,*args,**details):
         await util.say(ctx.channel,embed = themes_embed)
     else:
         theme_name = page.lower()
-        theme_embed = theme_info(theme_name,**details,embed=discord.Embed(type="rich",color=16038978))
-        theme_embed.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme_name+" to equip this theme!")
+        theme = players.get_theme(theme_name)
+        theme_embed = theme_info(theme_name,**details,embed=discord.Embed(type="rich",color=16038978),theme=theme)
+        theme_embed.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme.name_command+" to equip this theme!")
         await util.say(ctx.channel,embed=theme_embed)
         
 @commands.command(args_pattern='S')
@@ -266,7 +267,7 @@ def theme_page(theme_list,page,title,**extras):
 def theme_info(theme_name,**details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor',1)
-    theme = players.get_theme(theme_name)
+    theme = details.get('theme',players.get_theme(theme_name))
     if theme == None:
         raise util.DueUtilException(details["channel"],"Theme not found!")
     embed.title = theme["icon"]+" | "+theme["name"]

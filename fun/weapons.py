@@ -20,9 +20,12 @@ class Weapon(DueUtilObject):
             if does_weapon_exist(message.server.id,name):
                 raise util.DueUtilException(message.channel,"A weapon with that name already exists on this server!")
             
-            if len(name) > 30 or len(name) == 0 or name.strip == "":
+            if not Weapon.acceptable_string(name,30):
                 raise util.DueUtilException(message.channel,"Weapon names must be between 1 and 30 characters!")
             
+            if not Weapon.acceptable_string(hit_message,32):
+                raise util.DueUtilException(message.channel,"Hit message must be between 1 and 32 characters!")
+
             if accy == 0 or damage == 0:
                 raise util.DueUtilException(message.channel,"No weapon stats can be zero!")
         
@@ -62,7 +65,7 @@ class Weapon(DueUtilObject):
         return summary_string
       
     def __price(self):
-        return int((self.accy/100 * self.damage) / 0.04375); 
+        return int(self.accy/100 * self.damage/ 0.04375) + 1
         
     def __add(self):
         global weapons

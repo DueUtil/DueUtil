@@ -128,6 +128,9 @@ class Player(DueUtilObject):
     def user_id(self):
         return self.id
         
+    def get_avg_stat(self):
+        return sum((self.hp,self.attack,self.strg,self.accy))/5
+        
     @property
     def theme(self):
         if self.theme_id in profile_themes: 

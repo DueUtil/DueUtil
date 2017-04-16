@@ -53,7 +53,6 @@ class Quest(DueUtilObject):
         self.base_strg = base_strg
         self.base_accy = base_accy
         self.base_hp = base_hp
-        self.base_reward = self.__reward()
         self.channel = extras.get('channel',"ALL")
         self.times_beaten = 0
         self.__add()
@@ -61,17 +60,7 @@ class Quest(DueUtilObject):
         
     def __quest_id(self):
         return self.server_id+'/'+self.name.lower()
-      
-    def __reward(self):
-        if weapons.get_weapon_from_id(self.w_id).melee:
-            base_reward = (self.base_attack + self.base_strg) / 10 / 0.0883
-        else:
-            base_reward = (self.base_accy + self.base_strg) / 10 / 0.0883
     
-        base_reward += base_reward * math.log10(self.base_hp) / 20 / 0.75
-        base_reward *= self.base_hp / abs(self.base_hp - 0.01)
-        return base_reward
-                        
     def __add(self):
         global quest_map
         if self.server_id != "":
@@ -136,16 +125,33 @@ class ActiveQuest(Player):
         self.attack = stats[1]
         self.strg = stats[2]
         self.accy = stats[3] 
-        cash_iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV/5)*weapon_damage*(weapon_accy/100)
-        avg_stat = sum((self.hp,self.attack,self.strg,self.accy))/5
-        reward = int((avg_stat / quester.level) * (cash_iv + base_values[4]) + 1)
-        self.money = reward
+        self.cash_iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV/5)*weapon_damage*(weapon_accy/100)
+        # self.money = reward
         
     def get_avatar_url(self,*args):
         quest_info = self.info
         if quest_info != None:
             return quest_info.image_url
   
+    def get_reward(self):
+        if not hasattr(self,"cash_iv"):
+            self.cash_iv = 0
+        quester = players.find_player(self.quester_id)
+        avg_stat = self.get_avg_stat()
+        reward_multiplier = avg_stat/quester.get_avg_stat()
+        quester_weapon = quester.weapon
+        weapon_scale = quester_weapon.damage*(quester_weapon.accy/100)
+        return int(avg_stat/quester.level*self.cash_iv/weapon_scale*reward_multiplier) + 1
+
+    @property
+    def money(self):
+        return self.get_reward()
+    
+    @money.setter
+    def money(self,value):
+        # To maintain backwards compatibility
+        pass
+        
     @property
     def info(self):
         return quest_map[self.q_id]

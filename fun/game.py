@@ -15,7 +15,7 @@ exp_per_level = dict()
 QUEST_DAY = 86400
 QUEST_COOLDOWN = 360
 MAX_DAILY_QUESTS = 30
-MAX_ACTIVE_QUESTS = 7
+MAX_ACTIVE_QUESTS = 10
 SPAM_TOLERANCE = 50
 # LANG_TOOL = language_check.LanguageTool('en-GB')
 
