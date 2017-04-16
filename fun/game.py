@@ -12,11 +12,8 @@ from botstuff import util
 from fun import stats, weapons, players, quests, imagehelper, dueserverconfig
 
 exp_per_level = dict()
-QUEST_DAY = 86400
-QUEST_COOLDOWN = 360
-MAX_DAILY_QUESTS = 30
-MAX_ACTIVE_QUESTS = 10
 SPAM_TOLERANCE = 50
+
 # LANG_TOOL = language_check.LanguageTool('en-GB')
 
 def get_spam_level(player,message_content):
@@ -34,7 +31,7 @@ def progress_time(player):
     return time.time() - player.last_progress >= 60
     
 def quest_time(player):
-    return time.time() - player.last_quest >= QUEST_COOLDOWN
+    return time.time() - player.last_quest >= quests.QUEST_COOLDOWN
     
 async def player_message(message,player,spam_level):
     
@@ -130,7 +127,7 @@ async def manage_quests(message,player,spam_level):
     """
     
     channel = message.channel
-    if time.time() - player.quest_day_start > QUEST_DAY and player.quest_day_start != 0:
+    if time.time() - player.quest_day_start > quests.QUEST_DAY and player.quest_day_start != 0:
         player.quests_completed_today = 0
         player.quest_day_start = 0
         # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
@@ -140,7 +137,7 @@ async def manage_quests(message,player,spam_level):
         quests.add_default_quest_to_server(message.server)
     if quest_time(player) and spam_level < SPAM_TOLERANCE:
         player.last_quest = time.time()
-        if quests.has_quests(channel) and len(player.quests) < MAX_ACTIVE_QUESTS and player.quests_completed_today < MAX_DAILY_QUESTS:
+        if quests.has_quests(channel) and len(player.quests) < quests.MAX_ACTIVE_QUESTS and player.quests_completed_today < quests.MAX_DAILY_QUESTS:
             quest = quests.get_random_quest_in_channel(channel)
             if random.random() <= quest.spawn_chance:
                 new_quest = quests.ActiveQuest(quest.q_id,player)

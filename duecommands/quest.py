@@ -92,7 +92,7 @@ async def acceptquest(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"Quest not found!")
     if player.money - player.quests[quest_index].money // 2 < 0:
         raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
-    if player.quests_completed_today >= game.MAX_DAILY_QUESTS:
+    if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
         raise util.DueUtilException(ctx.channel,"You can't do more than 50 quests a day!")
 
     quest = player.quests.pop(quest_index)
@@ -112,7 +112,8 @@ async def acceptquest(ctx,*args,**details):
 
         reward = (":sparkles: **"+player.name_clean+"** defeated the **"+quest.name+"** and was rewarded with ``"
                   +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
-        attr_gain = lambda stat : (stat + quest.money**0.5/4) * quest.level/(10*player.level)
+        quest_scale = quest.get_quest_scale()
+        attr_gain = lambda stat : ((stat + quest.money**0.5/4) * quest.level/(10*player.level))/quest_scale
         add_attack = min(attr_gain(quest.attack),100)
         add_strg = min(attr_gain(quest.strg),100)
         add_accy = min(attr_gain(quest.accy),100)

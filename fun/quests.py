@@ -9,8 +9,13 @@ from fun.misc import DueUtilObject, DueMap
 from fun.players import Player
         
 quest_map = DueMap()
+
 MAX_QUEST_IV = 60
 MIN_QUEST_IV = 0
+QUEST_DAY = 86400
+QUEST_COOLDOWN = 360
+MAX_DAILY_QUESTS = 30
+MAX_ACTIVE_QUESTS = 10
 
 class Quest(DueUtilObject):
   
@@ -134,15 +139,18 @@ class ActiveQuest(Player):
             return quest_info.image_url
   
     def get_reward(self):
+        quester = players.find_player(self.quester_id)
         if not hasattr(self,"cash_iv"):
             self.cash_iv = 0
-        quester = players.find_player(self.quester_id)
         avg_stat = self.get_avg_stat()
         reward_multiplier = avg_stat/quester.get_avg_stat()
-        quester_weapon = quester.weapon
-        weapon_scale = quester_weapon.damage*(quester_weapon.accy/100)
-        return int(avg_stat/quester.level*self.cash_iv/weapon_scale*reward_multiplier) + 1
+        return int(avg_stat/quester.level*self.cash_iv/self.get_quest_scale()*reward_multiplier) + 1
 
+    def get_quest_scale(self):
+        quester = players.find_player(self.quester_id)
+        quester_weapon = quester.weapon
+        return (quester_weapon.damage*(quester_weapon.accy/100)
+                /max(1,(MAX_DAILY_QUESTS - quester.quests_completed_today)/2))        
     @property
     def money(self):
         return self.get_reward()
