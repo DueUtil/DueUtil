@@ -55,9 +55,9 @@ class Player(DueUtilObject):
         self.last_quest = 0
         self.wagers_won = 0
         self.quests_won = 0
-        self.potatos_given = 0
+        self.emojis_given = 0
+        self.emojis = 0
         self.quest_day_start = 0
-        self.potatos = 0
         self.quests_completed_today = 0
         self.last_image_request = 0
         self.last_message_hashes = Ring(10)

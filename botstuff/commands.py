@@ -4,6 +4,7 @@ from functools import wraps
 from fun import players,misc,dueserverconfig
 from botstuff import events,util,permissions
 from botstuff.permissions import Permission
+import sys
 
 IMAGE_REQUEST_COOLDOWN = 5
 
@@ -160,7 +161,7 @@ async def check_pattern(pattern,args):
    
     def represents_int(string):
         try: 
-            return int(string)
+            return min(int(string),int(sys.float_info.max))
         except:return False  
         
     def represents_count(string):
@@ -172,7 +173,7 @@ async def check_pattern(pattern,args):
     
     def represents_float(string):
         try: 
-            return float(string)
+            return min(float(string),sys.float_info.max)
         except:return False 
         
     def check_optional():

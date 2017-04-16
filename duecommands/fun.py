@@ -206,3 +206,36 @@ async def myrank(ctx,*args,**details):
         await util.say(ctx.channel,(":confounded: I can't find you in the leaderboard!?\n"
                                     +"This probably means you're new and leaderboard has not updated yet!"))
 
+async def give_emoji(channel,sender,receiver,emoji):
+    if util.char_is_emoji(emoji):
+        receiver.emojis +=1
+        sender.emojis_given += 1
+        await util.say(channel,"**"+receiver.name_clean+"** "+emoji+" :heart: **"+sender.name_clean+"**")
+    else:
+        raise util.DueUtilException(channel,"You can only send emoji!")
+
+@commands.command(args_pattern='PS')
+async def giveemoji(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]giveemoji player emoji
+    
+    Give a friend an emoji.
+    Why? Who knows.
+    I'm sure you can have loads of fun with the :cancer: emoji though!
+    Also see ``[CMD_KEY]givepotato``
+    
+    """
+    
+    await give_emoji(ctx.channel,details["author"],args[0],args[1])
+        
+@commands.command(args_pattern='P')
+async def givepotato(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]givepotato player
+    
+    Who doesn't like potatoes?
+    """
+    
+    await give_emoji(ctx.channel,details["author"],args[0],'🥔')
