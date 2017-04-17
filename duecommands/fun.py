@@ -4,7 +4,7 @@ from datetime import datetime
 import repoze.timeago
 from fun import imagehelper, awards, leaderboards
 import fun.players, fun.weapons, fun.quests
-from botstuff import util,commands
+from botstuff import util,commands,events
 import botstuff.permissions
 from botstuff.permissions import Permission
 
@@ -67,6 +67,24 @@ async def dueeval(ctx,*args,**details):
     player = details["author"]
     await util.say(ctx.channel,":ferris_wheel: Eval...\n"
     "**Result** ```"+str(eval(args[0]))+"```")
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PS")
+async def sudo(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]sudo victim command
+    
+    Infect a victims mind to make them run any command you like!
+    """
+    
+    try:
+        victim = args[0]
+        ctx.author = ctx.server.get_member(victim.id)
+        ctx.content = args[1]
+        await util.say(ctx.channel,":smiling_imp: Sudoing **"+victim.name_clean+"**!")
+        await events.command_event(ctx)
+    except:
+        raise util.DueUtilException(ctx.channel,"Sudo failed!")
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PC")
 async def setpermlevel(ctx,*args,**details):

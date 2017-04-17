@@ -17,8 +17,8 @@ def command(**command_rules):
     def check(user,command):
         return permissions.has_permission(user,command.permission)
 
-    def is_spam_command(ctx,command,*args):
-        if command.permission != Permission.SERVER_ADMIN:
+    def is_spam_command(ctx,command,*args):        
+        if command.permission < Permission.SERVER_ADMIN:
           return (sum(isinstance(arg,players.Player) for arg in args)
                   < len(ctx.raw_mentions) or ctx.mention_everyone
                   or '@here' in ctx.content or '@everyone' in ctx.content)

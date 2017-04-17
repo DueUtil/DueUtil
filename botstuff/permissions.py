@@ -17,6 +17,9 @@ class Permission(Enum):
     DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[3]) ,"dueutil_mod",)
     DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[4]),"dueutil_admin",)
     
+    def __lt__(self, other):
+        return permissions.index(self) < permissions.index(other)
+    
 permissions = [permission for permission in Permission]
 
 def has_permission(member : discord.Member,permission):
