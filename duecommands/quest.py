@@ -179,7 +179,14 @@ async def createquest(ctx,*args,**details):
     if len(args) >= 6:
         extras['task'] = args[5]
     if len(args) >= 7:
-        extras['weapon_id'] = weapons.get_weapon_for_server(ctx.server.id,args[6]).w_id
+        weapon_name_or_id = args[6]
+        weapon = weapons.get_weapon_for_server(ctx.server.id,weapon_name_or_id)
+        if weapon == None:
+            weapon_id = weapon_name_or_id.lower()
+            weapon = weapons.get_weapon_from_id(weapon_id)
+            if weapon.w_id == weapons.NO_WEAPON_ID and weapon_id != weapons.NO_WEAPON_ID:
+                raise util.DueUtilException(ctx.channel,"Weapon for the quest not found!")
+        extras['weapon_id'] = weapon.w_id
     if len(args) >= 8:
         extras['image_url'] = args[7]
     if len(args) == 9:

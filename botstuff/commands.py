@@ -1,5 +1,6 @@
 import time
 import asyncio
+import re
 from functools import wraps
 from fun import players,misc,dueserverconfig
 from botstuff import events,util,permissions
@@ -192,6 +193,20 @@ async def check_pattern(pattern,args):
         pattern = pattern.replace('?','')
         return True
     
+    def represents_string(string):
+        
+        """
+        This may seem dumb. But not all strings are strings in my
+        world. Fuck zerowidth bullshittery & stuff like that.
+        
+        -xoxo MacDue
+        """
+        # Remove zero width bullshit & extra spaces
+        string = re.sub(r'[\u200B-\u200D\uFEFF]','',string.strip())
+        if len(string) > 0:
+            return string
+        return False
+        
     if pattern == None and len(args) > 0:
         return False
     elif pattern == None and len(args) == 0:
@@ -216,7 +231,7 @@ async def check_pattern(pattern,args):
             pos += 1
             pos_change = False
         switch = {
-            'S': args[args_index].strip() if not len(args[args_index].strip()) == 0 else False,
+            'S': represents_string(args[args_index]),
             'I': represents_int(args[args_index]),
             'C': represents_count(args[args_index]),
             'R': represents_float(args[args_index]),

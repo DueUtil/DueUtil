@@ -73,8 +73,7 @@ class Quest(DueUtilObject):
             
     def base_values(self):
         return (self.base_hp,self.base_attack,
-                self.base_strg,self.base_accy,
-                self.base_reward,)
+                self.base_strg,self.base_accy,)
         
     @property
     def made_on(self):
@@ -149,8 +148,10 @@ class ActiveQuest(Player):
     def get_quest_scale(self):
         quester = players.find_player(self.quester_id)
         quester_weapon = quester.weapon
-        return (quester_weapon.damage*(quester_weapon.accy/100)
-                /max(1,(MAX_DAILY_QUESTS - quester.quests_completed_today)/2))        
+        scale_value = (quester_weapon.damage*(quester_weapon.accy/100)
+                      /max(1,(MAX_DAILY_QUESTS - quester.quests_completed_today)/2))        
+        return max(1/3,scale_value)
+        
     @property
     def money(self):
         return self.get_reward()
