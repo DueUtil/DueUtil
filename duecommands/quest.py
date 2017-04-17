@@ -1,5 +1,6 @@
 import discord
 import math
+import time
 from fun import quests, game, battles, imagehelper, weapons, stats
 from botstuff import commands, util
 from botstuff.permissions import Permission
@@ -93,7 +94,7 @@ async def acceptquest(ctx,*args,**details):
     if player.money - player.quests[quest_index].money // 2 < 0:
         raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
-        raise util.DueUtilException(ctx.channel,"You can't do more than 50 quests a day!")
+        raise util.DueUtilException(ctx.channel,"You can't do more than "+str(quests.MAX_DAILY_QUESTS)+" quests a day!")
 
     quest = player.quests.pop(quest_index)
     battle_details = battles.get_battle_log(player_one=player,player_two=quest,p2_prefix="the ")
@@ -107,6 +108,8 @@ async def acceptquest(ctx,*args,**details):
                                                               +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
         player.money -= quest.money//2
     else:
+        if player.quest_day_start == 0:
+            player.quest_day_start = time.time()
         player.quests_completed_today += 1
         player.quests_won += 1
 
