@@ -109,7 +109,7 @@ async def check_for_level_up(ctx,player):
         if dueserverconfig.mute_level(ctx.channel) < 0:
             await imagehelper.level_up_screen(ctx.channel,player,level_up_reward)
         else:
-            print("Won't send level up image - channel blocked.")
+            util.logger.info("Won't send level up image - channel blocked.")
         
         """                    
         rank = player.rank
@@ -130,7 +130,7 @@ async def manage_quests(message,player,spam_level):
     if time.time() - player.quest_day_start > quests.QUEST_DAY and player.quest_day_start != 0:
         player.quests_completed_today = 0
         player.quest_day_start = 0
-        # print(filter_func(player.name)+" ("+player.userid+") daily completed quests reset")
+        util.logger.info("%s (%s) daily completed quests reset",player.name_assii,player.id)
     
     # Testing   
     if not quests.has_quests(channel):
@@ -144,8 +144,10 @@ async def manage_quests(message,player,spam_level):
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
                 if dueserverconfig.mute_level(message.channel) < 0:
                     await imagehelper.new_quest_screen(channel,new_quest,player)
-                # print(filter_func(player.name)+" ("+player.userid+") has received a quest ["+filter_func(n_q.qID)+"]")
-   
+                else:
+                    util.logger.info("Won't send new quest image - channel blocked.")
+                util.logger.info("%s has received a quest [%s]",player.name_assii,new_quest.q_id)
+
 async def check_for_recalls(ctx,player):
   
     current_weapon = [player.w_id,player.weapon_sum]

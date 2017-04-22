@@ -88,7 +88,7 @@ async def equip(ctx,*args,**details):
         player.weapon_inventory.append(weapon_info)
         raise util.DueUtilException(ctx.channel,"Can't put your current weapon into storage! There is already a weapon with the same name stored!"); 
         
-    if current_weapon != weapons.NO_WEAPON_ID:
+    if current_weapon.w_id != weapons.NO_WEAPON_ID:
         player.store_weapon(current_weapon)
         
     player.set_weapon(weapon)
@@ -379,7 +379,7 @@ async def buy_weapon(weapon_name,**details):
             else:
                 raise util.DueUtilException(channel,"Cannot store new weapon! A you already have a weapon with the same name!")
         else:
-            raise util.DueUtilException("No free weapon slots!")
+            raise util.DueUtilException(channel,"No free weapon slots!")
     else:
         customer.set_weapon(weapon)
         customer.money -= weapon.price

@@ -8,6 +8,8 @@ from collections import OrderedDict
 class BattleRequest:
   
     """A class to hold a wager"""
+    
+    __slots__ = ["sender_id","receiver_id","wager_amount"]
   
     def __init__(self,sender,receiver,wager_amount):
         self.sender_id = sender.id

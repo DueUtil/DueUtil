@@ -94,7 +94,7 @@ async def awards(ctx,*args,**details):
     
     await show_awards(ctx,args[0],*args[1:]);     
 
-@commands.command()
+@commands.command(args_pattern=None)
 async def resetme(ctx,*args,**details): 
   
     """

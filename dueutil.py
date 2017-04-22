@@ -1,12 +1,45 @@
+import resource
+
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 import discord
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 from botstuff import util ,events, loader, permissions
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 from botstuff.permissions import Permission
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 import os
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 import sys
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 import asyncio
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 from threading import Thread
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 import json
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
 import traceback
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+import logging
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+
+import random
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+import objgraph
+print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+
+from pympler import muppy, summary
 
 MAX_RECOVERY_ATTEMPS = 100
 
@@ -35,17 +68,18 @@ class DueUtilClient(discord.Client):
         url = "https://www.carbonitex.net/discord/data/botdata.php"
         #reponse = await aiohttp.post(url, data=payload)
         #reponse.close()
-        print("Joined server")
-        
+        util.logger.info("Joined server name: %s id: %s",server.name,server.id)
+
         if not any(role.name == "Due Commander" for role in server.roles):
             await self.create_role(server,name="Due Commander",color=discord.Color(16038978))
     
     @asyncio.coroutine
     async def on_error(self,event,*args):
         ctx = args[0] if len(args) == 1 else None
+        ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx == None:
-            print("None message/command error: "+str(error))
+            util.logger.error("None message/command error: %s",error)
             return
         if isinstance(error,util.DueUtilException):
             if error.channel != None:
@@ -55,7 +89,13 @@ class DueUtilClient(discord.Client):
         elif isinstance(error,util.DueReloadException):
             loader.reload_modules()
             await util.say(error.channel,loader.get_loaded_modules())
-        elif isinstance(ctx, discord.Message):
+        elif isinstance(error,discord.Forbidden):
+            if ctx_is_message:
+                self.send_message(ctx.channel,("I'm missing my required permissions in this channel!"
+                                               +"\n If you don't want me in this channel do ``!shutupdue all``"))
+        elif isinstance(error,discord.HTTPException):
+            util.logger.error("Discord HTTP error: %s",error)
+        elif ctx_is_message:
             await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**\n"
                                                  "``"+str(error)+"``"))
             traceback.print_exc()
@@ -66,7 +106,24 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user or message.channel.is_private or message.author.bot:
             return
+        objgraph.show_growth(limit=20) 
+        roots = objgraph.get_leaking_objects()
+        len(roots) 
+        objgraph.show_refs(roots[:3], refcounts=True, filename='roots.png')
         await events.on_message_event(message)
+        objgraph.show_growth()
+        objgraph.show_chain(
+        objgraph.find_backref_chain(
+            random.choice(objgraph.by_type('Player')),
+            objgraph.is_proper_module),
+        filename='chain.png')
+        print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        
+        all_objects = muppy.get_objects()
+        len(all_objects)
+        sum1 = summary.summarize(all_objects)
+        summary.print_(sum1)
+
                                 
     async def change_avatar(self,channel,avatar_name):
         try:
@@ -85,10 +142,8 @@ class DueUtilClient(discord.Client):
         help_status = discord.Game()
         help_status.name = "dueutil.tech | shard "+str(shard_number)+"/"+str(shard_count)
         await self.change_presence(game=help_status,afk=False)
-        print('Logged in shard '+str(shard_number)+' as ')
-        print(self.name)
-        print("With account @"+self.user.name+" ID:"+self.user.id)
-        print('------')
+        util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
+                          shard_number,self.name,self.user.name,self.user.id)
 
 def is_due_loaded():
     return False
@@ -108,9 +163,9 @@ def setup_due_thread(loop,shard_id, level = 0):
         if level < MAX_RECOVERY_ATTEMPS:
             setup_due_thread(asyncio.new_event_loop(),shard_id,level+1)
         else:
-            print("FALTAL ERROR: Shard down!")
+            util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
     finally:
-        print("A shard died.")
+        util.logger.critical("Shard is down! Bot needs restarting!")
 
 def load_config():
     global bot_key,shard_count,shard_clients,shard_names
@@ -125,32 +180,7 @@ def load_config():
             permissions.give_permission(owner,Permission.DUEUTIL_ADMIN)
     except:
         sys.exit("Config file missing!")
-		
-def get_help_page(help_file,page,key,server):
-    with open (help_file, "r") as myfile:
-        data=myfile.readlines()
-    return util.get_page_with_replace(data,page,key,server)
 
-
-async def send_text_as_message(to,txt_name,key,message):
-    with open (txt_name, "r") as myfile:
-        data=myfile.readlines()
-    txt =""
-    for line in data:
-        txt = txt+line.replace("[CMD_KEY]",key).replace("[SERVER]",message.server.name)
-    await client.send_message(to,txt);   
-    
-async def sudo_command(key,message):
-  if message.channel.is_private:
-      return
-  if util.is_admin(message.author.id) and message.content.lower().startswith(key+"sudo "):
-    try:
-        message.author = message.server.get_member(message.raw_mentions[0])
-        message.content = content = key+message.content.split('>',1)[1].strip()
-        del message.raw_mentions[0]
-    except:
-        await client.send_message(message.channel, ":bangbang: **sudo failed!**")
-        
 def run_due():
     global stopped,shard_clients
     if not os.path.exists("saves/players"):
@@ -167,12 +197,20 @@ def run_due():
         os.makedirs("imagecache/")  
     if not stopped:
         if not is_due_loaded():
+            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
             load_due()
+            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
         for shard_number in range(0,shard_count):
+            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
             bot_thread = Thread(target=setup_due_thread,args=(asyncio.new_event_loop(),shard_number,))
             bot_thread.start()
+            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
         print(shard_clients)
 
 if __name__ == "__main__":
-    print("Starting DueUtil!")
+    util.logger.info("Starting DueUtil!")
     run_due()

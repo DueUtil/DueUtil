@@ -26,6 +26,7 @@ class Player(DueUtilObject):
         else:
             super().__init__("NO_ID","DueUtil Player",**kwargs)
         self.reset()
+        self.money = 100
 
     def reset(self,discord_user = None):
         if discord_user != None:
@@ -40,7 +41,7 @@ class Player(DueUtilObject):
         self.strg = 1
         self.accy = 1
         self.hp = 10
-        self.money = 1
+        self.money = 0
         self.average_spelling_correctness = 1
         
         ##### CUSTOMIZATIONS #####
@@ -62,6 +63,7 @@ class Player(DueUtilObject):
         self.last_image_request = 0
         self.last_message_hashes = Ring(10)
         self.spam_detections = 0
+        self.average_quest_battle_turns = 1
         
         ##### THINGS #####
         self.quests = []
@@ -129,7 +131,7 @@ class Player(DueUtilObject):
         return self.id
         
     def get_avg_stat(self):
-        return sum((self.hp,self.attack,self.strg,self.accy))/5
+        return sum((self.attack,self.strg,self.accy))/4
         
     @property
     def theme(self):

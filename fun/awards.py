@@ -6,7 +6,9 @@ from botstuff import util
 awards = dict()
 
 class Award:
-
+  
+    __slots__ = ["name","description","icon"]
+    
     def __init__(self,icon_path,name,description):
         self.name = name
         self.description = description

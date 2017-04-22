@@ -1,0 +1,16 @@
+{
+   "default":{
+      "name":"Default",
+      "icon":":cd:",
+      "description":"The clean default DueUtil background",
+      "image":"default.png",
+      "price":0
+   },
+   "classic":{
+      "name":"Classic",
+      "icon":":spider_web:",
+      "description":"The original background from the DueUtil prerelease",
+      "image":"classic.png",
+      "price":200
+   }
+}

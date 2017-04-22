@@ -65,6 +65,7 @@ departments = {
       "alisas":[
          "weapons",
          "weaps",
+         "weap",
          "weapon"
       ],
       "actions":{

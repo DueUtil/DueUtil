@@ -10,7 +10,6 @@ from fun.players import Player
         
 quest_map = DueMap()
 
-MAX_QUEST_IV = 60
 MIN_QUEST_IV = 0
 QUEST_DAY = 86400
 QUEST_COOLDOWN = 360
@@ -112,24 +111,28 @@ class ActiveQuest(Player):
         quester.save()
         
     def __calculate_stats__(self,**spoof_values):
+        # HP is not the same! Don't treat it as such
         base_quest = self.info
         quester = players.find_player(self.quester_id)
         base_values = base_quest.base_values()
         stats = []
         # For testing purposes only
-        quester_money = spoof_values.get('q_money',quester.money)
+        avg_quester_stat = spoof_values.get('q_stats',quester.get_avg_stat())
         weapon_damage = spoof_values.get('w_damage',self.weapon.damage)
         weapon_accy = spoof_values.get('w_accy',self.weapon.accy)
-        for stat_calculation in range(0,4):
-            iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV)
-            stat = ((((base_values[stat_calculation]+iv)*2 
-                    + quester_money**0.8/2) * self.level**1.5/100) + self.level)
+        avg_base_value = sum(base_values[1:])/4
+        quester_stat_per_level = avg_quester_stat/quester.level
+        quester_hp_per_level = quester.hp/quester.level
+        for stat_calculation in range(1,4):
+            iv = random.uniform(MIN_QUEST_IV,avg_base_value)
+            stat = (base_values[stat_calculation]+iv+quester_stat_per_level)/3*self.level+self.level
             stats.append(stat)
-        self.hp =  stats[0] 
-        self.attack = stats[1]
-        self.strg = stats[2]
-        self.accy = stats[3] 
-        self.cash_iv = random.randint(MIN_QUEST_IV,MAX_QUEST_IV/5)*weapon_damage*(weapon_accy/100)
+        hp_iv = random.uniform(30,base_values[0])
+        self.hp = (base_values[0]+hp_iv+quester_hp_per_level)/3*self.level+self.level
+        self.attack = stats[0]
+        self.strg = stats[1]
+        self.accy = stats[2] 
+        self.cash_iv = random.uniform(MIN_QUEST_IV,avg_base_value)*weapon_damage*(weapon_accy/100)
         # self.money = reward
         
     def get_avatar_url(self,*args):
@@ -142,7 +145,8 @@ class ActiveQuest(Player):
         if not hasattr(self,"cash_iv"):
             self.cash_iv = 0
         avg_stat = self.get_avg_stat()
-        reward_multiplier = avg_stat/quester.get_avg_stat()
+        hp_scale = self.hp/quester.hp
+        reward_multiplier = (avg_stat/quester.get_avg_stat()+hp_scale)/2
         return int(avg_stat/quester.level*self.cash_iv/self.get_quest_scale()*reward_multiplier) + 1
 
     def get_quest_scale(self):

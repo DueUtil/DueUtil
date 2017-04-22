@@ -43,11 +43,14 @@ async def help(ctx,*args,**details):
             
             commands_for_all = events.command_event.command_list(lambda command: command.permission == Permission.ANYONE and command.category == category)
             admin_commands = events.command_event.command_list(lambda command: command.permission == Permission.SERVER_ADMIN and command.category == category)
+            server_op_commands = events.command_event.command_list(lambda command: command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
             
             if len(commands_for_all) > 0:
                 help.add_field(name='Commands for everyone',value= ', '.join(commands_for_all),inline=False) 
             if len(admin_commands) > 0:
                 help.add_field(name='Admins only',value=', '.join(admin_commands),inline=False)
+            if len(server_op_commands) > 0:
+                help.add_field(name='Server managers only',value=', '.join(server_op_commands),inline=False)
     else:
       
         help.set_thumbnail(url=util.get_client(ctx.server.id).user.avatar_url)
@@ -56,7 +59,7 @@ async def help(ctx,*args,**details):
         help.add_field(name='Command categories',value = ', '.join(categories))
         help.add_field(name="Links",value = ( "Official site: https://dueutil.tech/"
                                               +"\nOfficial server: https://discord.gg/ZzYvt8J"
-                                              +"\nMrAwais' guide: http://dueutil.weebly.com/ (currenly outdated)"))
+                                              +"\nMrAwais' guide: http://dueutil.weebly.com/ (currently outdated)"))
         help.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
       
     await util.say(ctx.channel,embed=help)
@@ -144,6 +147,23 @@ async def shutupdue(ctx,*args,**details):
                                          +"To allow commands & alerts again do ``"+details["cmd_key"]+"unshutupdue``."))
         else:
             await util.say(ctx.channel,":thinking: If you wanted to mute all the command is ``"+details["cmd_key"]+"shutupdue all``.")
+            
+@commands.command(permission = Permission.REAL_SERVER_ADMIN, args_pattern=None)
+async def leave(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]leave
+    
+    Makes DueUtil leave your server cleanly.
+    This will delete all quests & weapons created
+    on your server.
+    
+    This command can only be run by real server admins
+    (you must have manage server permissions).
+    
+    """
+    #ask for leave cnf
+    pass
             
 @commands.command(permission = Permission.SERVER_ADMIN, args_pattern=None)
 async def unshutupdue(ctx,*args,**details):

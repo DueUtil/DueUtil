@@ -5,9 +5,12 @@ import zipfile
 import shutil
 import jsonpickle
 import json
+import logging
 import emoji #The emoji list in this is outdated.
 
 shard_clients = []
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('dueutil')
     
 class DueUtilException(ValueError):
   

@@ -1,7 +1,7 @@
 import importlib
 import os  
 import sys
-from botstuff import events;
+from botstuff import events, util
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 BOT_PACKAGES = ('duecommands','fun')
@@ -58,5 +58,4 @@ def get_loaded_modules():
     return loaded
     
 load_modules()
-print('Bot extensions loaded with '+str(len(events.command_event))+' commands')
-print(', '.join(events.command_event.command_list()))
+util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))

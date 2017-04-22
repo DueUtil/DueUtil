@@ -2,6 +2,10 @@ import os
 import collections
 import json
 import discord
+import urllib
+from bs4 import BeautifulSoup
+import requests
+import io
 from abc import ABC, abstractmethod
 from botstuff import util, dbconn
 
@@ -71,6 +75,12 @@ class Themes(dict):
             if "rankColours" not in theme:
                 theme["rankColours"] = default_rank_colours
             self[theme_id] = DueUtilTheme(theme_id,**theme)
+ 
+class DueUtilBackground(DueUtilObject,dict):
+    
+    def __init__(self,id,**background_data):
+        self.update(background_data)
+        super().__init__(id,self["name"])
                     
 class Backgrounds(dict):
     
@@ -79,10 +89,10 @@ class Backgrounds(dict):
       
     def load_backgrounds(self):
         self.clear()
-        for background in os.listdir("backgrounds"):
-            if background.endswith(".png"):   
-                background_name = background.lower().replace("stats_", "").replace(".png", "").replace("_", " ").title()
-                self[background_name] = background
+        with open('backgrounds/backgrounds.json') as background_file:
+            backgrounds = json.load(background_file)
+        for background_id,background in backgrounds.items():
+            self[background_id] = DueUtilBackground(background_id,**background)
                 
 class DueMap(collections.MutableMapping):
   
@@ -197,7 +207,7 @@ class Wizzard(ABC):
         bar_complete_len = progress* bar_width
         bar_incomplete_len = bar_width - bar_complete_len
         return '['+('"'*bar_complete_len)+(' '*bar_incomplete_len)+']'
-        
+         
 def valid_image(bg_to_test,dimensions):
     if bg_to_test != None:
         width, height = bg_to_test.size
@@ -205,17 +215,15 @@ def valid_image(bg_to_test,dimensions):
             return True
     return False
     
-async def random_word(message):
+def random_word():
     response = requests.get("http://randomword.setgetgo.com/get.php")
-    await create_glitter_text(message, response.text)
         
-async def create_glitter_text(channel,gif_text):
-    response = requests.get("http://www.gigaglitters.com/procesing.php?text="+parse.quote_plus(gif_text)
+def get_glitter_text(gif_text):
+    response = requests.get("http://www.gigaglitters.com/procesing.php?text="+urllib.parse.quote_plus(gif_text,safe='')
     +"&size=90&text_color=img/DCdarkness.gif&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")
     html = response.text
     soup = BeautifulSoup(html,"html.parser")
     box = soup.find("textarea", {"id": "dLink"})
     gif_text_area = str(box)
     gif_url = gif_text_area.replace('<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',"",1).replace('</textarea>',"",1)
-    gif = io.BytesIO(requests.get(gif_url).content)
-    await client.send_file(message.channel,fp=gif,filename='glittertext.gif')
+    return io.BytesIO(requests.get(gif_url).content)

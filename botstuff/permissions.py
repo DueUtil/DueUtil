@@ -14,8 +14,9 @@ class Permission(Enum):
     ANYONE = (lambda member: players.find_player(member.id) != None,"anyone",)
     SERVER_ADMIN = (lambda member: (member.server_permissions.manage_server 
                                     or next((role for role in member.roles if role.name == "Due Commander"),False)),"server_admin",)
-    DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[3]) ,"dueutil_mod",)
-    DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[4]),"dueutil_admin",)
+    REAL_SERVER_ADMIN = (lambda member:member.server_permissions.manage_server,"real_server_admin")
+    DUEUTIL_MOD = (lambda member: has_special_permission(member,permissions[4]) ,"dueutil_mod",)
+    DUEUTIL_ADMIN = (lambda member: has_special_permission(member,permissions[5]),"dueutil_admin",)
     
     def __lt__(self, other):
         return permissions.index(self) < permissions.index(other)

@@ -25,19 +25,19 @@ async def spawnquest(ctx,*args,**details):
             player = args[1]
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id+"/"+quest_name)
-    try:
-        active_quest = quests.ActiveQuest(quest.q_id,player)
-        if len(args) >= 3:
-            active_quest.level = args[2]
-            spoofs = args[3:]
-            spoof_values = {}
-            if len(spoofs) == 3:
-                spoof_values = {'q_money' : spoofs[0], 'w_damage' : spoofs[1], 'w_accy' : spoofs[2]}
-            active_quest.__calculate_stats__(**spoof_values)
-        player.save()
-        await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name_clean+"** [Level "+str(active_quest.level)+"]")
-    except:
-        raise util.DueUtilException(ctx.channel,"Failed to spawn quest!")
+    #try:
+    active_quest = quests.ActiveQuest(quest.q_id,player)
+    if len(args) >= 3:
+        active_quest.level = args[2]
+        spoofs = args[3:]
+        spoof_values = {}
+        if len(spoofs) == 3:
+            spoof_values = {'q_stats' : spoofs[0], 'w_damage' : spoofs[1], 'w_accy' : spoofs[2]}
+        active_quest.__calculate_stats__(**spoof_values)
+    player.save()
+    await util.say(ctx.channel,":cloud_lightning: Spawned **"+quest.name_clean+"** [Level "+str(active_quest.level)+"]")
+    #except:
+    raise util.DueUtilException(ctx.channel,"Failed to spawn quest!")
   
 @commands.command(args_pattern='C')
 @commands.imagecommand()
@@ -102,7 +102,7 @@ async def acceptquest(ctx,*args,**details):
     turns = battle_details[1]
     winner = battle_details[2]
     stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
-
+    player.average_quest_battle_turns = (player.average_quest_battle_turns + turns)/2
     if winner != player:
         battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
                                                               +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
@@ -116,7 +116,8 @@ async def acceptquest(ctx,*args,**details):
         reward = (":sparkles: **"+player.name_clean+"** defeated the **"+quest.name+"** and was rewarded with ``"
                   +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
         quest_scale = quest.get_quest_scale()
-        attr_gain = lambda stat : ((stat + quest.money**0.5/4) * quest.level/(10*player.level))/quest_scale
+        avg_player_stat = player.get_avg_stat()
+        attr_gain = lambda stat : (stat/avg_player_stat)*quest.level/(10*player.level)*turns/player.average_quest_battle_turns/quest_scale
         add_attack = min(attr_gain(quest.attack),100)
         add_strg = min(attr_gain(quest.strg),100)
         add_accy = min(attr_gain(quest.accy),100)
