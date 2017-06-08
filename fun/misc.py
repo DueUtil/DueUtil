@@ -1,4 +1,3 @@
-import os
 import collections
 import json
 import discord
@@ -6,7 +5,7 @@ import urllib
 from bs4 import BeautifulSoup
 import requests
 import io
-from abc import ABC, abstractmethod
+from abc import ABC
 from botstuff import util, dbconn
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')

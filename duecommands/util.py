@@ -163,7 +163,6 @@ async def leave(ctx,*args,**details):
     
     """
     #ask for leave cnf
-    pass
             
 @commands.command(permission = Permission.SERVER_ADMIN, args_pattern=None)
 async def unshutupdue(ctx,*args,**details):

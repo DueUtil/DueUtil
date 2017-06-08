@@ -1,5 +1,5 @@
 import inspect
-from botstuff import commands,util
+from botstuff import commands
 from fun.misc import DueMap
 from fun import dueserverconfig
 

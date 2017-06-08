@@ -1,4 +1,5 @@
-from botstuff import commands,util,permissions
+from botstuff import commands
+from botstuff import util
 from botstuff.permissions import Permission
 from fun import misc
 

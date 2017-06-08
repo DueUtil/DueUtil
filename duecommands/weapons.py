@@ -159,7 +159,7 @@ async def wagerbattle(ctx,*args,**details):
     if sender.money - money < 0:
         raise util.DueUtilException(ctx.channel,"You can't afford this wager!")
         
-    wager = battles.BattleRequest(sender,receiver,money)
+    battles.BattleRequest(sender,receiver,money)
 
     await util.say(ctx.channel,("**"+sender.name_clean+"** wagers **"+receiver.name_clean+"** ``"
                                     +util.format_number(money,full_precision=True,money=True)+"`` that they will win in a battle!"))
@@ -225,7 +225,7 @@ async def acceptwager(ctx,*args,**details):
     sender = players.find_player(wager.sender_id)
     battle_details = battles.get_battle_log(player_one=player,player_two=sender)
     battle_log = battle_details[0]
-    turns = battle_details[1]
+    battle_details[1]
     winner = battle_details[2]
     wager_amount_str = util.format_number(wager.wager_amount,full_precision=True,money=True)
     total_transferred = wager.wager_amount 

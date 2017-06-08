@@ -4,7 +4,12 @@ import math
 import os
 import io
 from colour import Color
-from fun import players, stats, game, awards, quests, dueserverconfig, weapons
+from fun import awards
+from fun import dueserverconfig
+from fun import game
+from fun import players
+from fun import stats
+from fun import weapons
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont

@@ -1,45 +1,12 @@
-import resource
-
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 import discord
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 from botstuff import util ,events, loader, permissions
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 from botstuff.permissions import Permission
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 import os
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 import sys
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 import asyncio
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 from threading import Thread
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 import json
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
 import traceback
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
-import logging
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
-
-import random
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
-import objgraph
-print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
-
-from pympler import muppy, summary
 
 MAX_RECOVERY_ATTEMPS = 100
 
@@ -106,24 +73,7 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user or message.channel.is_private or message.author.bot:
             return
-        objgraph.show_growth(limit=20) 
-        roots = objgraph.get_leaking_objects()
-        len(roots) 
-        objgraph.show_refs(roots[:3], refcounts=True, filename='roots.png')
-        await events.on_message_event(message)
-        objgraph.show_growth()
-        objgraph.show_chain(
-        objgraph.find_backref_chain(
-            random.choice(objgraph.by_type('Player')),
-            objgraph.is_proper_module),
-        filename='chain.png')
-        print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-        
-        all_objects = muppy.get_objects()
-        len(all_objects)
-        sum1 = summary.summarize(all_objects)
-        summary.print_(sum1)
-
+        await events.on_message_event(message)      
                                 
     async def change_avatar(self,channel,avatar_name):
         try:
@@ -161,6 +111,7 @@ def setup_due_thread(loop,shard_id, level = 0):
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop)
     except:
         if level < MAX_RECOVERY_ATTEMPS:
+            shard_clients.remove(client)
             setup_due_thread(asyncio.new_event_loop(),shard_id,level+1)
         else:
             util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
@@ -197,18 +148,10 @@ def run_due():
         os.makedirs("imagecache/")  
     if not stopped:
         if not is_due_loaded():
-            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
             load_due()
-            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
         for shard_number in range(0,shard_count):
-            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
             bot_thread = Thread(target=setup_due_thread,args=(asyncio.new_event_loop(),shard_number,))
             bot_thread.start()
-            print ('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-
         print(shard_clients)
 
 if __name__ == "__main__":

@@ -2,7 +2,8 @@ import discord
 import math
 from datetime import datetime
 import repoze.timeago
-from fun import imagehelper, awards, leaderboards
+from fun import awards
+from fun import leaderboards
 import fun.players, fun.weapons, fun.quests
 from botstuff import util,commands,events
 import botstuff.permissions
@@ -60,11 +61,11 @@ async def dueeval(ctx,*args,**details):
     """
     For 1337 haxors only! Go away!
     """
-    players = fun.players
-    weapons = fun.weapons
-    quests = fun.quests
+    fun.players
+    fun.weapons
+    fun.quests
     
-    player = details["author"]
+    details["author"]
     await util.say(ctx.channel,":ferris_wheel: Eval...\n"
     "**Result** ```"+str(eval(args[0]))+"```")
     

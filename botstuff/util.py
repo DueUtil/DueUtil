@@ -1,10 +1,4 @@
-import re
 import math
-import time
-import zipfile
-import shutil
-import jsonpickle
-import json
 import logging
 import emoji #The emoji list in this is outdated.
 
