@@ -1,11 +1,11 @@
 import collections
-import json
 import discord
 import urllib
 from bs4 import BeautifulSoup
 import requests
 import io
 from abc import ABC
+from functools import wraps
 from botstuff import util, dbconn
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
@@ -54,45 +54,28 @@ class DueUtilObject():
         if not self.no_save:
             dbconn.insert_object(self.id,self)
             
-class DueUtilTheme(DueUtilObject,dict):
+def paginator(item_add):
     
-    def __init__(self,id,**theme_data):
-        self.update(theme_data)
-        self["background"] += ".png"
-        super().__init__(id,self["name"])
-        
-class Themes(dict):
+    """
+    Very simple paginator for embeds
+    """
     
-    def __init__(self):
-        self.load_themes()
-    
-    def load_themes(self):
-        with open('fun/configs/themes.json') as themes_file:  
-            themes = json.load(themes_file)
-        default_rank_colours = themes["rankColours"]
-        for theme_id,theme in themes["themes"].items():
-            if "rankColours" not in theme:
-                theme["rankColours"] = default_rank_colours
-            self[theme_id] = DueUtilTheme(theme_id,**theme)
- 
-class DueUtilBackground(DueUtilObject,dict):
-    
-    def __init__(self,id,**background_data):
-        self.update(background_data)
-        super().__init__(id,self["name"])
-                    
-class Backgrounds(dict):
-    
-    def __init__(self):
-        self.load_backgrounds()
-      
-    def load_backgrounds(self):
-        self.clear()
-        with open('backgrounds/backgrounds.json') as background_file:
-            backgrounds = json.load(background_file)
-        for background_id,background in backgrounds.items():
-            self[background_id] = DueUtilBackground(background_id,**background)
-                
+    def page_getter(item_list,page,title,**extras):
+        page_size = 12
+        page_embed = discord.Embed(title=title,type="rich",color=16038978)
+        if page * page_size >= len(item_list):
+            raise util.DueUtilException(None,"Page not found")
+        for item_index in range(page_size*page,page_size*page+page_size):
+            if item_index >= len(item_list):
+                break
+            item_add(page_embed,item_list[item_index],**extras)
+        if page_size * page + page_size < len (item_list):
+            page_embed.set_footer(text=extras.get('footer_more',"There's more on the next page!"))
+        else:
+            page_embed.set_footer(text=extras.get('footer_end',"That's all!"))
+        return page_embed  
+    return page_getter
+            
 class DueMap(collections.MutableMapping):
   
     """ 

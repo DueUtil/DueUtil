@@ -4,11 +4,12 @@ import math
 import jsonpickle
 import numpy
 from fun import weapons
-from fun.misc import DueUtilObject, Themes, Backgrounds, Ring
+from fun.misc import DueUtilObject, Ring
+from fun.customization import Themes, Backgrounds, Banners
 from botstuff import util, dbconn
 
 players = dict()   
-banners = dict()
+banners = Banners()
 backgrounds = Backgrounds()
 profile_themes = Themes()
 
@@ -47,7 +48,7 @@ class Player(DueUtilObject):
         ##### CUSTOMIZATIONS #####
         self.banner_id = "discord blue"
         self.theme_id = "test"
-        self.background = "default.png"
+        self.background = "default"
         self.weapon_sum = weapons.get_weapon_from_id("None").weapon_sum
         self.w_id = weapons.NO_WEAPON_ID
         
@@ -71,7 +72,8 @@ class Player(DueUtilObject):
         self.awards = []
         self.weapon_inventory = []
         self.themes = ["default"]
-        self.backgrounds = []
+        self.backgrounds = ["default"]
+        self.banners = ["discord blue"]
         
         self.donor = False
         self.save()
@@ -145,12 +147,19 @@ class Player(DueUtilObject):
             theme["banner"] = self.banner
         return theme
         
+    def set_theme(self,theme_id):
+        theme = profile_themes[theme_id]
+        self.theme_id = theme_id
+        self.banner_id = theme["banner"]
+        self.backgrounds = theme["background"]
+        self.save()
+        
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100)
 
     @property
     def item_value_limit(self):
-        return 10000000000000000000000000000000000000000000
+        # return 10000000000000000000000000000000000000000000
         return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level)
 
     @property
@@ -182,32 +191,7 @@ class Player(DueUtilObject):
            return member.avatar_url
         else:
            return member.default_avatar_url
-        
-class PlayerInfoBanner:
-    
-    """Class to hold details & methods for a profile banner"""
-    
-    def __init__(self,name,image_name,**kwargs):
-      
-        self.price = kwargs.get('price',0)
-        self.donor = kwargs.get('donor',False)
-        self.admin_only = kwargs.get('admin_only',False)
-        self.mod_only = kwargs.get('mod_only',False)
-        self.unlock_level = kwargs.get('unlock_level',0)
-        self.image = None
-        self.image_name = image_name
-        self.name = name
-                
-    def banner_restricted(self,player):
-        return ((not self.admin_only or self.admin_only == util.is_admin(player.userid)) 
-                and (not self.mod_only or self.mod_only == util.is_mod_or_admin(player.userid)))
-        
-    def can_use_banner(self,player):
-        return (not self.donor or self.donor == self.donor) and self.banner_restricted(player)
-        
-    def save(self):
-        dbconn.insert_object(self.name.lower().replace(" ","_"),self)
-        
+           
 def find_player(user_id):
     if user_id in players:
         return players[user_id]
@@ -219,6 +203,16 @@ def get_theme(theme_id):
     if theme_id in profile_themes:
         return profile_themes[theme_id]
         
+def get_background(background_id):
+    background_id = background_id.lower()
+    if background_id in backgrounds:
+        return backgrounds[background_id]
+        
+def get_banner(banner_id):
+    banner_id = banner_id.lower()
+    if banner_id in banners:
+        return banners[banner_id]
+
 def get_themes():
     return profile_themes
             
@@ -230,9 +224,3 @@ def load_player(player_id):
         loaded_player = jsonpickle.decode(player_data)
         players[loaded_player.id] = util.load_and_update(Player(no_save = True),loaded_player)
         return True
-  
-def load():
-    global banners
-    banners["discord blue"] = PlayerInfoBanner("Discord Blue","info_banner.png")
-
-load()

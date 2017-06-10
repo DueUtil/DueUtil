@@ -1,5 +1,5 @@
 import discord
-from fun import battles, imagehelper, weapons, players, stats
+from fun import battles, imagehelper, weapons, players, stats, misc
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission
@@ -96,20 +96,11 @@ async def equip(ctx,*args,**details):
 
     await util.say(ctx.channel,":white_check_mark: **"+weapon.name_clean+"** equiped!")
      
-def weapons_page(weapons_list,page,title,**extras):
+@misc.paginator
+def weapons_page(weapons_embed,weapon,**extras):
     price_divisor = extras.get('price_divisor',1)
-    weapons_embed = discord.Embed(title=title,type="rich",color=16038978)
-    page_size = 12
+    weapons_embed.add_field(name=str(weapon),value='``'+util.format_number(weapon.price//price_divisor,full_precision=True,money=True)+'``') 
     
-    if page * page_size >= len(weapons_list):
-        raise util.DueUtilException(None,"Page not found")
-    for weapon_index in range(page_size*page,page_size*page+page_size):
-        if weapon_index >= len(weapons_list):
-            break
-        weapon = weapons_list[weapon_index]
-        weapons_embed.add_field(name=str(weapon),value='``'+util.format_number(weapon.price//price_divisor,full_precision=True,money=True)+'``')
-    return weapons_embed    
- 
 @commands.command(args_pattern='PP?')
 @commands.imagecommand()
 async def battle(ctx,*args,**details):

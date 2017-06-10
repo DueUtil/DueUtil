@@ -43,7 +43,6 @@ DUE_BLACK = (48,48,48)
 traffic_lights = list(Color("red").range_to(Color("#ffbf00"),5)) + list(Color("#ffbf00").range_to(Color("green"),5))
 
 def traffic_light(colour_scale):
-    
     # 0 Red to 1 Green
     colour = traffic_lights[int((len(traffic_lights)-1) * colour_scale)].rgb
     return tuple((int(ci * 255) for ci in colour))
@@ -281,9 +280,10 @@ async def stats_screen(channel,player):
     font_colour = theme["fontColour"]
     
     try:
-        image = Image.open("backgrounds/"+theme["background"])
+        image = players.backgrounds[player.background].image
     except:
-        image = Image.open("backgrounds/default.png")
+        image = players.backgrounds["default"].image
+    image = image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screens"][theme["screen"]]

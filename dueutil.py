@@ -111,12 +111,14 @@ def setup_due_thread(loop,shard_id, level = 0):
         asyncio.run_coroutine_threadsafe(client.run(bot_key),client.loop)
     except:
         if level < MAX_RECOVERY_ATTEMPS:
+            util.logger.warning("Bot recovery attempted for shard %d"%shard_id)
             shard_clients.remove(client)
             setup_due_thread(asyncio.new_event_loop(),shard_id,level+1)
         else:
             util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
     finally:
         util.logger.critical("Shard is down! Bot needs restarting!")
+        sys.exit("Bot crashed.")
 
 def load_config():
     global bot_key,shard_count,shard_clients,shard_names
@@ -150,10 +152,12 @@ def run_due():
         if not is_due_loaded():
             load_due()
         for shard_number in range(0,shard_count):
+            loaded_clients = len(shard_clients)
             bot_thread = Thread(target=setup_due_thread,args=(asyncio.new_event_loop(),shard_number,))
             bot_thread.start()
-        print(shard_clients)
-
+            while len(shard_clients) <= loaded_clients:
+                pass
+            
 if __name__ == "__main__":
     util.logger.info("Starting DueUtil!")
     run_due()

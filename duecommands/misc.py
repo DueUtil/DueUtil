@@ -13,3 +13,8 @@ async def glitter_text(channel,text):
 @commands.imagecommand()
 async def glittertext(ctx,*args,**details): 
     await glitter_text(ctx.channel,args[0])
+
+@commands.command()
+async def wish(ctx,*args,**details): 
+    # TODO
+    pass

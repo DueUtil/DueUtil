@@ -3,6 +3,7 @@ import fun.awards
 from fun import imagehelper
 from fun import players
 from fun import stats
+from fun import misc
 from botstuff import commands,util,permissions
 from botstuff.permissions import Permission
 
@@ -94,7 +95,7 @@ async def awards(ctx,*args,**details):
     
     await show_awards(ctx,args[0],*args[1:]);     
 
-@commands.command(args_pattern=None)
+@commands.command(args_pattern="S?")
 async def resetme(ctx,*args,**details): 
   
     """
@@ -104,14 +105,17 @@ async def resetme(ctx,*args,**details):
     This cannot be reversed!
     
     """
-    
-    player = details["author"]
-    player.reset(ctx.author)
-    await util.say(ctx.channel, "Your user has been reset.")
-    if permissions.has_special_permission(ctx.author,Permission.DUEUTIL_MOD):
-        await fun.awards.give_award(ctx.channel,player,"Mod","Become an mod!")
-    elif permissions.has_special_permission(ctx.author,Permission.DUEUTIL_ADMIN):
-        await fun.awards.give_award(ctx.channel,player,"Admin","Become an admin!")    
+    if len(args) == 1 and args[0].lower() == "cnf":
+        player = details["author"]
+        player.reset(ctx.author)
+        await util.say(ctx.channel, "Your user has been reset.")
+        if permissions.has_special_permission(ctx.author,Permission.DUEUTIL_MOD):
+            await fun.awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+        elif permissions.has_special_permission(ctx.author,Permission.DUEUTIL_ADMIN):
+            await fun.awards.give_award(ctx.channel,player,"Admin","Become an admin!")    
+    else:
+        await util.say(ctx.channel,("Are you sure?! This will **__permanently__** reset your user!"
+                                    +"\nDo ``"+details["cmd_key"]+"resetme cnf`` if you're sure!"))
         
 @commands.command(args_pattern='PCS?')
 async def sendcash(ctx,*args,**details):
@@ -215,17 +219,11 @@ async def mythemes(ctx,*args,**details):
         page = args[0]
     
     if type(page) is int:
-        page_size = 12
         page-= 1
         themes = list(player.get_owned_themes().values())
-        if page_size * page + page_size < len (themes):
-            footer = "But wait there's more! Do "+details["cmd_key"]+"mythemes "+str(page+2)
-        else:
-            footer = 'That is all!'
         title = player.get_name_possession_clean()+" Themes"+(" : Page "+str(page+1) if page > 0 else "")
-        themes_embed = theme_page(themes,page,title,price_divisor=4/3)
-        themes_embed.set_footer(text=footer)
-
+        themes_embed = theme_page(themes,page,title,price_divisor=4/3,
+                                  footer_more="But wait there's more! Do "+details["cmd_key"]+"mythemes "+str(page+2))
         await util.say(ctx.channel,embed = themes_embed)
     else:
         theme_name = page.lower()
@@ -240,30 +238,46 @@ async def settheme(ctx,*args,**details):
     theme_id = args[0].lower()
     if theme_id in player.themes:
         theme = players.get_theme(theme_id)
-        player.theme_id = theme_id
-        player.banner_id = theme["banner"]
-        player.backgrounds = theme["background"]
-        player.save()
+        player.set_theme(theme_id)
         await util.say(ctx.channel,":white_check_mark: Theme set to **"+theme["name"]+"**")
     else:
         raise util.DueUtilException(ctx.channel,"Theme not found!")
 
-def theme_page(theme_list,page,title,**extras):
-    price_divisor = extras.get('price_divisor',1)
-    themes_embed = discord.Embed(title=title,type="rich",color=16038978)
-    page_size = 12
-    if page * page_size >= len(theme_list):
-        raise util.DueUtilException(None,"Page not found")
-    for theme_index in range(page_size*page,page_size*page+page_size):
-        if theme_index >= len(theme_list):
-            break
-        theme = theme_list[theme_index]
-        themes_embed.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
-                                                                      +util.format_number(theme["price"]//price_divisor,money=True,full_precision=True)+"``"))
-    return themes_embed  
+@commands.command(args_pattern='S')
+async def setbg(ctx,*args,**details):
+    player = details["author"]
+    
+    player.background = args[0]
+    player.save()
+    
+@commands.command(args_pattern='S')
+async def setbanner(ctx,*args,**details):
+    player = details["author"]
+    
+    player.banner_id = args[0]
+    player.save()
+
 
 # Part of the shop buy command
 
+@misc.paginator
+def theme_page(themes_embed,theme,**extras):
+    price_divisor = extras.get('price_divisor',1)
+    themes_embed.add_field(name=theme["icon"]+" | "+theme["name"],value=(theme["description"]+"\n ``"
+                           +util.format_number(theme["price"]//price_divisor,money=True,full_precision=True)+"``"))
+          
+@misc.paginator
+def background_page(backgrounds_embed,background,**extras):
+    price_divisor = extras.get('price_divisor',1)
+    backgrounds_embed.add_field(name=background["icon"]+" | "+background["name"],value=(background["description"]+"\n ``"
+                           +util.format_number(background["price"]//price_divisor,money=True,full_precision=True)+"``"))
+                           
+@misc.paginator
+def banner_page(banners_embed,banner,**extras):
+    price_divisor = extras.get('price_divisor',1)
+    banners_embed.add_field(name=banner.icon+" | "+banner.name,value=(banner.description+"\n ``"
+                           +util.format_number(banner.price//price_divisor,money=True,full_precision=True)+"``"))
+                           
 def theme_info(theme_name,**details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor',1)
@@ -274,26 +288,3 @@ def theme_info(theme_name,**details):
     embed.set_image(url=theme["preview"])
     embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"]//price_divisor,money=True,full_precision=True))
     return embed
-    
-async def buy_theme(theme_id,**details):
-    customer = details["author"]
-    channel = details["channel"]
-    
-    if theme_id in customer.themes:
-        raise util.DueUtilException(channel,"You already own that theme!")
-    theme = players.get_theme(theme_id)
-    if theme != None:
-        if customer.money - theme["price"] > 0:
-            customer.themes.append(theme_id)
-            customer.money -= theme["price"]
-            customer.save()
-            await util.say(channel,("**"+customer.name_clean+"** bought the theme **"
-                                    +theme["name"]+"** for "
-                                    +util.format_number(theme["price"],money=True,full_precision=True)))
-        else:
-            await util.say(channel,":anger: You can't afford that theme.")
-    else:
-        raise util.DueUtilException(channel,"Theme not found!")
-
-async def buy_background(background_name,**details):
-    pass

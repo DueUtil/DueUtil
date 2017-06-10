@@ -1,0 +1,16 @@
+{
+   "discord blue":{
+      "name":"Discord Blue",
+      "icon":":cd:",
+      "description":"The default banner",
+      "image":"info_banner.png",
+      "price":0
+   },
+   "messy awais":{
+      "name":"Messy Awais",
+      "icon":":fireworks:",
+      "description":"A early test banner",
+      "image":"banner.png",
+      "price":200
+   }
+}

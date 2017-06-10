@@ -6,27 +6,88 @@ from duecommands import players as player_cmds
 from botstuff import commands
 from botstuff import util
 
-SHOP_PAGE_MAX_ITEMS = 12
+from fun.shop_abstract import ShopBuySellItem
 
+### Fill in the blanks buy/sell
+
+class BuySellTheme(ShopBuySellItem):
+    def store_item(self,player,item_name):
+        player.themes.append(item_name)
+    def store_location(self,player):
+        return player.themes
+    def get_item(self,item_name):
+        return players.get_theme(item_name)
+    def item_price(self,item):
+        return item["price"] 
+    def item_type_name(self):
+        return "theme"
+    def can_sell(self,item_name):
+        return item_name != "default"  
+    def remove_item(self,item_name,item,player):
+        player.set_theme("default")
+        player.themes.remove(item_name)
+      
+class BuySellBanner(ShopBuySellItem):
+    def store_item(self,player,item_name):
+        player.banners.append(item_name)
+    def store_location(self,player):
+        return player.banners
+    def get_item(self,item_name):
+        return players.get_banner(item_name)
+    def item_price(self,item):
+        return item.price 
+    def item_type_name(self):
+        return "banner"
+    def can_sell(self,item_name):
+        return item_name != "discord blue"  
+    def remove_item(self,item_name,item,player):
+        player.banner_id = "discord_blue"
+        player.banners.remove(item_name)
+      
+class BuySellBackground(BuySellTheme):
+    def store_item(self,player,item_name):
+        player.backgrounds.append(item_name)
+    def store_location(self,player):
+        return player.backgrounds
+    def get_item(self,item_name):
+        return players.get_background(item_name)
+    def item_type_name(self):
+        return "background"
+    def remove_item(self,item_name,item,player):
+        player.background = "default"
+        player.backgrounds.remove(item_name)
+     
+buy_sell_themes = BuySellTheme()
+buy_sell_backgrounds = BuySellBackground()
+buy_sell_banners = BuySellBanner()
+        
 def shop_weapons_list(page,**details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.get_weapon_from_id("None"))
-    if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (shop_weapons):
-        footer = "But wait there's more! Do "+details["cmd_key"]+"shop weapons "+str(page+2)
-    else:
-        footer = 'Want more? Ask an admin on '+details["server_name"]+' to add some!'
-    shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!")
-    shop.set_footer(text=footer)
+    shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!",
+                                  footer_more="But wait there's more! Do "+details["cmd_key"]+"shop weapons "+str(page+2),
+                                  footer_end='Want more? Ask an admin on '+details["server_name"]+' to add some!')
     return shop 
 
 def shop_theme_list(page,**details):
     themes = list(players.get_themes().values())
-    if SHOP_PAGE_MAX_ITEMS * page + SHOP_PAGE_MAX_ITEMS < len (themes):
-        footer = "But wait there's more! Do "+details["cmd_key"]+"shop themes "+str(page+2)
-    else:
-        footer = 'More themes coming soon!'
-    shop = player_cmds.theme_page(themes,page,"DueUtil's Theme Shop")
-    shop.set_footer(text=footer)
+    shop = player_cmds.theme_page(themes,page,"DueUtil's Theme Shop!",
+                                  footer_more="But wait there's more! Do "+details["cmd_key"]+"shop themes "+str(page+2),
+                                  footer_end='More themes coming soon!')
+    return shop
+    
+def shop_background_list(page,**details):
+    backgrounds = list(players.backgrounds.values())
+    shop = player_cmds.background_page(backgrounds,page,"DueUtil's Background Shop!",
+                                       footer_more="But wait there's more! Do "+details["cmd_key"]+"shop bgs "+str(page+2),
+                                       footer_end='More backgrounds coming soon!')
+    return shop
+    
+def shop_banner_list(page,**details):
+    banners = list(players.banners.values())
+    shop = player_cmds.banner_page(banners,page,"DueUtil's Banner Shop!",
+                                       footer_more="But wait there's more! Do "+details["cmd_key"]+"shop banners "+str(page+2),
+                                       footer_end='More banners coming soon!')
     return shop
 
 def get_department_from_name(name):
@@ -87,8 +148,8 @@ departments = {
       "actions":{
          "info_action":player_cmds.theme_info,
          "list_action":shop_theme_list,
-         "buy_action":player_cmds.buy_theme,
-         "sell_action":placeholder
+         "buy_action":buy_sell_themes.buy_item,
+         "sell_action":buy_sell_themes.sell_item
       },
       "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None,
       "item_exists_sell": lambda details,name: name != "default" and name.lower() in details["author"].themes
@@ -100,16 +161,15 @@ departments = {
          "bgs",
          "bg",
          "backgrounds"
-         
       ],
       "actions":{
          "info_action":placeholder,
-         "list_action":placeholder,
-         "buy_action":placeholder,
-         "sell_action":placeholder
+         "list_action":shop_background_list,
+         "buy_action":buy_sell_backgrounds.buy_item,
+         "sell_action":buy_sell_backgrounds.sell_item
       },
-      "item_exists":lambda _,__:False,
-      "item_exists_sell": lambda _,name: False
+      "item_exists":lambda _,name:name.lower() in players.backgrounds,
+      "item_exists_sell": lambda details,name: name != "default" and name.lower() in details["author"].backgrounds
    },
   "banners":{
       "alisas":[
@@ -118,9 +178,9 @@ departments = {
       ],
       "actions":{
          "info_action":placeholder,
-         "list_action":placeholder,
-         "buy_action":placeholder,
-         "sell_action":placeholder
+         "list_action":shop_banner_list,
+         "buy_action":buy_sell_banners.buy_item,
+         "sell_action":buy_sell_banners.sell_item
       },
       "item_exists":lambda _,__:False,
       "item_exists_sell": lambda _,name: False
