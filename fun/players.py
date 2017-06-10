@@ -74,6 +74,7 @@ class Player(DueUtilObject):
         self.themes = ["default"]
         self.backgrounds = ["default"]
         self.banners = ["discord blue"]
+        self.quest_spawn_build_up = 1
         
         self.donor = False
         self.save()
@@ -160,7 +161,7 @@ class Player(DueUtilObject):
     @property
     def item_value_limit(self):
         # return 10000000000000000000000000000000000000000000
-        return 10 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level)
+        return int(100 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level))
 
     @property
     def weapon(self):

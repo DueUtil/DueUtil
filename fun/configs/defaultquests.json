@@ -2,7 +2,7 @@
   "slime": {
     "name": "Slime",
     "task": "Kill the",
-    "weapon": "gun",
+    "weapon": "none",
     "spawnChance": 5,
     "channel": "ALL",
     "baseAttack": 1.9,

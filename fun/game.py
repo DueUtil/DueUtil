@@ -136,17 +136,20 @@ async def manage_quests(message,player,spam_level):
     if not quests.has_quests(channel):
         quests.add_default_quest_to_server(message.server)
     if quest_time(player) and spam_level < SPAM_TOLERANCE:
-        player.last_quest = time.time()
         if quests.has_quests(channel) and len(player.quests) < quests.MAX_ACTIVE_QUESTS and player.quests_completed_today < quests.MAX_DAILY_QUESTS:
+            player.last_quest = time.time()
             quest = quests.get_random_quest_in_channel(channel)
-            if random.random() <= quest.spawn_chance:
+            if random.random() <= quest.spawn_chance*player.quest_spawn_build_up:
                 new_quest = quests.ActiveQuest(quest.q_id,player)
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
+                player.quest_spawn_build_up = 1
                 if dueserverconfig.mute_level(message.channel) < 0:
                     await imagehelper.new_quest_screen(channel,new_quest,player)
                 else:
                     util.logger.info("Won't send new quest image - channel blocked.")
                 util.logger.info("%s has received a quest [%s]",player.name_assii,new_quest.q_id)
+            else:
+                player.quest_spawn_build_up += 0.5
 
 async def check_for_recalls(ctx,player):
   
