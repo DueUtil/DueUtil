@@ -243,6 +243,7 @@ async def settheme(ctx,*args,**details):
     else:
         raise util.DueUtilException(ctx.channel,"Theme not found!")
 
+"""
 @commands.command(args_pattern='S')
 async def setbg(ctx,*args,**details):
     player = details["author"]
@@ -256,10 +257,9 @@ async def setbanner(ctx,*args,**details):
     
     player.banner_id = args[0]
     player.save()
-
+"""
 
 # Part of the shop buy command
-
 @misc.paginator
 def theme_page(themes_embed,theme,**extras):
     price_divisor = extras.get('price_divisor',1)
