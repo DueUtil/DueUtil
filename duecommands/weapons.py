@@ -3,6 +3,7 @@ from fun import battles, imagehelper, weapons, players, stats, misc
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission
+import generalconfig as gconf 
 
 @commands.command(args_pattern='M?')
 async def myweapons(ctx,*args,**details):
@@ -26,7 +27,7 @@ async def myweapons(ctx,*args,**details):
         if len(player_weapons) > 0:
             weapon_store = weapons_page(player_weapons,page,title,price_divisor=4/3)
         else: 
-            weapon_store = discord.Embed(title=title,type="rich",color=16038978)
+            weapon_store = discord.Embed(title=title,type="rich",color=gconf.EMBED_COLOUR)
             weapon_store.add_field(name ="No weapons stored!",value="You can buy up to 6 more weapons from the shop and store them here!")
         weapon_store.description = "Currently equipped: "+str(player.weapon)
         weapon_store.set_footer(text="Do "+details["cmd_key"]+"equip (weapon name) to equip a weapon.")
@@ -37,7 +38,7 @@ async def myweapons(ctx,*args,**details):
             player_weapons.append(weapons.get_weapon_from_id(player.w_id))
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()),None)
         if weapon != None:
-            embed = discord.Embed(type="rich",color=16038978)
+            embed = discord.Embed(type="rich",color=gconf.EMBED_COLOUR)
             info = weapon_info(weapon_name,**details,price_divisor=4/3,embed=embed)
             await util.say(ctx.channel,embed=info)
         else:
@@ -171,7 +172,7 @@ async def mywagers(ctx,*args,**details):
     if len(args) == 1:
         page = args[0] - 1
     title = player.get_name_possession_clean()+" Received Wagers"+(" : Page "+str(page+1) if page > 0 else "")
-    wagers_embed = discord.Embed(title=title,type="rich",color=16038978)
+    wagers_embed = discord.Embed(title=title,type="rich",color=gconf.EMBED_COLOUR)
     wager_list = player.battlers
     if len(wager_list) > 0:
         if page * page_size >= len(wager_list):

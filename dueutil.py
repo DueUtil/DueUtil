@@ -1,5 +1,5 @@
 import discord
-from botstuff import util ,events, loader, permissions
+from botstuff import util ,events, loader, permissions, dbconn
 from botstuff.permissions import Permission
 import os
 import sys
@@ -73,7 +73,14 @@ class DueUtilClient(discord.Client):
     async def on_message(self,message):
         if message.author == self.user or message.channel.is_private or message.author.bot:
             return
-        await events.on_message_event(message)      
+        await events.on_message_event(message)     
+        
+    @asyncio.coroutine
+    async def on_server_remove(server):
+        for collection in dbconn.db.collection_names():
+            if collection != "Player":
+                dbconn.db[collection].delete_many({'_id':{'$regex':'%s\/.*' % server.id}})
+                dbconn.db[collection].delete_many({'_id':server.id})
                                 
     async def change_avatar(self,channel,avatar_name):
         try:

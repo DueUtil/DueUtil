@@ -71,9 +71,6 @@ class Weapon(DueUtilObject):
         global weapons
         weapons[self.w_id] = self
         self.save()
-        
-    def __str__(self):
-        return self.icon+' | '+self.name_clean
     
 def get_weapon_from_id(weapon_id):
     if weapon_id in weapons:
@@ -104,6 +101,14 @@ def remove_weapon_from_shop(server,weapon_name):
         
 def get_weapons_for_server(server):
     return dict(weapons[server], **weapons["STOCK"])
+    
+def find_weapon(server,weapon_name_or_id):
+    weapon = get_weapon_for_server(server.id,weapon_name_or_id)
+    if weapon == None:
+        weapon_id = weapon_name_or_id.lower()
+        weapon = get_weapon_from_id(weapon_id)
+        if weapon.w_id == NO_WEAPON_ID and weapon_id != NO_WEAPON_ID:
+            return None
             
 def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:

@@ -68,7 +68,7 @@ def command(**command_rules):
                 else:
                     raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
             else:
-                raise util.DueUtilException(ctx.channel,"You can't use that command!")
+                await util.get_client(ctx.server.id).add_reaction(ctx,u"\u274C")
             return True
         events.register_command(wrapped_command)
         
@@ -149,6 +149,15 @@ def parse(command_message):
         return (key,args[0],args[1:])
     else:
         return (key,"",[])
+        
+def predict_args(pattern,args):
+    if pattern == "S" and len(args) > 0:
+        return [' '.join(args)]
+    #elif patt
+    """
+      .......S
+    
+    """
         
 async def check_pattern(pattern,args):
     

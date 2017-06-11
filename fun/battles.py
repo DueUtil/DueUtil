@@ -3,7 +3,7 @@ from fun import weapons
 from botstuff import util
 import random 
 from collections import OrderedDict
-
+import generalconfig as gconf 
             
 class BattleRequest:
   
@@ -25,7 +25,7 @@ def get_battle_log(**battleargs):
     battle_result = battle(**battleargs)
     battle_moves = list(battle_result[0].values())
     battle_embed = discord.Embed(title=(battleargs['player_one'].name_clean
-                                        +" :vs: "+battleargs['player_two'].name_clean),type="rich",color=16038978)
+                                        +" :vs: "+battleargs['player_two'].name_clean),type="rich",color=gconf.EMBED_COLOUR)
     battle_log = ""
     for move in battle_moves:
         move_repetition = move[1]

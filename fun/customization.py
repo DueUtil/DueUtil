@@ -1,4 +1,7 @@
 from fun.misc import DueUtilObject
+from botstuff import permissions
+from botstuff.permissions import Permission
+import discord
 from PIL import Image
 import json
 
@@ -14,7 +17,7 @@ class Theme(DueUtilObject,dict):
         self.update(theme_data)
         self["background"] += ".png"
         super().__init__(id,self["name"])
-        
+      
 class Themes(dict):
     
     def __init__(self):
@@ -35,7 +38,7 @@ class Background(DueUtilObject,dict):
         self.update(background_data)
         self.image = Image.open("backgrounds/"+self["image"])
         super().__init__(id,self["name"])
-                    
+      
 class Backgrounds(dict):
     
     def __init__(self):
@@ -72,16 +75,15 @@ class Banner(DueUtilObject):
         self.mod_only = banner_data.get('mod_only',False)
         self.unlock_level = banner_data.get('unlock_level',0)
         self.image = Image.open("screens/banners/"+banner_data["image"])
+        self.image_name = banner_data["image"]
         self.icon = banner_data["icon"]
         self.description = banner_data["description"]
         super().__init__(id,banner_data["name"])
                                 
     def banner_restricted(self,player):
-        return ((not self.admin_only or self.admin_only == util.is_admin(player.userid)) 
-                and (not self.mod_only or self.mod_only == util.is_mod_or_admin(player.userid)))
+        member = discord.Member(user={"id":player.id})
+        return ((not self.admin_only or self.admin_only and permissions.has_permission(member,Permission.DUEUTIL_ADMIN)) 
+                and (not self.mod_only or self.mod_only and permissions.has_permission(member,Permission.DUEUTIL_MOD)))
         
     def can_use_banner(self,player):
-        return (not self.donor or self.donor == self.donor) and self.banner_restricted(player)
-        
-    def save(self):
-        dbconn.insert_object(self.name.lower().replace(" ","_"),self)
+        return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)

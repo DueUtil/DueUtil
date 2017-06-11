@@ -1,9 +1,12 @@
 import discord
 import math
 import time
+import re
+from collections import OrderedDict
 from fun import quests, game, battles, imagehelper, weapons, stats
 from botstuff import commands, util
 from botstuff.permissions import Permission
+import generalconfig as gconf 
 
 @commands.command(permission = Permission.DUEUTIL_MOD,args_pattern="S?P?C?I?I?R?",hidden=True)
 async def spawnquest(ctx,*args,**details):
@@ -182,12 +185,9 @@ async def createquest(ctx,*args,**details):
         extras['task'] = args[5]
     if len(args) >= 7:
         weapon_name_or_id = args[6]
-        weapon = weapons.get_weapon_for_server(ctx.server.id,weapon_name_or_id)
+        weapon = weapons.find_weapon(ctx.server,weapon_name_or_id)
         if weapon == None:
-            weapon_id = weapon_name_or_id.lower()
-            weapon = weapons.get_weapon_from_id(weapon_id)
-            if weapon.w_id == weapons.NO_WEAPON_ID and weapon_id != weapons.NO_WEAPON_ID:
-                raise util.DueUtilException(ctx.channel,"Weapon for the quest not found!")
+            raise util.DueUtilException(ctx.channel,"Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
     if len(args) >= 8:
         extras['image_url'] = args[7]
@@ -197,6 +197,90 @@ async def createquest(ctx,*args,**details):
     new_quest = quests.Quest(*args[:5],**extras,ctx=ctx)
     await util.say(ctx.channel,":white_check_mark: "+util.ultra_escape_string(new_quest.task)+ " **"+new_quest.name_clean+"** is now active!")
     
+@commands.command(permission = Permission.SERVER_ADMIN,args_pattern='SSSS*')
+async def editquest(ctx,*args,**details):
+
+    """
+    [CMD_KEY]editquest name (property value)+
+    
+    Any number of properties can be set at once.
+    Invalid values will just be ignored!
+    
+    This is also how you set quest channels!
+    
+    Properties:
+        __attack__, __hp__, __accy__, __spawn__, __wep__,
+        __image__, __task__ and __channel__
+        
+    Example usage:
+    
+        [CMD_KEY]editquest slime hp 43 attack 4.2 task "Kill the monster"
+        
+        [CMD_KEY]editquest slime channel ``#slime_fields``
+    
+    """
+    
+    editable_props = ["attack","hp","accy","spawn","wep","image","task","channel"]
+    changes = OrderedDict()
+    quest_name = args[0].lower()
+    updates = args[1:]
+    quest = quests.get_quest_on_server(ctx.server,quest_name)
+    if quest == None:
+        raise util.DueUtilException(ctx.channel,"Quest not found!")
+      
+    next_prop = 0
+    while next_prop < len(updates):
+        property = updates[next_prop].lower()
+        if property in editable_props:
+            if editable_props.index(property) <= 4:
+                try:
+                    value = float(updates[next_prop+1])
+                except:
+                    value = -1
+            else:
+                value = updates[next_prop+1]
+            changed = True
+            if property == "attack" and value >= 1:
+                quest.base_attack = value
+            elif property == "hp" and value >= 30:
+                quest.base_hp = value
+            elif property == "accy" and value >= 1:
+                quest.base_accy 
+            elif property == "spawn" and value <= 25 and value >= 1:
+                quest.spawn_chance = value/100
+            elif property == "wep" and weapons.find_weapon(ctx.server,value) != None:
+                weapon = weapons.find_weapon(ctx.server,value)
+                quest.w_id = weapon.w_id
+                value = weapon.name_clean
+            elif property == "image":
+                quest.image_url = value
+            elif property == "task":
+                quest.task = value
+            elif property == "channel":
+                channel_id = value.replace("<#","").replace(">","")
+                channel = util.get_client(ctx.server.id).get_channel(channel_id)
+                if channel != None:
+                    quest.channel = channel.id
+            else:
+                changed = False
+            if changed:
+              if property != "channel":
+                  changes[property] = util.ultra_escape_string(str(value))
+              else:
+                  changes[property] = value
+        next_prop += 2
+    quest.save()
+    changes_message = ""
+    for property,value in changes.items():
+        changes_message += "``%s`` → %s\n" % (property,value)
+    if len(changes_message):
+        await util.say(ctx.channel,(":white_check_mark: Quest **"+quest_name+"** edited:\n"
+                                    +changes_message))
+    else:
+        await util.say(ctx.channel,(":x: **No changes made!**\n"
+                                    +"__Note:__ Values that are out of range or incorrect will be ignored!"))
+      
+      
 @commands.command(permission = Permission.SERVER_ADMIN,args_pattern='S')
 async def removequest(ctx,*args,**details):
 
@@ -223,7 +307,7 @@ async def serverquests(ctx,*args,**details):
     if len(args) == 1:
         page = args[0] - 1
     embed = discord.Embed(title=(":crossed_swords: Quests on "+details["server_name_clean"]
-                                 +(" : Page "+str(page+1) if page > 0 else "")),type="rich",color=16038978)
+                                 +(" : Page "+str(page+1) if page > 0 else "")),type="rich",color=gconf.EMBED_COLOUR)
     page_size = 12
     quests_list = list(quests.get_server_quest_list(ctx.server).values())
     if page * page_size >= len(quests_list):

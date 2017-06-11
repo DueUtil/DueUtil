@@ -5,6 +5,7 @@ from duecommands import weapons as weap_cmds
 from duecommands import players as player_cmds
 from botstuff import commands
 from botstuff import util
+import generalconfig as gconf 
 
 from fun.shop_abstract import ShopBuySellItem
 
@@ -71,6 +72,7 @@ def shop_weapons_list(page,**details):
 
 def shop_theme_list(page,**details):
     themes = list(players.get_themes().values())
+    themes.remove(players.get_theme("default"))
     shop = player_cmds.theme_page(themes,page,"DueUtil's Theme Shop!",
                                   footer_more="But wait there's more! Do "+details["cmd_key"]+"shop themes "+str(page+2),
                                   footer_end='More themes coming soon!')
@@ -78,6 +80,7 @@ def shop_theme_list(page,**details):
     
 def shop_background_list(page,**details):
     backgrounds = list(players.backgrounds.values())
+    backgrounds.remove(players.backgrounds["default"])
     shop = player_cmds.background_page(backgrounds,page,"DueUtil's Background Shop!",
                                        footer_more="But wait there's more! Do "+details["cmd_key"]+"shop bgs "+str(page+2),
                                        footer_end='More backgrounds coming soon!')
@@ -85,6 +88,7 @@ def shop_background_list(page,**details):
     
 def shop_banner_list(page,**details):
     banners = list(players.banners.values())
+    banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
     shop = player_cmds.banner_page(banners,page,"DueUtil's Banner Shop!",
                                        footer_more="But wait there's more! Do "+details["cmd_key"]+"shop banners "+str(page+2),
                                        footer_end='More banners coming soon!')
@@ -152,7 +156,7 @@ departments = {
          "sell_action":buy_sell_themes.sell_item
       },
       "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None,
-      "item_exists_sell": lambda details,name: name != "default" and name.lower() in details["author"].themes
+      "item_exists_sell": lambda details,name:name.lower() in details["author"].themes
 
    },
    "backgrounds":{
@@ -163,13 +167,13 @@ departments = {
          "backgrounds"
       ],
       "actions":{
-         "info_action":placeholder,
+         "info_action":player_cmds.background_info,
          "list_action":shop_background_list,
          "buy_action":buy_sell_backgrounds.buy_item,
          "sell_action":buy_sell_backgrounds.sell_item
       },
-      "item_exists":lambda _,name:name.lower() in players.backgrounds,
-      "item_exists_sell": lambda details,name: name != "default" and name.lower() in details["author"].backgrounds
+      "item_exists":lambda _,name:name.lower() != "default" and name.lower() in players.backgrounds,
+      "item_exists_sell": lambda details,name:name.lower() in details["author"].backgrounds
    },
   "banners":{
       "alisas":[
@@ -177,13 +181,13 @@ departments = {
          "banner"
       ],
       "actions":{
-         "info_action":placeholder,
+         "info_action":player_cmds.banner_info,
          "list_action":shop_banner_list,
          "buy_action":buy_sell_banners.buy_item,
          "sell_action":buy_sell_banners.sell_item
       },
-      "item_exists":lambda _,__:False,
-      "item_exists_sell": lambda _,name: False
+      "item_exists":lambda details,name:name.lower() != "discord blue" and name.lower() in players.banners and players.get_banner(name).can_use_banner(details["author"]),
+      "item_exists_sell": lambda details,name: name.lower() in details["author"].banners
    }
 }
     
@@ -204,7 +208,7 @@ async def shop(ctx,*args,**details):
     [CMD_KEY]buy command!
     """
     
-    shop = discord.Embed(type="rich",color=16038978)
+    shop = discord.Embed(type="rich",color=gconf.EMBED_COLOUR)
     details["embed"] = shop
 
     if len(args) == 0:

@@ -95,6 +95,12 @@ class Player(DueUtilObject):
         
     def get_owned_themes(self):
         return {theme_id:theme for theme_id,theme in profile_themes.items() if theme_id in self.themes}
+        
+    def get_owned_backgrounds(self):
+        return {background_id:background for background_id,background in backgrounds.items() if background_id in self.backgrounds}
+        
+    def get_owned_banners(self):
+        return {banner_id:banner for banner_id,banner in banners.items() if banner_id in self.banners}
                 
     def get_owned_weapons(self):
         return [weapons.get_weapon_from_id(weapon_info[0]) for weapon_info in self.weapon_inventory if weapon_info[0] != weapons.NO_WEAPON_ID]
@@ -155,12 +161,17 @@ class Player(DueUtilObject):
         self.backgrounds = theme["background"]
         self.save()
         
+    def set_banner(self,banner_id):
+        self.banner_id = banner_id
+        
+    def set_background(self,background_id):
+        self.background = background_id
+        
     def weapon_hit(self):
         return random.random()<(self.weapon_accy/100)
 
     @property
     def item_value_limit(self):
-        # return 10000000000000000000000000000000000000000000
         return int(100 * (math.pow(self.level,2)/3 + 0.5 * math.pow(self.level+1,2) * self.level))
 
     @property

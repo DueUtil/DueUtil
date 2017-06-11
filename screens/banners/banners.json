@@ -12,5 +12,13 @@
       "description":"A early test banner",
       "image":"banner.png",
       "price":200
+   },
+   "donor test":{
+      "name":"Donor Test",
+      "icon":":cd:",
+      "description":"Donor test banner",
+      "image":"info_banner.png",
+      "price":0,
+      "donor": true
    }
 }

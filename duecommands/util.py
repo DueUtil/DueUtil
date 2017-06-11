@@ -1,8 +1,9 @@
 import discord
 from fun import stats, dueserverconfig
 from fun.stats import Stat
-from botstuff import commands,util,events
+from botstuff import commands,util,events,dbconn
 from botstuff.permissions import Permission
+import generalconfig as gconf 
 
 @commands.command(args_pattern="S?")
 async def help(ctx,*args,**details):
@@ -15,7 +16,7 @@ async def help(ctx,*args,**details):
     
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
     
-    help = discord.Embed( title="DueUtil's Help",type="rich",color=16038978)
+    help = discord.Embed( title="DueUtil's Help",type="rich",color=gconf.EMBED_COLOUR)
     server_key = details["cmd_key"]
     categories = events.command_event.category_list()
     
@@ -57,6 +58,9 @@ async def help(ctx,*args,**details):
        
         help.description='Welcome to the help!\n Simply do '+server_key+'help (category) or (command name).'
         help.add_field(name='Command categories',value = ', '.join(categories))
+        help.add_field(name="Tips",value = ("If DueUtil reacts to your command it means something is wrong!\n"
+                                            + "\":question:\": Something is wrong with the commands syntax.\n"          
+                                            + "\":x:\": You don't have the required permissions to use the command."))
         help.add_field(name="Links",value = ( "Official site: https://dueutil.tech/"
                                               +"\nOfficial server: https://discord.gg/ZzYvt8J"
                                               +"\nMrAwais' guide: http://dueutil.weebly.com/ (currently outdated)"))
@@ -76,22 +80,22 @@ async def dustats(ctx,*args,**details):
     
     game_stats = stats.get_stats()
   
-    stats_embed = discord.Embed(title="DueUtil's Stats",type="rich",color=16038978)
+    stats_embed = discord.Embed(title="DueUtil's Stats",type="rich",color=gconf.EMBED_COLOUR)
     
     stats_embed.description="DueUtil's global stats since the dawn of time"
-    stats_embed.add_field(name="Images Served",
+    stats_embed.add_field(name=":frame_photo: Images Served",
                           value = util.format_number(game_stats.get(Stat.IMAGES_SERVED.value,0),full_precision=True))
-    stats_embed.add_field(name="Awarded",
+    stats_embed.add_field(name=":moneybag: Awarded",
                           value = util.format_number(game_stats.get(Stat.MONEY_CREATED.value,0),full_precision=True,money=True))
-    stats_embed.add_field(name="Players have transferred",
+    stats_embed.add_field(name=":left_right_arrow: Players have transferred",
                           value = util.format_number(game_stats.get(Stat.MONEY_TRANSFERRED.value,0),full_precision=True,money=True))
-    stats_embed.add_field(name="Quests Given",
+    stats_embed.add_field(name=":crossed_swords: Quests Given",
                           value = util.format_number(game_stats.get(Stat.QUESTS_GIVEN.value,0),full_precision=True))
-    stats_embed.add_field(name="Quests Attempted",
+    stats_embed.add_field(name=":fist: Quests Attempted",
                           value = util.format_number(game_stats.get(Stat.QUESTS_ATTEMPTED.value,0),full_precision=True))
-    stats_embed.add_field(name="Level Ups",
+    stats_embed.add_field(name=":up: Level Ups",
                           value = util.format_number(game_stats.get(Stat.PLAYERS_LEVELED.value,0),full_precision=True))
-    stats_embed.add_field(name="New Players",
+    stats_embed.add_field(name=":new: New Players",
                           value = util.format_number(game_stats.get(Stat.NEW_PLAYERS_JOINED.value,0),full_precision=True))
     stats_embed.set_footer(text="DueUtil Shard \""+str(util.get_client(ctx.server.id).name)+"\"")
     
@@ -148,7 +152,7 @@ async def shutupdue(ctx,*args,**details):
         else:
             await util.say(ctx.channel,":thinking: If you wanted to mute all the command is ``"+details["cmd_key"]+"shutupdue all``.")
             
-@commands.command(permission = Permission.REAL_SERVER_ADMIN, args_pattern=None)
+@commands.command(permission = Permission.REAL_SERVER_ADMIN, args_pattern="S?")
 async def leave(ctx,*args,**details):
     
     """
@@ -162,8 +166,20 @@ async def leave(ctx,*args,**details):
     (you must have manage server permissions).
     
     """
-    #ask for leave cnf
-            
+    
+    if len(args) == 1 and args[0].lower() == "cnf":
+
+        bye_embed = discord.Embed(title = "Goodbye!",color=gconf.EMBED_COLOUR)
+        bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
+        await util.say(ctx.channel,embed=bye_embed)
+        try:
+            await util.get_client(ctx.server.id).leave_server(ctx.server)
+        except:
+            raise util.DueUtilException(ctx.channel,"Could not leave server!")
+    else:
+        await util.say(ctx.channel,(":cry: You sure? The bot will leave your server and __**everything**__ will be reset!\n"
+                                    +"\nDo ``"+details["cmd_key"]+"leave cnf`` if you're sure!"))
+
 @commands.command(permission = Permission.SERVER_ADMIN, args_pattern=None)
 async def unshutupdue(ctx,*args,**details):
     if dueserverconfig.unmute_channel(ctx.channel):
@@ -249,7 +265,7 @@ async def setuproles(ctx,*args,**details):
     """
     server = ctx.server
     if not any(role.name == "Due Commander" for role in server.roles):
-        await util.get_client(ctx).create_role(server,name="Due Commander",color=discord.Color(16038978))
+        await util.get_client(ctx).create_role(server,name="Due Commander",color=discord.Color(gconf.EMBED_COLOUR))
         await util.say(ctx.channel,":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel,"No roles need to be created!")

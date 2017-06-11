@@ -7,6 +7,7 @@ import io
 from abc import ABC
 from functools import wraps
 from botstuff import util, dbconn
+import generalconfig as gconf 
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
@@ -40,7 +41,7 @@ class DueUtilObject():
         
     @property
     def name_command(self):
-        return '"'+self.name+'"' if " " in self.name else self.name
+        return ('"'+self.name+'"' if " " in self.name else self.name).lower()
         
     @property
     def name_command_clean(self):
@@ -50,6 +51,15 @@ class DueUtilObject():
     def acceptable_string(string,max_len):
         return len(string) <= max_len and len(string) != 0 and string.strip != ""
         
+    def __str__(self):
+        try:
+            return "%s | %s" % (self.icon, self.name_clean)
+        except:
+            try:
+                return "%s | %s" % (self["icon"], self.name_clean)
+            except:
+                return self.name_clean
+              
     def save(self):
         if not self.no_save:
             dbconn.insert_object(self.id,self)
@@ -62,7 +72,7 @@ def paginator(item_add):
     
     def page_getter(item_list,page,title,**extras):
         page_size = 12
-        page_embed = discord.Embed(title=title,type="rich",color=16038978)
+        page_embed = discord.Embed(title=title+(" : Page "+str(page+1) if page > 0 else ""),type="rich",color=gconf.EMBED_COLOUR)
         if page * page_size >= len(item_list):
             raise util.DueUtilException(None,"Page not found")
         for item_index in range(page_size*page,page_size*page+page_size):

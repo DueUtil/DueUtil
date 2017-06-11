@@ -8,6 +8,7 @@ import fun.players, fun.weapons, fun.quests
 from botstuff import util,commands,events
 import botstuff.permissions
 from botstuff.permissions import Permission
+import generalconfig as gconf 
 
 @commands.command(args_pattern="S*")
 async def test(ctx,*args,**details): 
@@ -65,7 +66,7 @@ async def dueeval(ctx,*args,**details):
     fun.weapons
     fun.quests
     
-    details["author"]
+    player = details["author"]
     await util.say(ctx.channel,":ferris_wheel: Eval...\n"
     "**Result** ```"+str(eval(args[0]))+"```")
     
@@ -122,6 +123,15 @@ async def unban(ctx,*args,**details):
     botstuff.permissions.give_permission(member,Permission.ANYONE)
     await util.say(ctx.channel,":unicorn: **"+player.name_clean+"** has been unbanned!")
     
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def toggledonor(ctx,*args,**details):
+    player = args[0]
+    player.donor = not player.donor
+    if player.donor:
+        await util.say(ctx.channel,"**"+player.name_clean+"** is now a donor!")
+    else:
+        await util.say(ctx.channel,"**"+player.name_clean+"** is nolonger donor")
+
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def duereload(ctx,*args,**details):
     await util.say(ctx.channel,":ferris_wheel: Reloading DueUtil modules!")
@@ -163,7 +173,7 @@ async def leaderboard(ctx,*args,**details):
     page_size = 10
     page = 0
 
-    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard",type="rich",color=16038978)
+    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard",type="rich",color=gconf.EMBED_COLOUR)
 
     player_leaderboard = leaderboards.get_leaderboard("levels")
     if player_leaderboard != None:
@@ -220,7 +230,7 @@ async def myrank(ctx,*args,**details):
         position = leaderboard_data.index(player)
         page = position//10
         await util.say(ctx.channel,(":sparkles: You're position **"+str(position+1)+"** on the leaderboard!\n"
-                                   +"That's on page "+str(page+1)+"!"))
+                                   +"That's on ``"+details["cmd_key"]+"leaderboard`` page "+str(page+1)+"!"))
     except:
         await util.say(ctx.channel,(":confounded: I can't find you in the leaderboard!?\n"
                                     +"This probably means you're new and leaderboard has not updated yet!"))

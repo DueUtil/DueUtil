@@ -4,8 +4,10 @@ from fun import imagehelper
 from fun import players
 from fun import stats
 from fun import misc
+from fun import players_abstract
 from botstuff import commands,util,permissions
 from botstuff.permissions import Permission
+import generalconfig as gconf 
 
 @commands.command(args_pattern="S?")
 async def battlename(ctx,*args,**details):
@@ -174,7 +176,7 @@ async def sendcash(ctx,*args,**details):
     if transaction_amount >= 50:
         await fun.awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
         
-    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=16038978)
+    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=gconf.EMBED_COLOUR)
     transaction_log.add_field(name="Sender:",value=sender.name_clean)
     transaction_log.add_field(name="Recipient:",value=receiver.name_clean)
     transaction_log.add_field(name="Transaction amount (DUT):",value=amount_string,inline=False)
@@ -200,10 +202,11 @@ async def benfont(ctx,*args,**details):
     if player.benfont:
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
         await fun.awards.give_award(ctx.channel, player,"BenFont", "ONE TRUE *type* FONT")
-        
+      
 # Think about clean up & reuse
 @commands.command(args_pattern='M?')
-async def mythemes(ctx,*args,**details):
+@players_abstract.item_preview
+def mythemes(player):
   
     """
     [CMD_KEY]mythemes (optional theme name)
@@ -212,53 +215,97 @@ async def mythemes(ctx,*args,**details):
     If you use this command with a theme name you can get a preview of the theme!
     
     """
+    return {"thing_type":"theme",
+            "thing_list":list(player.get_owned_themes().values()),
+            "thing_lister":theme_page,
+            "my_command":"mythemes",
+            "thing_info":theme_info,
+            "thing_getter":players.get_theme}
+
+@commands.command(args_pattern='S')
+@players_abstract.item_setter
+def settheme(player):
   
-    player = details["author"]
-    page = 1
-    if len(args) == 1:
-        page = args[0]
+    """
+    [CMD_KEY]settheme (theme name)
     
-    if type(page) is int:
-        page-= 1
-        themes = list(player.get_owned_themes().values())
-        title = player.get_name_possession_clean()+" Themes"+(" : Page "+str(page+1) if page > 0 else "")
-        themes_embed = theme_page(themes,page,title,price_divisor=4/3,
-                                  footer_more="But wait there's more! Do "+details["cmd_key"]+"mythemes "+str(page+2))
-        await util.say(ctx.channel,embed = themes_embed)
-    else:
-        theme_name = page.lower()
-        theme = players.get_theme(theme_name)
-        theme_embed = theme_info(theme_name,**details,embed=discord.Embed(type="rich",color=16038978),theme=theme)
-        theme_embed.set_footer(text="Do "+details["cmd_key"]+"settheme "+theme.name_command+" to equip this theme!")
-        await util.say(ctx.channel,embed=theme_embed)
-        
-@commands.command(args_pattern='S')
-async def settheme(ctx,*args,**details):
-    player = details["author"]
-    theme_id = args[0].lower()
-    if theme_id in player.themes:
-        theme = players.get_theme(theme_id)
-        player.set_theme(theme_id)
-        await util.say(ctx.channel,":white_check_mark: Theme set to **"+theme["name"]+"**")
-    else:
-        raise util.DueUtilException(ctx.channel,"Theme not found!")
+    Sets your profile theme
+    
+    """
+    
+    return {"thing_type":"theme",
+            "thing_getter":players.get_theme,
+            "thing_setter":player.set_theme,
+            "thing_list":player.themes}
 
-"""
-@commands.command(args_pattern='S')
-async def setbg(ctx,*args,**details):
-    player = details["author"]
+@commands.command(args_pattern='M?')
+@players_abstract.item_preview
+def mybgs(player):
+  
+    """
+    [CMD_KEY]mybgs (optional theme name)
     
-    player.background = args[0]
-    player.save()
+    Shows the backgrounds you've bought!
     
-@commands.command(args_pattern='S')
-async def setbanner(ctx,*args,**details):
-    player = details["author"]
+    """
     
-    player.banner_id = args[0]
-    player.save()
-"""
+    return {"thing_type":"background",
+        "thing_list":list(player.get_owned_backgrounds().values()),
+        "thing_lister":background_page,
+        "my_command":"mybgs",
+        "thing_info":background_info,
+        "thing_getter":players.get_background}
 
+@commands.command(args_pattern='S')
+@players_abstract.item_setter
+def setbg(player):
+  
+    """
+    [CMD_KEY]setbg (background name)
+    
+    Sets your profile background
+    
+    """
+
+    return {"thing_type":"background",
+            "thing_getter":players.get_background,
+            "thing_setter":player.set_background,
+            "thing_list":player.backgrounds}
+
+@commands.command(args_pattern='M?')
+@players_abstract.item_preview
+def mybanners(player):
+  
+    """
+    [CMD_KEY]mybanners (optional theme name)
+    
+    Shows the banners you've bought!
+    
+    """
+    return {"thing_type":"banner",
+        "thing_list":list(player.get_owned_banners().values()),
+        "thing_lister":banner_page,
+        "my_command":"mybanners",
+        "thing_info":banner_info,
+        "thing_getter":players.get_banner}
+
+
+@commands.command(args_pattern='S')
+@players_abstract.item_setter
+def setbanner(player):
+  
+    """
+    [CMD_KEY]setbanner (banner name)
+    
+    Sets your profile banner
+    
+    """
+
+    return {"thing_type":"banner",
+            "thing_getter":players.get_banner,
+            "thing_setter":player.set_banner,
+            "thing_list":player.banner}
+    
 # Part of the shop buy command
 @misc.paginator
 def theme_page(themes_embed,theme,**extras):
@@ -277,14 +324,32 @@ def banner_page(banners_embed,banner,**extras):
     price_divisor = extras.get('price_divisor',1)
     banners_embed.add_field(name=banner.icon+" | "+banner.name,value=(banner.description+"\n ``"
                            +util.format_number(banner.price//price_divisor,money=True,full_precision=True)+"``"))
-                           
+                                                      
 def theme_info(theme_name,**details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor',1)
     theme = details.get('theme',players.get_theme(theme_name))
-    if theme == None:
-        raise util.DueUtilException(details["channel"],"Theme not found!")
-    embed.title = theme["icon"]+" | "+theme["name"]
+    embed.title = str(theme)
     embed.set_image(url=theme["preview"])
     embed.set_footer(text="Buy this theme for "+util.format_number(theme["price"]//price_divisor,money=True,full_precision=True))
+    return embed
+    
+def background_info(background_name,**details):
+    embed = details["embed"]
+    price_divisor = details.get('price_divisor',1)
+    background = players.get_background(background_name)
+    embed.title = str(background)
+    embed.set_image(url="https://dueutil.tech/duefiles/backgrounds/"+background["image"])
+    embed.set_footer(text="Buy this background for "+util.format_number(background["price"]//price_divisor,money=True,full_precision=True))
+    return embed
+    
+def banner_info(banner_name,**details):
+    embed = details["embed"]
+    price_divisor = details.get('price_divisor',1)
+    banner = players.get_banner(banner_name)
+    embed.title = str(banner)
+    if banner.donor:
+        embed.description = ":star2: This is a __donor__ banner!"
+    embed.set_image(url="https://dueutil.tech/duefiles/banners/"+banner.image_name)
+    embed.set_footer(text="Buy this banner for "+util.format_number(banner.price//price_divisor,money=True,full_precision=True))
     return embed
