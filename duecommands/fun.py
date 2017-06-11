@@ -159,6 +159,14 @@ async def updateleaderboard(ctx,*args,**details):
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def updatebot(ctx,*args,**details):
+      
+    """
+    [CMD_KEY]updatebot
+    
+    Updates DueUtil
+    
+    """
+    
     try:
         update_result = subprocess.check_output(['bash', 'update_script.sh'])
     except subprocess.CalledProcessError as updateexc:
