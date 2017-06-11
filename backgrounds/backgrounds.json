@@ -1,11 +1,4 @@
 {
-    "test": {
-        "image": "test.png",
-        "description": "Se",
-        "name": "Test",
-        "price": 33232,
-        "icon": "\ud83d\udcaa"
-    },
     "classic": {
         "image": "classic.png",
         "description": "The original background from the DueUtil prerelease",
@@ -19,12 +12,5 @@
         "name": "Default",
         "price": 0,
         "icon": ":cd:"
-    },
-    "Test": {
-        "image": "test.png",
-        "description": "Se",
-        "name": "Test",
-        "price": 33232,
-        "icon": "\ud83d\udcaa"
     }
 }
