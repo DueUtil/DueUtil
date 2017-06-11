@@ -9,6 +9,8 @@ from botstuff import util,commands,events
 import botstuff.permissions
 from botstuff.permissions import Permission
 import generalconfig as gconf 
+import subprocess
+import os
 
 @commands.command(args_pattern="S*")
 async def test(ctx,*args,**details): 
@@ -154,7 +156,22 @@ async def updateleaderboard(ctx,*args,**details):
     leaderboards.last_leaderboard_update = 0
     await leaderboards.update_leaderboards(ctx)
     await util.say(ctx.channel,":ferris_wheel: Updating leaderboard!")
-
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def updatebot(ctx,*args,**details):
+    try:
+        update_result = subprocess.check_output(['bash', 'update_script.sh'])
+    except subprocess.CalledProcessError as updateexc:
+        update_result = updateexc.output
+    update_result = update_result.decode("utf-8")
+    if len(update_result.strip()) == 0:
+        update_result = "No output."
+    update_embed = discord.Embed(title=":gear: Updating DueUtil!",type="rich",color=gconf.EMBED_COLOUR)
+    update_embed.description = "Pulling lasted version from **GitLab**!"
+    update_embed.add_field(name='Changes',value='```'+update_result+'```',inline=False)
+    await util.say(ctx.channel,embed=update_embed)
+    os._exit(1)
+    
 @commands.command(args_pattern="C?")
 async def leaderboard(ctx,*args,**details):
     
