@@ -181,6 +181,16 @@ async def updatebot(ctx,*args,**details):
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
         os._exit(1)
+        
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def stopbot(ctx,*args,**details):
+    await util.say(ctx.channel,":wave: Stopping DueUtil!")
+    os._exit(0)
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def restartbot(ctx,*args,**details):
+    await util.say(ctx.channel,":ferris_wheel: Restarting DueUtil!")
+    os._exit(1)
     
 @commands.command(args_pattern="C?")
 async def leaderboard(ctx,*args,**details):
