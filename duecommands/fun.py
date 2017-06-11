@@ -170,7 +170,8 @@ async def updatebot(ctx,*args,**details):
     update_embed.description = "Pulling lasted version from **GitLab**!"
     update_embed.add_field(name='Changes',value='```'+update_result+'```',inline=False)
     await util.say(ctx.channel,embed=update_embed)
-    os._exit(1)
+    if not update_result.endswith("is up to date."):
+        os._exit(1)
     
 @commands.command(args_pattern="C?")
 async def leaderboard(ctx,*args,**details):
