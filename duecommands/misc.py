@@ -55,7 +55,7 @@ async def uploadbg(ctx,*args,**details):
     name = util.filter_string(args[1])
     if name != args[1]:
         raise util.DueUtilException(ctx.channel,"Invalid background name!")
-    name = re.sub(' +','',name)
+    name = re.sub(' +',' ',name)
     
     if name.lower() in players.backgrounds:
         raise util.DueUtilException(ctx.channel,"That background name has already been used!")
