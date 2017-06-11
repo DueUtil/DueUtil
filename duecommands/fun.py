@@ -68,7 +68,7 @@ async def dueeval(ctx,*args,**details):
     fun.weapons
     fun.quests
     
-    player = details["author"]
+    details["author"]
     await util.say(ctx.channel,":ferris_wheel: Eval...\n"
     "**Result** ```"+str(eval(args[0]))+"```")
     

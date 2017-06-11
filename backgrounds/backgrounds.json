@@ -1,16 +1,30 @@
 {
-   "default":{
-      "name":"Default",
-      "icon":":cd:",
-      "description":"The clean default DueUtil background",
-      "image":"default.png",
-      "price":0
-   },
-   "classic":{
-      "name":"Classic",
-      "icon":":spider_web:",
-      "description":"The original background from the DueUtil prerelease",
-      "image":"classic.png",
-      "price":200
-   }
+    "test": {
+        "image": "test.png",
+        "description": "Se",
+        "name": "Test",
+        "price": 33232,
+        "icon": "\ud83d\udcaa"
+    },
+    "classic": {
+        "image": "classic.png",
+        "description": "The original background from the DueUtil prerelease",
+        "name": "Classic",
+        "price": 200,
+        "icon": ":spider_web:"
+    },
+    "default": {
+        "image": "default.png",
+        "description": "The clean default DueUtil background",
+        "name": "Default",
+        "price": 0,
+        "icon": ":cd:"
+    },
+    "Test": {
+        "image": "test.png",
+        "description": "Se",
+        "name": "Test",
+        "price": 33232,
+        "icon": "\ud83d\udcaa"
+    }
 }

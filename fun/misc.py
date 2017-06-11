@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import requests
 import io
 from abc import ABC
-from functools import wraps
 from botstuff import util, dbconn
 import generalconfig as gconf 
 

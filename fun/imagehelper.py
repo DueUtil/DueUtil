@@ -134,6 +134,10 @@ def rescale_image(image, scale):
     width, height = image.size
     return image.resize((int(width*scale), int(height*scale)), Image.ANTIALIAS)
     
+def has_dimensions(image,dimensions):
+    width, height = image.size
+    return width == dimensions[0] and height == dimensions[1]
+
 async def send_image(channel,image,**kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
     kwargs["filename"] = kwargs.pop('file_name',"")

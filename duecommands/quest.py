@@ -1,7 +1,6 @@
 import discord
 import math
 import time
-import re
 from collections import OrderedDict
 from fun import quests, game, battles, imagehelper, weapons, stats
 from botstuff import commands, util
