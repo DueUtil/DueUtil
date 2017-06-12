@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+@import url('https://fonts.googleapis.com/css?family=VT323');
+
+@font-face{
+  font-family:'benfont';
+  src: url('benfont.ttf') format('truetype');
+}
+
+ 
+html, body {
+  min-height: 100%;
+  height: auto;    
+}
+
+body{
+  /*Cheers http://uigradients.com*/
+  background: #34e89e; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #34e89e , #0f3443); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #34e89e , #0f3443); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: 'Roboto Condensed', sans-serif;
+  color: #FFFFFF;
+  text-shadow: 0px 0px 2px #888888;
+}
+
+.bot-down{
+  color: #FF5252;
+  font-family: 'benfont' , Fallback, sans-serif;
+  text-transform: uppercase;
+  position:relative;
+  font-size: 50px; font-size: 2.2vw;
+}
+
+.info{
+  font-size: 20px; font-size: 1.7vw;
+}
+
+.center{
+  text-align:center;
+  position: relative;
+}
+
+.title{
+  text-shadow: 0px 0px 4px #888888;
+  font-size: 45px; font-size: 3.5vw;
+  font-family: 'VT323', monospace;
+}
+
+.profile {
+  display: inline-block;
+  background-image: url('backgrounds/1.png');
+  width:256px;
+  height:299px;
+  box-shadow: 0px 0px 5px #888888;
+  text-shadow: none;
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.screen {
+  background-image: url('screens/info_screen.png');
+  width:256px;
+  height:299px;
+  display: inline-block;
+}
+
+.banner {
+  background-image: url('screens/info_banners/11.png');
+  width:155px;
+  height:51px;
+  margin-left:91px;
+  background-repeat: no-repeat;
+  background-position: 0px 34px;
+  padding-top:34px;
+}
+
+.head{
+  top:-93px;
+  text-align:left;
+  position:relative;
+  padding:6px;
+}
+
+#username{
+  font-size:12px;
+}
+
+.rank-1{
+  color: rgb(255, 255, 255);
+}
+
+.rank-2{
+  color: rgb(235, 196, 42);
+}
+
+.rank-3{
+  color: rgb(235, 145, 42);
+}
+
+.rank-4{
+  color: rgb(42, 235, 68);
+}
+.rank-5{
+  color: rgb(174, 42, 235);
+}
+
+.rank-6{
+  color: rgb(42, 103, 235);
+}
+
+.rank-7{
+  color: rgb(163, 102, 90);
+}
+
+.rank-8{
+  color: rgb(224, 33, 11);
+}
+
+.rank-9{
+  color: rgb(15, 15, 15);
+}
+
+#level{
+  font-size:18px;
+  line-height: 30px;
+}
+
+.stats{
+  position: relative;
+  text-align:right;
+  top:19.5px;
+  right:14px;
+  font-size:12px;
+  line-height:27px;
+  width:157px;
+  left: 84px;
+}
+
+#misc{
+  position: relative;
+  line-height:14px; 
+  top:-12px;
+}
+
+.awards{
+  position:relative;
+  width: 79px;
+  height: 195px;
+  left:9px;
+  top: 10px;
+  font-size: 0px;
+  float: left;
+}
+
+.award{
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background-image: none;
+  background-repeat: no-repeat;
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.awards-frame{
+  position: relative;
+  right: 1px;
+  top: 21px;
+}
+
+.avatar{
+  width:80px;
+  height:80px;
+  background-size: 80px 80px;
+  position: relative;
+  left:6px;
+  top:6px;
+  background-image: url('avatars/1.jpg');
+  background-repeat: no-repeat;
+}
+
+.avatar-frame{
+  width:93px;
+  position: relative;
+  height:92px;
+  margin-left:-88px;
+  top: -28px;
+  background-repeat: no-repeat;
+  background-image: url('screens/info_avatar.png');
+}
+
+.footer{
+  position: fixed;
+  bottom: 0px;
+  text-shadow: 0px 0px 1px #888888;
+  font-size:10px;
+}
+
+#pulsor {
+  cursor: auto;
+  margin-top: 30px;
+  margin-bottom: 0px;
+}
+#pulsor{
+    -webkit-animation: pusate 1s infinite alternate;
+    -moz-animation: pusate 1s infinite alternate;
+    -animation: pusate 1s infinite alternate;
+    text-shadow: 0 0 8px #FF0000;
+}
+@-webkit-keyframes pusate {
+    from { text-shadow: 0 0 10px #B84646; }
+    to { text-shadow: 0 0 20px #FF0000; }
+}
+@-moz-keyframes pusate {
+    from { text-shadow: 0 0 10px #B84646; }
+    to { text-shadow: 0 0 20px #FF0000; }
+}
+@keyframes pusate {
+    from { text-shadow: 0 0 10px #B84646; }
+    to { text-shadow: 0 0 20px #FF0000; }
+}
+
+#animate-area	{ 
+	width: 560px; 
+	height: 400px; 
+	background-image: url(bg-clouds.png);
+	background-position: 0px 0px;
+	background-repeat: repeat-x;
+
+	animation: animatedBackground 40s linear infinite;
+}
+
+@keyframes animatedBackground {
+	from { background-position: 0 0; }
+	to { background-position: 100% 0; }
+}
