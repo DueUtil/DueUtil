@@ -7,14 +7,23 @@ import json
 import os
 
 async def glitter_text(channel,text):
-    gif_text = misc.get_glitter_text(text)
+    gif_text = await misc.get_glitter_text(text)
     await util.get_client(channel).send_file(channel, fp=gif_text,
                                              filename="glittertext.gif", 
                                              content=":sparkles: Your glitter text!")
 
-@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="S")
+@commands.command(args_pattern='S')
 @commands.imagecommand()
-async def glittertext(ctx,*args,**details): 
+async def glittertext(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]glittertext (text)
+    
+    Creates a glitter text gif!
+    
+    (Glitter text from http://www.gigaglitters.com/)
+    """
+   
     await glitter_text(ctx.channel,args[0])
 
 @commands.command()
@@ -64,7 +73,7 @@ async def uploadbg(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"Cannot have a negative background price!")
       
     url = args[3]
-    image = imagehelper.load_image_url(url,raw=True)
+    image = await imagehelper.load_image_url(url,raw=True)
     if image == None:
         raise util.DueUtilException(ctx.channel,"Failed to load image!")
         
@@ -84,6 +93,8 @@ async def uploadbg(ctx,*args,**details):
     players.backgrounds.load_backgrounds()
     
     await util.say(ctx.channel,":white_check_mark: Background **"+name+"** has been uploaded!")
+    await util.duelogger.info("**%s** added the background **%s**" % (details["author"].name_clean,name))
+    
     if submitter != None:
         await awards.give_award(ctx.channel, submitter, "BgAccepted", "Background Accepted!")
 
@@ -98,7 +109,7 @@ async def testbg(ctx,*args,**details):
     """
     
     url = args[0]
-    image = imagehelper.load_image_url(url)
+    image = await imagehelper.load_image_url(url)
     if image == None:
         raise util.DueUtilException(ctx.channel,"Failed to load image!")
     
@@ -143,3 +154,4 @@ async def deletebg(ctx,*args,**details):
     players.backgrounds.load_backgrounds()
         
     await util.say(ctx.channel,":wastebasket: Background **"+background.name_clean+"** has been deleted!")
+    await util.duelogger.info("**%s** deleted the background **%s**" % (details["author"].name_clean,background.name_clean))

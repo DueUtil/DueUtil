@@ -109,6 +109,7 @@ def find_weapon(server,weapon_name_or_id):
         weapon = get_weapon_from_id(weapon_id)
         if weapon.w_id == NO_WEAPON_ID and weapon_id != NO_WEAPON_ID:
             return None
+    return weapon
             
 def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:

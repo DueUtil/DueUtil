@@ -6,5 +6,10 @@
       "Mistake Not",
       "Of Course I Still Love You",
       "Honest Mistake"
-   ]
+   ],
+   "logChannel": "323810568433565698",
+   "errorChannel": "323923806223597569",
+   "feedbackChannel": "302592193682735105",
+   "bugChannel": "237997015089414154",
+   "botVersion": "Beta-2.0"
 }

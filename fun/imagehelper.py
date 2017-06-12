@@ -1,8 +1,6 @@
 import re
-import requests
 import math
 import os
-import io
 from colour import Color
 from fun import awards
 from fun import dueserverconfig
@@ -92,7 +90,7 @@ def paste_alpha(background,image,position):
     mask = Image.merge("L", (a,))
     background.paste(image,position, mask)
     
-def load_image_url(url,**kwargs):
+async def load_image_url(url,**kwargs):
     if url == None:
         return None
     do_not_compress = kwargs.get('raw',False)
@@ -104,11 +102,8 @@ def load_image_url(url,**kwargs):
         return Image.open(file_name);    
     else:
         try:
-            response = requests.get(url, timeout=10)
-            if 'image' not in response.headers.get('content-type'):
-                return None
-            image_date = io.BytesIO(response.content)
-            image = Image.open(image_date)
+            image_data = await util.download_file(url)
+            image = Image.open(image_data)
             #cache image
             image.convert('RGB').save(file_name, optimize=True, quality=20)
             return image
@@ -122,11 +117,11 @@ def resize(image,width,height):
         return None
     return image.resize((width, height), Image.ANTIALIAS);        
     
-def resize_avatar(player, server, width, height): 
-    return resize_image_url(player.get_avatar_url(server),width,height)
+async def resize_avatar(player, server, width, height): 
+    return await resize_image_url(player.get_avatar_url(server),width,height)
 
-def resize_image_url(url, width, height):    
-    return resize(load_image_url(url),width,height)
+async def resize_image_url(url, width, height):    
+    return resize(await load_image_url(url),width,height)
     
 def rescale_image(image, scale):
     if(image == None):
@@ -151,7 +146,7 @@ async def level_up_screen(channel,player,cash):
     image = level_up_template.copy()
     level = math.trunc(player.level)
     try:
-        avatar = resize_avatar(player,channel.server,54,54)
+        avatar = await resize_avatar(player,channel.server,54,54)
         image.paste(avatar, (10, 10))
     except:
         pass
@@ -163,7 +158,7 @@ async def level_up_screen(channel,player,cash):
 async def new_quest_screen(channel,quest,player):
     image = new_quest_template.copy()
     try:
-        avatar = resize_avatar(quest,channel.server,54,54)
+        avatar = await resize_avatar(quest,channel.server,54,54)
         image.paste(avatar, (10, 10))
     except:
        pass
@@ -255,7 +250,7 @@ async def quests_screen(channel,player,page):
         if quest_info != None:
             home = quest_info.home
         draw.text((52, 61 + 44 * count),get_text_limit_len(draw,home,font_small,131),DUE_BLACK, font=font_small)
-        quest_avatar = resize_avatar(quest,None, 28, 28)
+        quest_avatar = await resize_avatar(quest,None, 28, 28)
         if quest_avatar != None:
             image.paste(quest_avatar, (20, 46 + 44 * count))
         quest_bubble_postion = (12,row_size[1]-2+ 44 * count)
@@ -303,7 +298,7 @@ async def stats_screen(channel,player):
     paste_alpha(image,avatar_border,(3,6))
      
     try:
-        image.paste(resize_avatar(player,channel.server, 80, 80), (9, 12))
+        image.paste(await resize_avatar(player,channel.server, 80, 80), (9, 12))
     except:
         pass
      
@@ -387,7 +382,7 @@ async def quest_screen(channel,quest):
     image = quest_info_template.copy()
         
     try:
-        image.paste(resize_avatar(quest,None, 72, 72), (9, 12))
+        image.paste(await resize_avatar(quest,None, 72, 72), (9, 12))
     except:
         pass
         
@@ -437,12 +432,12 @@ async def battle_screen(channel,player_one,player_two):
     width, height = image.size
         
     try:
-        image.paste(resize_avatar(player_one,channel.server, 54, 54), (9, 9))
+        image.paste(await resize_avatar(player_one,channel.server, 54, 54), (9, 9))
     except:
         pass
         
     try:
-        image.paste(resize_avatar(player_two,channel.server, 54, 54),  (width - 9 - 55, 9))
+        image.paste(await resize_avatar(player_two,channel.server, 54, 54),  (width - 9 - 55, 9))
     except:
         pass
         

@@ -243,7 +243,7 @@ def settheme(player):
 def mybgs(player):
   
     """
-    [CMD_KEY]mybgs (optional theme name)
+    [CMD_KEY]mybgs (optional background name)
     
     Shows the backgrounds you've bought!
     
@@ -277,7 +277,7 @@ def setbg(player):
 def mybanners(player):
   
     """
-    [CMD_KEY]mybanners (optional theme name)
+    [CMD_KEY]mybanners (optional banner name)
     
     Shows the banners you've bought!
     

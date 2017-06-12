@@ -3,13 +3,16 @@ import discord
 import urllib
 from bs4 import BeautifulSoup
 import requests
-import io
 from abc import ABC
 from botstuff import util, dbconn
 import generalconfig as gconf 
+import aiohttp
 
 POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
+GLIITER_TEXT_URL = ("http://www.gigaglitters.com/procesing.php?text=%s"
+                    +"&size=90&text_color=img/DCdarkness.gif"
+                    +"&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")
 
 class AutoReply:
   
@@ -205,16 +208,23 @@ def valid_image(bg_to_test,dimensions):
         if width == dimensions[0] and height == dimensions[1]:
             return True
     return False
-    
+
+"""    
 def random_word():
     response = requests.get("http://randomword.setgetgo.com/get.php")
-        
-def get_glitter_text(gif_text):
-    response = requests.get("http://www.gigaglitters.com/procesing.php?text="+urllib.parse.quote_plus(gif_text,safe='')
-    +"&size=90&text_color=img/DCdarkness.gif&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")
-    html = response.text
-    soup = BeautifulSoup(html,"html.parser")
-    box = soup.find("textarea", {"id": "dLink"})
-    gif_text_area = str(box)
-    gif_url = gif_text_area.replace('<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',"",1).replace('</textarea>',"",1)
-    return io.BytesIO(requests.get(gif_url).content)
+"""
+
+async def get_glitter_text(gif_text):
+  
+    """
+    Screen scrape glitter text
+    """
+    
+    with aiohttp.Timeout(10):
+        async with aiohttp.get(GLIITER_TEXT_URL % urllib.parse.quote(gif_text.strip("'"))) as page_response:
+            html = await page_response.text()
+            soup = BeautifulSoup(html,"html.parser")
+            box = soup.find("textarea", {"id": "dLink"})
+            gif_text_area = str(box)
+            gif_url = gif_text_area.replace('<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',"",1).replace('</textarea>',"",1)
+            return await util.download_file(gif_url)

@@ -1,11 +1,37 @@
 import math
 import logging
 import emoji #The emoji list in this is outdated.
+import generalconfig as gconf
+import aiohttp
+import io
+import asyncio
 
 shard_clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('dueutil')
     
+class DueLog():
+  
+    async def bot(self,message,**kwargs):
+        await say(gconf.log_channel,":robot: %s" % message,**kwargs)
+        
+    async def info(self,message,**kwargs):
+        await say(gconf.log_channel,":grey_exclamation: %s" % message,**kwargs)
+
+    async def concern(self,message,**kwargs):
+        await say(gconf.log_channel,":warning: %s" % message,**kwargs)
+        
+    async def error(self,message,**kwargs):
+        await say(gconf.error_channel,":bangbang: %s" % message,**kwargs)
+        
+    async def bug(self,message,**kwargs):
+        pass
+        
+    async def feedback(self,message,**kwargs):
+        pass
+        
+duelogger = DueLog()
+
 class DueUtilException(ValueError):
   
     def __init__(self, channel,message, *args,**kwargs):
@@ -23,12 +49,31 @@ class DueReloadException(RuntimeError):
     
     def __init__(self,result_channel):
         self.channel = result_channel
+        
+async def download_file(url):
+    with aiohttp.Timeout(10):
+        async with aiohttp.get(url) as response: 
+            file_data = io.BytesIO()
+            while True:
+                chunk = await response.content.read(128)
+                if not chunk:
+                    break
+                file_data.write(chunk)
+            response.release()
+            file_data.seek(0)
+            return file_data
 
 async def say(channel,*args,**kwargs):
-      return await get_client(channel.server.id).send_message(channel,*args,**kwargs)
+      client = get_client(channel.server.id)
+      if asyncio.get_event_loop() != client.loop:
+          # Allows it to speak across shards
+          client.run_task(say,*((channel,)+args),**kwargs)
+      else:
+          await client.send_message(channel,*args,**kwargs)
       
 async def typing(channel):
       await get_client(channel.server.id).send_typing(channel)
+      
 
 def load_and_update(reference,object):
     for item in dir(reference):

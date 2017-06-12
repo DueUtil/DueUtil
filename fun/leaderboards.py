@@ -1,6 +1,6 @@
 import threading
 from fun import players
-from botstuff import events
+from botstuff import events, util
 import time
 
 leaderboards = dict()
@@ -24,6 +24,7 @@ async def update_leaderboards(_):
         last_leaderboard_update = time.time()
         leaderboard_thread = threading.Thread(target=calculate_updates)
         leaderboard_thread.start()
+        await util.duelogger.info("Global leaderboard updated!")
 
 def calculate_updates():
     for rank_name,data in leaderboards.items():

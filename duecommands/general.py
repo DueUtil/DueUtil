@@ -10,10 +10,15 @@ import generalconfig as gconf
 from fun.shop_abstract import ShopBuySellItem
 
 ### Fill in the blanks buy/sell
+# TODO: Tell how to set bg etc
 
 class BuySellTheme(ShopBuySellItem):
     def store_item(self,player,item_name):
         player.themes.append(item_name)
+        if player.theme_id == "default":
+            player.set_theme(item_name)
+            return True
+        return False
     def store_location(self,player):
         return player.themes
     def get_item(self,item_name):
@@ -31,6 +36,10 @@ class BuySellTheme(ShopBuySellItem):
 class BuySellBanner(ShopBuySellItem):
     def store_item(self,player,item_name):
         player.banners.append(item_name)
+        if player.banner_id == "discord blue":
+            player.set_banner(item_name)
+            return True
+        return False
     def store_location(self,player):
         return player.banners
     def get_item(self,item_name):
@@ -48,6 +57,10 @@ class BuySellBanner(ShopBuySellItem):
 class BuySellBackground(BuySellTheme):
     def store_item(self,player,item_name):
         player.backgrounds.append(item_name)
+        if player.background == "default":
+            player.set_background(item_name)
+            return True
+        return False
     def store_location(self,player):
         return player.backgrounds
     def get_item(self,item_name):

@@ -5,3 +5,5 @@ duecommands/__pycache__/
 __pycache__/
 botstuff/__pycache__/
 update_script.sh
+backgrounds/backgrounds.json
+imagecache/

@@ -271,3 +271,15 @@ async def setuproles(ctx,*args,**details):
         await util.say(ctx.channel,":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel,"No roles need to be created!")
+        
+@commands.command(args_pattern="S")
+async def bugreport(ctx,*args,**details):
+  
+    message = args[0]
+    
+    pass
+    
+@commands.command(args_pattern="S")
+async def feedback(ctx,*args,**details):
+    
+    pass

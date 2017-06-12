@@ -102,10 +102,12 @@ async def setpermlevel(ctx,*args,**details):
         await util.say(ctx.channel,"**"+player.name_clean+"** permission level set to ``"+permission.value[1]+"``.")
         if permission == Permission.DUEUTIL_MOD:
             await awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+            await util.duelogger.info("**%s** is now a DueUtil mod!" % player.name_clean)
         elif "Mod" in player.awards:
             player.awards.remove("Mod")
         if permission == Permission.DUEUTIL_ADMIN:
             await awards.give_award(ctx.channel,player,"Admin","Become an admin!")
+            await util.duelogger.info("**%s** is now a DueUtil admin!" % player.name_clean)
         elif "Admin" in player.awards:
             player.awards.remove("Admin")
     else:
@@ -117,6 +119,7 @@ async def ban(ctx,*args,**details):
     member = discord.Member(user={"id":player.id})
     botstuff.permissions.give_permission(member,Permission.BANNED)
     await util.say(ctx.channel,":hammer: **"+player.name_clean+"** banned!")
+    await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
 async def unban(ctx,*args,**details):
@@ -124,6 +127,7 @@ async def unban(ctx,*args,**details):
     member = discord.Member(user={"id":player.id})
     botstuff.permissions.give_permission(member,Permission.ANYONE)
     await util.say(ctx.channel,":unicorn: **"+player.name_clean+"** has been unbanned!")
+    await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
 async def toggledonor(ctx,*args,**details):
@@ -137,6 +141,7 @@ async def toggledonor(ctx,*args,**details):
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def duereload(ctx,*args,**details):
     await util.say(ctx.channel,":ferris_wheel: Reloading DueUtil modules!")
+    await util.duelogger.concern("DueUtil Reloading!")
     raise util.DueReloadException(ctx.channel)
 
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PI")
@@ -180,16 +185,19 @@ async def updatebot(ctx,*args,**details):
     await util.say(ctx.channel,embed=update_embed)
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
+        await util.duelogger.concern("DueUtil updating!")
         os._exit(1)
         
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def stopbot(ctx,*args,**details):
     await util.say(ctx.channel,":wave: Stopping DueUtil!")
+    await util.duelogger.concern("DueUtil shutting down!")
     os._exit(0)
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
 async def restartbot(ctx,*args,**details):
     await util.say(ctx.channel,":ferris_wheel: Restarting DueUtil!")
+    await util.duelogger.concern("DueUtil restarting!!")
     os._exit(1)
     
 @commands.command(args_pattern="C?")
