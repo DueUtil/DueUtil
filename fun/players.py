@@ -203,7 +203,9 @@ class Player(DueUtilObject):
         
     def get_background(self):
         if not self.background in backgrounds:
-            self.backgrounds.remove(self.background)
+            # Check (just to quick fix)
+            # TODO: Remove later
+            if self.background in  self.backgrounds: self.backgrounds.remove(self.background)
             self.background = "default"
         return backgrounds[self.background]
             
