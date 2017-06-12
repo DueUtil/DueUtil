@@ -91,8 +91,9 @@ class DueUtilClient(discord.Client):
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx == None:
+            await util.duelogger.error(("**DueUtil experienced an error!**\n"
+                                        +"__Stack trace:__ ```"+traceback.format_exc()+"```"))
             util.logger.error("None message/command error: %s",error)
-            traceback.print_exc()
         elif isinstance(error,util.DueUtilException):
             if error.channel != None:
                 await self.send_message(error.channel,error.get_message())
@@ -109,19 +110,12 @@ class DueUtilClient(discord.Client):
             util.logger.error("Discord HTTP error: %s",error)
         elif ctx_is_message:
             await self.send_message(ctx.channel,(":bangbang: **Something went wrong...**"))
-            traceback.print_exc()
-        else:
-            traceback.print_exc()
-            
-        if ctx_is_message:
             trigger_message = discord.Embed(title="Trigger",type="rich",color=gconf.EMBED_COLOUR)
             trigger_message.add_field(name="Message",value=ctx.author.mention+":\n"+ctx.content)
             await util.duelogger.error(("**Message/command triggred error!**\n"
-                                        +"__Stack trace:__ ```"+traceback.format_exc()+"```"),embed=trigger_message)
-        else:
-            await util.duelogger.error(("**DueUtil experienced an error!**\n"
-                                        +"__Stack trace:__ ```"+traceback.format_exc()+"```"))
-            
+                                        +"__Stack trace:__ ```"+traceback.format_exc()[:1500]+"```"),embed=trigger_message)
+        traceback.print_exc()
+
     @asyncio.coroutine
     async def on_message(self,message):
         if message.author == self.user or message.channel.is_private or message.author.bot:

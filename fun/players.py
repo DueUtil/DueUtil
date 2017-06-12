@@ -191,11 +191,17 @@ class Player(DueUtilObject):
     @property
     def banner(self):
         banner = banners.get(self.banner_id,banners["discord blue"])
-        if not banner.can_use_banner(self):
-            player.banner_id = "discord blue"
-            return banners["discord blue"]
+        if not (self.banner_id in banners or banner.can_use_banner(self)):
+            self.banners.remove(self.banner_id)
+            self.banner_id = "discord blue"
         return banner
         
+    def get_background(self):
+        if not self.background in backgrounds:
+            self.backgrounds.remove(self.background)
+            self.background = "default"
+        return backgrounds[self.background]
+            
     def get_avatar_url(self,*args):
         server = args[0]
         member = server.get_member(self.id)

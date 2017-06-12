@@ -277,12 +277,7 @@ async def stats_screen(channel,player):
 
     theme = player.theme
     font_colour = theme["fontColour"]
-    
-    try:
-        image = players.backgrounds[player.background].image
-    except:
-        image = players.backgrounds["default"].image
-    image = image.copy()
+    image = player.get_background().image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screens"][theme["screen"]]
