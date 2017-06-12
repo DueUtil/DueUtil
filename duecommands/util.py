@@ -273,13 +273,41 @@ async def setuproles(ctx,*args,**details):
         await util.say(ctx.channel,"No roles need to be created!")
         
 @commands.command(args_pattern="S")
+@commands.ratelimit(cooldown=300,error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
 async def bugreport(ctx,*args,**details):
   
-    message = args[0]
+    """
+    [CMD_KEY]bugreport (message)
     
-    pass
+    Leaves a bug report on the official DueUtil server.
+    
+    (WIP command)
+    """
+  
+    message = args[0]
+    bug_report = discord.Embed(title=":bug: Bug Report",color=gconf.EMBED_COLOUR)
+    bug_report.description = "Bug report from "+ctx.author.mention+"."
+    bug_report.add_field(name="Message",value=message)
+    await util.say(ctx.channel,":mailbox_with_mail: Report sent!")
+    await util.duelogger.bug(embed=bug_report)
+
     
 @commands.command(args_pattern="S")
+@commands.ratelimit(cooldown=300,error=":hushed: Please no more feedback (for a few minutes)!")
 async def feedback(ctx,*args,**details):
     
-    pass
+    """
+    [CMD_KEY]feedback (message)
+    
+    Leaves some feedback on the official DueUtil server.
+    
+    (WIP command)
+    """
+    
+    message = args[0]
+    feedback = discord.Embed(title=":love_letter: Feedback",color=gconf.EMBED_COLOUR)
+    feedback.description = "Feedback from "+ctx.author.mention+"."
+    feedback.add_field(name="Message",value=message)
+    await util.say(ctx.channel,":mailbox_with_mail: Feedback sent!")
+    await util.duelogger.feedback(embed=feedback)
+

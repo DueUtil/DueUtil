@@ -96,6 +96,34 @@ def imagecommand(**command_rules):
             await asyncio.ensure_future(command_func(ctx,*args,**kwargs))
         return wrapped_command
     return wrap
+    
+def imagecommand(**command_rules):
+
+    def wrap(command_func):
+        @ratelimit(slow_command=True,cooldown=IMAGE_REQUEST_COOLDOWN,error=":cold_sweat: Please don't break me!")
+        @wraps(command_func)
+        async def wrapped_command(ctx, *args,**kwargs):
+            await util.get_client(ctx).send_typing(ctx.channel)
+            await asyncio.ensure_future(command_func(ctx,*args,**kwargs))
+        return wrapped_command
+    return wrap
+
+def ratelimit(**command_info):
+
+    def wrap(command_func):
+        @wraps(command_func)
+        async def wrapped_command(ctx, *args,**details):
+            player = details["author"]
+            command_name = details["command_name"]
+            if time.time() - player.command_rate_limts.get(command_name,0) < command_info["cooldown"]:
+                await util.say(ctx.channel,command_info["error"])
+                return 
+            else:
+                player.command_rate_limts[command_name] = time.time()
+            await command_func(ctx,*args,**details)
+        return wrapped_command
+    return wrap
+
           
 def parse(command_message):
   

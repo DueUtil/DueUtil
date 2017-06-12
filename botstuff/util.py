@@ -24,11 +24,11 @@ class DueLog():
     async def error(self,message,**kwargs):
         await say(gconf.error_channel,":bangbang: %s" % message,**kwargs)
         
-    async def bug(self,message,**kwargs):
-        pass
+    async def bug(self,*args,**kwargs):
+        await say(gconf.bug_channel,*args,**kwargs)
         
-    async def feedback(self,message,**kwargs):
-        pass
+    async def feedback(self,*args,**kwargs):
+        await say(gconf.feedback_channel,*args,**kwargs)
         
 duelogger = DueLog()
 

@@ -61,10 +61,10 @@ class Player(DueUtilObject):
         self.emojis = 0
         self.quest_day_start = 0
         self.quests_completed_today = 0
-        self.last_image_request = 0
         self.last_message_hashes = Ring(10)
         self.spam_detections = 0
         self.average_quest_battle_turns = 1
+        self.command_rate_limts = {}
         
         ##### THINGS #####
         self.quests = []
