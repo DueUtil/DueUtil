@@ -17,7 +17,12 @@ profile_themes = Themes()
 
 class Player(DueUtilObject):
   
-    """The DueUtil player!"""
+    """
+    The DueUtil player!
+    This (and a few other classes) are very higgledy-piggledy due to
+    being make very early on in development & have been changed so many
+    times while trying not to break older versions & code.
+    """
   
     def __init__(self,*args,**kwargs):
         global players,new_players_joined

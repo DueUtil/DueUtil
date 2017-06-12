@@ -113,7 +113,7 @@ class DueUtilClient(discord.Client):
             trigger_message = discord.Embed(title="Trigger",type="rich",color=gconf.EMBED_COLOUR)
             trigger_message.add_field(name="Message",value=ctx.author.mention+":\n"+ctx.content)
             await util.duelogger.error(("**Message/command triggred error!**\n"
-                                        +"__Stack trace:__ ```"+traceback.format_exc()[:1500]+"```"),embed=trigger_message)
+                                        +"__Stack trace:__ ```"+traceback.format_exc()[-1500:]+"```"),embed=trigger_message)
         traceback.print_exc()
 
     @asyncio.coroutine
