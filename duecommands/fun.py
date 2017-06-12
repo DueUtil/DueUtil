@@ -69,8 +69,13 @@ async def dueeval(ctx,*args,**details):
     fun.quests
     
     details["author"]
-    await util.say(ctx.channel,":ferris_wheel: Eval...\n"
-    "**Result** ```"+str(eval(args[0]))+"```")
+    try:
+        await util.say(ctx.channel,":ferris_wheel: Eval...\n"
+        "**Result** ```"+str(eval(args[0]))+"```")
+    except Exception as eval_exception:
+        await util.say(ctx.channel,(":cry: Could not evaluate!\n"
+                                   +"``%s``" % eval_exception))
+        
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PS")
 async def sudo(ctx,*args,**details):
