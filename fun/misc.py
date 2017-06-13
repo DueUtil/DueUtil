@@ -2,7 +2,6 @@ import collections
 import discord
 import urllib
 from bs4 import BeautifulSoup
-import requests
 from abc import ABC
 from botstuff import util, dbconn
 import generalconfig as gconf 
@@ -16,6 +15,11 @@ GLIITER_TEXT_URL = ("http://www.gigaglitters.com/procesing.php?text=%s"
 
 class AutoReply:
   
+    """
+    Auto reply
+    (Not going to be used)
+    """
+    
     def __init__(self,server_id,message,key,**kwargs):
         self.message = message
         self.key = key
@@ -24,6 +28,10 @@ class AutoReply:
         kwargs.get('channel_id',"all")
         
 class DueUtilObject():
+  
+    """
+    Base object for DueUtil items
+    """
   
     NAME_LENGTH_RANGE = range(1,33)
     
@@ -161,6 +169,12 @@ class DueMap(collections.MutableMapping):
         
 class Ring(list):
     
+    """
+    Like a list but a fixed number of elements.
+    If you try to append past the end it overwrites an
+    element at the start of the ring
+    """
+    
     def __init__(self,size):
         self += [None] * size
         self.size = size
@@ -188,6 +202,10 @@ class Ring(list):
             self.wrap_index += 1
         
 class Wizzard(ABC):
+  
+    """
+    WIP - Setup wizzard
+    """
     
     def __init__(self,name,question_count):
         self.name = name
@@ -202,13 +220,6 @@ class Wizzard(ABC):
         bar_incomplete_len = bar_width - bar_complete_len
         return '['+('"'*bar_complete_len)+(' '*bar_incomplete_len)+']'
          
-def valid_image(bg_to_test,dimensions):
-    if bg_to_test != None:
-        width, height = bg_to_test.size
-        if width == dimensions[0] and height == dimensions[1]:
-            return True
-    return False
-
 """    
 def random_word():
     response = requests.get("http://randomword.setgetgo.com/get.php")

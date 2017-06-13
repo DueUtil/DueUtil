@@ -1,5 +1,4 @@
 import enchant
-# import language_check
 from guess_language import guess_language
 import ssdeep
 import time
@@ -14,9 +13,13 @@ from fun import stats, weapons, players, quests, imagehelper, dueserverconfig
 exp_per_level = dict()
 SPAM_TOLERANCE = 50
 
-# LANG_TOOL = language_check.LanguageTool('en-GB')
-
 def get_spam_level(player,message_content):
+  
+    """
+    Get's a spam level for a message using a 
+    fuzzy hash > 50% means it's probably spam
+    """
+    
     message_hash = ssdeep.hash(message_content)
     spam_level = 0     
     spam_levels = [ssdeep.compare(message_hash, prior_hash) for prior_hash in player.last_message_hashes if prior_hash != None]
@@ -93,6 +96,11 @@ async def player_message(message,player,spam_level):
         stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
         
 async def check_for_level_up(ctx,player):
+  
+    """
+    Handles player level ups.
+    """
+    
     exp_for_next_level = get_exp_for_next_level(player.level)
     level_up_reward = 0
     while player.exp >= exp_for_next_level:
@@ -122,8 +130,7 @@ async def check_for_level_up(ctx,player):
 async def manage_quests(message,player,spam_level):
   
     """ 
-    Give out quests!
-    
+    Gives out quests!
     """
     
     channel = message.channel
@@ -153,6 +160,10 @@ async def manage_quests(message,player,spam_level):
 
 async def check_for_recalls(ctx,player):
   
+    """
+    Checks for weapons that have been recalled
+    """
+  
     current_weapon = [player.w_id,player.weapon_sum]
     weapons_to_recall = [weapon_info for weapon_info in player.weapon_inventory+[current_weapon]
                           if (weapons.get_weapon_from_id(weapon_info[0]).id == weapons.NO_WEAPON_ID
@@ -177,7 +188,6 @@ def get_exp_for_next_level(level):
     return -1
 
 def load_game_rules():
-    global exp_per_level
     with open('fun/configs/progression.json') as progression_file:  
         progression = json.load(progression_file)
     exp = progression["dueutil-ranks"]

@@ -3,6 +3,11 @@ import discord
 from functools import wraps
 import generalconfig as gconf 
 
+"""
+Generic wrappers to make listing items (e.g. backgrounds)
+and setting them faster (to make)
+"""
+
 def item_preview(thing_info):
     
     """

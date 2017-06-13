@@ -118,7 +118,6 @@ def stock_weapon(weapon_name):
         return NO_WEAPON_ID
   
 def load_stock_weapons():
-    global stock_weapons
     with open('fun/configs/defaultweapons.json') as defaults_file:  
         defaults = json.load(defaults_file)
     for weapon,weapon_data in defaults.items():
@@ -133,7 +132,6 @@ def load_stock_weapons():
                no_save = True)
               
 def load():
-    global weapons
     none = Weapon('None', None, 1, 66, no_save = True)
     
     load_stock_weapons()

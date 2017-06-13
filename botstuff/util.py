@@ -4,14 +4,16 @@ import emoji #The emoji list in this is outdated.
 import generalconfig as gconf
 import aiohttp
 import io
+import time
 import asyncio
+from botstuff.trello import TrelloClient
 
 shard_clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('dueutil')
-    
+trello_client = TrelloClient(gconf.trello_api_key,gconf.trello_api_token)
+
 class DueLog():
-  
     async def bot(self,message,**kwargs):
         await say(gconf.log_channel,":robot: %s" % message,**kwargs)
         
@@ -23,13 +25,7 @@ class DueLog():
         
     async def error(self,message,**kwargs):
         await say(gconf.error_channel,":bangbang: %s" % message,**kwargs)
-        
-    async def bug(self,*args,**kwargs):
-        await say(gconf.bug_channel,*args,**kwargs)
-        
-    async def feedback(self,*args,**kwargs):
-        await say(gconf.feedback_channel,*args,**kwargs)
-        
+
 duelogger = DueLog()
 
 class DueUtilException(ValueError):
@@ -83,6 +79,15 @@ def load_and_update(reference,object):
     
 def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients)
+    
+def pretty_time():
+    return time.strftime('%l:%M%p %Z on %b %d, %Y')
+    
+def get_server_count():
+    server_count = 0
+    for client in shard_clients:
+        server_count+= len(client.servers)
+    return server_count
 
 def get_server_id(source):
     if isinstance(source,str):

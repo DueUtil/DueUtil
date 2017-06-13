@@ -13,6 +13,7 @@ def loader(action):
             if not module_name.startswith('__') and module_name.endswith(MODULE_EXTENSIONS):
                 module = package+'.'+module_name.split('.')[0]
                 action(module)
+    util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))
 
 def load_module(module):
   
@@ -56,6 +57,3 @@ def get_loaded_modules():
     for module in loaded_modules:
         loaded += "``"+module+"``\n"
     return loaded
-    
-load_modules()
-util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))

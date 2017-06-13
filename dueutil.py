@@ -1,6 +1,6 @@
 import discord
 import generalconfig as gconf
-from botstuff import util ,events, loader, permissions, dbconn
+from botstuff import util, loader, events, permissions, dbconn
 from botstuff.permissions import Permission
 import os
 import sys
@@ -19,11 +19,17 @@ bot_key = ""
 shard_count = 0
 shard_clients = []
 shard_names = []
-config = None
 
-""" The most 1337 (worst) discord bot ever."""
+""" 
+DueUtil: The most 1337 (worst) discord bot ever.     
+This bot is not well structured...
+"""
 
 class DueUtilClient(discord.Client):
+  
+    """
+    DueUtil shard client
+    """
 
     def __init__(self, *args, **kwargs):
         self.shard_id = kwargs["shard_id"]
@@ -58,10 +64,11 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     async def on_server_join(self,server):
-        print("Server join")
-        server_count = 0
-        for client in shard_clients:
-            server_count+= len(client.servers)
+        server_count = util.get_server_count()
+        if server_count % 100 == 0:
+            # Announce every 100 servers (for now)
+            await util.say(gconf.announcement_channel,":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111" % server_count)
+      
         payload = {"key":'macdue0a873a71hjd673o1',"servercount":server_count}
         url = "https://www.carbonitex.net/discord/data/botdata.php"
         #reponse = await aiohttp.post(url, data=payload)
@@ -118,7 +125,10 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     async def on_message(self,message):
-        if message.author == self.user or message.channel.is_private or message.author.bot:
+        if (message.author == self.user 
+            or message.channel.is_private 
+            or message.author.bot
+            or not loaded()):
             return
         await events.on_message_event(message)     
         
@@ -142,8 +152,6 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     async def on_ready(self):
-        #global start_time
-        #start_time = time.time()
         shard_number = shard_clients.index(self) +1
         help_status = discord.Game()
         help_status.name = "dueutil.tech | shard "+str(shard_number)+"/"+str(shard_count)
@@ -174,6 +182,9 @@ class DueUtilClient(discord.Client):
         channel = self.get_channel(config["bugChannel"])
         if channel != None:
             gconf.bug_channel = channel
+        channel = self.get_channel(config["announcementsChannel"])
+        if channel != None:
+            gconf.announcement_channel = channel
 
 class ShardThread(Thread):
   
@@ -187,7 +198,6 @@ class ShardThread(Thread):
         super().__init__()
         
     def run(self):
-        global shard_clients
         asyncio.set_event_loop(self.event_loop)
         client = DueUtilClient(shard_id=self.shard_number,shard_count=shard_count)
         shard_clients.append(client)
@@ -202,28 +212,13 @@ class ShardThread(Thread):
                 util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
         finally:
             util.logger.critical("Shard is down! Bot needs restarting!")
-            sys.exit("Bot crashed.")
-    
-
-def is_due_loaded():
-    return False
-
-def load_due():
-    load_config()
-    util.load(shard_clients)
-    
-
+            # Should restart bot
+            os._exit(1)
+        
 def load_config():
-    global bot_key,shard_count,shard_clients,shard_names,config
     try:
         with open('dueutil.json') as config_file:  
-            config = json.load(config_file)
-        bot_key = config["botToken"]
-        shard_count = config["shardCount"]
-        shard_names = config["shardNames"]
-        owner = discord.Member(user={"id":config["owner"]})
-        if not permissions.has_permission(owner,Permission.DUEUTIL_ADMIN):
-            permissions.give_permission(owner,Permission.DUEUTIL_ADMIN)
+            return json.load(config_file)
     except:
         sys.exit("Config error!")
 
@@ -242,18 +237,25 @@ def run_due():
     if not os.path.exists("imagecache/"):
         os.makedirs("imagecache/")  
     if not stopped:
-        if not is_due_loaded():
-            load_due()
         for shard_number in range(0,shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(),shard_number)
             shard_thread.start()
-            while len(shard_clients) <= loaded_clients:
-                pass
+            while len(shard_clients) <= loaded_clients: pass   
+        while not loaded(): pass
+        loader.load_modules()
         
 def loaded():
     return all(client.loaded for client in shard_clients)
             
 if __name__ == "__main__":
+    config = load_config()
+    bot_key = config["botToken"]
+    shard_count = config["shardCount"]
+    shard_names = config["shardNames"]
+    owner = discord.Member(user={"id":config["owner"]})
+    if not permissions.has_permission(owner,Permission.DUEUTIL_ADMIN):
+        permissions.give_permission(owner,Permission.DUEUTIL_ADMIN)
+    util.load(shard_clients)
     util.logger.info("Starting DueUtil!")
     run_due()

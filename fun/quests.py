@@ -235,7 +235,6 @@ def load_default_quests():
               no_save = True)
   
 def load():
-    global quest_map
     reference = Quest('Reference',1,1,1,1,server_id="")
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():

@@ -5,6 +5,10 @@ from botstuff import util
 
 awards = dict()
 
+"""
+DueUtil awards
+"""
+
 class Award:
   
     __slots__ = ["name","description","icon"]
@@ -19,7 +23,6 @@ def get_award(award_id):
         return awards[award_id]
 
 def load():
-    global awards
     with open('fun/configs/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
     for award_id, award in awards_json["awards"].items():

@@ -22,6 +22,11 @@ class BattleRequest:
         receiver.save()
 
 def get_battle_log(**battleargs):
+  
+    """
+    Creates a formatted embed of a battle
+    """
+    
     battle_result = battle(**battleargs)
     battle_moves = list(battle_result[0].values())
     battle_embed = discord.Embed(title=(battleargs['player_one'].name_clean
@@ -38,6 +43,12 @@ def get_battle_log(**battleargs):
 
 # quest, wager normal
 def battle(**battleargs):
+  
+    """
+    Battles two player like things.
+    Will return a log of the battle
+    """
+    
     current_move = 1
     damage_modifier = 1.5
     

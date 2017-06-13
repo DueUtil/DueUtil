@@ -242,7 +242,6 @@ def get_themes():
     return profile_themes
             
 def load_player(player_id):
-    global players
     response = dbconn.get_collection_for_object(Player).find_one({"_id":player_id})
     if response != None and 'data' in response:
         player_data = response['data']

@@ -63,9 +63,9 @@ async def help(ctx,*args,**details):
         help.add_field(name="Tips",value = ("If DueUtil reacts to your command it means something is wrong!\n"
                                             + "\":question:\": Something is wrong with the commands syntax.\n"          
                                             + "\":x:\": You don't have the required permissions to use the command."))
-        help.add_field(name="Links",value = ( "Official site: https://dueutil.tech/"
-                                              +"\nOfficial server: https://discord.gg/ZzYvt8J"
-                                              +"\nMrAwais' guide: http://dueutil.weebly.com/ (currently outdated)"))
+        help.add_field(name="Links",value = ( "[Official site](https://dueutil.tech/)\n"
+                                              +"[Official server](https://discord.gg/ZzYvt8J)\n"
+                                              +"[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
         help.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
       
     await util.say(ctx.channel,embed=help)
@@ -271,43 +271,4 @@ async def setuproles(ctx,*args,**details):
         await util.say(ctx.channel,":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel,"No roles need to be created!")
-        
-@commands.command(args_pattern="S")
-@commands.ratelimit(cooldown=300,error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
-async def bugreport(ctx,*args,**details):
-  
-    """
-    [CMD_KEY]bugreport (message)
-    
-    Leaves a bug report on the official DueUtil server.
-    
-    (WIP command)
-    """
-  
-    message = args[0]
-    bug_report = discord.Embed(title=":bug: Bug Report",color=gconf.EMBED_COLOUR)
-    bug_report.description = "Bug report from "+ctx.author.mention+"."
-    bug_report.add_field(name="Message",value=message)
-    await util.say(ctx.channel,":mailbox_with_mail: Report sent!")
-    await util.duelogger.bug(embed=bug_report)
-
-    
-@commands.command(args_pattern="S")
-@commands.ratelimit(cooldown=300,error=":hushed: Please no more feedback (for a few minutes)!")
-async def feedback(ctx,*args,**details):
-    
-    """
-    [CMD_KEY]feedback (message)
-    
-    Leaves some feedback on the official DueUtil server.
-    
-    (WIP command)
-    """
-    
-    message = args[0]
-    feedback = discord.Embed(title=":love_letter: Feedback",color=gconf.EMBED_COLOUR)
-    feedback.description = "Feedback from "+ctx.author.mention+"."
-    feedback.add_field(name="Message",value=message)
-    await util.say(ctx.channel,":mailbox_with_mail: Feedback sent!")
-    await util.duelogger.feedback(embed=feedback)
 

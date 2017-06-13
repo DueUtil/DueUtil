@@ -185,7 +185,7 @@ async def updatebot(ctx,*args,**details):
     if len(update_result.strip()) == 0:
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating DueUtil!",type="rich",color=gconf.EMBED_COLOUR)
-    update_embed.description = "Pulling lasted version from **GitLab**!"
+    update_embed.description = "Pulling lastest version from **GitLab**!"
     update_embed.add_field(name='Changes',value='```'+update_result+'```',inline=False)
     await util.say(ctx.channel,embed=update_embed)
     update_result = update_result.strip()

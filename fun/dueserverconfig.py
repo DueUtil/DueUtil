@@ -6,6 +6,10 @@ command_whitelist = DueMap()
 server_keys = dict()
 DEFAULT_SERVER_KEY = "!"
 
+"""
+General config for a particular server
+"""
+
 def update_server_config(server,**update):
     dbconn.conn()["serverconfigs"].update({'_id': server.id},
                                   {"$set": 
