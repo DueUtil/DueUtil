@@ -1,5 +1,5 @@
 import threading
-from fun import players
+from . import players
 from botstuff import events, util
 import time
 

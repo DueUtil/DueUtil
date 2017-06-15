@@ -1,18 +1,19 @@
 import discord
 import inspect
-from fun import weapons, players
-from duecommands import weapons as weap_cmds
-from duecommands import players as player_cmds
-from botstuff import commands
-from botstuff import util
+from fun.game import weapons, players
+from duecommands import (
+    weapons as weap_cmds,
+    players as player_cmds)
+from botstuff import commands,util
 import generalconfig as gconf 
 
-from fun.shop_abstract import ShopBuySellItem
+from fun.helpers.shop_abstract import ShopBuySellItem
 
 ### Fill in the blanks buy/sell
 # TODO: Tell how to set bg etc
 
 class BuySellTheme(ShopBuySellItem):
+    item_type = "theme"
     def store_item(self,player,item_name):
         player.themes.append(item_name)
         if player.theme_id == "default":
@@ -23,10 +24,8 @@ class BuySellTheme(ShopBuySellItem):
         return player.themes
     def get_item(self,item_name):
         return players.get_theme(item_name)
-    def item_price(self,item):
+    def get_price(self,item):
         return item["price"] 
-    def item_type_name(self):
-        return "theme"
     def can_sell(self,item_name):
         return item_name != "default"  
     def remove_item(self,item_name,item,player):
@@ -34,6 +33,7 @@ class BuySellTheme(ShopBuySellItem):
         player.themes.remove(item_name)
       
 class BuySellBanner(ShopBuySellItem):
+    item_type = "banner"
     def store_item(self,player,item_name):
         player.banners.append(item_name)
         if player.banner_id == "discord blue":
@@ -44,10 +44,8 @@ class BuySellBanner(ShopBuySellItem):
         return player.banners
     def get_item(self,item_name):
         return players.get_banner(item_name)
-    def item_price(self,item):
+    def get_price(self,item):
         return item.price 
-    def item_type_name(self):
-        return "banner"
     def can_sell(self,item_name):
         return item_name != "discord blue"  
     def remove_item(self,item_name,item,player):
@@ -55,6 +53,7 @@ class BuySellBanner(ShopBuySellItem):
         player.banners.remove(item_name)
       
 class BuySellBackground(BuySellTheme):
+    item_type = "background"
     def store_item(self,player,item_name):
         player.backgrounds.append(item_name)
         if player.background == "default":
@@ -65,8 +64,6 @@ class BuySellBackground(BuySellTheme):
         return player.backgrounds
     def get_item(self,item_name):
         return players.get_background(item_name)
-    def item_type_name(self):
-        return "background"
     def remove_item(self,item_name,item,player):
         player.background = "default"
         player.backgrounds.remove(item_name)

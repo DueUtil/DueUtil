@@ -1,7 +1,7 @@
-from botstuff import commands
-from botstuff import util
+from botstuff import commands,util
 from botstuff.permissions import Permission
-from fun import misc,imagehelper,players,awards
+from fun.game import players,awards
+from fun.helpers import misc,imagehelper
 import re
 import json
 import os

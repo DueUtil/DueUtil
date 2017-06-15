@@ -3,9 +3,9 @@ import random
 import math
 import jsonpickle
 import numpy
-from fun import weapons
-from fun.misc import DueUtilObject, Ring
-from fun.customization import Themes, Backgrounds, Banners
+from . import weapons
+from ..helpers.misc import DueUtilObject, Ring
+from .customization import Themes, Backgrounds, Banners
 from botstuff import util, dbconn
 
 players = dict()   

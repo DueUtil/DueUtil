@@ -2,12 +2,12 @@ import re
 import math
 import os
 from colour import Color
-from fun import awards
-from fun import dueserverconfig
-from fun import game
-from fun import players
-from fun import stats
-from fun import weapons
+from ..game import awards
+from ..configs import dueserverconfig
+from ..game import game
+from ..game import players
+from ..game import stats
+from ..game import weapons
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont

@@ -1,4 +1,4 @@
-from fun.misc import DueUtilObject
+from ..helpers.misc import DueUtilObject
 from botstuff import permissions
 from botstuff.permissions import Permission
 import discord

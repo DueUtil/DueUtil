@@ -1,9 +1,8 @@
 import discord
-from fun import stats, dueserverconfig
-from fun.stats import Stat
-from botstuff import commands
-from botstuff import events
-from botstuff import util
+from fun.game import stats
+from fun.configs import dueserverconfig
+from fun.game.stats import Stat
+from botstuff import commands,events,util
 from botstuff.permissions import Permission
 import generalconfig as gconf 
 

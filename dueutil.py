@@ -106,9 +106,11 @@ class DueUtilClient(discord.Client):
                 await self.send_message(error.channel,error.get_message())
             else:
                 await self.send_message(ctx.channel,error.get_message())
+            return
         elif isinstance(error,util.DueReloadException):
             loader.reload_modules()
             await util.say(error.channel,loader.get_loaded_modules())
+            return
         elif isinstance(error,discord.Forbidden):
             if ctx_is_message:
                 self.send_message(ctx.channel,("I'm missing my required permissions in this channel!"

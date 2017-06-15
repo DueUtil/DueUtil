@@ -1,19 +1,35 @@
 import importlib
+import pkgutil
+from importlib import util as importutil
 import os  
 import sys
 from botstuff import events, util
+import os
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 BOT_PACKAGES = ('duecommands','fun')
 loaded_modules = []
 
-def loader(action):
-    for package in BOT_PACKAGES:
-        for module_name in os.listdir('./'+package):
-            if not module_name.startswith('__') and module_name.endswith(MODULE_EXTENSIONS):
-                module = package+'.'+module_name.split('.')[0]
-                action(module)
-    util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))
+def loader(action,packages=BOT_PACKAGES):
+  
+    """ 
+    Inefficient - but allows me to load all the modules (needed to register commands & load game stuff)
+    and produce a pretty list
+    """
+    
+    subpackages = []
+    for package_name in packages:
+        package = importlib.import_module(package_name)
+        for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+                                                              prefix=package.__name__+'.'):
+            if not ispkg:
+                action(modname)
+            else:
+                subpackages.append(modname)
+    if len(subpackages) > 0:
+        loader(action,packages=subpackages)
+    if packages == BOT_PACKAGES:
+        util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))
 
 def load_module(module):
   

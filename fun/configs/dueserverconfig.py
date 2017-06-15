@@ -1,5 +1,5 @@
 from botstuff import dbconn
-from fun.misc import DueMap
+from ..helpers.misc import DueMap
 
 muted_channels = DueMap()
 command_whitelist = DueMap()

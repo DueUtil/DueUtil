@@ -1,7 +1,7 @@
 import jsonpickle
 import json
 from botstuff import util, dbconn
-from fun.misc import DueUtilObject, DueMap
+from ..helpers.misc import DueUtilObject, DueMap
 
 NO_WEAPON_ID = "STOCK/none"
 stock_weapons = ["none"]

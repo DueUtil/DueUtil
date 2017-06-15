@@ -1,5 +1,5 @@
 import discord
-from fun import weapons
+from . import weapons
 from botstuff import util
 import random 
 from collections import OrderedDict

@@ -1,7 +1,7 @@
 import inspect
 from botstuff import commands
-from fun.misc import DueMap
-from fun import dueserverconfig
+from fun.helpers.misc import DueMap
+from fun.configs import dueserverconfig
 
 class MessageEvent(list):
   

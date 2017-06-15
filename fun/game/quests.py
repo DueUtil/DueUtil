@@ -3,9 +3,9 @@ import json
 import random
 import jsonpickle
 from botstuff import util, dbconn
-from fun import weapons, players
-from fun.misc import DueUtilObject, DueMap
-from fun.players import Player
+from . import weapons, players
+from ..helpers.misc import DueUtilObject, DueMap
+from .players import Player
         
 quest_map = DueMap()
 

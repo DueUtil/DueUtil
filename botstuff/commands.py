@@ -2,12 +2,18 @@ import time
 import asyncio
 import re
 from functools import wraps
-from fun import players,misc,dueserverconfig
+from fun.game import players
+from fun.configs import dueserverconfig
+from fun.helpers import misc
 from botstuff import events,util,permissions
 from botstuff.permissions import Permission
 import sys
 
 IMAGE_REQUEST_COOLDOWN = 5
+
+"""
+DueUtils random command system.
+"""
 
 def command(**command_rules):
   
@@ -58,13 +64,14 @@ def command(**command_rules):
                 return True
             if check(ctx.author,wrapped_command):
                 args_pattern = command_rules.get('args_pattern',"")
-                if not await check_pattern(args_pattern,args[2]):
+                command_args = await determine_args(args_pattern,args[2])
+                if command_args is False:
                     await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753")
                 elif not is_spam_command(ctx,wrapped_command,*args):
                     # await util.say(ctx.channel,str(args))
                     kwargs["cmd_key"] = args[0]
                     kwargs["command_name"] = args[1]
-                    await command_func(ctx,*args[2],**get_command_details(ctx,**kwargs))
+                    await command_func(ctx,*command_args,**get_command_details(ctx,**kwargs))
                 else:
                     raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
             else:
@@ -129,7 +136,6 @@ def parse(command_message):
   
     """A basic command parser with support for escape strings."""
     
-    
     key = dueserverconfig.server_cmd_key(command_message.server)
     command_string = command_message.content.replace(key,'',1)
     user_mentions = command_message.raw_mentions
@@ -178,16 +184,8 @@ def parse(command_message):
     else:
         return (key,"",[])
         
-def predict_args(pattern,args):
-    if pattern == "S" and len(args) > 0:
-        return [' '.join(args)]
-    #elif patt
-    """
-      .......S
-    
-    """
         
-async def check_pattern(pattern,args):
+async def determine_args(pattern,args):
     
     """A string to define the expected args of a command
     
@@ -214,8 +212,8 @@ async def check_pattern(pattern,args):
             return min(float(string),sys.float_info.max)
         except:return False 
         
-    def check_optional():
-        nonlocal pattern,args
+    def remove_optional(pattern):
+        nonlocal args
         pattern_pos = len(pattern)-1
         while pattern_pos >= 0:
             if len(pattern.replace('?','')) == len(args):
@@ -227,8 +225,20 @@ async def check_pattern(pattern,args):
                 pattern_pos = len(pattern)-1
                 continue
             pattern_pos -= 1
-        pattern = pattern.replace('?','')
-        return True
+        return pattern.replace('?','')
+        
+    def could_be_string(pattern):
+        nonlocal args
+        if pattern[0] == 'S':
+            if len(pattern) > 1:
+                pattern_pos = len(pattern)-1
+                while pattern_pos > 0:
+                    if pattern[pattern_pos] == '?':
+                        pattern_pos -= 2
+                        continue
+                    return False
+            return True
+        return False
     
     def represents_string(string):
         
@@ -247,14 +257,18 @@ async def check_pattern(pattern,args):
     if pattern == None and len(args) > 0:
         return False
     elif pattern == None and len(args) == 0:
-        return True
+        return args
     if len(pattern) == 0:
-        return True
+        return args
     if '*' not in pattern:
-        if not check_optional():
+        pattern_optional_removed = remove_optional(pattern)
+        if pattern_optional_removed is False or len(args) > len(pattern_optional_removed):
+            if could_be_string(pattern):
+                # If the command is wrong by all other tests and it could be a string
+                # merge the arguments to a single string.
+                return (' '.join(args),)
             return False
-        if len(args) > len(pattern):
-            return False
+        pattern = pattern_optional_removed
         
     pos = 0
     args_index = 0
@@ -293,7 +307,9 @@ async def check_pattern(pattern,args):
         args_index+=1
         if pos_change:
             pos+=1
-    return checks_satisfied == len(args)
+    if checks_satisfied == len(args):
+        return args
+    return False
         
     
 def point_error(command_string):

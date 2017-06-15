@@ -1,6 +1,6 @@
 import json
 from PIL import Image
-from fun import dueserverconfig
+from ..configs import dueserverconfig
 from botstuff import util
 
 awards = dict()

@@ -1,10 +1,7 @@
 import discord
-import fun.awards
-from fun import imagehelper
-from fun import players
-from fun import stats
-from fun import misc
-from fun import players_abstract
+import fun.game.awards as game_awards
+from fun.game import players, stats
+from fun.helpers import misc,players_abstract,imagehelper
 from botstuff import commands,util,permissions
 from botstuff.permissions import Permission
 import generalconfig as gconf 
@@ -20,6 +17,7 @@ async def battlename(ctx,*args,**details):
     command with no arguments
     
     """
+    
     player = details["author"]
     if len(args) == 1:
         name = args[0]
@@ -112,9 +110,9 @@ async def resetme(ctx,*args,**details):
         player.reset(ctx.author)
         await util.say(ctx.channel, "Your user has been reset.")
         if permissions.has_special_permission(ctx.author,Permission.DUEUTIL_MOD):
-            await fun.awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+            await game_awards.give_award(ctx.channel,player,"Mod","Become an mod!")
         elif permissions.has_special_permission(ctx.author,Permission.DUEUTIL_ADMIN):
-            await fun.awards.give_award(ctx.channel,player,"Admin","Become an admin!")    
+            await game_awards.give_award(ctx.channel,player,"Admin","Become an admin!")    
     else:
         await util.say(ctx.channel,("Are you sure?! This will **__permanently__** reset your user!"
                                     +"\nDo ``"+details["cmd_key"]+"resetme cnf`` if you're sure!"))
@@ -304,7 +302,7 @@ def setbanner(player):
     return {"thing_type":"banner",
             "thing_getter":players.get_banner,
             "thing_setter":player.set_banner,
-            "thing_list":player.banner}
+            "thing_list":player.banners}
     
 # Part of the shop buy command
 @misc.paginator

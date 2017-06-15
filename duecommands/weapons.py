@@ -1,5 +1,6 @@
 import discord
-from fun import battles, imagehelper, weapons, players, stats, misc
+from fun.game import battles, weapons, players, stats
+from fun.helpers import  imagehelper, misc
 from botstuff import commands
 from botstuff import util
 from botstuff.permissions import Permission

@@ -2,9 +2,7 @@ import discord
 import math
 from datetime import datetime
 import repoze.timeago
-from fun import awards
-from fun import leaderboards
-import fun.players, fun.weapons, fun.quests
+from fun.game import awards,leaderboards
 from botstuff import util,commands,events
 import botstuff.permissions
 from botstuff.permissions import Permission

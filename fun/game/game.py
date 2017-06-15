@@ -8,7 +8,9 @@ import re
 import time
 from botstuff import events
 from botstuff import util
-from fun import stats, weapons, players, quests, imagehelper, dueserverconfig
+from . import stats, weapons, players, quests
+from ..configs import dueserverconfig
+from ..helpers import imagehelper
 
 exp_per_level = dict()
 SPAM_TOLERANCE = 50

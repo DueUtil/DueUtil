@@ -1,6 +1,6 @@
 import discord
 from enum import Enum
-from fun import players
+from fun.game import players
 from botstuff import dbconn
 
 special_permissions = dict()

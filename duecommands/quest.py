@@ -2,7 +2,13 @@ import discord
 import math
 import time
 from collections import OrderedDict
-from fun import quests, game, battles, imagehelper, weapons, stats
+from fun.game import (
+    quests,
+    game,
+    battles,
+    weapons,
+    stats)
+from fun.helpers import imagehelper
 from botstuff import commands, util
 from botstuff.permissions import Permission
 import generalconfig as gconf 
