@@ -13,10 +13,10 @@ class Award:
   
     __slots__ = ["name","description","icon"]
     
-    def __init__(self,icon_path,name,description):
+    def __init__(self,icon_name,name,description):
         self.name = name
         self.description = description
-        self.icon = Image.open(icon_path)
+        self.icon = Image.open("awards/"+icon_name)
         
 def get_award(award_id):
     if award_id in awards:

@@ -8,12 +8,13 @@ import re
 import time
 from botstuff import events
 from botstuff import util
-from . import stats, weapons, players, quests
+from . import stats, weapons, players, quests, awards
 from ..configs import dueserverconfig
 from ..helpers import imagehelper
 
 exp_per_level = dict()
 SPAM_TOLERANCE = 50
+old_players = open('oldplayers.txt').read() # For comeback award
 
 def get_spam_level(player,message_content):
   
@@ -57,6 +58,16 @@ async def player_message(message,player,spam_level):
                  player.last_progress = time.time()
             else:
                 return
+                
+            ### Comeback award
+            
+            if player.id in old_players:
+                await awards.give_award(message.channel,player,"CameBack","Return to DueUtil")
+             
+            ### Donor award
+            
+            if player.donor:
+                await awards.give_award(message.channel,player,"Donor","Donate to DueUtil!!! :money_with_wings: :money_with_wings: :money_with_wings:")
                 
             ### DueUtil - the hidden spelling game!
             
@@ -120,14 +131,10 @@ async def check_for_level_up(ctx,player):
             await imagehelper.level_up_screen(ctx.channel,player,level_up_reward)
         else:
             util.logger.info("Won't send level up image - channel blocked.")
-        
-        """                    
         rank = player.rank
-        if rank == 2:
-            await give_award(ctx.channel, player, 2, "Attain rank 2.")
-        elif rank > 2 and rank <= 9:
-            await give_award(ctx.channel, player, rank+2, "Attain rank "+str(rank)+".")  
-        """       
+        if rank >= 1 and rank <= 10:
+            await awards.give_award(ctx.channel, player, "Rank%d" % rank, "Attain rank %d." % rank)  
+
         
 async def manage_quests(message,player,spam_level):
   

@@ -1,80 +1,117 @@
 {
    "themes":{
       "default":{
-          "name":"Default",
-          "icon":":cd:",
-          "description":"The classic look of DueUtil since 2016.",
-          "banner":"discord blue",
-          "fontColour": "#FFF",
-          "background": "default",
-          "avatarBorder": "default",
-          "screen": "default",
-          "expBarColour": ["#FFF","#CCC"],
-          "icons": "default",
-          "preview": "http://i.imgur.com/2vkkVmy.png",
-          "price": 0
+         "name":"Default",
+         "icon":":cd:",
+         "description":"The classic look of DueUtil since 2016.",
+         "banner":"discord blue",
+         "fontColour":"#FFF",
+         "background":"default",
+         "avatarBorder":"default",
+         "screen":"default",
+         "expBarColour":[
+            "#FFF",
+            "#CCC"
+         ],
+         "icons":"default",
+         "preview":"http://i.imgur.com/2vkkVmy.png",
+         "price":0
       },
-      "gun":{
-          "name":"Gun",
-          "icon":":space_invader:",
-          "description":"Hackerman test theme.",
-          "banner":"discord blue",
-          "fontColour": "#FF00FF",
-          "background": "default",
-          "avatarBorder": "default",
-          "screen": "default",
-          "expBarColour": ["#00FF00","#0000FF"],
-          "icons": "default",
-          "rankColours": [
-              "#FFFF00",
-              "#EBC42A",
-              "#EB912A",
-              "#2AEB44",
-              "#AE2AEB",
-              "#2A67EB",
-              "#A3665A",
-              "#E0210B",
-              "#0F0F0F"
-          ],
-          "preview": "http://i.imgur.com/5IgoZLh.png",
-          "price": 5000
+      "classic due":{
+         "name":"Classic Due",
+         "icon":":spider_web:",
+         "description":"Based on the design of prerelease Due",
+         "banner":"translucent black",
+         "background":"classic",
+         "avatarBorder":"classicavatar",
+         "screen":"classic",
+         "headerColour":"#FFFFFF",
+         "mainColour":"#FFFFFF",
+         "bannerColour":"#FFFFFF",
+         "sideColour":"#303030",
+         "expColour":"#FFFFFF",
+         "expBarColour":[
+            "#FFFFFF",
+            "#C24747"
+         ],
+         "icons":"classicicons",
+         "preview":"",
+         "price":1
       },
-      "pink":{
-          "name":"Pink",
-          "icon":":kiss:",
-          "description":"hot sexy af pink theme",
-          "banner":"hotpink",
-          "fontColour": "#FFD1DC",
-          "background": "default",
-          "avatarBorder": "hotpinkavatar",
-          "screen": "hotpink",
-          "expBarColour": ["#FFD1DC","#FFF"],
-          "icons": "pinkicons",
-          "rankColours": [
-              "#FFD1DC",
-              "#EBC42A",
-              "#EB912A",
-              "#2AEB44",
-              "#AE2AEB",
-              "#2A67EB",
-              "#A3665A",
-              "#E0210B",
-              "#0F0F0F"
-          ],
-          "preview": "http://i.imgur.com/BDtK6xz.png",
-          "price": 10000
-          
+      "material blue":{
+         "name":"Material Blue",
+         "icon":":large_blue_diamond:",
+         "description":"Material Design: Blue",
+         "banner":"deep blue",
+         "background":"simple blue",
+         "avatarBorder":"matavatar",
+         "screen":"material",
+         "headerColour":"#758187",
+         "mainColour":"#82888c",
+         "bannerColour":"#FFFFFF",
+         "sideColour":"#FFFFFF",
+         "expColour":"#82888c",
+         "expBarColour":[
+            "#FFFFFF",
+            "#82888c"
+         ],
+         "icons":"maticons",
+         "preview":"http://i.imgur.com/KG05OnY.png",
+         "price":1
+      },
+      "material teal":{
+         "name":"Material Teal",
+         "icon":":tea:",
+         "description":"Material Design: Teal",
+         "banner":"teal",
+         "background":"simple teal",
+         "avatarBorder":"matavatar",
+         "screen":"materialteal",
+         "headerColour":"#758187",
+         "mainColour":"#82888c",
+         "bannerColour":"#FFFFFF",
+         "sideColour":"#FFFFFF",
+         "expColour":"#82888c",
+         "expBarColour":[
+            "#FFFFFF",
+            "#82888c"
+         ],
+         "icons":"maticons",
+         "preview":"http://i.imgur.com/KG05OnY.png",
+         "price":1
+      },
+      "material orange":{
+         "name":"Material Orange",
+         "icon":":large_orange_diamond:",
+         "description":"Material Design: Orange",
+         "banner":"orange",
+         "background":"simple grey",
+         "avatarBorder":"matavatar",
+         "screen":"materialorange",
+         "headerColour":"#758187",
+         "mainColour":"#82888c",
+         "bannerColour":"#FFFFFF",
+         "sideColour":"#FFFFFF",
+         "expColour":"#82888c",
+         "expBarColour":[
+            "#FFFFFF",
+            "#82888c"
+         ],
+         "icons":"maticons",
+         "preview":"http://i.imgur.com/KG05OnY.png",
+         "price":1
       }
    },
-   "rankColours": [
-        "#FFFFFF",
-        "#EBC42A",
-        "#EB912A",
-        "#2AEB44",
-        "#AE2AEB",
-        "#2A67EB",
-        "#A3665A",
-        "#E0210B",
-        "#0F0F0F"
-  ]
+   "rankColours":[
+      "#FFFFFF",
+      "#FFFFFF",
+      "#EBC42A",
+      "#EB912A",
+      "#2AEB44",
+      "#AE2AEB",
+      "#2A67EB",
+      "#A3665A",
+      "#E0210B",
+      "#0F0F0F"
+   ]
 }

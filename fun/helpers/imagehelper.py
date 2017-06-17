@@ -1,6 +1,7 @@
 import re
 import math
 import os
+import random
 from colour import Color
 from ..game import awards
 from ..configs import dueserverconfig
@@ -276,7 +277,21 @@ async def quests_screen(channel,player,page):
 async def stats_screen(channel,player):
 
     theme = player.theme
-    font_colour = theme["fontColour"]
+    
+    if "fontColour" in theme:
+        font_colour = theme["fontColour"]
+        header_colour = font_colour
+        main_colour = font_colour
+        banner_colour = font_colour
+        side_colour = DUE_BLACK
+        exp_colour = font_colour
+    else:
+        header_colour = theme["headerColour"]
+        main_colour = theme["mainColour"]
+        banner_colour = theme["bannerColour"]
+        side_colour = theme["sideColour"]
+        exp_colour = theme["expColour"]
+    
     image = player.get_background().image.copy()
 
     draw = ImageDraw.Draw(image)
@@ -316,7 +331,7 @@ async def stats_screen(channel,player):
     exp = "EXP: "+str(math.trunc(player.exp))+" / "+str(next_level_exp)
     width = draw.textsize(exp, font=font_tiny)[0]
     if exp_bar_width >= width + 2:
-        draw.text((98 + exp_bar_width - width, 72), exp, font_colour, font=font_tiny)
+        draw.text((98 + exp_bar_width - width, 72), exp, exp_colour, font=font_tiny)
             
     level = str(math.trunc(player.level))
     attk = str(round(player.attack, 2))
@@ -325,32 +340,32 @@ async def stats_screen(channel,player):
     money = util.format_number(player.money,money=True)
     
     # Text
-    draw.text((96, 49), "LEVEL " + level,font_colour, font=font_big)
-    draw.text((94, 87), "INFORMATION",font_colour, font=font_big)
-    draw.text((117, 121), "ATK", font_colour, font=font)
-    draw.text((117, 149), "STRG", font_colour, font=font)
-    draw.text((117, 177), "ACCY", font_colour, font=font)
-    draw.text((117, 204), "CASH", font_colour, font=font)
-    draw.text((117, 231), "WPN", font_colour, font=font)
-    draw.text((96, 252), "QUESTS BEAT", font_colour, font=font)
-    draw.text((96, 267), "WAGERS WON", font_colour, font=font)
+    draw.text((96, 49), "LEVEL " + level,banner_colour, font=font_big)
+    draw.text((94, 87), "INFORMATION",header_colour, font=font_big)
+    draw.text((117, 121), "ATK", main_colour, font=font)
+    draw.text((117, 149), "STRG", main_colour, font=font)
+    draw.text((117, 177), "ACCY", main_colour, font=font)
+    draw.text((117, 204), "CASH", main_colour, font=font)
+    draw.text((117, 231), "WPN", main_colour, font=font)
+    draw.text((96, 252), "QUESTS BEAT", main_colour, font=font)
+    draw.text((96, 267), "WAGERS WON", main_colour, font=font)
     
     # Player stats
     width = draw.textsize(attk, font=font)[0]
-    draw.text((241 - width, 122), attk, font_colour, font=font)
+    draw.text((241 - width, 122), attk, main_colour, font=font)
     width = draw.textsize(strg, font=font)[0]
-    draw.text((241 - width, 150), strg, font_colour, font=font)
+    draw.text((241 - width, 150), strg, main_colour, font=font)
     width = draw.textsize(accy, font=font)[0]
-    draw.text((241 - width, 178), accy, font_colour, font=font)
+    draw.text((241 - width, 178), accy, main_colour, font=font)
     width = draw.textsize(money, font=font)[0]
-    draw.text((241 - width, 204),money, font_colour, font=font)
+    draw.text((241 - width, 204),money, main_colour, font=font)
     width= draw.textsize(str(player.quests_won), font=font)[0]
-    draw.text((241 - width, 253), str(player.quests_won), font_colour, font=font)
+    draw.text((241 - width, 253), str(player.quests_won), main_colour, font=font)
     width = draw.textsize(str(player.wagers_won), font=font)[0]
-    draw.text((241 - width, 267), str(player.wagers_won), font_colour, font=font)
+    draw.text((241 - width, 267), str(player.wagers_won), main_colour, font=font)
     wep = get_text_limit_len(draw,player.weapon.name,font,95)
     width = draw.textsize(wep, font=font)[0]
-    draw.text((241 - width, 232), wep, font_colour, font=font)
+    draw.text((241 - width, 232), wep, main_colour, font=font)
         
     # Player awards
     count = 0
@@ -366,9 +381,9 @@ async def stats_screen(channel,player):
              break
              
     if len(player.awards) > 8:
-        draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", DUE_BLACK, font=font)
+        draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", side_colour, font=font)
     elif len(player.awards) == 0:
-        draw.text((38, 183), "None", DUE_BLACK, font=font)
+        draw.text((38, 183), "None", side_colour, font=font)
 
     await send_image(channel,image,file_name="myinfo.png",content=":pen_fountain: **"+player.get_name_possession_clean()+"** information."); 
        
@@ -468,6 +483,151 @@ async def battle_screen(channel,player_one,player_two):
    
     await send_image(channel,image,file_name="battle.png"); 
     
+async def googly_eyes(channel,eye_type):
+
+    
+    """
+    Googly eye generator.
+    
+    WARNING: I messed up! eye_type could mean eye_postion or eye_type (pos + buch of mods)
+    Depending on context
+    """
+    
+    eye_types = ("derp","left","right","center","up","down","centre","bottom left","top left","top right","bottom right")
+
+    def strip_modifier(eye_type,modifer):
+        return eye_type.replace(modifer,"").strip()
+        
+    def random_eyes():
+        
+        """
+        Returns a random eye postion
+        """
+        
+        nonlocal eye_types
+        return random.choice(eye_types)
+        
+    def random_eye_type():
+      
+        """
+        A random eye type pos + mods
+        """
+        nonlocal eye_types
+        mods = ["evil","gay","snek","high","ogre","emoji","small"]
+        eye_type = ""
+        for number_of_mods in range(0,random.randrange(0,len(mods))):
+            mod = random.choice(mods)
+            eye_type += mod
+            mods.remove(mod)
+        return eye_type+random_eyes()
+        
+    if eye_type == "":
+        eye_type = random_eye_type()
+
+    size = (300*2,300*2)
+    border_scale = 1
+    pupil_scale = 1
+    high_scale = 1
+    if "small" in eye_type:
+        eye_type = strip_modifier(eye_type,"small")    
+        size = (150*2,150*2)
+        border_scale = 1.5
+        pupil_scale = 1.5
+    if "emoji" in eye_type:
+        eye_type = strip_modifier(eye_type,"emoji")    
+        size = (32*2,32*2)
+        border_scale = 0
+        pupil_scale = 2.3
+        high_scale = 0.6
+    width,height = size
+    size = (size[0]+5,size[1]+5)
+    image = Image.new("RGBA",size)
+    draw = ImageDraw.Draw(image)
+
+    def draw_eye(x,y):
+        nonlocal size,draw,width,height,eye_types,border_scale,pupil_scale,high_scale,eye_type
+        pupil_colour = "black"
+        border_colour = "black"
+        eye_colour = "white"
+        given_eye_type = eye_type
+        print(given_eye_type)
+        if "evil" in given_eye_type:
+            pupil_colour = "red"
+            given_eye_type = strip_modifier(given_eye_type,"evil")
+        if "gay" in given_eye_type:
+            border_colour = "#ff0280"
+            given_eye_type = strip_modifier(given_eye_type,"gay")
+        if "high" in given_eye_type:
+            given_eye_type = strip_modifier(given_eye_type,"high")
+            pupil_width = int(width//5*high_scale)
+            pupil_height = int(height//4*high_scale)
+            eye_colour = "#ffb5b5"
+        else:
+            pupil_width = width//10
+            pupil_height = height//8
+        if "ogre" in given_eye_type:
+            given_eye_type = strip_modifier(given_eye_type,"ogre")
+            pupil_colour = "#ffb22d"
+            eye_colour = "#bef9a4"
+        if "snek" in given_eye_type:
+            given_eye_type = strip_modifier(given_eye_type,"snek")
+            pupil_width = int(pupil_width * 0.3)
+            pupil_height = int(pupil_height * 1.2)
+            
+        pupil_width = int(pupil_width * pupil_scale)
+        pupil_height = int(pupil_height *pupil_scale)
+        
+        draw.ellipse([x,y,x+width//2,height],fill=border_colour)
+        border_width = int(width//20*border_scale)
+        draw.ellipse([x+border_width,y+border_width,x+width//2-border_width,height-border_width],fill=eye_colour)
+        inner_width = width//2-2*border_width 
+        inner_height = height-y-2*border_width
+        pupil_x_centre = x + (width//2 - pupil_width)//2
+        pupil_y_centre = (height - pupil_height)//2
+        
+        shit_x = min(inner_width//4,(width -pupil_width)//2)
+        shit_y = min(inner_height//4,(height -pupil_height)//2)
+
+        if not given_eye_type in eye_types:
+            given_eye_type = random_eyes()
+            eye_type = eye_type.replace(given_eye_type," ") + given_eye_type
+        if given_eye_type == "derp":
+            pupli_x_limit_1 = border_width+pupil_width+pupil_x_centre-inner_width//2
+            pupli_x_limit_2 = pupil_x_centre-border_width-pupil_width+inner_width//2
+            pupil_x = random.randrange(min(pupli_x_limit_1,pupli_x_limit_2),max(pupli_x_limit_1,pupli_x_limit_2))
+            pupli_y_limit_1 = border_width+pupil_height+pupil_y_centre-inner_height//2
+            pupli_y_limit_2 = pupil_y_centre-border_width-pupil_height+inner_height//2
+            pupil_y = random.randrange(min(pupli_y_limit_1,pupli_y_limit_2),max(pupli_y_limit_1,pupli_y_limit_2))
+        else:
+            pupil_x = pupil_x_centre
+            pupil_y = pupil_y_centre
+            if given_eye_type == "left":
+                pupil_x -= shit_x
+            elif given_eye_type == "right":
+                pupil_x += shit_x
+            elif given_eye_type == "up":
+                pupil_y -= shit_y
+            elif given_eye_type == "down":
+                pupil_y += shit_y
+            elif given_eye_type in ["centre","center"]:
+                pass
+            elif given_eye_type == "bottom left":
+                pupil_x -= shit_x
+                pupil_y += shit_y
+            elif given_eye_type == "bottom right":
+                pupil_x += shit_x
+                pupil_y += shit_y
+            elif given_eye_type == "top left":
+                pupil_x -= shit_x
+                pupil_y -= shit_y
+            elif given_eye_type == "top right":
+                pupil_x += shit_x
+                pupil_y -= shit_y
+        draw.ellipse([pupil_x,pupil_y,pupil_x+pupil_width,pupil_y+pupil_height],fill=pupil_colour)
+    draw_eye(0,0)
+    draw_eye(size[0]//2,0)
+    image = resize(image,width//2,height//2)
+    await send_image(channel,image,file_name="eyes.png")
 
 def get_text_limit_len(draw,text,given_font,length):
     removed_chars = False

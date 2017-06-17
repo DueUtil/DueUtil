@@ -58,6 +58,7 @@ class Player(DueUtilObject):
         self.w_id = weapons.NO_WEAPON_ID
         
         ##### USAGE STATS #####
+        # TODO: Move some of these into a dict
         self.last_progress = 0
         self.last_quest = 0
         self.wagers_won = 0
@@ -163,8 +164,8 @@ class Player(DueUtilObject):
         theme = profile_themes[theme_id]
         self.theme_id = theme_id
         self.banner_id = theme["banner"]
-        self.backgrounds = theme["background"]
-        self.save()
+        self.background = theme["background"]
+        # self.save()
         
     def set_banner(self,banner_id):
         self.banner_id = banner_id
@@ -185,13 +186,13 @@ class Player(DueUtilObject):
         
     @property
     def rank(self):
-        return int(self.level / 10) + 1
+        return self.level // 10
         
     @property
     def rank_colour(self):
         theme = self.theme
         rank_colours = theme["rankColours"]
-        return theme["rankColours"][(self.rank - 1) % len(rank_colours)]
+        return theme["rankColours"][self.rank % len(rank_colours)]
         
     @property
     def banner(self):

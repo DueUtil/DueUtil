@@ -115,6 +115,8 @@ async def item_action(item_name,action,**details):
     if len(possible_departments) > 1:
         error = (":confounded: "+message+"\n"
                   +"Please be more specific!\n")
+        if ' ' in item_name:
+            item_name = '"%s"' % item_name
         for department_info in possible_departments:
             error += "``"+details["cmd_key"]+details["command_name"]+" "+department_info["alisas"][0]+" "+item_name+"``\n"
         await util.say(details["channel"],error)

@@ -84,10 +84,7 @@ def pretty_time():
     return time.strftime('%l:%M%p %Z on %b %d, %Y')
     
 def get_server_count():
-    server_count = 0
-    for client in shard_clients:
-        server_count+= len(client.servers)
-    return server_count
+    return sum(len(client.servers) for client in shard_clients)
 
 def get_server_id(source):
     if isinstance(source,str):

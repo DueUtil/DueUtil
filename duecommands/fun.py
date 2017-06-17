@@ -62,11 +62,9 @@ async def dueeval(ctx,*args,**details):
     """
     For 1337 haxors only! Go away!
     """
-    fun.players
-    fun.weapons
-    fun.quests
     
-    details["author"]
+    player = details["author"]
+    #print(player.last_message_hashes)
     try:
         await util.say(ctx.channel,":ferris_wheel: Eval...\n"
         "**Result** ```"+str(eval(args[0]))+"```")

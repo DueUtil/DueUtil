@@ -1,124 +1,139 @@
 {
    "awards":{
       "Duseless":{
-         "icon":"awards/Duseless.png",
+         "icon":"Duseless.png",
          "name":"Duseless",
          "message":"Ignore DueUtil"
       },
       "QuestDone":{
-         "icon":"awards/questDone.png",
+         "icon":"questDone.png",
          "name":"Save The Server",
          "message":"Complete a quest"
       },
-      "Rank2":{
-         "icon":"awards/rank2.png",
-         "name":"Attain Rank 2",
-         "message":"Get to level 10"
+      "CameBack":{
+         "icon":"cameback.png",
+         "name":"You're Back!",
+         "message":"Return to DueUtil"
       },
-      "Rank3":{
-         "icon":"awards/rank3.png",
-         "name":"Attain Rank 3",
+      "Rank1":{
+         "icon":"rank1.png",
+         "name":"Attain Rank 1",
+         "message":"Get to level 10"
+      },      
+      "Rank2":{
+         "icon":"rank2.png",
+         "name":"Attain Rank 2",
          "message":"Get to level 20"
       },
-      "Rank4":{
-         "icon":"awards/rank4.png",
-         "name":"Attain Rank 4",
+      "Rank3":{
+         "icon":"rank3.png",
+         "name":"Attain Rank 3",
          "message":"Get to level 30"
       },
-      "Rank5":{
-         "icon":"awards/rank5.png",
-         "name":"Attain Rank 5",
+      "Rank4":{
+         "icon":"rank4.png",
+         "name":"Attain Rank 4",
          "message":"Get to level 40"
       },
-      "Rank6":{
-         "icon":"awards/rank6.png",
-         "name":"Attain Rank 6",
+      "Rank5":{
+         "icon":"rank5.png",
+         "name":"Attain Rank 5",
          "message":"Get to level 50"
       },
-      "Rank7":{
-         "icon":"awards/rank7.png",
-         "name":"Attain Rank 7",
+      "Rank6":{
+         "icon":"rank6.png",
+         "name":"Attain Rank 6",
          "message":"Get to level 60"
       },
-      "Rank8":{
-         "icon":"awards/rank8.png",
-         "name":"Attain Rank 8",
+      "Rank7":{
+         "icon":"rank7.png",
+         "name":"Attain Rank 7",
          "message":"Get to level 70"
       },
-      "Rank9":{
-         "icon":"awards/rank9.png",
-         "name":"Attain Rank 9",
+      "Rank8":{
+         "icon":"rank8.png",
+         "name":"Attain Rank 8",
          "message":"Get to level 80"
       },
+      "Rank9":{
+         "icon":"rank9.png",
+         "name":"Attain Rank 9",
+         "message":"Get to level 90"
+      },
+      "Rank10":{
+         "icon":"rank1337.png",
+         "name":"Attain Rank 9",
+         "message":"Get to level 100"
+      },
       "ForHarambe":{
-         "icon":"awards/forharambe.png",
+         "icon":"forharambe.png",
          "name":"For Harambe"
       },
       "YouWin":{
-         "icon":"awards/youwin.png",
+         "icon":"youwin.png",
          "name":"Win A Wager",
          "message":"Don't not win a wager"
       },
       "YouLose":{
-         "icon":"awards/beat.png",
+         "icon":"beat.png",
          "name":"Lose A Wager",
          "message":"Don't win a wager"
       },
       "Daddy":{
-         "icon":"awards/daddy.png",
+         "icon":"daddy.png",
          "name":"Dumbledore"
       },
       "BenFont":{
-         "icon":"awards/benfont.png",
+         "icon":"benfont.png",
          "name":"One True Type Font"
       },
       "SugarDaddy":{
-         "icon":"awards/givecash.png",
+         "icon":"givecash.png",
          "name":"Sugar Daddy",
          "message":"Give another player over or $50"
       },
       "RedMist":{
-         "icon":"awards/redmist.png",
+         "icon":"redmist.png",
          "name":"Red Mist",
          "message":"Fail a quest"
       },
       "Potato":{
-         "icon":"awards/potato.png",
+         "icon":"potato.png",
          "name":"Bringer Of Potatoes",
          "message":"Give a potato"
       },
       "KingTat":{
-         "icon":"awards/kingtat.png",
+         "icon":"kingtat.png",
          "name":"Potato King",
          "message":"Give out 100 potatoes"
       },
       "Admin":{
-         "icon":"awards/admin.png",
+         "icon":"admin.png",
          "name":"DueUtil Admin",
          "message":"Only DueUtil admins can have this."
       },
       "Mod":{
-         "icon":"awards/mod.png",
+         "icon":"mod.png",
          "name":"DueUtil Mod",
          "message":"Only DueUtil mods can have this."
       },
       "Spender":{
-         "icon":"awards/admin.png",
+         "icon":"admin.png",
          "name":"Licence To Kill",
          "message":"Buy a weapon"
       },
       "BgAccepted":{
-         "icon":"awards/bg_accepted.png",
+         "icon":"bg_accepted.png",
          "name":"Background Accepted!",
          "message":"Get a background submission accepted"
       },
       "TopDog":{
-         "icon":"awards/top_dog.png",
+         "icon":"top_dog.png",
          "name":"TOP DOG",
          "message":"While you have this award you're undefeated"
       },
       "Donor":{
-         "icon":"awards/donor_award.png",
+         "icon":"donor_award.png",
          "name":"All MacDue Ever Wanted!",
          "message":"Donate to DueUtil"
       }

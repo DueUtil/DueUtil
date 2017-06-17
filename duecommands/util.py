@@ -1,5 +1,5 @@
 import discord
-from fun.game import stats
+from fun.game import stats,awards
 from fun.configs import dueserverconfig
 from fun.game.stats import Stat
 from botstuff import commands,events,util
@@ -24,12 +24,20 @@ async def help(ctx,*args,**details):
     if len(args) == 1:
       
         help.set_thumbnail(url=help_logo)
-        if args[0].lower() not in categories:
-            command = events.get_command(args[0])
+        arg = args[0].lower()
+        if arg not in categories:
+            command = events.get_command(arg)
         
             if command == None:
-                command_name = 'Not found'
-                command_help = 'That command was not found!'
+                if arg != "dumbledore": 
+                    command_name = 'Not found'
+                    command_help = 'That command was not found!'
+                else:
+                    # Stupid award reference
+                    command_name = 'dumbledore?!?'
+                    command_help = 'Some stupid *joke?* reference to old due!!!111'
+                    help.set_image(url='http://i.imgur.com/UrWhI9P.gif')
+                    await awards.give_award(ctx.channel,details["author"],"Daddy","I have no memory of this award...")
             else:
                 command_name = command.__name__
                 if command.__doc__ != None:
@@ -40,7 +48,7 @@ async def help(ctx,*args,**details):
             help.description="Showing help for **"+command_name+"**"
             help.add_field(name=command_name,value=command_help)
         else:
-            category = args[0].lower()
+            category = arg
             help.description="Showing ``"+category+"`` commands."
             
             commands_for_all = events.command_event.command_list(lambda command: command.permission == Permission.ANYONE and command.category == category)
@@ -101,6 +109,18 @@ async def dustats(ctx,*args,**details):
     stats_embed.set_footer(text="DueUtil Shard \""+str(util.get_client(ctx.server.id).name)+"\"")
     
     await util.say(ctx.channel,embed=stats_embed)
+    
+@commands.command(args_pattern=None)
+async def duservers(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]duservers
+    
+    Shows the number of servers DueUtil is chillin on.
+    """
+    
+    server_count = util.get_server_count()
+    await util.say(ctx.channel,"DueUtil is active on **"+str(server_count)+" server"+("s" if server_count != 1 else "")+"**")
 
 @commands.command(permission = Permission.SERVER_ADMIN, args_pattern="S")
 async def setcmdkey(ctx,*args,**details):

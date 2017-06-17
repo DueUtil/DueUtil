@@ -172,7 +172,7 @@ async def sendcash(ctx,*args,**details):
     
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,transaction_amount)
     if transaction_amount >= 50:
-        await fun.awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
+        await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
         
     transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!",type="rich",color=gconf.EMBED_COLOUR)
     transaction_log.add_field(name="Sender:",value=sender.name_clean)
@@ -199,7 +199,7 @@ async def benfont(ctx,*args,**details):
     player.save()
     if player.benfont:
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
-        await fun.awards.give_award(ctx.channel, player,"BenFont", "ONE TRUE *type* FONT")
+        await game_awards.give_award(ctx.channel, player,"BenFont", "ONE TRUE *type* FONT")
       
 # Think about clean up & reuse
 @commands.command(args_pattern='M?')

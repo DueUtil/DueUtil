@@ -1,5 +1,5 @@
 import discord
-from fun.game import battles, weapons, players, stats
+from fun.game import battles, weapons, players, stats, awards
 from fun.helpers import  imagehelper, misc
 from botstuff import commands
 from botstuff import util
@@ -378,6 +378,7 @@ async def buy_weapon(weapon_name,**details):
         customer.money -= weapon.price
         await util.say(channel,("**"+customer.name_clean+"** bought a **"
                                     +weapon.name_clean+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
+        await awards.give_award(ctx.channel,"Spender","Licence to kill!")
     customer.save()
 
 async def sell_weapon(weapon_name,**details):

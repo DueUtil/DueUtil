@@ -73,6 +73,7 @@ def item_setter(thing_info):
         if thing_id in things_info["thing_list"]:
             thing = things_info["thing_getter"](thing_id)
             things_info["thing_setter"](thing_id)
+            player.save()
             await util.say(ctx.channel,":white_check_mark: "+thing_type.title()+" set to **"+thing.name_clean+"**")
         else:
             raise util.DueUtilException(ctx.channel,thing_type.title()+" not found!")

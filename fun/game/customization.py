@@ -15,7 +15,6 @@ class Theme(DueUtilObject,dict):
     
     def __init__(self,id,**theme_data):
         self.update(theme_data)
-        self["background"] += ".png"
         super().__init__(id,self["name"])
       
 class Themes(dict):

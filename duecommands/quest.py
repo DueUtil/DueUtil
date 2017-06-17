@@ -7,7 +7,8 @@ from fun.game import (
     game,
     battles,
     weapons,
-    stats)
+    stats,
+    awards)
 from fun.helpers import imagehelper
 from botstuff import commands, util
 from botstuff.permissions import Permission
@@ -146,6 +147,10 @@ async def acceptquest(ctx,*args,**details):
     player.save()
     await imagehelper.battle_screen(ctx.channel,player,quest)
     await util.say(ctx.channel,embed=battle_log)
+    if winner == player:
+        await awards.give_award(ctx.channel,player,"QuestDone","*Saved* the server!")  
+    else:
+        await awards.give_award(ctx.channel,player,"RedMist","Red mist...")
  
 @commands.command(args_pattern='C')
 async def declinequest(ctx,*args,**details):

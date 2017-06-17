@@ -26,6 +26,35 @@ async def glittertext(ctx,*args,**details):
    
     await glitter_text(ctx.channel,args[0])
 
+@commands.command(args_pattern="S?")
+async def eyes(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]eyes modifiers
+    
+    __Modifiers:__
+        snek - Snek eyes (slits)
+        ogre - Ogre colours
+        evil - Red eyes
+        gay  - Pink stuff
+        high - Large pupils + red eyes
+        emoji - emoji size + no border
+        small - Small size (larger than emoji)
+        left - Eyes look left
+        right - Eyes look right
+        up - Eyes look up
+        down - Eyes look down
+        derp - Random pupil postions
+        bottom left - Eyes look bottom left
+        bottom right - Eyes look bottom right
+        top right - Eyes look top right
+        top left - Eyes look top left
+        no modifiers - Procedurally generated eyes!!!111
+    """
+    
+    googly_parms = args[0].lower() if len(args) == 1 else ""
+    await imagehelper.googly_eyes(ctx.channel,googly_parms)
+
 @commands.command()
 async def wish(ctx,*args,**details): 
     player = details["author"]
