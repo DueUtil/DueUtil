@@ -6,57 +6,63 @@ import re
 import json
 import os
 
-async def glitter_text(channel,text):
-    gif_text = await misc.get_glitter_text(text)
-    await util.get_client(channel).send_file(channel, fp=gif_text,
-                                             filename="glittertext.gif", 
-                                             content=":sparkles: Your glitter text!")
-
-@commands.command(args_pattern='S')
-@commands.imagecommand()
-async def glittertext(ctx,*args,**details):
-    
-    """
-    [CMD_KEY]glittertext (text)
-    
-    Creates a glitter text gif!
-    
-    (Glitter text from http://www.gigaglitters.com/)
-    """
-   
-    await glitter_text(ctx.channel,args[0])
-
-@commands.command(args_pattern="S?")
-async def eyes(ctx,*args,**details):
+@commands.command(args_pattern=None)
+async def permissions(ctx,*args,**details):
   
     """
-    [CMD_KEY]eyes modifiers
+    [CMD_KEY]permissions
     
-    __Modifiers:__
-        snek - Snek eyes (slits)
-        ogre - Ogre colours
-        evil - Red eyes
-        gay  - Pink stuff
-        high - Large pupils + red eyes
-        emoji - emoji size + no border
-        small - Small size (larger than emoji)
-        left - Eyes look left
-        right - Eyes look right
-        up - Eyes look up
-        down - Eyes look down
-        derp - Random pupil postions
-        bottom left - Eyes look bottom left
-        bottom right - Eyes look bottom right
-        top right - Eyes look top right
-        top left - Eyes look top left
-        no modifiers - Procedurally generated eyes!!!111
+    A check command for the permissions system.
+    
     """
     
-    googly_parms = args[0].lower() if len(args) == 1 else ""
-    await imagehelper.googly_eyes(ctx.channel,googly_parms)
+    permissions_report = ""
+    for permission in botstuff.permissions.permissions:
+        permissions_report += ("``"+permission.value[1]+"`` → "
+                               + (":white_check_mark:" if botstuff.permissions.has_permission(ctx.author,permission) else ":no_entry:")+"\n")
+    await util.say(ctx.channel,permissions_report)
+    
+@commands.command(args_pattern="S*",hidden=True)
+async def test(ctx,*args,**details): 
+    
+    """A test command"""
+    
+    # print(args[0].__dict__)
+    # args[0].save()
+    # await imagehelper.test(ctx.channel)
+    await util.say(ctx.channel,("Yo!!! What up dis be my test command fo show.\n"
+                                    "I got deedz args ```"+str(args)+"```!"))
+                                    
+@commands.command(args_pattern="RR",hidden=True)
+async def add(ctx,*args,**details):
+  
+    """
+    [CMD_KEY]add (number) (number)
+    
+    One of the first test commands for Due2
+    I keep it for sentimental reasons
+    
+    """
+    
+    first_number = args[0]
+    second_number = args[1]
+    result = first_number + second_number
+    await util.say(ctx.channel,"Is "+str(result))
 
 @commands.command()
 async def wish(ctx,*args,**details): 
+  
+    """
+    [CMD_KEY]wish
+    
+    Does this increase the chance of a quest spawn?!
+    
+    Who knows?
+    
+    Me.
+    
+    """
+    
     player = details["author"]
     player.quest_spawn_build_up += 0.000000001
     
@@ -184,3 +190,148 @@ async def deletebg(ctx,*args,**details):
         
     await util.say(ctx.channel,":wastebasket: Background **"+background.name_clean+"** has been deleted!")
     await util.duelogger.info("**%s** deleted the background **%s**" % (details["author"].name_clean,background.name_clean))
+
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="S")
+async def dueeval(ctx,*args,**details):
+
+    """
+    For 1337 haxors only! Go away!
+    """
+    
+    player = details["author"]
+    #print(player.last_message_hashes)
+    try:
+        await util.say(ctx.channel,":ferris_wheel: Eval...\n"
+        "**Result** ```"+str(eval(args[0]))+"```")
+    except Exception as eval_exception:
+        await util.say(ctx.channel,(":cry: Could not evaluate!\n"
+                                   +"``%s``" % eval_exception))
+        
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PS")
+async def sudo(ctx,*args,**details):
+    
+    """
+    [CMD_KEY]sudo victim command
+    
+    Infect a victims mind to make them run any command you like!
+    """
+    
+    try:
+        victim = args[0]
+        ctx.author = ctx.server.get_member(victim.id)
+        ctx.content = args[1]
+        await util.say(ctx.channel,":smiling_imp: Sudoing **"+victim.name_clean+"**!")
+        await events.command_event(ctx)
+    except:
+        raise util.DueUtilException(ctx.channel,"Sudo failed!")
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PC")
+async def setpermlevel(ctx,*args,**details):
+    player = args[0]
+    member = discord.Member(user={"id":player.id})
+    permission_index = args[1] - 1
+    permissions = botstuff.permissions.permissions
+    if permission_index < len(permissions):
+        permission = permissions[permission_index]
+        botstuff.permissions.give_permission(member,permission)
+        await util.say(ctx.channel,"**"+player.name_clean+"** permission level set to ``"+permission.value[1]+"``.")
+        if permission == Permission.DUEUTIL_MOD:
+            await awards.give_award(ctx.channel,player,"Mod","Become an mod!")
+            await util.duelogger.info("**%s** is now a DueUtil mod!" % player.name_clean)
+        elif "Mod" in player.awards:
+            player.awards.remove("Mod")
+        if permission == Permission.DUEUTIL_ADMIN:
+            await awards.give_award(ctx.channel,player,"Admin","Become an admin!")
+            await util.duelogger.info("**%s** is now a DueUtil admin!" % player.name_clean)
+        elif "Admin" in player.awards:
+            player.awards.remove("Admin")
+    else:
+        raise util.DueUtilException(ctx.channel,"Permission not found")
+  
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def ban(ctx,*args,**details):
+    player = args[0]
+    member = discord.Member(user={"id":player.id})
+    botstuff.permissions.give_permission(member,Permission.BANNED)
+    await util.say(ctx.channel,":hammer: **"+player.name_clean+"** banned!")
+    await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def unban(ctx,*args,**details):
+    player = args[0]
+    member = discord.Member(user={"id":player.id})
+    botstuff.permissions.give_permission(member,Permission.ANYONE)
+    await util.say(ctx.channel,":unicorn: **"+player.name_clean+"** has been unbanned!")
+    await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="P")
+async def toggledonor(ctx,*args,**details):
+    player = args[0]
+    player.donor = not player.donor
+    if player.donor:
+        await util.say(ctx.channel,"**"+player.name_clean+"** is now a donor!")
+    else:
+        await util.say(ctx.channel,"**"+player.name_clean+"** is nolonger donor")
+
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def duereload(ctx,*args,**details):
+    await util.say(ctx.channel,":ferris_wheel: Reloading DueUtil modules!")
+    await util.duelogger.concern("DueUtil Reloading!")
+    raise util.DueReloadException(ctx.channel)
+
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PI")
+async def givecash(ctx,*args,**details):
+    player = args[0]
+    amount = args[1]
+    player.money += amount
+    amount_str = util.format_number(abs(amount),money = True, full_precision = True)
+    if amount >= 0:
+        await util.say(ctx.channel,"Added ``"+amount_str+"`` to **"+player.get_name_possession_clean()+"** account!")
+    else:
+        await util.say(ctx.channel,"Subtracted ``"+amount_str+"`` from **"+player.get_name_possession_clean()+"** account!")
+    player.save()
+
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def updateleaderboard(ctx,*args,**details):
+    leaderboards.last_leaderboard_update = 0
+    await leaderboards.update_leaderboards(ctx)
+    await util.say(ctx.channel,":ferris_wheel: Updating leaderboard!")
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def updatebot(ctx,*args,**details):
+      
+    """
+    [CMD_KEY]updatebot
+    
+    Updates DueUtil
+    
+    """
+    
+    try:
+        update_result = subprocess.check_output(['bash', 'update_script.sh'])
+    except subprocess.CalledProcessError as updateexc:
+        update_result = updateexc.output
+    update_result = update_result.decode("utf-8")
+    if len(update_result.strip()) == 0:
+        update_result = "No output."
+    update_embed = discord.Embed(title=":gear: Updating DueUtil!",type="rich",color=gconf.EMBED_COLOUR)
+    update_embed.description = "Pulling lastest version from **GitLab**!"
+    update_embed.add_field(name='Changes',value='```'+update_result+'```',inline=False)
+    await util.say(ctx.channel,embed=update_embed)
+    update_result = update_result.strip()
+    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
+        await util.duelogger.concern("DueUtil updating!")
+        os._exit(1)
+        
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def stopbot(ctx,*args,**details):
+    await util.say(ctx.channel,":wave: Stopping DueUtil!")
+    await util.duelogger.concern("DueUtil shutting down!")
+    os._exit(0)
+    
+@commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern=None)
+async def restartbot(ctx,*args,**details):
+    await util.say(ctx.channel,":ferris_wheel: Restarting DueUtil!")
+    await util.duelogger.concern("DueUtil restarting!!")
+    os._exit(1)

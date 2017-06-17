@@ -493,7 +493,7 @@ async def googly_eyes(channel,eye_type):
     Depending on context
     """
     
-    eye_types = ("derp","left","right","center","up","down","centre","bottom left","top left","top right","bottom right")
+    eye_types = ("derp","left","right","center","bottom","top","centre")
 
     def strip_modifier(eye_type,modifer):
         return eye_type.replace(modifer,"").strip()
@@ -533,6 +533,7 @@ async def googly_eyes(channel,eye_type):
         size = (150*2,150*2)
         border_scale = 1.5
         pupil_scale = 1.5
+        high_scale = 0.7
     if "emoji" in eye_type:
         eye_type = strip_modifier(eye_type,"emoji")    
         size = (32*2,32*2)
@@ -550,7 +551,6 @@ async def googly_eyes(channel,eye_type):
         border_colour = "black"
         eye_colour = "white"
         given_eye_type = eye_type
-        print(given_eye_type)
         if "evil" in given_eye_type:
             pupil_colour = "red"
             given_eye_type = strip_modifier(given_eye_type,"evil")
@@ -571,8 +571,8 @@ async def googly_eyes(channel,eye_type):
             eye_colour = "#bef9a4"
         if "snek" in given_eye_type:
             given_eye_type = strip_modifier(given_eye_type,"snek")
-            pupil_width = int(pupil_width * 0.3)
-            pupil_height = int(pupil_height * 1.2)
+            pupil_width = int(pupil_width * 0.4)
+            pupil_height = int(pupil_height * 1.8)
             
         pupil_width = int(pupil_width * pupil_scale)
         pupil_height = int(pupil_height *pupil_scale)
@@ -588,7 +588,7 @@ async def googly_eyes(channel,eye_type):
         shit_x = min(inner_width//4,(width -pupil_width)//2)
         shit_y = min(inner_height//4,(height -pupil_height)//2)
 
-        if not given_eye_type in eye_types:
+        if not any(direction in given_eye_type for direction in ("left","right","top","bottom","centre","center")):
             given_eye_type = random_eyes()
             eye_type = eye_type.replace(given_eye_type," ") + given_eye_type
         if given_eye_type == "derp":
@@ -601,28 +601,14 @@ async def googly_eyes(channel,eye_type):
         else:
             pupil_x = pupil_x_centre
             pupil_y = pupil_y_centre
-            if given_eye_type == "left":
+            if "left" in given_eye_type:
                 pupil_x -= shit_x
-            elif given_eye_type == "right":
+            if "right" in given_eye_type:
                 pupil_x += shit_x
-            elif given_eye_type == "up":
+            if "top" in given_eye_type:
                 pupil_y -= shit_y
-            elif given_eye_type == "down":
+            if "bottom" in given_eye_type:
                 pupil_y += shit_y
-            elif given_eye_type in ["centre","center"]:
-                pass
-            elif given_eye_type == "bottom left":
-                pupil_x -= shit_x
-                pupil_y += shit_y
-            elif given_eye_type == "bottom right":
-                pupil_x += shit_x
-                pupil_y += shit_y
-            elif given_eye_type == "top left":
-                pupil_x -= shit_x
-                pupil_y -= shit_y
-            elif given_eye_type == "top right":
-                pupil_x += shit_x
-                pupil_y -= shit_y
         draw.ellipse([pupil_x,pupil_y,pupil_x+pupil_width,pupil_y+pupil_height],fill=pupil_colour)
     draw_eye(0,0)
     draw_eye(size[0]//2,0)

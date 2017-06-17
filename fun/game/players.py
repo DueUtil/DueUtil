@@ -48,7 +48,6 @@ class Player(DueUtilObject):
         self.accy = 1
         self.hp = 10
         self.money = 0
-        self.average_spelling_correctness = 1
         
         ##### CUSTOMIZATIONS #####
         self.banner_id = "discord blue"
@@ -56,6 +55,22 @@ class Player(DueUtilObject):
         self.background = "default"
         self.weapon_sum = weapons.get_weapon_from_id("None").weapon_sum
         self.w_id = weapons.NO_WEAPON_ID
+        
+        """
+        WHY? Do the following breaking changes -
+        bcuz they will mean adding new items & silly stats
+        don't require this class to be changed!
+        Making making commands easier!
+        """
+        
+        #####
+        """
+        BREAKING - PLANNED
+        self.equiped = {"weapon":[WID,sum]
+                        "background":...
+                        ... }
+        """
+        #####
         
         ##### USAGE STATS #####
         # TODO: Move some of these into a dict
@@ -71,6 +86,24 @@ class Player(DueUtilObject):
         self.spam_detections = 0
         self.average_quest_battle_turns = 1
         self.command_rate_limts = {}
+        self.average_spelling_correctness = 1
+        
+        ######
+        """
+        BREAKING - PLANNED
+        self.misc_stats {"potatoes_given":"dsdsdsdm"}
+        """
+        ######
+        
+        ######
+        """
+        BREAKING - PLANNED
+        self.inventory = {"weapons":[wID,wID...],
+                          "themes":[...],
+                          "backgrounds":[...],
+                          "banners":[...]}
+        """
+        ######
         
         ##### THINGS #####
         self.quests = []
