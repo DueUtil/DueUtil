@@ -74,27 +74,7 @@ class DueUtilObject():
         if not self.no_save:
             dbconn.insert_object(self.id,self)
             
-def paginator(item_add):
-    
-    """
-    Very simple paginator for embeds
-    """
-    
-    def page_getter(item_list,page,title,**extras):
-        page_size = 12
-        page_embed = discord.Embed(title=title+(" : Page "+str(page+1) if page > 0 else ""),type="rich",color=gconf.EMBED_COLOUR)
-        if page * page_size >= len(item_list):
-            raise util.DueUtilException(None,"Page not found")
-        for item_index in range(page_size*page,page_size*page+page_size):
-            if item_index >= len(item_list):
-                break
-            item_add(page_embed,item_list[item_index],**extras)
-        if page_size * page + page_size < len (item_list):
-            page_embed.set_footer(text=extras.get('footer_more',"There's more on the next page!"))
-        else:
-            page_embed.set_footer(text=extras.get('footer_end',"That's all!"))
-        return page_embed  
-    return page_getter
+#### MacDue's wacky data clases
             
 class DueMap(collections.MutableMapping):
   
@@ -167,6 +147,25 @@ class DueMap(collections.MutableMapping):
             return key
         return key.split('/',1)
         
+class Container(object):
+      
+    """
+    Simple bunch class with defaults
+    """
+      
+    def __init__(self,default,**data):
+        self.default = default
+        self.__dict__.update(data)
+            
+    def __get__(self, key):
+        if hasattr(self,key):
+            return super().__get__(key)
+        setattr(self,key,self.default)
+        return self.default
+            
+    def __getitem__(self,key):
+        return self.__get__(key)
+        
 class Ring(list):
     
     """
@@ -204,6 +203,8 @@ class Ring(list):
         except:
             self[self.wrap_index] = item
             self.wrap_index += 1
+            
+#### End - MacDue's wacky data clases
         
 class Wizzard(ABC):
   
@@ -223,6 +224,28 @@ class Wizzard(ABC):
         bar_complete_len = progress* bar_width
         bar_incomplete_len = bar_width - bar_complete_len
         return '['+('"'*bar_complete_len)+(' '*bar_incomplete_len)+']'
+     
+def paginator(item_add):
+    
+    """
+    Very simple paginator for embeds
+    """
+    
+    def page_getter(item_list,page,title,**extras):
+        page_size = 12
+        page_embed = discord.Embed(title=title+(" : Page "+str(page+1) if page > 0 else ""),type="rich",color=gconf.EMBED_COLOUR)
+        if page * page_size >= len(item_list):
+            raise util.DueUtilException(None,"Page not found")
+        for item_index in range(page_size*page,page_size*page+page_size):
+            if item_index >= len(item_list):
+                break
+            item_add(page_embed,item_list[item_index],**extras)
+        if page_size * page + page_size < len (item_list):
+            page_embed.set_footer(text=extras.get('footer_more',"There's more on the next page!"))
+        else:
+            page_embed.set_footer(text=extras.get('footer_end',"That's all!"))
+        return page_embed  
+    return page_getter
          
 """    
 def random_word():

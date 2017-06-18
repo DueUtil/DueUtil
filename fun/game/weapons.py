@@ -50,6 +50,7 @@ class Weapon(DueUtilObject):
         self.accy = accy
         self.price = self.__price()
         self.weapon_sum = self.__weapon_sum()
+        self.full_id = self.id+'+'+self.weapon_sum
         
         self.__add()
             
@@ -73,6 +74,8 @@ class Weapon(DueUtilObject):
         self.save()
     
 def get_weapon_from_id(weapon_id):
+    if '+' in weapon_id:
+        weapon_id = weapon_id.split('+')[0]
     if weapon_id in weapons:
         return weapons[weapon_id]
     else:

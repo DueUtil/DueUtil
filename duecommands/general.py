@@ -15,9 +15,9 @@ from fun.helpers.shop_abstract import ShopBuySellItem
 class BuySellTheme(ShopBuySellItem):
     item_type = "theme"
     def store_item(self,player,item_name):
-        player.themes.append(item_name)
-        if player.theme_id == "default":
-            player.set_theme(item_name)
+        player.inventory.themes.append(item_name)
+        if player.theme.id == "default":
+            player.theme = item_name
             return True
         return False
     def store_location(self,player):
@@ -36,7 +36,7 @@ class BuySellBanner(ShopBuySellItem):
     item_type = "banner"
     def store_item(self,player,item_name):
         player.banners.append(item_name)
-        if player.banner_id == "discord blue":
+        if player.equiped.banner == "discord blue":
             player.set_banner(item_name)
             return True
         return False

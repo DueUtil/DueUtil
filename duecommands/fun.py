@@ -2,13 +2,10 @@ import discord
 import math
 from datetime import datetime
 import repoze.timeago
-from fun.game import awards,leaderboards
-from botstuff import util,commands,events
-import botstuff.permissions
-from botstuff.permissions import Permission
+from fun.game import leaderboards
 import generalconfig as gconf 
-import subprocess
-import os
+from botstuff import commands,util
+from fun.helpers import misc,imagehelper
 
 async def glitter_text(channel,text):
     gif_text = await misc.get_glitter_text(text)
@@ -18,10 +15,10 @@ async def glitter_text(channel,text):
    
 @commands.command(args_pattern='S')
 @commands.imagecommand()
-async def glittertext(ctx,*args,**details):
+async def glitter(ctx,*args,**details):
     
     """
-    [CMD_KEY]glittertext (text)
+    [CMD_KEY]glitter(text)
     
     Creates a glitter text gif!
     

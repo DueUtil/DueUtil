@@ -10,7 +10,7 @@ import generalconfig as gconf
 async def help(ctx,*args,**details):
   
     """
-    [CMD_KEY]help (command name)
+    [CMD_KEY]help (command name or category)
     
     INCEPTION SOUND
     """
@@ -117,6 +117,7 @@ async def duservers(ctx,*args,**details):
     [CMD_KEY]duservers
     
     Shows the number of servers DueUtil is chillin on.
+    
     """
     
     server_count = util.get_server_count()

@@ -1,7 +1,11 @@
-from botstuff import commands,util
+import discord
+from botstuff import commands,util,events
+import botstuff.permissions
 from botstuff.permissions import Permission
-from fun.game import players,awards
-from fun.helpers import misc,imagehelper
+from fun.game import players,awards,leaderboards
+from fun.helpers import imagehelper
+import generalconfig as gconf 
+import subprocess
 import re
 import json
 import os
@@ -22,7 +26,7 @@ async def permissions(ctx,*args,**details):
                                + (":white_check_mark:" if botstuff.permissions.has_permission(ctx.author,permission) else ":no_entry:")+"\n")
     await util.say(ctx.channel,permissions_report)
     
-@commands.command(args_pattern="S*",hidden=True)
+@commands.command(args_pattern="IIIS",hidden=True)
 async def test(ctx,*args,**details): 
     
     """A test command"""

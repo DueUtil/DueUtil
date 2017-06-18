@@ -16,7 +16,7 @@ class ShopBuySellItem(ABC):
         channel = details["channel"]
         price_divisor=4/3
         
-        if not item_name in self.store_location(player):
+        if not item_name in self.inventory(player):
             raise util.DueUtilException(channel,self.item_type.title()+" not found!")
         if not self.can_sell(item_name):
             raise util.DueUtilException(channel,"You can't sell that "+self.item_type+"!")

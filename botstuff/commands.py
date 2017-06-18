@@ -253,7 +253,7 @@ async def determine_args(pattern,args):
         if len(string) > 0:
             return string
         return False
-        
+    guessing_arguments = False  
     if pattern == None and len(args) > 0:
         return False
     elif pattern == None and len(args) == 0:
@@ -267,8 +267,8 @@ async def determine_args(pattern,args):
                 # If the command is wrong by all other tests and it could be a string
                 # merge the arguments to a single string.
                 return (' '.join(args),)
-            return False
-        pattern = pattern_optional_removed
+            guessing_arguments = True
+        if not guessing_arguments: pattern = pattern_optional_removed
         
     pos = 0
     args_index = 0
@@ -307,8 +307,22 @@ async def determine_args(pattern,args):
         args_index+=1
         if pos_change:
             pos+=1
-    if checks_satisfied == len(args):
+    if checks_satisfied == len(args) and not guessing_arguments:
         return args
+    elif guessing_arguments:
+        """
+        If they've forgot quotes for the last sting
+        so !command arg0 arg1 arg2 "A String here"
+        and they've done
+        !command arg0 arg1 arg2 A String here
+        """
+        if len(args) > len(pattern):
+            last_string = pattern.rfind('S')
+            if last_string != -1:
+                if could_be_string(pattern[last_string:]):
+                    new_args = tuple(args[:last_string])+(' '.join(args[last_string:]),)
+                    if checks_satisfied == len(new_args) and len(pattern) == len(new_args):
+                        return new_args
     return False
         
     

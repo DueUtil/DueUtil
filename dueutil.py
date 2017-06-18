@@ -136,7 +136,6 @@ class DueUtilClient(discord.Client):
         
     @asyncio.coroutine
     async def on_server_remove(self,server):
-        print("Server leave")
         for collection in dbconn.db.collection_names():
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id':{'$regex':'%s\/.*' % server.id}})
