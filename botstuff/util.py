@@ -1,6 +1,6 @@
 import math
 import logging
-import emoji #The emoji list in this is outdated.
+import emoji # The emoji list in this is outdated/not complete.
 import generalconfig as gconf
 import aiohttp
 import io
@@ -8,10 +8,18 @@ import time
 import asyncio
 from botstuff.trello import TrelloClient
 
+"""
+A random jumble of classes & functionals that are some how
+utilities.
+
+Other than that no two things in this module have much in common
+"""
+
 shard_clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('dueutil')
-trello_client = TrelloClient(gconf.trello_api_key,gconf.trello_api_token)
+trello_client = TrelloClient(api_key = gconf.trello_api_key,
+                             api_token = gconf.trello_api_token)
 
 class DueLog():
     async def bot(self,message,**kwargs):
@@ -28,7 +36,12 @@ class DueLog():
 
 duelogger = DueLog()
 
-class DueUtilException(ValueError):
+class BotException(Exception):
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+class DueUtilException(BotException):
   
     def __init__(self, channel,message, *args,**kwargs):
         self.message = message 
@@ -41,10 +54,28 @@ class DueUtilException(ValueError):
             message += "```css\n"+self.addtional_info+"```"
         return message
     
-class DueReloadException(RuntimeError):
+class DueReloadException(BotException):
     
     def __init__(self,result_channel):
         self.channel = result_channel
+        
+class SlotPickleMixin():
+  
+    """
+    Mixin for pickling slots
+    MIT - http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
+    """
+  
+    def __getstate__(self):
+        return dict(
+            (slot, getattr(self, slot))
+            for slot in self.__slots__
+            if hasattr(self, slot)
+        )
+
+    def __setstate__(self, state):
+        for slot, value in state.items():
+            setattr(self, slot, value)
         
 async def download_file(url):
     with aiohttp.Timeout(10):
@@ -70,7 +101,6 @@ async def say(channel,*args,**kwargs):
 async def typing(channel):
       await get_client(channel.server.id).send_typing(channel)
       
-
 def load_and_update(reference,object):
     for item in dir(reference):
         if item not in dir(object):
@@ -97,7 +127,7 @@ def get_server_id(source):
 def get_client(source):
     try:
         return shard_clients[get_shard_index(get_server_id(source))]
-    except:
+    except IndexError:
         return None
         
 def ultra_escape_string(string):
@@ -152,7 +182,7 @@ def is_server_emoji(server,possible_emoji):
 def get_server_name(server,user_id):
     try:
         return server.get_member(user_id).name
-    except:
+    except AttributeError:
         return "Unknown User"
     
 def clamp(number, min_val, max_val):
@@ -166,7 +196,7 @@ def filter_string(string):
         else:
             new = new + "?"
     return new
-    
+
 def load(shards):
     global shard_clients
     shard_clients = shards

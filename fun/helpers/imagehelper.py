@@ -292,7 +292,7 @@ async def stats_screen(channel,player):
         side_colour = theme["sideColour"]
         exp_colour = theme["expColour"]
     
-    image = player.get_background().image.copy()
+    image = player.background.image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screens"][theme["screen"]]

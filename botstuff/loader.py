@@ -17,19 +17,20 @@ def loader(action,packages=BOT_PACKAGES):
     and produce a pretty list
     """
     
-    subpackages = []
+    #subpackages = []
     for package_name in packages:
         package = importlib.import_module(package_name)
         for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
                                                               prefix=package.__name__+'.'):
             if not ispkg:
                 action(modname)
-            else:
-                subpackages.append(modname)
-    if len(subpackages) > 0:
-        loader(action,packages=subpackages)
-    if packages == BOT_PACKAGES:
-        util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))
+            # else:
+                # subpackages.append(modname)
+    #if len(subpackages) > 0:
+        # print(subpackages)
+        # loader(action,packages=subpackages)
+    #if packages == BOT_PACKAGES:
+    util.logger.info('Bot extensions loaded with %d commands\n%s',len(events.command_event),', '.join(events.command_event.command_list()))
 
 def load_module(module):
   
@@ -63,6 +64,7 @@ def load_modules():
     loader(load_module)
     
 def reload_modules():
+    loaded_modules = []
     loader(reload_module)
     
 def refresh_modules():

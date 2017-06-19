@@ -11,11 +11,11 @@ Basic classes to store themes, backgrounds and banners.
 
 """
 
-class Theme(DueUtilObject,dict):
+class Theme(dict,DueUtilObject):
     
     def __init__(self,id,**theme_data):
         self.update(theme_data)
-        super().__init__(id,self["name"])
+        DueUtilObject.__init__(self,id,self["name"])
       
 class Themes(dict):
     
@@ -31,12 +31,12 @@ class Themes(dict):
                 theme["rankColours"] = default_rank_colours
             self[theme_id] = Theme(theme_id,**theme)
  
-class Background(DueUtilObject,dict):
+class Background(dict,DueUtilObject):
     
     def __init__(self,id,**background_data):
         self.update(background_data)
         self.image = Image.open("backgrounds/"+self["image"])
-        super().__init__(id,self["name"])
+        DueUtilObject.__init__(self,id,self["name"])
       
 class Backgrounds(dict):
     

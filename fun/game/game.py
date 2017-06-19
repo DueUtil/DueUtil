@@ -92,10 +92,11 @@ async def player_message(message,player,spam_level):
                     spelling_score -= 1
                                    
             spelling_score = max(1,spelling_score/((len(message_words)*3)+1))
-            spelling_avg =  player.average_spelling_correctness
+            spelling_avg =  player.misc_stats["average_spelling_correctness"]
             1 - abs(spelling_score - spelling_avg)
             spelling_strg = big_word_spelling_score/big_word_count
-            player.average_spelling_correctness = (player.average_spelling_correctness + spelling_score) / 2
+            # Not really an average (like quest turn avg) (but w/e)
+            player.misc_stats["average_spelling_correctness"] = (spelling_avg + spelling_score) / 2
             
             len_limit = max(1,120 - len(message.content))
             player.progress(spelling_score/len_limit, spelling_strg/len_limit, spelling_avg/len_limit)
@@ -173,18 +174,18 @@ async def check_for_recalls(ctx,player):
     Checks for weapons that have been recalled
     """
   
-    current_weapon = [player.w_id,player.weapon_sum]
-    weapons_to_recall = [weapon_info for weapon_info in player.weapon_inventory+[current_weapon]
-                          if (weapons.get_weapon_from_id(weapon_info[0]).id == weapons.NO_WEAPON_ID
-                          and weapon_info[0] != weapons.NO_WEAPON_ID
-                          or weapons.get_weapon_from_id(weapon_info[0]).weapon_sum != weapon_info[1])]
-                          
+    current_weapon_id = player.weapon.id
+
+    weapons_to_recall = [weapon_id for weapon_id in player.inventory["weapons"]+[current_weapon_id]
+                         if (weapons.get_weapon_from_id(weapon_id).id == weapons.NO_WEAPON_ID
+                         and weapon_id != weapons.NO_WEAPON_ID)]   
+
     if len(weapons_to_recall) == 0:
         return
-    if current_weapon in weapons_to_recall:
-        player.set_weapon(weapons.get_weapon_from_id("None"))
-    player.weapon_inventory = [weapon_info for weapon_info in player.weapon_inventory if weapon_info not in weapons_to_recall]
-    recall_amount = sum([int(weapon_info[1].split('/')[0]) for weapon_info in weapons_to_recall])
+    if current_weapon_id in weapons_to_recall:
+        player.weapon = weapons.NO_WEAPON_ID
+    player.inventory["weapons"] = [weapon_id for weapon_id in player.inventory["weapons"] if weapon_id not in weapons_to_recall]
+    recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_info in weapons_to_recall])
     player.money += recall_amount
     player.save()
     await util.say(ctx.channel,(":bangbang: "+("One" if len(weapons_to_recall) == 1 else "Some")+" of your weapons has been recalled!\n"
@@ -196,7 +197,7 @@ def get_exp_for_next_level(level):
             return eval(exp_details.replace("oldLevel",str(level)))
     return -1
 
-def load_game_rules():
+def _load_game_rules():
     with open('fun/configs/progression.json') as progression_file:  
         progression = json.load(progression_file)
     exp = progression["dueutil-ranks"]
@@ -218,5 +219,5 @@ async def on_message(message):
         await manage_quests(message,player,spam_level)
         await check_for_recalls(message,player)
     
-load_game_rules()
+_load_game_rules()
 events.register_message_listener(on_message)

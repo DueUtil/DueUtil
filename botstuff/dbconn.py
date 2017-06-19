@@ -20,7 +20,6 @@ def conn():
 def insert_object(id,object):
     if id.strip() == "":
         return
-    print(jsonpickle.encode(object))
     conn()[type(object).__name__].update({'_id':id},{"$set": {'data':jsonpickle.encode(object)}},upsert=True)
 
 def get_collection_for_object(object_class):

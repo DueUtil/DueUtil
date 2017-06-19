@@ -2,17 +2,27 @@ import jsonpickle
 import json
 from botstuff import util, dbconn
 from ..helpers.misc import DueUtilObject, DueMap
+from collections import namedtuple
+from botstuff.util import SlotPickleMixin
 
-NO_WEAPON_ID = "STOCK/none"
+NO_WEAPON_ID = "STOCK+16|1|0.66/none"
 stock_weapons = ["none"]
 
 weapons = DueMap()
 
-# TODO: Consider map between servers & weapons (like quests)
+# Simple namedtuple for weapon sums
+Summary = namedtuple("Summary",["price","damage","accy"])
 
-class Weapon(DueUtilObject):
+class Weapon(DueUtilObject,SlotPickleMixin):
   
     """A simple weapon that can be used by a monster or player in DueUtil"""
+    
+    PRICE_CONSTANT = 0.04375
+    DEFAULT_IMAGE = "https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png"
+    
+    __slots__ = ["name","damage","accy","price",
+                 "icon","hit_message","melee","image_url",
+                 "weapon_sum"]
     
     def __init__(self,name,hit_message,damage,accy,**extras):
         message = extras.get('ctx',None)
@@ -41,45 +51,45 @@ class Weapon(DueUtilObject):
             self.server_id = "STOCK"
         
         self.name = name
-        super().__init__(self.__weapon_id(),**extras)    
+        self.damage = damage
+        self.accy = accy/100
+        self.price = self._price()
+
+        super().__init__(self._weapon_id(),**extras)
+          
         self.icon = extras.get('icon',"🔫")
         self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee',True)
-        self.image_url = extras.get('image_url',"https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png")
-        self.damage = damage
-        self.accy = accy
-        self.price = self.__price()
-        self.weapon_sum = self.__weapon_sum()
-        self.full_id = self.id+'+'+self.weapon_sum
-        
-        self.__add()
+        self.image_url = extras.get('image_url',self.DEFAULT_IMAGE)
+
+        self.weapon_sum = self._weapon_sum()        
+        self._add()
             
     @property
     def w_id(self):
         return self.id
     
-    def __weapon_id(self):
-        return self.server_id+"/"+self.name.lower()
+    def _weapon_id(self):
+        return "%s+%s/%s" % (self.server_id,self._weapon_sum(),self.name.lower())
         
-    def __weapon_sum(self):
-        summary_string = str(self.price)+'/'+str(self.damage)+"/"+str(self.accy)
-        return summary_string
+    def _weapon_sum(self):
+        return "%d|%d|%.2f" % (self.price,self.damage,self.accy)
       
-    def __price(self):
-        return int(self.accy/100 * self.damage/ 0.04375) + 1
+    def _price(self):
+        return int(self.accy * self.damage/ self.PRICE_CONSTANT) + 1
         
-    def __add(self):
-        global weapons
+    def _add(self):
         weapons[self.w_id] = self
         self.save()
+        
+    def get_summary(self):
+        return get_weapon_summary_from_id(self.id)
+        
     
 def get_weapon_from_id(weapon_id):
-    if '+' in weapon_id:
-        weapon_id = weapon_id.split('+')[0]
     if weapon_id in weapons:
         return weapons[weapon_id]
-    else:
-        return weapons[NO_WEAPON_ID]
+    return weapons[NO_WEAPON_ID]
                 
 def does_weapon_exist(server_id,weapon_name):   
     if get_weapon_for_server(server_id,weapon_name) != None:
@@ -89,10 +99,15 @@ def does_weapon_exist(server_id,weapon_name):
 def get_weapon_for_server(server_id,weapon_name):
     if weapon_name.lower() in stock_weapons:
         return weapons["STOCK/"+weapon_name.lower()]
-    else:
-        weapon_id = server_id+"/"+weapon_name.lower()
-        if weapon_id in weapons:
-            return weapons[weapon_id]
+    weapon_id = server_id+"/"+weapon_name.lower()
+    if weapon_id in weapons:
+        return weapons[weapon_id]
+            
+def get_weapon_summary_from_id(weapon_id):
+    summary = weapon_id.split('/',1)[0].split('+')[1].split('|')
+    return Summary(price = int(summary[0]),
+                   damage = int(summary[1]),
+                   accy = float(summary[2]))
                 
 def remove_weapon_from_shop(server,weapon_name):
     weapon_id = server.id+"/"+weapon_name
@@ -117,8 +132,7 @@ def find_weapon(server,weapon_name_or_id):
 def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:
         return "STOCK/" + weapon_name
-    else:
-        return NO_WEAPON_ID
+    return NO_WEAPON_ID
   
 def load_stock_weapons():
     with open('fun/configs/defaultweapons.json') as defaults_file:  
@@ -134,7 +148,7 @@ def load_stock_weapons():
                melee = weapon_data["melee"],
                no_save = True)
               
-def load():
+def _load():
     none = Weapon('None', None, 1, 66, no_save = True)
     
     load_stock_weapons()
@@ -143,4 +157,4 @@ def load():
         loaded_weapon = jsonpickle.decode(weapon['data'])
         weapons[loaded_weapon.w_id] = util.load_and_update(none,loaded_weapon)
         
-load()
+_load()

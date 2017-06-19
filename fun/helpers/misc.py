@@ -40,6 +40,26 @@ class DueUtilObject():
         self.no_save = kwargs.get("no_save",False)
         if len(args) > 0:
             self.name = args[0]
+            
+    def __getitem__(self,key):
+        """
+        To support bot objects & dict on.
+        Should be overidden in classes that support indexing.
+        """
+        return self.__dict__[key]
+
+    def __getattr__(self,name):
+        """
+        To allow treating some dict like objects as normal objects.
+        This helps with generic functions
+        
+        Note: This method (plz py docs) should only be called if normal
+        means of finding the attr failed
+        """
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError("No attribute or index named %s" % name)
         
     @property
     def name_clean(self):
@@ -67,14 +87,14 @@ class DueUtilObject():
         except:
             try:
                 return "%s | %s" % (self["icon"], self.name_clean)
-            except:
+            except AttributeError:
                 return self.name_clean
               
     def save(self):
         if not self.no_save:
             dbconn.insert_object(self.id,self)
             
-#### MacDue's wacky data clases
+#### MacDue's wacky data clases (monkey patches)
             
 class DueMap(collections.MutableMapping):
   
@@ -84,18 +104,24 @@ class DueMap(collections.MutableMapping):
     E.g. Key "ServerID/Name"
     or Server & Item
     where the key is Server.id/Item.name
+    
+    or key with addtional data:
+      some.id+data/item.name
+      (some id can't contain any '/' or '+'s)
+      and the data can't contain any '/'s
    
     This mapping will return an empty dict or None
     if the server or item does not exist!
     
     Happens to be quite useful
+    
     """
     
     def __init__(self):
         self.collection = dict()
 
     def __getitem__(self, key):
-        key = self.__parse_key__(key)
+        key = self._parse_key(key)
         if isinstance(key,list):
             if key[0] in self.collection and key[1] in self.collection[key[0]]:
                 return self.collection[key[0]][key[1]]
@@ -105,13 +131,13 @@ class DueMap(collections.MutableMapping):
         return {}
         
     def __contains__(self, key):
-        key = self.__parse_key__(key)
+        key = self._parse_key(key)
         if isinstance(key,list):
             return key[0] in self.collection and key[1] in self.collection[key[0]]
         return key in self.collection
 
     def __setitem__(self, key, value):
-        key = self.__parse_key__(key, value)
+        key = self._parse_key(key, value)
         if isinstance(key,list):
             if key[0] not in self.collection:
                 items = dict()
@@ -123,7 +149,7 @@ class DueMap(collections.MutableMapping):
             self.collection[key] = value
 
     def __delitem__(self, key):
-        key = self.__parse_key__(key)
+        key = self._parse_key(key)
         if isinstance(key,list):
             del self.collection[key[0]][key[1]]
         else:
@@ -138,33 +164,17 @@ class DueMap(collections.MutableMapping):
     def __str__(self):
          return "DueMap(%s)" % str(self.collection)
          
-    def __parse_key__(self, key, value = None):
+    def _parse_key(self, key, value = None):
         if isinstance(key,discord.Server):
             if value != None:
                 return [key.id,value.name]
             return key.id
         elif "/" not in key:
             return key
-        return key.split('/',1)
-        
-class Container(object):
-      
-    """
-    Simple bunch class with defaults
-    """
-      
-    def __init__(self,default,**data):
-        self.default = default
-        self.__dict__.update(data)
-            
-    def __get__(self, key):
-        if hasattr(self,key):
-            return super().__get__(key)
-        setattr(self,key,self.default)
-        return self.default
-            
-    def __getitem__(self,key):
-        return self.__get__(key)
+        key = key.split('/',1)
+        if '+' in key[0]:
+            key[0] = key[0].split('+')[0]
+        return key
         
 class Ring(list):
     

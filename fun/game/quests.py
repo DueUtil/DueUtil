@@ -6,7 +6,9 @@ from botstuff import util, dbconn
 from . import weapons, players
 from ..helpers.misc import DueUtilObject, DueMap
 from .players import Player
-        
+from collections import defaultdict
+from botstuff.util import SlotPickleMixin
+
 quest_map = DueMap()
 
 MIN_QUEST_IV = 0
@@ -15,9 +17,14 @@ QUEST_COOLDOWN = 360
 MAX_DAILY_QUESTS = 50
 MAX_ACTIVE_QUESTS = 10
 
-class Quest(DueUtilObject):
+class Quest(DueUtilObject,SlotPickleMixin):
   
     """A class to hold info about a server quest"""
+    
+    __slots__ = ["id","name","server_id","created_by",
+                 "task","w_id","spawn_chance","image_url",
+                 "base_attack","base_strg","base_accy","base_hp",
+                 "channel","times_beaten"]
   
     def __init__(self,name,base_attack,base_strg,base_accy,base_hp,**extras):
         message = extras.get('ctx',None)
@@ -47,7 +54,7 @@ class Quest(DueUtilObject):
             self.created_by = ""
       
         self.name = name
-        super().__init__(self.__quest_id())
+        super().__init__(self._quest_id())
         self.task = extras.get('task',"Battle a")
         self.w_id = extras.get('weapon_id',weapons.NO_WEAPON_ID)
         self.spawn_chance = given_spawn_chance/100
@@ -58,13 +65,13 @@ class Quest(DueUtilObject):
         self.base_hp = base_hp
         self.channel = extras.get('channel',"ALL")
         self.times_beaten = 0
-        self.__add()
+        self._add()
         self.save()
         
-    def __quest_id(self):
+    def _quest_id(self):
         return self.server_id+'/'+self.name.lower()
     
-    def __add(self):
+    def _add(self):
         global quest_map
         if self.server_id != "":
             quest_map[self.id] = self
@@ -96,32 +103,44 @@ class Quest(DueUtilObject):
         except:
             return "Unknown"
         
-class ActiveQuest(Player):
+class ActiveQuest(Player,util.SlotPickleMixin):
   
-    def __init__(self,q_id, quester : Player):
+    __slots__ = ["name","id","level","attack","strg","hp",
+                 "equipped","q_id","quester_id","cash_iv",
+                 "quester","accy"]
+                  
+    def __init__(self, q_id, quester : Player):
+        # The base quest (holds the quest infomation)
         self.q_id = q_id
-        super(ActiveQuest,self).__init__()
-        self.name = self.info.name
+        base_quest = self.info
+        
+        self.name = base_quest.name
+        
         self.quester_id = quester.id
-        self.w_id = self.info.w_id
+        self.quester = quester
+        
+        """ The quests equipped itemes.
+        Quests only have weapons but I may add more things a quest
+        can have so a default dict will help with that """
+        self.equipped = defaultdict(lambda: "default",
+                                    weapon = base_quest.w_id)
+        
         self.level = random.randint(quester.level, quester.level * 2)
-        self.__calculate_stats__()
+        self._calculate_stats()
         quester.quests.append(self)
         quester.save()
         
-    def __calculate_stats__(self,**spoof_values):
+    def _calculate_stats(self,**spoof_values):
         # HP is not the same! Don't treat it as such
-        base_quest = self.info
-        quester = players.find_player(self.quester_id)
-        base_values = base_quest.base_values()
+        base_values = self.info.base_values()
         stats = []
         # For testing purposes only
-        avg_quester_stat = spoof_values.get('q_stats',quester.get_avg_stat())
+        avg_quester_stat = spoof_values.get('q_stats',self.quester.get_avg_stat())
         weapon_damage = spoof_values.get('w_damage',self.weapon.damage)
         weapon_accy = spoof_values.get('w_accy',self.weapon.accy)
         avg_base_value = sum(base_values[1:])/4
-        quester_stat_per_level = avg_quester_stat/quester.level
-        quester_hp_per_level = quester.hp/quester.level
+        quester_stat_per_level = avg_quester_stat/self.quester.level
+        quester_hp_per_level = self.quester.hp/self.quester.level
         for stat_calculation in range(1,4):
             iv = random.uniform(MIN_QUEST_IV,avg_base_value)
             stat = (base_values[stat_calculation]+iv+quester_stat_per_level)/3*self.level+self.level
@@ -132,7 +151,6 @@ class ActiveQuest(Player):
         self.strg = stats[1]
         self.accy = stats[2] 
         self.cash_iv = random.uniform(MIN_QUEST_IV,avg_base_value)*weapon_damage*(weapon_accy/100)
-        # self.money = reward
         
     def get_avatar_url(self,*args):
         quest_info = self.info
@@ -140,34 +158,19 @@ class ActiveQuest(Player):
             return quest_info.image_url
   
     def get_reward(self):
-        quester = players.find_player(self.quester_id)
         if not hasattr(self,"cash_iv"):
             self.cash_iv = 0
         avg_stat = self.get_avg_stat()
-        hp_scale = self.hp/quester.hp
-        reward_multiplier = (avg_stat/quester.get_avg_stat()+hp_scale)/2
-        return int(avg_stat/quester.level*self.cash_iv/self.get_quest_scale()*reward_multiplier) + 1
+        hp_scale = self.hp/self.quester.hp
+        reward_multiplier = (avg_stat/self.quester.get_avg_stat()+hp_scale)/2
+        return int(avg_stat/self.quester.level*self.cash_iv/self.get_quest_scale()*reward_multiplier) + 1
 
     def get_quest_scale(self):
-        quester = players.find_player(self.quester_id)
-        quester_weapon = quester.weapon
+        quester_weapon = self.quester.weapon
         scale_value = (quester_weapon.damage*(quester_weapon.accy/100)
-                      /max(1,(MAX_DAILY_QUESTS - quester.quests_completed_today)/2))        
+                      /max(1,(MAX_DAILY_QUESTS - self.quester.quests_completed_today)/2))        
         return max(1/3,scale_value)
         
-    @property
-    def money(self):
-        return self.get_reward()
-    
-    @money.setter
-    def money(self,value):
-        # To maintain backwards compatibility
-        pass
-        
-    @property
-    def info(self):
-        return quest_map[self.q_id]
-
     def get_threat_level(self,player):
         return [
             player.attack/max(player.attack,self.attack),
@@ -176,6 +179,31 @@ class ActiveQuest(Player):
             self.money/max(player.money,self.money),
             player.weapon.damage/max(player.weapon.damage,self.weapon.damage)
         ]
+        
+    @property
+    def money(self):
+        return self.get_reward() 
+
+    @money.setter
+    def money(self,value): pass
+        
+    @property
+    def info(self):
+        return quest_map[self.q_id]
+        
+    def save(): pass
+    
+    def __setstate__(self, object_state):
+        SlotPickleMixin.__setstate__(self, object_state)
+        """ quester is set in the player's setstate
+        as quests are part of the player's save.
+        Also we don't want to inherit the Player setstate.
+         """
+        
+    def __getstate__(self):
+        object_state = SlotPickleMixin.__getstate__(self)
+        del object_state["quester"]
+        return object_state
     
 def get_server_quest_list(server):
     return quest_map[server]
@@ -234,11 +262,11 @@ def load_default_quests():
               spawn_chance = quest_data["spawnChance"],
               no_save = True)
   
-def load():
+def _load():
     reference = Quest('Reference',1,1,1,1,server_id="")
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
         quest_map[loaded_quest.q_id] = loaded_quest
 
-load()
+_load()

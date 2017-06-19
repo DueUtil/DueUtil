@@ -111,7 +111,8 @@ async def acceptquest(ctx,*args,**details):
     turns = battle_details[1]
     winner = battle_details[2]
     stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
-    player.average_quest_battle_turns = (player.average_quest_battle_turns + turns)/2
+    # Not really an average (but w/e)
+    average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats["average_quest_battle_turns"] + turns)/2
     if winner != player:
         battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
                                                               +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
@@ -127,7 +128,7 @@ async def acceptquest(ctx,*args,**details):
                   +util.format_number(quest.money,full_precision=True,money=True)+"``\n")
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
-        attr_gain = lambda stat : (stat/avg_player_stat)*quest.level/(player.level*2)*turns/player.average_quest_battle_turns/quest_scale
+        attr_gain = lambda stat : (stat/avg_player_stat)*quest.level/(player.level*2)*turns/average_quest_battle_turns/quest_scale
         add_attack = min(attr_gain(quest.attack),100)
         add_strg = min(attr_gain(quest.strg),100)
         add_accy = min(attr_gain(quest.accy),100)

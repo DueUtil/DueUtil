@@ -63,17 +63,17 @@ def battle(**battleargs):
         nonlocal players, moves, current_move, damage_modifier
         
         other_player_no = player_no-1
-        BABY_MOVES = ["slapped","scratched","hit","punched","licked","bit","kicked","tickled"]
+        BABY_MOVES = ("slapped","scratched","hit","punched","licked","bit","kicked","tickled")
         weapon = players[player_no].weapon      
         message = ""
-                                  
         if weapon.w_id == weapons.NO_WEAPON_ID:
             message = random.choice(BABY_MOVES) 
         else:
             message = weapon.hit_message
-                  
+
         moves[str(player_no)+'/'+str(current_move)] = ([prefixes[player_no].title()+'**'+players[player_no].name_clean 
                                                        +'** '+ message +' '+prefixes[other_player_no]+'**'+players[other_player_no].name_clean+'**',1])
+                                                    
         current_move += 1
         damage_modifier += 0.5
 

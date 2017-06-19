@@ -58,13 +58,13 @@ async def unequip(ctx,*args,**details):
     weapon = player.weapon
     if weapon.w_id == weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel,"You don't have anything equiped anyway!")
-    if len(player.weapon_inventory) >= 6:
+    if len(player.inventory["weapons"]) >= 6:
         raise util.DueUtilException(ctx.channel, "No room in your weapon storage!")
     if player.owns_weapon(weapon.name):
         raise util.DueUtilException(ctx.channel,"You already have a weapon with that name stored!")
          
     player.store_weapon(weapon)
-    player.set_weapon(weapons.get_weapon_from_id("None"))
+    player.weapon = weapons.NO_WEAPON_ID
     player.save()
     await util.say(ctx.channel, ":white_check_mark: **"+weapon.name_clean+"** unequiped!")
             
@@ -84,16 +84,16 @@ async def equip(ctx,*args,**details):
     if weapon == None:
         raise util.DueUtilException(ctx.channel,"You do not have that weapon stored!")    
                 
-    weapon_info = player.pop_from_invetory(weapon)
-
+    player.discard_stored_weapon(weapon)
     if player.owns_weapon(current_weapon.name):
-        player.weapon_inventory.append(weapon_info)
-        raise util.DueUtilException(ctx.channel,"Can't put your current weapon into storage! There is already a weapon with the same name stored!"); 
+        player.store_weapon(weapon)
+        raise util.DueUtilException(ctx.channel,("Can't put your current weapon into storage!\n"
+                                                 +"There is already a weapon with the same name stored!"))                                        
         
     if current_weapon.w_id != weapons.NO_WEAPON_ID:
         player.store_weapon(current_weapon)
         
-    player.set_weapon(weapon)
+    player.weapon = weapon
     player.save()
 
     await util.say(ctx.channel,":white_check_mark: **"+weapon.name_clean+"** equiped!")
@@ -360,8 +360,8 @@ async def buy_weapon(weapon_name,**details):
                                     +"You can use weapons with a value up to **"
                                     +util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"))
     elif customer.weapon.w_id != weapons.NO_WEAPON_ID:
-        if len(customer.weapon_inventory) < 6:
-            if weapon.w_id not in customer.weapon_inventory:
+        if len(customer.inventory["weapons"]) < 6:
+            if weapon.w_id not in customer.inventory["weapons"]:
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
                 await util.say(channel,("**"+customer.name_clean+"** bought a **"+weapon.name_clean+"** for "
@@ -374,11 +374,11 @@ async def buy_weapon(weapon_name,**details):
         else:
             raise util.DueUtilException(channel,"No free weapon slots!")
     else:
-        customer.set_weapon(weapon)
+        customer.weapon = weapon
         customer.money -= weapon.price
         await util.say(channel,("**"+customer.name_clean+"** bought a **"
                                     +weapon.name_clean+"** for "+util.format_number(weapon.price,money=True,full_precision=True)))
-        await awards.give_award(ctx.channel,"Spender","Licence to kill!")
+        await awards.give_award(channel,customer,"Spender","Licence to kill!")
     customer.save()
 
 async def sell_weapon(weapon_name,**details):
@@ -412,7 +412,7 @@ def weapon_info(weapon_name,**details):
     embed.title = weapon.icon+' | '+weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
     embed.add_field(name='Damage',value=util.format_number(weapon.damage))
-    embed.add_field(name='Accuracy',value=util.format_number(weapon.accy)+'%')
+    embed.add_field(name='Accuracy',value=util.format_number(weapon.accy*100)+'%')
     embed.add_field(name='Price',value=util.format_number(weapon.price//price_divisor,money=True,full_precision=True))
     embed.add_field(name="Hit Message",value=weapon.hit_message)
     embed.set_footer(text='Image supplied by weapon creator.')
