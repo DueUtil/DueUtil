@@ -237,7 +237,6 @@ async def determine_args(pattern,args):
         return pattern.replace('?','')
         
     def could_be_string(pattern):
-        nonlocal args
         if pattern[0] == 'S':
             if len(pattern) > 1:
                 pattern_pos = len(pattern)-1
@@ -248,6 +247,12 @@ async def determine_args(pattern,args):
                     return False
             return True
         return False
+        
+    def valid_args_len(args,pattern):
+        pattern_type_count = len(pattern) - pattern.count('*')
+        if '*' in pattern:
+            return len(args) >= pattern_type_count
+        return len(args) == pattern_type_count
     
     def represents_string(string):
         
@@ -276,10 +281,16 @@ async def determine_args(pattern,args):
             if could_be_string(pattern):
                 # If the command is wrong by all other tests and it could be a string
                 # merge the arguments to a single string.
-                return (' '.join(args),)
+                if len(args) > 0:
+                    return (' '.join(args),)
+                return False
+            # Guesing args: Trying to figure out if the user has forgot quotes.
+            # With no context on the command it's fiddly
             guessing_arguments = True
-        if not guessing_arguments: pattern = pattern_optional_removed
-        
+        if not guessing_arguments: 
+            pattern = pattern_optional_removed
+        else:
+            pattern = pattern.replace('?','')
     pos = 0
     args_index = 0
     current_rule = ''
@@ -317,7 +328,8 @@ async def determine_args(pattern,args):
         args_index+=1
         if pos_change:
             pos+=1
-    if checks_satisfied == len(args) and not guessing_arguments:
+    if (checks_satisfied == len(args) and not guessing_arguments
+        and valid_args_len(args,pattern)):
         return args
     elif guessing_arguments:
         """
@@ -331,7 +343,7 @@ async def determine_args(pattern,args):
             if last_string != -1:
                 if could_be_string(pattern[last_string:]):
                     new_args = tuple(args[:last_string])+(' '.join(args[last_string:]),)
-                    if checks_satisfied == len(new_args) and len(pattern) == len(new_args):
+                    if checks_satisfied == len(new_args) and valid_args_len(new_args,pattern):
                         return new_args
     return False
         
