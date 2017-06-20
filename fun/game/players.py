@@ -9,6 +9,7 @@ from collections import defaultdict
 from .customization import Themes, Backgrounds, Banners, Theme
 from botstuff import util, dbconn
 from botstuff.util import SlotPickleMixin
+from copy import copy
 
 players = dict()   
 banners = Banners()
@@ -249,7 +250,7 @@ class Player(DueUtilObject,SlotPickleMixin):
     def theme(self):
         current_theme = self.equipped["theme"]
         if current_theme in profile_themes: 
-            theme = profile_themes[current_theme].copy()
+            theme = copy(profile_themes[current_theme])
         else:
             theme = profile_themes["default"].copy()
         if theme["background"] != self.equipped["background"]:
@@ -257,7 +258,7 @@ class Player(DueUtilObject,SlotPickleMixin):
         if theme["banner"] != self.equipped["banner"]:
             theme["banner"] = self.equipped["banner"]
         return theme
-        
+
     @theme.setter
     def theme(self,theme):
         self._setter("theme",theme)

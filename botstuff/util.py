@@ -7,6 +7,7 @@ import io
 import time
 import asyncio
 from botstuff.trello import TrelloClient
+from itertools import chain
 
 """
 A random jumble of classes & functionals that are some how
@@ -64,12 +65,14 @@ class SlotPickleMixin():
     """
     Mixin for pickling slots
     MIT - http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
+    ^ Fuck this utter shite is WRONG and does not account for slot inherits
     """
   
     def __getstate__(self):
+        all_slots = chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__)
         return dict(
             (slot, getattr(self, slot))
-            for slot in self.__slots__
+            for slot in all_slots
             if hasattr(self, slot)
         )
 

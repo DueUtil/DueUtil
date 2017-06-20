@@ -42,26 +42,6 @@ class DueUtilObject():
         self.no_save = kwargs.get("no_save",False)
         if len(args) > 0:
             self.name = args[0]
-            
-    def __getitem__(self,key):
-        """
-        To support bot objects & dict on.
-        Should be overidden in classes that support indexing.
-        """
-        return self.__dict__[key]
-
-    def __getattr__(self,name):
-        """
-        To allow treating some dict like objects as normal objects.
-        This helps with generic functions
-        
-        Note: This method (plz py docs) should only be called if normal
-        means of finding the attr failed
-        """
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError("%s has no attribute or index named %s" % (type(self).__name__,name))
         
     @property
     def name_clean(self):
@@ -84,13 +64,7 @@ class DueUtilObject():
         return len(string) <= max_len and len(string) != 0 and string.strip != ""
         
     def __str__(self):
-        try:
-            return "%s | %s" % (self.icon, self.name_clean)
-        except AttributeError:
-            try:
-                return "%s | %s" % (self["icon"], self.name_clean)
-            except KeyError:
-                return self.name_clean
+        return self.name_clean
               
     def save(self):
         if not self.no_save:

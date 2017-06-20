@@ -4,7 +4,7 @@ from fun.game import players, stats
 from fun.helpers import misc,players_abstract,imagehelper
 from botstuff import commands,util,permissions
 from botstuff.permissions import Permission
-import generalconfig as gconf 
+import generalconfig as gconf
 
 @commands.command(args_pattern="S?")
 async def battlename(ctx,*args,**details):

@@ -14,7 +14,39 @@ Basic classes to store themes, backgrounds and banners.
 # Both Theme & Background used to be an extension of dict and DUObj 
 # but had to be changed due to __slots__
 
-class Theme(DueUtilObject):
+class Cutomization(DueUtilObject):
+  
+    __slots__ = ["_cutomization_info"]
+    
+    # Use kwargs so maybe I could neatly define cutomizations in code.
+    def __init__(self,id,**cutomization_info):
+        self._cutomization_info = cutomization_info
+        super().__init__(id,self["name"])
+    
+    def __getattr__(self,name):
+        """
+        This helps customizations have both a dict & object
+        interface
+        """
+        try:
+            return self[name]
+        except KeyError as exception:
+            #### ULTRA WARNING!!!!!!!
+            #### THIS ERROR MAY LIE
+            raise AttributeError("%s has no attribute or index named %s" % (type(self).__name__,name)) from exception
+            
+    # Most cutomizations are read only & don't need to set values
+            
+    def __contains__(self, key):
+        return key in self._cutomization_info
+    
+    def __getitem__(self,key):
+        return self._cutomization_info[key]
+        
+    def __str__(self):
+        return "%s | %s" % (self.icon, self.name_clean)
+
+class Theme(Cutomization):
   
     """
     Simple class to hold them data and
@@ -24,21 +56,17 @@ class Theme(DueUtilObject):
     overriding theme attributes
     """
     
-    __slots__ = "_theme_data"
+    __slots__ = []
 
     def __init__(self,id,**theme_data):
-        self._theme_data = theme_data
-        DueUtilObject.__init__(self,id,self["name"])
+        super().__init__(id,**theme_data)
         
-    def __copy__():
-        return Theme(id,**self.theme_data)
-    
-    def __getitem__(self,key):
-        return self._theme_data[key]
+    def __copy__(self):
+        return Theme(id,**self._cutomization_info)
         
     def __setitem__(self,key,value):
-        self._theme_data[key] = value
-      
+        self._cutomization_info[key] = value
+        
 class Themes(dict):
     
     def __init__(self):
@@ -53,9 +81,9 @@ class Themes(dict):
                     theme["rankColours"] = default_rank_colours
                 self[theme_id] = Theme(theme_id,**theme)
  
-class Background(DueUtilObject):
+class Background(Cutomization):
   
-    __slots__ = ["image","_background_data"]
+    __slots__ = ["image"]
 
     """
     Unlike Theme copy() & setting background data should
@@ -63,12 +91,8 @@ class Background(DueUtilObject):
     """
     
     def __init__(self,id,**background_data):
-        self._background_data = background_data
+        super().__init__(id,**background_data)
         self.image = Image.open("backgrounds/"+self["image"])
-        DueUtilObject.__init__(self,id,self["name"])
-    
-    def __getitem__(self,key):
-        return self._background_data[key]
       
 class Backgrounds(dict):
       
@@ -94,9 +118,12 @@ class Banners(dict):
             for banner_id,banner in banners.items():
                 self[banner_id] = Banner(banner_id,**banner)
 
-class Banner(DueUtilObject):
+class Banner(Cutomization):
     
-    """Class to hold details & methods for a profile banner"""
+    """Class to hold details & methods for a profile banner
+    This class is based off a legacy class from DueUtil V1
+    and hence does not properly Cutomization
+    """
     
     def __init__(self,id,**banner_data):
       
@@ -109,8 +136,8 @@ class Banner(DueUtilObject):
         self.image_name = banner_data["image"]
         self.icon = banner_data["icon"]
         self.description = banner_data["description"]
-        super().__init__(id,banner_data["name"])
-                                
+        super().__init__(id,**banner_data)
+        
     def banner_restricted(self,player):
         member = discord.Member(user={"id":player.id})
         return ((not self.admin_only or self.admin_only and permissions.has_permission(member,Permission.DUEUTIL_ADMIN)) 
