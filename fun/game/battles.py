@@ -18,7 +18,7 @@ class BattleRequest:
         self.__add(receiver)
         
     def __add(self,receiver):
-        receiver.battlers.append(self)
+        receiver.received_wagers.append(self)
         receiver.save()
 
 def get_battle_log(**battleargs):

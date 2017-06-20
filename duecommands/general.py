@@ -43,6 +43,7 @@ class BuySellBanner(ShopBuySellItem):
 class BuySellBackground(BuySellTheme):
     item_type = "background"
     inventory_slot = "backgrounds"
+    set_name = "bg"
 
     def item_equipped_on_buy(self,player,item_name):
         if player.equipped["background"] == "default":

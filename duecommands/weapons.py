@@ -35,8 +35,8 @@ async def myweapons(ctx,*args,**details):
         await util.say(ctx.channel,embed=weapon_store)
     else:
         weapon_name = page
-        if player.w_id != weapons.NO_WEAPON_ID:
-            player_weapons.append(weapons.get_weapon_from_id(player.w_id))
+        if player.equipped["weapon"] != weapons.NO_WEAPON_ID:
+            player_weapons.append(player.weapon)
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()),None)
         if weapon != None:
             embed = discord.Embed(type="rich",color=gconf.EMBED_COLOUR)
@@ -167,6 +167,8 @@ async def mywagers(ctx,*args,**details):
     
     """
     
+    # TODO: Update this command to pagnaitor?
+    
     player = details["author"]
     page_size = 12
     page = 0
@@ -174,7 +176,7 @@ async def mywagers(ctx,*args,**details):
         page = args[0] - 1
     title = player.get_name_possession_clean()+" Received Wagers"+(" : Page "+str(page+1) if page > 0 else "")
     wagers_embed = discord.Embed(title=title,type="rich",color=gconf.EMBED_COLOUR)
-    wager_list = player.battlers
+    wager_list = player.received_wagers
     if len(wager_list) > 0:
         if page * page_size >= len(wager_list):
             raise util.DueUtilException(ctx.channel,"Page not found")
@@ -209,12 +211,12 @@ async def acceptwager(ctx,*args,**details):
     
     player = details["author"]
     wager_index = args[0] - 1
-    if wager_index >= len(player.battlers):
+    if wager_index >= len(player.received_wagers):
         raise util.DueUtilException(ctx.channel,"Request not found!")
-    if player.money - player.battlers[wager_index].wager_amount // 2 < 0:
+    if player.money - player.received_wagers[wager_index].wager_amount // 2 < 0:
         raise util.DueUtilException(ctx.channel,"You can't afford the risk!")
 
-    wager = player.battlers.pop(wager_index)
+    wager = player.received_wagers.pop(wager_index)
     sender = players.find_player(wager.sender_id)
     battle_details = battles.get_battle_log(player_one=player,player_two=sender)
     battle_log = battle_details[0]
@@ -238,14 +240,14 @@ async def acceptwager(ctx,*args,**details):
             sender.money -= wager.wager_amount  
         else:
             weapons_sold = 0             
-            if sender.w_id != weapons.NO_WEAPON_ID:
+            if sender.equipped["weapon"] != weapons.NO_WEAPON_ID:
                 weapons_sold += 1
-                sender.money += int(sender.weapon_sum.split("/")[0])//(4/3)
+                sender.money += sender.weapon.get_summary().price//(4/3)
                 sender.weapon = weapons.NO_WEAPON_ID
             if sender.money - wager.wager_amount < 0:
                 for weapon in sender.get_owned_weapons():
-                    weapon_info = sender.pop_from_invetory(weapon)
-                    sender.money += int(weapon_info[1].split("/")[0])//(4/3)
+                    weapon_price = weapon.get_summary().price
+                    sender.money += weapon_price//(4/3)
                     weapons_sold += 1
                     if sender.money - wager.wager_amount >= 0:
                         break
@@ -285,9 +287,9 @@ async def declinewager(ctx,*args,**details):
     
     player = details["author"]
     wager_index = args[0] -1
-    if wager_index < len(player.battlers):
-        wager = player.battlers[wager_index]
-        del player.battlers[wager_index]
+    if wager_index < len(player.received_wagers):
+        wager = player.received_wagers[wager_index]
+        del player.received_wagers[wager_index]
         player.save()
         sender = players.find_player(wager.sender_id)
         await util.say(ctx.channel,"**"+player.name_clean +"** declined a wager from **"+sender.name_clean+"**")
@@ -364,7 +366,7 @@ async def buy_weapon(weapon_name,**details):
         await util.say(channel,(":baby: Awwww. I can't sell you that.\n"
                                     +"You can use weapons with a value up to **"
                                     +util.format_number(customer.item_value_limit,money=True,full_precision=True)+"**"))
-    elif customer.weapon.w_id != weapons.NO_WEAPON_ID:
+    elif customer.equipped["weapon"] != weapons.NO_WEAPON_ID:
         if len(customer.inventory["weapons"]) < 6:
             if weapon.w_id not in customer.inventory["weapons"]:
                 customer.store_weapon(weapon)

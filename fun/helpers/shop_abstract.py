@@ -67,7 +67,9 @@ class ShopBuySellItem(ABC):
                                         +":warning: You have not yet set this %s! Do **%sset%s %s** to use this %s")
                                         % (customer.name_clean,self.item_type,item.name_clean,
                                            util.format_number(item.price,money=True,full_precision=True),
-                                           self.item_type,details["cmd_key"],self.item_type,item_name,self.item_type)))
+                                           self.item_type,details["cmd_key"],
+                                           self.set_name if hasattr(self,"set_name") else self.item_type,
+                                           item_name,self.item_type)))
             customer.save()
         else:
             await util.say(channel,":anger: You can't afford that "+self.item_type+".")
