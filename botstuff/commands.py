@@ -89,24 +89,6 @@ def command(**command_rules):
 def imagecommand(**command_rules):
 
     def wrap(command_func):
-        @wraps(command_func)
-        async def wrapped_command(ctx, *args,**kwargs):
-            rate_limit = command_rules.get('rate_limit',True)
-            player = players.find_player(ctx.author.id)
-            if rate_limit:
-                if time.time() - player.last_image_request < IMAGE_REQUEST_COOLDOWN:
-                    await util.say(ctx.channel,":cold_sweat: Please don't break me!")
-                    return
-                else:
-                    player.last_image_request = time.time()
-            await util.get_client(ctx).send_typing(ctx.channel)
-            await asyncio.ensure_future(command_func(ctx,*args,**kwargs))
-        return wrapped_command
-    return wrap
-    
-def imagecommand(**command_rules):
-
-    def wrap(command_func):
         @ratelimit(slow_command=True,cooldown=IMAGE_REQUEST_COOLDOWN,error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
         async def wrapped_command(ctx, *args,**kwargs):
@@ -130,11 +112,21 @@ def ratelimit(**command_info):
             await command_func(ctx,*args,**details)
         return wrapped_command
     return wrap
-
           
 def parse(command_message):
   
-    """A basic command parser with support for escape strings."""
+    """A basic command parser with support for escape strings.
+    I don't think one like this exists that is not in a package
+    that adds a lot more stuff I don't want.
+    
+    This is meant to be like a shell command lite style.
+    
+    Supports strings in double quotes & escape strings
+    (e.g. \" for a quote character)
+    
+    The limitations of this parser are 'fixed' in determine_args
+    that can guess where quotes should be most times.
+    """
     
     key = dueserverconfig.server_cmd_key(command_message.server)
     command_string = command_message.content.replace(key,'',1)
@@ -184,14 +176,31 @@ def parse(command_message):
     else:
         return (key,"",[])
         
-        
 async def determine_args(pattern,args):
     
-    """A string to define the expected args of a command
+    """
     
-    e.g. SIRIIP
+    Takes the args coming from parse()
+    (all strings) and using the pattern defined with the 
+    command attempts to derermine the args turple with the
+    correct types (not just strings).
     
-    means String, Integer, Real, Integer, Integer, Player.
+    Types: S(tring), I(nteger), C(ount), R(eal), P(layer), M(ixed) & B(oolean)
+    Mods: * (zero or more) & ? (zero or one)
+    Valid: SIR?
+    Valid SI*PB?R?I?C?
+    Invalid: SI?S
+    
+    This allows the commands to not need to parse their args
+    unless they're doing something strange.
+    
+    TODO: This method probably can be improved and simplified
+    
+    Returns False if the args could not be determined or
+    a turple of args if they could.
+    
+    WARNING: Python will resolve an empty turple to False so
+    use 'is False' for checks insted of 'not determine_args(....)'
     
     """
    
@@ -253,6 +262,7 @@ async def determine_args(pattern,args):
         if len(string) > 0:
             return string
         return False
+
     guessing_arguments = False  
     if pattern == None and len(args) > 0:
         return False

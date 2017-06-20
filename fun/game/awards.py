@@ -22,7 +22,7 @@ def get_award(award_id):
     if award_id in awards:
         return awards[award_id]
 
-def load():
+def _load():
     with open('fun/configs/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
         for award_id, award in awards_json["awards"].items():
@@ -35,4 +35,4 @@ async def give_award(channel, player, award_id, text):
         if not channel.is_private and dueserverconfig.mute_level(channel) < 0:
             await util.say(channel, "**"+player.name+"** :trophy: **Award!** " + text)
 
-load()
+_load()

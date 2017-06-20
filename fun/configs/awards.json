@@ -118,7 +118,7 @@
          "message":"Only DueUtil mods can have this."
       },
       "Spender":{
-         "icon":"admin.png",
+         "icon":"spender.png",
          "name":"Licence To Kill",
          "message":"Buy a weapon"
       },

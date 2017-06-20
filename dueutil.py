@@ -10,6 +10,8 @@ import queue
 import json
 import traceback
 import inspect
+import re
+from fun.configs import dueserverconfig
 
 MAX_RECOVERY_ATTEMPS = 100
 
@@ -132,7 +134,12 @@ class DueUtilClient(discord.Client):
             or message.author.bot
             or not loaded()):
             return
-        await events.on_message_event(message)     
+       
+        if message.content.startswith(self.user.mention):
+            message.content = re.sub(self.user.mention+"\s*",
+                                     dueserverconfig.server_cmd_key(message.server),
+                                     message.content)
+        await events.on_message_event(message) 
         
     @asyncio.coroutine
     async def on_server_remove(self,server):
