@@ -26,7 +26,7 @@ class Player(DueUtilObject,SlotPickleMixin):
     being make very early on in development & have been changed so many
     times while trying not to break older versions & code.
     
-    DefaultBunch is to hold sets of attributes that can be changed/Added to
+    defaultdict is to hold sets of attributes that can be changed/Added to
     randomly.
     
     It allows attrs to be added automatically

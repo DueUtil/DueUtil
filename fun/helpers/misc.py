@@ -71,7 +71,7 @@ class DueUtilObject():
         except AttributeError:
             try:
                 return "%s | %s" % (self["icon"], self.name_clean)
-            except KeyError:
+            except (TypeError,KeyError):
                 return self.name_clean
               
     def save(self):
@@ -98,6 +98,8 @@ class DueMap(collections.MutableMapping):
     if the server or item does not exist!
     
     Happens to be quite useful
+    
+    TODO: REWRITE (if becomes apparent this mapping is slow)
     
     """
     

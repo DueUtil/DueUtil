@@ -58,7 +58,7 @@ class ShopBuySellItem(ABC):
         if customer.money - item.price > 0:
             customer.money -= item.price
             customer.inventory[self.inventory_slot].append(item_name)
-            if self.item_equiped_on_buy(customer,item_name):
+            if self.item_equipped_on_buy(customer,item_name):
                 await util.say(channel,("**%s** bought the %s **%s** for %s"
                                         % (customer.name_clean,self.item_type,item.name_clean,
                                            util.format_number(item.price,money=True,ull_precision=True))))
@@ -76,7 +76,7 @@ class ShopBuySellItem(ABC):
         return True
         
     @abstractmethod
-    def item_equiped_on_buy(self,player,item_name):
+    def item_equipped_on_buy(self,player,item_name):
       
         """
         Equips the item if possible

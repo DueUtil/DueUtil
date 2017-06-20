@@ -72,6 +72,8 @@ def item_setter(item_info_setter):
         if thing_id in player.inventory[thing_inventory_slot]:
             # This SHOULD a property setter function
             setattr(player,thing_type,thing_id)
+            # This should be a property returning the 'thing' object
+            thing = getattr(player,thing_type)
             player.save()
             await util.say(ctx.channel,":white_check_mark: "+thing_type.title()+" set to **"+thing.name_clean+"**")
         else:

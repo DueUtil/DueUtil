@@ -15,7 +15,7 @@ class BuySellTheme(ShopBuySellItem):
     item_type = "theme"
     inventory_slot = "themes"
     
-    def item_equiped_on_buy(self,player,item_name):
+    def item_equipped_on_buy(self,player,item_name):
         if player.equipped["theme"] == "default":
             player.theme = item_name
             return True
@@ -30,8 +30,8 @@ class BuySellBanner(ShopBuySellItem):
     inventory_slot = "banners"
     default_item = "discord blue"
     
-    def item_equiped_on_buy(self,player,item_name):
-        if player.equiped["banner"] == "discord blue":
+    def item_equipped_on_buy(self,player,item_name):
+        if player.equipped["banner"] == "discord blue":
             player.banner = item_name
             return True
         return False
@@ -44,7 +44,7 @@ class BuySellBackground(BuySellTheme):
     item_type = "background"
     inventory_slot = "backgrounds"
 
-    def item_equiped_on_buy(self,player,item_name):
+    def item_equipped_on_buy(self,player,item_name):
         if player.equipped["background"] == "default":
             player.background = item_name
             return True
@@ -144,7 +144,8 @@ departments = {
       "alisas":[
          "themes",
          "skins",
-         "theme"
+         "theme",
+         "skin"
       ],
       "actions":{
          "info_action":player_cmds.theme_info,
@@ -161,7 +162,7 @@ departments = {
          "backgrounds",
          "bgs",
          "bg",
-         "backgrounds"
+         "background"
       ],
       "actions":{
          "info_action":player_cmds.background_info,

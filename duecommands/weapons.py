@@ -57,7 +57,7 @@ async def unequip(ctx,*args,**details):
     player = details["author"]
     weapon = player.weapon
     if weapon.w_id == weapons.NO_WEAPON_ID:
-        raise util.DueUtilException(ctx.channel,"You don't have anything equiped anyway!")
+        raise util.DueUtilException(ctx.channel,"You don't have anything equipped anyway!")
     if len(player.inventory["weapons"]) >= 6:
         raise util.DueUtilException(ctx.channel, "No room in your weapon storage!")
     if player.owns_weapon(weapon.name):
@@ -66,7 +66,7 @@ async def unequip(ctx,*args,**details):
     player.store_weapon(weapon)
     player.weapon = weapons.NO_WEAPON_ID
     player.save()
-    await util.say(ctx.channel, ":white_check_mark: **"+weapon.name_clean+"** unequiped!")
+    await util.say(ctx.channel, ":white_check_mark: **"+weapon.name_clean+"** unequipped!")
             
 @commands.command(args_pattern='S')
 async def equip(ctx,*args,**details):
@@ -96,7 +96,7 @@ async def equip(ctx,*args,**details):
     player.weapon = weapon
     player.save()
 
-    await util.say(ctx.channel,":white_check_mark: **"+weapon.name_clean+"** equiped!")
+    await util.say(ctx.channel,":white_check_mark: **"+weapon.name_clean+"** equipped!")
      
 @misc.paginator
 def weapons_page(weapons_embed,weapon,**extras):
@@ -366,7 +366,7 @@ async def buy_weapon(weapon_name,**details):
                 customer.money -= weapon.price
                 await util.say(channel,("**"+customer.name_clean+"** bought a **"+weapon.name_clean+"** for "
                                             + util.format_number(weapon.price,money=True,full_precision=True)
-                                            + "\n:warning: You have not equiped this weapon! Do **"
+                                            + "\n:warning: You have not equipped this weapon! Do **"
                                             + details["cmd_key"]+"equip "
                                             + weapon.name_command_clean.lower()+"** to equip this weapon."))
             else:
