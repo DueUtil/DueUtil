@@ -201,6 +201,16 @@ async def benfont(ctx,*args,**details):
         await util.get_client(ctx.server.id).send_file(ctx.channel,'images/nod.gif')
         await game_awards.give_award(ctx.channel, player,"BenFont", "ONE TRUE *type* FONT")
       
+      
+"""
+WARNING: Setter & my commands use decorators to be lazy
+
+Setters just return the item type & inventory slot. (could be done without
+the decorators but setters must be fucntions anyway to be commands)
+
+This is part of my quest in finding lazy ways to do things I cba.
+"""
+
 # Think about clean up & reuse
 @commands.command(args_pattern='M?')
 @players_abstract.item_preview
@@ -213,6 +223,7 @@ def mythemes(player):
     If you use this command with a theme name you can get a preview of the theme!
     
     """
+    
     return {"thing_type":"theme",
             "thing_list":list(player.get_owned_themes().values()),
             "thing_lister":theme_page,
@@ -222,7 +233,7 @@ def mythemes(player):
 
 @commands.command(args_pattern='S')
 @players_abstract.item_setter
-def settheme(player):
+def settheme():
   
     """
     [CMD_KEY]settheme (theme name)
@@ -231,10 +242,7 @@ def settheme(player):
     
     """
     
-    return {"thing_type":"theme",
-            "thing_getter":players.get_theme,
-            "thing_setter":player.set_theme,
-            "thing_list":player.themes}
+    return {"thing_type":"theme","thing_inventory_slot":"themes"}
 
 @commands.command(args_pattern='M?')
 @players_abstract.item_preview
@@ -248,15 +256,15 @@ def mybgs(player):
     """
     
     return {"thing_type":"background",
-        "thing_list":list(player.get_owned_backgrounds().values()),
-        "thing_lister":background_page,
-        "my_command":"mybgs",
-        "thing_info":background_info,
-        "thing_getter":players.get_background}
+            "thing_list":list(player.get_owned_backgrounds().values()),
+            "thing_lister":background_page,
+            "my_command":"mybgs",
+            "thing_info":background_info,
+            "thing_getter":players.get_background}
 
 @commands.command(args_pattern='S')
 @players_abstract.item_setter
-def setbg(player):
+def setbg():
   
     """
     [CMD_KEY]setbg (background name)
@@ -265,11 +273,8 @@ def setbg(player):
     
     """
 
-    return {"thing_type":"background",
-            "thing_getter":players.get_background,
-            "thing_setter":player.set_background,
-            "thing_list":player.backgrounds}
-
+    return {"thing_type":"background","thing_inventory_slot":"backgrounds"}
+    
 @commands.command(args_pattern='M?')
 @players_abstract.item_preview
 def mybanners(player):
@@ -281,16 +286,15 @@ def mybanners(player):
     
     """
     return {"thing_type":"banner",
-        "thing_list":list(player.get_owned_banners().values()),
-        "thing_lister":banner_page,
-        "my_command":"mybanners",
-        "thing_info":banner_info,
-        "thing_getter":players.get_banner}
-
+            "thing_list":list(player.get_owned_banners().values()),
+            "thing_lister":banner_page,
+            "my_command":"mybanners",
+            "thing_info":banner_info,
+            "thing_getter":players.get_banner}
 
 @commands.command(args_pattern='S')
 @players_abstract.item_setter
-def setbanner(player):
+def setbanner():
   
     """
     [CMD_KEY]setbanner (banner name)
@@ -299,10 +303,7 @@ def setbanner(player):
     
     """
 
-    return {"thing_type":"banner",
-            "thing_getter":players.get_banner,
-            "thing_setter":player.set_banner,
-            "thing_list":player.banners}
+    return {"thing_type":"banner","thing_inventory_slot":"banners"}
     
 # Part of the shop buy command
 @misc.paginator

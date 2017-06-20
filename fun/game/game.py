@@ -200,14 +200,14 @@ def get_exp_for_next_level(level):
 def _load_game_rules():
     with open('fun/configs/progression.json') as progression_file:  
         progression = json.load(progression_file)
-    exp = progression["dueutil-ranks"]
-    for levels, exp_details in exp.items():
-        if "," in levels:
-            level_range = eval("range("+levels+"+1)")
-        else:
-            level_range = eval("range("+levels+","+levels+"+1)")
-        exp_expression = str(exp_details["expForNextLevel"])
-        exp_per_level[level_range] = exp_expression
+        exp = progression["dueutil-ranks"]
+        for levels, exp_details in exp.items():
+            if "," in levels:
+                level_range = eval("range("+levels+"+1)")
+            else:
+                level_range = eval("range("+levels+","+levels+"+1)")
+            exp_expression = str(exp_details["expForNextLevel"])
+            exp_per_level[level_range] = exp_expression
 
 async def on_message(message): 
     player = players.find_player(message.author.id)

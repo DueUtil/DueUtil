@@ -106,7 +106,7 @@ def load_and_update(reference,object):
         if item not in dir(object):
             setattr(object,item,getattr(reference,item))
     return object
-    
+
 def get_shard_index(server_id):
     return (int(server_id) >> 22) % len(shard_clients)
     

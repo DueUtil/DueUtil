@@ -31,6 +31,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
       <script src="lazy.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/1.1.7/typed.min.js"></script>
    </head>
    <body>
       <div class="center">
@@ -83,7 +84,15 @@
          </div>
          <!-- End profile -->
          <!--<p id="pulsor" class="bot-down">_catastrophic_failure_</p>-->
-         <p class="info">DueUtil 2.0 is coming soon!</p>
+         <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Typed.new('#type-effect', {
+                  strings: ["poorly implemented", "a waste of time","a Tatsumaki clone","a DiscordRPG clone","a DiscordDungeons clone","probably down","!! Something went wrong!"],
+                  typeSpeed: 0
+                });
+            });
+        </script>
+         <p class="info">DueUtil is: <span id="type-effect"></span></p>
          <!-- Soon(TM) -->
       </div>
       <p class="footer">&#169; Ben (MacDue)</p>

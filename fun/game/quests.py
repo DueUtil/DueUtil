@@ -21,7 +21,7 @@ class Quest(DueUtilObject,SlotPickleMixin):
   
     """A class to hold info about a server quest"""
     
-    __slots__ = ["id","name","server_id","created_by",
+    __slots__ = ["server_id","created_by",
                  "task","w_id","spawn_chance","image_url",
                  "base_attack","base_strg","base_accy","base_hp",
                  "channel","times_beaten"]
@@ -54,7 +54,7 @@ class Quest(DueUtilObject,SlotPickleMixin):
             self.created_by = ""
       
         self.name = name
-        super().__init__(self._quest_id())
+        super().__init__(self._quest_id(),**extras)
         self.task = extras.get('task',"Battle a")
         self.w_id = extras.get('weapon_id',weapons.NO_WEAPON_ID)
         self.spawn_chance = given_spawn_chance/100
@@ -105,7 +105,7 @@ class Quest(DueUtilObject,SlotPickleMixin):
         
 class ActiveQuest(Player,util.SlotPickleMixin):
   
-    __slots__ = ["name","id","level","attack","strg","hp",
+    __slots__ = ["level","attack","strg","hp",
                  "equipped","q_id","quester_id","cash_iv",
                  "quester","accy"]
                   
@@ -237,8 +237,9 @@ def add_default_quest_to_server(server):
           weapon_id = default.w_id,
           image_url = default.image_url,
           spawn_chance = default.spawn_chance * 100,
-          server_id = server.id)
-                    
+          server_id = server.id,
+          no_save=True)
+
 def has_quests(place):
     if isinstance(place,discord.Server):
         return place in quest_map and len(quest_map[place]) > 0
@@ -246,27 +247,31 @@ def has_quests(place):
         if place.server in quest_map:
             return len(get_channel_quests(place)) > 0
     return False
-        
-def load_default_quests():
-    with open('fun/configs/defaultquests.json') as defaults_file:  
-        defaults = json.load(defaults_file)
-    for quest_data in defaults.values():
-        Quest(quest_data["name"],
-              quest_data["baseAttack"],
-              quest_data["baseStrg"],
-              quest_data["baseAccy"],
-              quest_data["baseHP"],
-              task = quest_data["task"],
-              weapon_id = weapons.stock_weapon(quest_data["weapon"]),
-              image_url = quest_data["image"],
-              spawn_chance = quest_data["spawnChance"],
-              no_save = True)
-  
+
+REFERENCE_QUEST = Quest('Reference',1,1,1,1,server_id="",no_save=True)
+
 def _load():
-    reference = Quest('Reference',1,1,1,1,server_id="")
+  
+    def load_default_quests():
+        with open('fun/configs/defaultquests.json') as defaults_file:  
+            defaults = json.load(defaults_file)
+            for quest_data in defaults.values():
+                Quest(quest_data["name"],
+                      quest_data["baseAttack"],
+                      quest_data["baseStrg"],
+                      quest_data["baseAccy"],
+                      quest_data["baseHP"],
+                      task = quest_data["task"],
+                      weapon_id = weapons.stock_weapon(quest_data["weapon"]),
+                      image_url = quest_data["image"],
+                      spawn_chance = quest_data["spawnChance"],
+                      no_save = True)
+                      
     load_default_quests()
+                  
     for quest in dbconn.get_collection_for_object(Quest).find():
+        print(quest['data'])
         loaded_quest = jsonpickle.decode(quest['data'])
-        quest_map[loaded_quest.q_id] = loaded_quest
+        quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST,loaded_quest)
 
 _load()

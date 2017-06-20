@@ -6,7 +6,7 @@ import numpy
 from . import weapons
 from ..helpers.misc import DueUtilObject, Ring
 from collections import defaultdict
-from .customization import Themes, Backgrounds, Banners
+from .customization import Themes, Backgrounds, Banners, Theme
 from botstuff import util, dbconn
 from botstuff.util import SlotPickleMixin
 
@@ -34,11 +34,11 @@ class Player(DueUtilObject,SlotPickleMixin):
     # These are all the attrbs needed for a player
     # This is meant to optimize players. One caveat all new attributes
     # Must be a misc_stat, inventory item or equipped item
-    __slots__ = ["id","name","level","attack","strg","hp",
-                  "exp","money","total_exp",
+    __slots__ = ["level","attack","strg","hp",
+                  "exp","money","total_exp","accy",
                   "last_progress","last_quest",
                   "wagers_won","quests_won",
-                  "quest_day_start",
+                  "quest_day_start","benfont",
                   "quests_completed_today",
                   "spam_detections","quests",
                   "received_wagers","awards",
@@ -46,6 +46,7 @@ class Player(DueUtilObject,SlotPickleMixin):
                   "misc_stats","equipped","inventory",
                   "last_message_hashes","command_rate_limts",
                   "additional_attributes"]
+                  
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
   
@@ -135,7 +136,7 @@ class Player(DueUtilObject,SlotPickleMixin):
         self.total_exp += exp
         
     def get_owned(self,item_type,all_items):
-        return {item_id:item for item_id,item in all_items if item_id in self.inventory[item_type]}
+        return {item_id:item for item_id,item in all_items.items() if item_id in self.inventory[item_type]}
         
     def get_owned_themes(self):
         return self.get_owned("themes",profile_themes)
@@ -260,7 +261,7 @@ class Player(DueUtilObject,SlotPickleMixin):
     @theme.setter
     def theme(self,theme):
         self._setter("theme",theme)
-        if not isinstance(theme,fun.game.customization.Theme):
+        if not isinstance(theme,Theme):
             theme = profile_themes[theme]
         self.equipped["banner"] = theme["banner"]
         self.equipped["background"] = theme["background"]
@@ -310,10 +311,12 @@ def get_banner(banner_id):
 def get_themes():
     return profile_themes
             
+REFERENCE_PLAYER = Player(no_save = True)
+
 def load_player(player_id):
     response = dbconn.get_collection_for_object(Player).find_one({"_id":player_id})
     if response != None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)
-        players[loaded_player.id] = util.load_and_update(Player(no_save = True),loaded_player)
+        players[loaded_player.id] = util.load_and_update(REFERENCE_PLAYER,loaded_player)
         return True

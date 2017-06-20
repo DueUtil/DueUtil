@@ -8,7 +8,7 @@ Generic wrappers to make listing items (e.g. backgrounds)
 and setting them faster (to make)
 """
 
-def item_preview(thing_info):
+def item_preview(thing_info_preview):
     
     """
     Generic mything command (time saver)
@@ -16,19 +16,19 @@ def item_preview(thing_info):
     
     Expects:
       thing_type
-      thing_list
       thing_lister
+      thing_list
       my_command
       thing_info
       thing_getter
     """
     
-    @wraps(thing_info)
+    @wraps(thing_info_preview)
     async def mything(ctx,*args,**details):
         player = details["author"]
         page = 1
         
-        things_info = thing_info(player)
+        things_info = thing_info_preview(player)
         thing_type = things_info["thing_type"]
 
         if len(args) == 1:
@@ -51,28 +51,27 @@ def item_preview(thing_info):
             await util.say(ctx.channel,embed=thing_embed)
     return mything
     
-def item_setter(thing_info):
+def item_setter(item_info_setter):
   
     """
     Generic setthing command 
     
     Excects func that returns dict with:
       thing_type
-      thing_getter
-      thing_setter
-      thing_list
+      thing_inventory_slot
     """
   
-    @wraps(thing_info)
+    @wraps(item_info_setter)
     async def setthing(ctx,*args,**details):
         player = details["author"]
-        things_info = thing_info(player)
-        thing_type = things_info["thing_type"]
+        thing_info = item_info_setter()
+        thing_type = thing_info["thing_type"]
+        thing_inventory_slot = thing_info["thing_inventory_slot"]
 
         thing_id = args[0].lower()
-        if thing_id in things_info["thing_list"]:
-            thing = things_info["thing_getter"](thing_id)
-            things_info["thing_setter"](thing_id)
+        if thing_id in player.inventory[thing_inventory_slot]:
+            # This SHOULD a property setter function
+            setattr(player,thing_type,thing_id)
             player.save()
             await util.say(ctx.channel,":white_check_mark: "+thing_type.title()+" set to **"+thing.name_clean+"**")
         else:

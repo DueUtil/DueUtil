@@ -2,7 +2,8 @@ import discord
 from botstuff import commands,util,events
 import botstuff.permissions
 from botstuff.permissions import Permission
-from fun.game import players,awards,leaderboards
+# Import all game things. This is (bad) but is needed to fully use the eval command
+from fun.game import *
 from fun.helpers import imagehelper
 import generalconfig as gconf 
 import subprocess

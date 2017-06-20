@@ -5,7 +5,6 @@ from ..helpers.misc import DueUtilObject, DueMap
 from collections import namedtuple
 from botstuff.util import SlotPickleMixin
 
-NO_WEAPON_ID = "STOCK+16|1|0.66/none"
 stock_weapons = ["none"]
 
 weapons = DueMap()
@@ -20,7 +19,7 @@ class Weapon(DueUtilObject,SlotPickleMixin):
     PRICE_CONSTANT = 0.04375
     DEFAULT_IMAGE = "https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png"
     
-    __slots__ = ["name","damage","accy","price",
+    __slots__ = ["damage","accy","price",
                  "icon","hit_message","melee","image_url",
                  "weapon_sum"]
     
@@ -85,6 +84,9 @@ class Weapon(DueUtilObject,SlotPickleMixin):
     def get_summary(self):
         return get_weapon_summary_from_id(self.id)
         
+#### The 'None'/No weapon weapon
+NO_WEAPON = Weapon('None', None, 1, 66, no_save = True)
+NO_WEAPON_ID = NO_WEAPON.id
     
 def get_weapon_from_id(weapon_id):
     if weapon_id in weapons:
@@ -134,27 +136,28 @@ def stock_weapon(weapon_name):
         return "STOCK/" + weapon_name
     return NO_WEAPON_ID
   
-def load_stock_weapons():
-    with open('fun/configs/defaultweapons.json') as defaults_file:  
-        defaults = json.load(defaults_file)
-    for weapon,weapon_data in defaults.items():
-        stock_weapons.append(weapon)
-        Weapon(weapon_data["name"],
-               weapon_data["useText"],
-               weapon_data["damage"],
-               weapon_data["accy"],
-               icon = weapon_data["icon"],
-               image_url = weapon_data["image"],
-               melee = weapon_data["melee"],
-               no_save = True)
               
 def _load():
-    none = Weapon('None', None, 1, 66, no_save = True)
-    
+  
+    def load_stock_weapons():
+        with open('fun/configs/defaultweapons.json') as defaults_file:  
+            defaults = json.load(defaults_file)
+            for weapon,weapon_data in defaults.items():
+                stock_weapons.append(weapon)
+                Weapon(weapon_data["name"],
+                       weapon_data["useText"],
+                       weapon_data["damage"],
+                       weapon_data["accy"],
+                       icon = weapon_data["icon"],
+                       image_url = weapon_data["image"],
+                       melee = weapon_data["melee"],
+                       no_save = True)
+                       
     load_stock_weapons()
+    
     # Load from db    
     for weapon in dbconn.get_collection_for_object(Weapon).find():
         loaded_weapon = jsonpickle.decode(weapon['data'])
-        weapons[loaded_weapon.w_id] = util.load_and_update(none,loaded_weapon)
+        weapons[loaded_weapon.id] = util.load_and_update(NO_WEAPON,loaded_weapon)
         
 _load()

@@ -9,64 +9,49 @@ import generalconfig as gconf
 
 from fun.helpers.shop_abstract import ShopBuySellItem
 
-### Fill in the blanks buy/sell
-# TODO: Tell how to set bg etc
+### Fill in the blanks buy/sell functions
 
 class BuySellTheme(ShopBuySellItem):
     item_type = "theme"
-    def store_item(self,player,item_name):
-        player.inventory.themes.append(item_name)
-        if player.theme.id == "default":
+    inventory_slot = "themes"
+    
+    def item_equiped_on_buy(self,player,item_name):
+        if player.equipped["theme"] == "default":
             player.theme = item_name
             return True
         return False
-    def store_location(self,player):
-        return player.themes
+        
     def get_item(self,item_name):
         return players.get_theme(item_name)
-    def get_price(self,item):
-        return item["price"] 
-    def can_sell(self,item_name):
-        return item_name != "default"  
-    def remove_item(self,item_name,item,player):
-        player.set_theme("default")
-        player.themes.remove(item_name)
+
       
 class BuySellBanner(ShopBuySellItem):
     item_type = "banner"
-    def store_item(self,player,item_name):
-        player.banners.append(item_name)
-        if player.equiped.banner == "discord blue":
-            player.set_banner(item_name)
+    inventory_slot = "banners"
+    default_item = "discord blue"
+    
+    def item_equiped_on_buy(self,player,item_name):
+        if player.equiped["banner"] == "discord blue":
+            player.banner = item_name
             return True
         return False
-    def store_location(self,player):
-        return player.banners
+   
     def get_item(self,item_name):
         return players.get_banner(item_name)
-    def get_price(self,item):
-        return item.price 
-    def can_sell(self,item_name):
-        return item_name != "discord blue"  
-    def remove_item(self,item_name,item,player):
-        player.banner_id = "discord_blue"
-        player.banners.remove(item_name)
+
       
 class BuySellBackground(BuySellTheme):
     item_type = "background"
-    def store_item(self,player,item_name):
-        player.backgrounds.append(item_name)
-        if player.background == "default":
-            player.set_background(item_name)
+    inventory_slot = "backgrounds"
+
+    def item_equiped_on_buy(self,player,item_name):
+        if player.equipped["background"] == "default":
+            player.background = item_name
             return True
         return False
-    def store_location(self,player):
-        return player.backgrounds
+        
     def get_item(self,item_name):
         return players.get_background(item_name)
-    def remove_item(self,item_name,item,player):
-        player.background = "default"
-        player.backgrounds.remove(item_name)
      
 buy_sell_themes = BuySellTheme()
 buy_sell_backgrounds = BuySellBackground()

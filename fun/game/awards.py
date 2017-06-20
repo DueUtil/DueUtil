@@ -25,9 +25,9 @@ def get_award(award_id):
 def load():
     with open('fun/configs/awards.json') as awards_file:  
         awards_json = json.load(awards_file)
-    for award_id, award in awards_json["awards"].items():
-        awards[award_id] = Award(award["icon"],award["name"],award.get('message',"???"))
-    
+        for award_id, award in awards_json["awards"].items():
+            awards[award_id] = Award(award["icon"],award["name"],award.get('message',"???"))
+        
 async def give_award(channel, player, award_id, text):
     if get_award(award_id) != None and award_id not in player.awards:
         player.awards.append(award_id)

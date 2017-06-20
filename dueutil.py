@@ -220,8 +220,8 @@ def load_config():
     try:
         with open('dueutil.json') as config_file:  
             return json.load(config_file)
-    except:
-        sys.exit("Config error!")
+    except Exception as exception:
+        sys.exit("Config error! %s" % exception)
 
 def run_due():
     global stopped,shard_clients

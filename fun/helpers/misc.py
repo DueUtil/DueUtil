@@ -32,6 +32,8 @@ class DueUtilObject():
     """
     Base object for DueUtil items
     """
+    
+    __slots__ = ["no_save","id","name"]
   
     NAME_LENGTH_RANGE = range(1,33)
     
@@ -59,7 +61,7 @@ class DueUtilObject():
         try:
             return self[name]
         except KeyError:
-            raise AttributeError("No attribute or index named %s" % name)
+            raise AttributeError("%s has no attribute or index named %s" % (type(self).__name__,name))
         
     @property
     def name_clean(self):
@@ -84,10 +86,10 @@ class DueUtilObject():
     def __str__(self):
         try:
             return "%s | %s" % (self.icon, self.name_clean)
-        except:
+        except AttributeError:
             try:
                 return "%s | %s" % (self["icon"], self.name_clean)
-            except AttributeError:
+            except KeyError:
                 return self.name_clean
               
     def save(self):

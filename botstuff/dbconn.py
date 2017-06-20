@@ -25,9 +25,9 @@ def insert_object(id,object):
 def get_collection_for_object(object_class):
     return conn()[object_class.__name__]
 
-def load_config():
+def _load_config():
     global config
     with open('dbconfig.json') as config_file:  
         config = json.load(config_file)
 
-load_config()
+_load_config()

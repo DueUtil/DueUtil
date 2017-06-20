@@ -366,7 +366,7 @@ async def buy_weapon(weapon_name,**details):
                 customer.money -= weapon.price
                 await util.say(channel,("**"+customer.name_clean+"** bought a **"+weapon.name_clean+"** for "
                                             + util.format_number(weapon.price,money=True,full_precision=True)
-                                            + "\n:warning: You have not equiped this weapon do **"
+                                            + "\n:warning: You have not equiped this weapon! Do **"
                                             + details["cmd_key"]+"equip "
                                             + weapon.name_command_clean.lower()+"** to equip this weapon."))
             else:
