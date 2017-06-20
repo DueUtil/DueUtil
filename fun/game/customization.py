@@ -42,9 +42,6 @@ class Cutomization(DueUtilObject):
     
     def __getitem__(self,key):
         return self._cutomization_info[key]
-        
-    def __str__(self):
-        return "%s | %s" % (self.icon, self.name_clean)
 
 class Theme(Cutomization):
   

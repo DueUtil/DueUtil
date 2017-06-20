@@ -64,7 +64,15 @@ class DueUtilObject():
         return len(string) <= max_len and len(string) != 0 and string.strip != ""
         
     def __str__(self):
-        return self.name_clean
+        # Support objects that might have icons.
+        # (Customizations, weapons, possibly more)
+        try:
+            return "%s | %s" % (self.icon, self.name_clean)
+        except AttributeError:
+            try:
+                return "%s | %s" % (self["icon"], self.name_clean)
+            except KeyError:
+                return self.name_clean
               
     def save(self):
         if not self.no_save:
