@@ -457,7 +457,7 @@ async def battle_screen(channel,player_one,player_two):
     wep_image_one = await resize_image_url(weapon_one.image_url, 30, 30)
     
     if wep_image_one == None:
-        wep_image_one = await resize_image_url(weapons.get_weapon_from_id("None").image_url, 30, 30)
+        wep_image_one = await resize_image_url(weapons.NO_WEAPON.image_url, 30, 30)
 		
     try:
         image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
@@ -467,7 +467,7 @@ async def battle_screen(channel,player_one,player_two):
     wep_image_two = await resize_image_url(weapon_two.image_url, 30, 30)
     
     if wep_image_two == None:
-        wep_image_two = await resize_image_url(weapons.get_weapon_from_id("None").image_url, 30, 30)
+        wep_image_two = await resize_image_url(weapons.NO_WEAPON.image_url, 30, 30)
     try:
         image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
     except:

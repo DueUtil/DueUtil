@@ -2,7 +2,7 @@ import discord
 import math
 from datetime import datetime
 import repoze.timeago
-from fun.game import leaderboards
+from fun.game import leaderboards, awards
 import generalconfig as gconf 
 from botstuff import commands,util
 from fun.helpers import misc,imagehelper
@@ -142,8 +142,6 @@ async def give_emoji(channel,sender,receiver,emoji):
         raise util.DueUtilException(channel,"You can only send emoji!")
     if sender == receiver:
         raise util.DueUtilException(channel,"You can't send a "+emoji+" to yourself!")
-    receiver.emojis +=1
-    sender.emojis_given += 1
     await util.say(channel,"**"+receiver.name_clean+"** "+emoji+" :heart: **"+sender.name_clean+"**")
 
 @commands.command(args_pattern='PS')
@@ -158,9 +156,19 @@ async def giveemoji(ctx,*args,**details):
     Also see ``[CMD_KEY]givepotato``
     
     """
+    sender = details["author"]
+    receiver = args[0]
     
-    await give_emoji(ctx.channel,details["author"],args[0],args[1])
-        
+    try:
+        await give_emoji(ctx.channel,sender,receiver,args[1])
+        sender.misc_stats["emojis_given"] += 1
+        receiver.misc_stats["emojis"] +=1
+    except util.DueUtilException as command_error:
+        raise command_error
+    await awards.give_award(ctx.channel,sender,"Emoji",":fire: __Breakdown Of Society__ :city_dusk:")
+    if sender.misc_stats["emojis_given"] == 100:
+        await awards.give_award(ctx.channel,sender,"EmojiKing",":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
+    
 @commands.command(args_pattern='P')
 async def givepotato(ctx,*args,**details):
   
@@ -169,5 +177,15 @@ async def givepotato(ctx,*args,**details):
     
     Who doesn't like potatoes?
     """
-
-    await give_emoji(ctx.channel,details["author"],args[0],'🥔')
+    sender = details["author"]
+    receiver = args[0]
+    
+    try:
+        await give_emoji(ctx.channel,sender,receiver,'🥔')
+        sender.misc_stats["potatoes_given"] += 1
+        receiver.misc_stats["potatoes"] += 1
+    except util.DueUtilException as command_error:
+        raise command_error
+    await awards.give_award(ctx.channel,sender,"Potato",":potato: Bringer Of Potatoes :potato:")    
+    if sender.misc_stats["potatoes_given"] == 100:
+        await awards.give_award(ctx.channel,sender,"KingTat",":crown: :potato: **Potato King!** :potato: :crown:")

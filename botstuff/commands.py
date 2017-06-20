@@ -264,6 +264,8 @@ async def determine_args(pattern,args):
         """
         # Remove zero width bullshit & extra spaces
         string = re.sub(r'[\u200B-\u200D\uFEFF]','',string.strip())
+        # Remove extra spaces/tabs/new lines ect.
+        string = " ".join(string.split())
         if len(string) > 0:
             return string
         return False
@@ -347,7 +349,7 @@ async def determine_args(pattern,args):
                         return new_args
     return False
         
-    
+
 def point_error(command_string):
   
     """Maybe make a programming lang style error string."""

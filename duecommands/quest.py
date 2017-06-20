@@ -189,6 +189,22 @@ async def createquest(ctx,*args,**details):
     You can also add (task string) (weapon) (image url) (spawn chance)
     after the first four args.
     
+    Note a base value is how strong the quest would be at level 1
+    
+    __Example__:
+    Basic Quest:
+        ``[CMD_KEY]createquest "Mega Mouse" 1.3 2 1.1 32``
+        This creates a quest named "Mega Mouse".
+        With base values:
+            Attack = 1.3
+            Strg = 2
+            Accy = 1.1
+            HP = 32
+    Advanced Quest:
+        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Gun" http://i.imgur.com/sP8Rnhc.png 21``
+        This creates a quest with the same base values as before but with the message "Kill the"
+        when the quest pops up, a gun, a quest icon image and a spawn chance of 21%
+        
     """
     
     extras = dict()

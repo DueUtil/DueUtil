@@ -38,7 +38,7 @@ class ShopBuySellItem(ABC):
             
         item = self.get_item(item_name)
         sell_price = item.price // price_divisor
-        setattr(player,item_type,self.default_item)
+        setattr(player,self.item_type,self.default_item)
         player.inventory[self.inventory_slot].remove(item_name)
         player.money += sell_price
         await util.say(channel,("**"+player.name_clean+"** sold the "+self.item_type+" **"+item.name_clean

@@ -136,6 +136,16 @@
          "icon":"donor_award.png",
          "name":"All MacDue Ever Wanted!",
          "message":"Donate to DueUtil"
+      },
+      "Emoji":{
+         "icon":"emoji.png",
+         "name":"Breakdown Of Society",
+         "message":"Give an emoji!"
+      },
+      "EmojiKing":{
+         "icon":"emojiking.png",
+         "name":"WIPEOUT HUMANITY",
+         "message":"Give out 100 emojis!"
       }
    }
 }

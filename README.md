@@ -9,6 +9,7 @@
 * TODOs
 * Not reading any PEP guides
 * Unhelpful module names
+* Rants in comments
 * And MUCH more terrible design decisions!
 
 Note: This bot does not use the discord py command extension (and a few other features)

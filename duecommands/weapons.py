@@ -241,7 +241,7 @@ async def acceptwager(ctx,*args,**details):
             if sender.w_id != weapons.NO_WEAPON_ID:
                 weapons_sold += 1
                 sender.money += int(sender.weapon_sum.split("/")[0])//(4/3)
-                sender.set_weapon(weapons.get_weapon_from_id("None"))
+                sender.weapon = weapons.NO_WEAPON_ID
             if sender.money - wager.wager_amount < 0:
                 for weapon in sender.get_owned_weapons():
                     weapon_info = sender.pop_from_invetory(weapon)
@@ -303,14 +303,19 @@ async def createweapon(ctx,*args,**details):
     
     Creates a weapon for the server shop!
     
-    Example usage: 
-    
-    [CMD_KEY]createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50
-    
     For extra customization you add the following:
     
     (ranged) (icon) (image url)
-
+    
+    __Example__: 
+    Basic Weapon:
+        ``[CMD_KEY]createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
+        This creates a weapon named "Laser" with the hit message
+        "FIRES THEIR LAZOR AT", 100 damage and 50% accy
+    Advanced Weapon:
+        ``[CMD_KEY]createweapon "Banana Gun" "splats" 12 10 True :banana: http://i.imgur.com/6etFBta.png``
+        The first four properties work like before. This weapon also has ranged set to ``true``
+        as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
     """
     
     extras = dict()
@@ -368,7 +373,7 @@ async def buy_weapon(weapon_name,**details):
                                             + util.format_number(weapon.price,money=True,full_precision=True)
                                             + "\n:warning: You have not equipped this weapon! Do **"
                                             + details["cmd_key"]+"equip "
-                                            + weapon.name_command_clean.lower()+"** to equip this weapon."))
+                                            + weapon.name_clean.lower()+"** to equip this weapon."))
             else:
                 raise util.DueUtilException(channel,"Cannot store new weapon! A you already have a weapon with the same name!")
         else:
@@ -390,12 +395,12 @@ async def sell_weapon(weapon_name,**details):
     
     if player.weapon.name.lower() == weapon_name:
         weapon_to_sell = player.weapon
-        player.set_weapon(weapons.get_weapon_from_id("None"))
+        player.weapon = weapons.NO_WEAPON_ID
     else:
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),None)
         if weapon_to_sell == None:
             raise util.DueUtilException(channel,"Weapon not found!")
-        player.pop_from_invetory(weapon_to_sell)
+        player.discard_stored_weapon(weapon_to_sell)
         
     sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price

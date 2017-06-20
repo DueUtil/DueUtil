@@ -47,7 +47,7 @@ def item_preview(thing_info_preview):
             if thing == None:
                 raise util.DueUtilException(ctx.channel,thing_type.title()+" not found!")
             thing_embed = things_info["thing_info"](thing_name,**details,embed=discord.Embed(type="rich",color=gconf.EMBED_COLOUR))
-            thing_embed.set_footer(text="Do "+details["cmd_key"]+things_info["my_command"]+" "+thing.name_command+" to use this "+thing_type+"!")
+            thing_embed.set_footer(text="Do "+details["cmd_key"]+things_info["my_command"]+" "+thing.name+" to use this "+thing_type+"!")
             await util.say(ctx.channel,embed=thing_embed)
     return mything
     

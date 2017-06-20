@@ -59,7 +59,7 @@ buy_sell_banners = BuySellBanner()
         
 def shop_weapons_list(page,**details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
-    shop_weapons.remove(weapons.get_weapon_from_id("None"))
+    shop_weapons.remove(weapons.NO_WEAPON)
     shop = weap_cmds.weapons_page(shop_weapons,page,"DueUtil's Weapon Shop!",
                                   footer_more="But wait there's more! Do "+details["cmd_key"]+"shop weapons "+str(page+2),
                                   footer_end='Want more? Ask an admin on '+details["server_name"]+' to add some!')
@@ -154,7 +154,7 @@ departments = {
          "sell_action":buy_sell_themes.sell_item
       },
       "item_exists":lambda _,name:name.lower() != "default" and players.get_theme(name) != None,
-      "item_exists_sell": lambda details,name:name.lower() in details["author"].themes
+      "item_exists_sell": lambda details,name:name.lower() in details["author"].inventory["themes"]
 
    },
    "backgrounds":{
@@ -171,7 +171,7 @@ departments = {
          "sell_action":buy_sell_backgrounds.sell_item
       },
       "item_exists":lambda _,name:name.lower() != "default" and name.lower() in players.backgrounds,
-      "item_exists_sell": lambda details,name:name.lower() in details["author"].backgrounds
+      "item_exists_sell": lambda details,name:name.lower() in details["author"].inventory["backgrounds"]
    },
   "banners":{
       "alisas":[
@@ -185,7 +185,7 @@ departments = {
          "sell_action":buy_sell_banners.sell_item
       },
       "item_exists":lambda details,name:name.lower() != "discord blue" and name.lower() in players.banners and players.get_banner(name).can_use_banner(details["author"]),
-      "item_exists_sell": lambda details,name: name.lower() in details["author"].banners
+      "item_exists_sell": lambda details,name: name.lower() in details["author"].inventory["banners"]
    }
 }
     
@@ -204,6 +204,9 @@ async def shop(ctx,*args,**details):
     will show extra details about that item.
     If you want anything from the shop use the
     [CMD_KEY]buy command!
+    
+    **Note**: You must always use quotes around item names
+    that have spaces with this command due to it's internal workings.
     """
     
     shop = discord.Embed(type="rich",color=gconf.EMBED_COLOUR)
@@ -238,7 +241,9 @@ async def buy(ctx,*args,**details):
   
     """
     [CMD_KEY]buy item
-    
+
+    **Note**: You must always use quotes around item names
+    that have spaces with this command due to it's internal workings.
     """
 
     if len(args) == 1:
@@ -256,6 +261,8 @@ async def sell(ctx,*args,**details):
     """
     [CMD_KEY]sell item
     
+    **Note**: You must always use quotes around item names
+    that have spaces with this command due to it's internal workings.
     """
     error = "You own multiple items with the same name!"
     
