@@ -14,7 +14,9 @@ from ..helpers import imagehelper
 
 exp_per_level = dict()
 SPAM_TOLERANCE = 50
+# For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read() # For comeback award
+testers = open('testers.txt').read() # For testers award
 
 def get_spam_level(player,message_content):
   
@@ -63,6 +65,9 @@ async def player_message(message,player,spam_level):
             
             if player.id in old_players:
                 await awards.give_award(message.channel,player,"CameBack","Return to DueUtil")
+                
+            if player.id in testers:
+                await awards.give_award(message.channel,player,"Tester",":bangbang: **Something went wrong...**")
              
             ### Donor award
             

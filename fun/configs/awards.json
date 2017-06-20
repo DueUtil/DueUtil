@@ -146,6 +146,11 @@
          "icon":"emojiking.png",
          "name":"WIPEOUT HUMANITY",
          "message":"Give out 100 emojis!"
+      },
+      "Tester":{
+         "icon":"tester.png",
+         "name":"Something went wrong...",
+         "message":"Thanks for helping with testing!"
       }
    }
 }

@@ -585,8 +585,8 @@ async def googly_eyes(channel,eye_type):
         pupil_x_centre = x + (width//2 - pupil_width)//2
         pupil_y_centre = (height - pupil_height)//2
         
-        shit_x = min(inner_width//4,(width -pupil_width)//2)
-        shit_y = min(inner_height//4,(height -pupil_height)//2)
+        shift_x = min(inner_width//4,(width -pupil_width)//2)
+        shift_y = min(inner_height//4,(height -pupil_height)//2)
 
         if not any(direction in given_eye_type for direction in ("left","right","top","bottom","centre","center")):
             given_eye_type = random_eyes()
@@ -602,13 +602,13 @@ async def googly_eyes(channel,eye_type):
             pupil_x = pupil_x_centre
             pupil_y = pupil_y_centre
             if "left" in given_eye_type:
-                pupil_x -= shit_x
+                pupil_x -= shift_x
             if "right" in given_eye_type:
-                pupil_x += shit_x
+                pupil_x += shift_x
             if "top" in given_eye_type:
-                pupil_y -= shit_y
+                pupil_y -= shift_y
             if "bottom" in given_eye_type:
-                pupil_y += shit_y
+                pupil_y += shift_y
         draw.ellipse([pupil_x,pupil_y,pupil_x+pupil_width,pupil_y+pupil_height],fill=pupil_colour)
     draw_eye(0,0)
     draw_eye(size[0]//2,0)
