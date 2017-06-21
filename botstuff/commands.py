@@ -5,7 +5,7 @@ from functools import wraps
 from fun.game import players
 from fun.configs import dueserverconfig
 from fun.helpers import misc
-from botstuff import events,util,permissions
+from botstuff import events, util, permissions
 from botstuff.permissions import Permission
 import sys
 
@@ -15,23 +15,23 @@ IMAGE_REQUEST_COOLDOWN = 5
 DueUtils random command system.
 """
 
-def command(**command_rules):
-  
-    """A command wrapper for command functions"""
-    
-    # TODO: Include sender, timesent, etc in details
-    
-    def check(user,command):
-        return permissions.has_permission(user,command.permission)
 
-    def is_spam_command(ctx,command,*args):        
+def command(**command_rules):
+    """A command wrapper for command functions"""
+
+    # TODO: Include sender, timesent, etc in details
+
+    def check(user, command):
+        return permissions.has_permission(user, command.permission)
+
+    def is_spam_command(ctx, command, *args):
         if command.permission < Permission.SERVER_ADMIN:
-          return (sum(isinstance(arg,players.Player) for arg in args)
-                  < len(ctx.raw_mentions) or ctx.mention_everyone
-                  or '@here' in ctx.content or '@everyone' in ctx.content)
+            return (sum(isinstance(arg, players.Player) for arg in args)
+                    < len(ctx.raw_mentions) or ctx.mention_everyone
+                    or '@here' in ctx.content or '@everyone' in ctx.content)
         return False
-      
-    def get_command_details(ctx,**details):
+
+    def get_command_details(ctx, **details):
         details["timestamp"] = ctx.timestamp
         details["author"] = players.find_player(ctx.author.id)
         details["server_id"] = ctx.server.id
@@ -43,78 +43,83 @@ def command(**command_rules):
         details["channel_name"] = ctx.channel.name
         details["channel_name_clean"] = util.ultra_escape_string(ctx.channel.name)
         return details
-        
+
     def wrap(command_func):
-  
+
         @wraps(command_func)
-        async def wrapped_command(ctx, *args,**kwargs):
+        async def wrapped_command(ctx, *args, **kwargs):
             if args[1].lower() != command_func.__name__:
                 return False
-            is_admin = permissions.has_permission(ctx.author,Permission.SERVER_ADMIN)
+            is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
             if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:
                 return True
             command_whitelist = dueserverconfig.whitelisted_commands(ctx.channel)
-            if command_whitelist != None and not is_admin and args[1].lower() not in command_whitelist:
+            if command_whitelist is not None and not is_admin and args[1].lower() not in command_whitelist:
                 if "is_blacklist" not in command_whitelist:
-                    await util.say(ctx.channel,(":anger: That command is not whitelisted in this channel!\n"
-                                                +" You can only use the following commands: ``"
-                                                +', '.join(command_whitelist)+"``."))
+                    await util.say(ctx.channel, (":anger: That command is not whitelisted in this channel!\n"
+                                                 + " You can only use the following commands: ``"
+                                                 + ', '.join(command_whitelist) + "``."))
                 else:
-                    await util.say(ctx.channel,(":anger: That command is blacklisted in this channel!"))
+                    await util.say(ctx.channel, (":anger: That command is blacklisted in this channel!"))
                 return True
-            if check(ctx.author,wrapped_command):
-                args_pattern = command_rules.get('args_pattern',"")
-                command_args = await determine_args(args_pattern,args[2])
+            if check(ctx.author, wrapped_command):
+                args_pattern = command_rules.get('args_pattern', "")
+                command_args = await determine_args(args_pattern, args[2])
                 if command_args is False:
-                    await util.get_client(ctx.server.id).add_reaction(ctx,u"\u2753")
-                elif not is_spam_command(ctx,wrapped_command,*args):
+                    await util.get_client(ctx.server.id).add_reaction(ctx, u"\u2753")
+                elif not is_spam_command(ctx, wrapped_command, *args):
                     # await util.say(ctx.channel,str(args))
                     kwargs["cmd_key"] = args[0]
                     kwargs["command_name"] = args[1]
-                    await command_func(ctx,*command_args,**get_command_details(ctx,**kwargs))
+                    await command_func(ctx, *command_args, **get_command_details(ctx, **kwargs))
                 else:
-                    raise util.DueUtilException(ctx.channel,"Please don't include spam mentions in commands.")
+                    raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
-                await util.get_client(ctx.server.id).add_reaction(ctx,u"\u274C")
+                await util.get_client(ctx.server.id).add_reaction(ctx, u"\u274C")
             return True
-        events.register_command(wrapped_command)
-        
-        wrapped_command.is_hidden = command_rules.get('hidden',False)
-        wrapped_command.permission = command_rules.get('permission',Permission.ANYONE)
-            
-        return wrapped_command
-        
-    return wrap
-    
-def imagecommand(**command_rules):
 
-    def wrap(command_func):
-        @ratelimit(slow_command=True,cooldown=IMAGE_REQUEST_COOLDOWN,error=":cold_sweat: Please don't break me!")
-        @wraps(command_func)
-        async def wrapped_command(ctx, *args,**kwargs):
-            await util.get_client(ctx).send_typing(ctx.channel)
-            await asyncio.ensure_future(command_func(ctx,*args,**kwargs))
+        events.register_command(wrapped_command)
+
+        wrapped_command.is_hidden = command_rules.get('hidden', False)
+        wrapped_command.permission = command_rules.get('permission', Permission.ANYONE)
+
         return wrapped_command
+
     return wrap
+
+
+def imagecommand(**command_rules):
+    def wrap(command_func):
+        @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
+        @wraps(command_func)
+        async def wrapped_command(ctx, *args, **kwargs):
+            await util.get_client(ctx).send_typing(ctx.channel)
+            await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
+
+        return wrapped_command
+
+    return wrap
+
 
 def ratelimit(**command_info):
-
     def wrap(command_func):
         @wraps(command_func)
-        async def wrapped_command(ctx, *args,**details):
+        async def wrapped_command(ctx, *args, **details):
             player = details["author"]
             command_name = details["command_name"]
-            if time.time() - player.command_rate_limts.get(command_name,0) < command_info["cooldown"]:
-                await util.say(ctx.channel,command_info["error"])
-                return 
+            if time.time() - player.command_rate_limts.get(command_name, 0) < command_info["cooldown"]:
+                await util.say(ctx.channel, command_info["error"])
+                return
             else:
                 player.command_rate_limts[command_name] = time.time()
-            await command_func(ctx,*args,**details)
+            await command_func(ctx, *args, **details)
+
         return wrapped_command
+
     return wrap
-          
+
+
 def parse(command_message):
-  
     """A basic command parser with support for escape strings.
     I don't think one like this exists that is not in a package
     that adds a lot more stuff I don't want.
@@ -127,32 +132,32 @@ def parse(command_message):
     The limitations of this parser are 'fixed' in determine_args
     that can guess where quotes should be most times.
     """
-    
+
     key = dueserverconfig.server_cmd_key(command_message.server)
-    command_string = command_message.content.replace(key,'',1)
+    command_string = command_message.content.replace(key, '', 1)
     user_mentions = command_message.raw_mentions
     escaped = False
     is_string = False
     args = []
     current_arg = ''
-    
+
     def replace_mentions():
-        nonlocal user_mentions,current_arg
-        for mention in user_mentions: # Replade mentions
-            if mention in current_arg and len(current_arg)-len(mention) < 6:
+        nonlocal user_mentions, current_arg
+        for mention in user_mentions:  # Replade mentions
+            if mention in current_arg and len(current_arg) - len(mention) < 6:
                 current_arg = mention
                 del user_mentions[user_mentions.index(mention)]
-                
+
     def add_arg():
-        nonlocal current_arg,args
+        nonlocal current_arg, args
         if len(current_arg) > 0:
             replace_mentions()
             args = args + [current_arg]
             current_arg = ""
-    
-    for char_pos in range(0,len(command_string)+1):
+
+    for char_pos in range(0, len(command_string) + 1):
         current_char = command_string[char_pos] if char_pos < len(command_string) else ' '
-        next_char = command_string[char_pos +1] if char_pos + 1 < len(command_string) else ' '
+        next_char = command_string[char_pos + 1] if char_pos + 1 < len(command_string) else ' '
         if char_pos < len(command_string) and (not current_char.isspace() or is_string):
             if not escaped:
                 if current_char == '\\' and not (current_char.isspace() or current_char.isalpha()):
@@ -167,17 +172,17 @@ def parse(command_message):
             current_arg += command_string[char_pos]
         else:
             add_arg()
-            
+
     if is_string:
-        raise util.DueUtilException(command_message.channel,"Unclosed string in command!")
-        
-    if len(args) > 0:    
-        return (key,args[0],args[1:])
+        raise util.DueUtilException(command_message.channel, "Unclosed string in command!")
+
+    if len(args) > 0:
+        return (key, args[0], args[1:])
     else:
-        return (key,"",[])
-        
-async def determine_args(pattern,args):
-    
+        return (key, "", [])
+
+
+async def determine_args(pattern, args):
     """
     
     Takes the args coming from parse()
@@ -203,43 +208,45 @@ async def determine_args(pattern,args):
     use 'is False' for checks insted of 'not determine_args(....)'
     
     """
-   
+
     def represents_int(string):
-        try: 
-            return min(int(string),int(sys.float_info.max))
-        except:return False  
-        
+        try:
+            return min(int(string), int(sys.float_info.max))
+        except:
+            return False
+
     def represents_count(string):
         value = represents_int(string)
         if not value:
             return False
-        elif value-1 >= 0:
+        elif value - 1 >= 0:
             return value
-    
+
     def represents_float(string):
-        try: 
-            return min(float(string),sys.float_info.max)
-        except:return False 
-        
+        try:
+            return min(float(string), sys.float_info.max)
+        except:
+            return False
+
     def remove_optional(pattern):
         nonlocal args
-        pattern_pos = len(pattern)-1
+        pattern_pos = len(pattern) - 1
         while pattern_pos >= 0:
-            if len(pattern.replace('?','')) == len(args):
+            if len(pattern.replace('?', '')) == len(args):
                 break
             elif pattern_pos == 0:
                 return False
             if pattern[pattern_pos] == '?':
-                pattern = pattern[:pattern_pos-1]
-                pattern_pos = len(pattern)-1
+                pattern = pattern[:pattern_pos - 1]
+                pattern_pos = len(pattern) - 1
                 continue
             pattern_pos -= 1
-        return pattern.replace('?','')
-        
+        return pattern.replace('?', '')
+
     def could_be_string(pattern):
         if pattern[0] == 'S':
             if len(pattern) > 1:
-                pattern_pos = len(pattern)-1
+                pattern_pos = len(pattern) - 1
                 while pattern_pos > 0:
                     if pattern[pattern_pos] == '?':
                         pattern_pos -= 2
@@ -247,16 +254,16 @@ async def determine_args(pattern,args):
                     return False
             return True
         return False
-        
-    def valid_args_len(args,pattern):
+
+    def valid_args_len(args, pattern):
         # Length - zero or more types (as they are not needed)
-        pattern_type_count = len(pattern) - pattern.count('*')*2
+        pattern_type_count = len(pattern) - pattern.count('*') * 2
         if '*' in pattern:
             return len(args) >= pattern_type_count
         return len(args) == pattern_type_count
-    
+
     def represents_string(string):
-        
+
         """
         This may seem dumb. But not all strings are strings in my
         world. Fuck zerowidth bullshittery & stuff like that.
@@ -264,17 +271,17 @@ async def determine_args(pattern,args):
         -xoxo MacDue
         """
         # Remove zero width bullshit & extra spaces
-        string = re.sub(r'[\u200B-\u200D\uFEFF]','',string.strip())
+        string = re.sub(r'[\u200B-\u200D\uFEFF]', '', string.strip())
         # Remove extra spaces/tabs/new lines ect.
         string = " ".join(string.split())
         if len(string) > 0:
             return string
         return False
 
-    guessing_arguments = False  
-    if pattern == None and len(args) > 0:
+    guessing_arguments = False
+    if pattern is None and len(args) > 0:
         return False
-    elif pattern == None and len(args) == 0:
+    elif pattern is None and len(args) == 0:
         return args
     if len(pattern) == 0:
         return args
@@ -290,10 +297,10 @@ async def determine_args(pattern,args):
             # Guesing args: Trying to figure out if the user has forgot quotes.
             # With no context on the command it's fiddly
             guessing_arguments = True
-        if not guessing_arguments: 
+        if not guessing_arguments:
             pattern = pattern_optional_removed
         else:
-            pattern = pattern.replace('?','')
+            pattern = pattern.replace('?', '')
     pos = 0
     args_index = 0
     current_rule = ''
@@ -327,12 +334,12 @@ async def determine_args(pattern,args):
                     return False
         else:
             args[args_index] = value
-            checks_satisfied+=1
-        args_index+=1
+            checks_satisfied += 1
+        args_index += 1
         if pos_change:
-            pos+=1
+            pos += 1
     if (checks_satisfied == len(args) and not guessing_arguments
-        and valid_args_len(args,pattern)):
+        and valid_args_len(args, pattern)):
         return args
     elif guessing_arguments:
         """
@@ -345,19 +352,18 @@ async def determine_args(pattern,args):
             last_string = pattern.rfind('S')
             if last_string != -1:
                 if could_be_string(pattern[last_string:]):
-                    new_args = tuple(args[:last_string])+(' '.join(args[last_string:]),)
-                    if checks_satisfied == len(new_args) and valid_args_len(new_args,pattern):
+                    new_args = tuple(args[:last_string]) + (' '.join(args[last_string:]),)
+                    if checks_satisfied == len(new_args) and valid_args_len(new_args, pattern):
                         return new_args
     return False
-        
+
 
 def point_error(command_string):
-  
     """Maybe make a programming lang style error string."""
-    
-    error_string = command_string+"\n"
-    for char_pos in range(len(command_string),-1,-1):
-        if command_string[char_pos-1] == '"':
-            error_string += ' ' * (char_pos-1)
+
+    error_string = command_string + "\n"
+    for char_pos in range(len(command_string), -1, -1):
+        if command_string[char_pos - 1] == '"':
+            error_string += ' ' * (char_pos - 1)
             break
     return error_string + '^'
