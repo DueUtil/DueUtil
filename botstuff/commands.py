@@ -249,7 +249,8 @@ async def determine_args(pattern,args):
         return False
         
     def valid_args_len(args,pattern):
-        pattern_type_count = len(pattern) - pattern.count('*')
+        # Length - zero or more types (as they are not needed)
+        pattern_type_count = len(pattern) - pattern.count('*')*2
         if '*' in pattern:
             return len(args) >= pattern_type_count
         return len(args) == pattern_type_count

@@ -19,6 +19,7 @@ Other than that no two things in this module have much in common
 shard_clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('dueutil')
+
 trello_client = TrelloClient(api_key = gconf.trello_api_key,
                              api_token = gconf.trello_api_token)
 
@@ -26,7 +27,7 @@ class DueLog():
     async def bot(self,message,**kwargs):
         await say(gconf.log_channel,":robot: %s" % message,**kwargs)
         
-    async def info(self,message,**kwargs):
+    async def info(self, message, **kwargs):
         await say(gconf.log_channel,":grey_exclamation: %s" % message,**kwargs)
 
     async def concern(self,message,**kwargs):

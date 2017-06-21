@@ -12,6 +12,7 @@ from botstuff.util import SlotPickleMixin
 from copy import copy
 from . import awards
 import asyncio
+import time
 
 banners = Banners()
 backgrounds = Backgrounds()
@@ -33,7 +34,7 @@ class Players(dict):
         fetched directly from the database
         """
         players_pruned = 0
-        for id,player in self.items():
+        for id,player in list(self.items()):
             if time.time() - player.last_progress >= PRUNE_INACTIVITY_TIME:
                 del self[id]
                 players_pruned += 1

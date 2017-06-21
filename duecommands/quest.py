@@ -106,16 +106,17 @@ async def acceptquest(ctx,*args,**details):
         raise util.DueUtilException(ctx.channel,"You can't do more than "+str(quests.MAX_DAILY_QUESTS)+" quests a day!")
 
     quest = player.quests.pop(quest_index)
-    battle_details = battles.get_battle_log(player_one=player,player_two=quest,p2_prefix="the ")
-    battle_log = battle_details[0]
-    turns = battle_details[1]
-    winner = battle_details[2]
+    battle_log = battles.get_battle_log(player_one=player,player_two=quest,p2_prefix="the ")
+    battle_embed = battle_log.embed
+    turns = battle_log.turn_count
+    winner = battle_log.winner
+    loser = battle_log.loser
     stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
     # Not really an average (but w/e)
     average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats["average_quest_battle_turns"] + turns)/2
     if winner != player:
-        battle_log.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
-                                                              +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
+        battle_embed.add_field(name = "Quest results", value = (":skull: **"+player.name_clean+"** lost to the **"+quest.name_clean+"** and dropped ``"
+                                                                +util.format_number(quest.money//2,full_precision=True,money=True)+"``"),inline=False)
         player.money -= quest.money//2
         player.quest_spawn_build_up += 0.1
     else:
@@ -134,7 +135,7 @@ async def acceptquest(ctx,*args,**details):
         add_accy = min(attr_gain(quest.accy),100)
 
         stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" %(add_attack,add_strg,add_accy)
-        battle_log.add_field(name = "Quest results", value = reward + stats_reward,inline=False)
+        battle_embed.add_field(name = "Quest results", value = reward + stats_reward,inline=False)
         
         player.progress(add_attack,add_strg,add_accy,max_attr=100,max_exp=10000)
         player.money += quest.money
@@ -147,7 +148,7 @@ async def acceptquest(ctx,*args,**details):
         await game.check_for_level_up(ctx,player)
     player.save()
     await imagehelper.battle_screen(ctx.channel,player,quest)
-    await util.say(ctx.channel,embed=battle_log)
+    await util.say(ctx.channel,embed=battle_embed)
     if winner == player:
         await awards.give_award(ctx.channel,player,"QuestDone","*Saved* the server!")  
     else:
@@ -236,7 +237,7 @@ async def editquest(ctx,*args,**details):
     This is also how you set quest channels!
     
     Properties:
-        __attack__, __hp__, __accy__, __spawn__, __wep__,
+        __attack__, __hp__, __accy__, __spawn__, __weap__,
         __image__, __task__ and __channel__
         
     Example usage:
@@ -247,7 +248,7 @@ async def editquest(ctx,*args,**details):
     
     """
     
-    editable_props = ["attack","hp","accy","spawn","wep","image","task","channel"]
+    editable_props = ("attack","hp","accy","spawn","weap","image","task","channel")
     changes = OrderedDict()
     quest_name = args[0].lower()
     updates = args[1:]
@@ -259,7 +260,7 @@ async def editquest(ctx,*args,**details):
     while next_prop < len(updates):
         property = updates[next_prop].lower()
         if property in editable_props:
-            if editable_props.index(property) <= 4:
+            if editable_props.index(property) <= 3:
                 try:
                     value = float(updates[next_prop+1])
                 except:
@@ -275,10 +276,10 @@ async def editquest(ctx,*args,**details):
                 quest.base_accy 
             elif property == "spawn" and value <= 25 and value >= 1:
                 quest.spawn_chance = value/100
-            elif property == "wep" and weapons.find_weapon(ctx.server,value) != None:
+            elif property == "weap" and weapons.find_weapon(ctx.server,value) != None:
                 weapon = weapons.find_weapon(ctx.server,value)
                 quest.w_id = weapon.w_id
-                value = weapon.name_clean
+                value = str(weapon)
             elif property == "image":
                 quest.image_url = value
             elif property == "task":

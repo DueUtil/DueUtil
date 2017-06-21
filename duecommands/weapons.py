@@ -127,9 +127,9 @@ async def battle(ctx,*args,**details):
         player_one = player
         player_two = args[0]
         
-    battle_log = battles.get_battle_log(player_one=player_one,player_two=player_two)[0]
+    battle_embed = battles.get_battle_log(player_one=player_one,player_two=player_two).embed
     await imagehelper.battle_screen(ctx.channel,player_one,player_two)
-    await util.say(ctx.channel,embed=battle_log)
+    await util.say(ctx.channel,embed=battle_embed)
   
 @commands.command(args_pattern='PC')
 async def wagerbattle(ctx,*args,**details):
@@ -218,18 +218,18 @@ async def acceptwager(ctx,*args,**details):
 
     wager = player.received_wagers.pop(wager_index)
     sender = players.find_player(wager.sender_id)
-    battle_details = battles.get_battle_log(player_one=player,player_two=sender)
-    battle_log = battle_details[0]
-    battle_details[1]
-    winner = battle_details[2]
+    battle_log = battles.get_battle_log(player_one=player,player_two=sender)
+    battle_embed = battle_log.embed
+    winner = battle_log.winner
+    loser = battle_log.loser
     wager_amount_str = util.format_number(wager.wager_amount,full_precision=True,money=True)
     total_transferred = wager.wager_amount 
     if winner != player:
-        battle_log.add_field(name = "Wager results", value = (":skull: **"+player.name_clean+"** lost to **"+sender.name_clean+"** and paid ``"
-                                                              +wager_amount_str+"``"),inline=False)
+        battle_embed.add_field(name = "Wager results", value = (":skull: **"+player.name_clean+"** lost to **"+sender.name_clean+"** and paid ``"
+                                                                +wager_amount_str+"``"),inline=False)
         player.money -= wager.wager_amount 
         sender.money += wager.wager_amount 
-         
+        sender.wagers_won += 1
     else:
         player.wagers_won += 1
         payback = ""
@@ -268,12 +268,14 @@ async def acceptwager(ctx,*args,**details):
             sender.money -= amount_paid
             player.money += amount_paid
             total_transferred = amount_paid    
-        battle_log.add_field(name = "Wager results", value = ":sparkles: **"+player.name_clean+"** won agaist **"+sender.name_clean+"**!\n"+payback,inline=False)
+        battle_embed.add_field(name = "Wager results", value = ":sparkles: **"+player.name_clean+"** won agaist **"+sender.name_clean+"**!\n"+payback,inline=False)
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED,total_transferred)
+    await awards.give_award(ctx.channel,winner,"YouWin","Win a wager")
+    await awards.give_award(ctx.channel,loser,"YouLose","Lose a wager!")
     sender.save()
     player.save()
     await imagehelper.battle_screen(ctx.channel,player,sender)
-    await util.say(ctx.channel,embed=battle_log)
+    await util.say(ctx.channel,embed=battle_embed)
     
 @commands.command(args_pattern='C')    
 async def declinewager(ctx,*args,**details):

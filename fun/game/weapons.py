@@ -112,10 +112,10 @@ def get_weapon_summary_from_id(weapon_id):
                    accy = float(summary[2]))
                 
 def remove_weapon_from_shop(server,weapon_name):
-    weapon_id = server.id+"/"+weapon_name
-    if weapon_id in weapons:
-        del weapons[weapon_id]
-        dbconn.get_collection_for_object(Weapon).remove({'_id': weapon_id})
+    weapon = get_weapon_for_server(server.id,weapon_name)
+    if weapon != None:
+        del weapons[weapon.id]
+        dbconn.get_collection_for_object(Weapon).remove({'_id': weapon.id})
         return True
     return False
         
@@ -135,7 +135,7 @@ def stock_weapon(weapon_name):
     if weapon_name in stock_weapons:
         return "STOCK/" + weapon_name
     return NO_WEAPON_ID
-  
+
 def _load():
   
     def load_stock_weapons():

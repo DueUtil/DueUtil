@@ -178,8 +178,8 @@ async def check_for_recalls(ctx,player):
     """
     Checks for weapons that have been recalled
     """
-  
-    current_weapon_id = player.weapon.id
+        
+    current_weapon_id = player.equipped["weapon"]
 
     weapons_to_recall = [weapon_id for weapon_id in player.inventory["weapons"]+[current_weapon_id]
                          if (weapons.get_weapon_from_id(weapon_id).id == weapons.NO_WEAPON_ID
@@ -190,7 +190,7 @@ async def check_for_recalls(ctx,player):
     if current_weapon_id in weapons_to_recall:
         player.weapon = weapons.NO_WEAPON_ID
     player.inventory["weapons"] = [weapon_id for weapon_id in player.inventory["weapons"] if weapon_id not in weapons_to_recall]
-    recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_info in weapons_to_recall])
+    recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_id in weapons_to_recall])
     player.money += recall_amount
     player.save()
     await util.say(ctx.channel,(":bangbang: "+("One" if len(weapons_to_recall) == 1 else "Some")+" of your weapons has been recalled!\n"

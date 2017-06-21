@@ -32,7 +32,7 @@ This bot is not well structured...
 """
 
 class DueUtilClient(discord.Client):
-  
+
     """
     DueUtil shard client
     """
@@ -99,16 +99,16 @@ class DueUtilClient(discord.Client):
                 ,"bot_percent":bot_percent,"bot_server":bot_server}
     
     @asyncio.coroutine
-    async def on_error(self,event,*args):
+    async def on_error(self,event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
-        if ctx == None:
+        if ctx is None:
             await util.duelogger.error(("**DueUtil experienced an error!**\n"
-                                        +"__Stack trace:__ ```"+traceback.format_exc()+"```"))
+                                        +"__Stack trace:__ ```" + traceback.format_exc()+"```"))
             util.logger.error("None message/command error: %s",error)
         elif isinstance(error,util.DueUtilException):
-            if error.channel != None:
+            if error.channel is not None:
                 await self.send_message(error.channel,error.get_message())
             else:
                 await self.send_message(ctx.channel,error.get_message())
@@ -149,8 +149,8 @@ class DueUtilClient(discord.Client):
     async def on_server_remove(self,server):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
-                dbconn.db[collection].delete_many({'_id':{'$regex':'%s\/.*' % server.id}})
-                dbconn.db[collection].delete_many({'_id':server.id})
+                print(dbconn.db[collection].delete_many({'_id':{'$regex':'%s\/.*' % server.id}}).deleted_count)
+                print(dbconn.db[collection].delete_many({'_id':server.id}).deleted_count)
         await util.duelogger.info("DueUtil been removed from the server **%s**" % util.ultra_escape_string(server.name))
                                 
     async def change_avatar(self,channel,avatar_name):

@@ -43,6 +43,6 @@ async def give_award(channel, player, award_id, text):
         player.awards.append(award_id)
         player.save()
         if not channel.is_private and dueserverconfig.mute_level(channel) < 0:
-            await util.say(channel, "**"+player.name+"** :trophy: **Award!** " + text)
+            await util.say(channel, "**"+player.name_clean+"** :trophy: **Award!** " + text)
 
 _load()

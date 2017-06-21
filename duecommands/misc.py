@@ -228,8 +228,8 @@ async def sudo(ctx,*args,**details):
         ctx.content = args[1]
         await util.say(ctx.channel,":smiling_imp: Sudoing **"+victim.name_clean+"**!")
         await events.command_event(ctx)
-    except:
-        raise util.DueUtilException(ctx.channel,"Sudo failed!")
+    except util.DueUtilException as command_failed:
+        raise util.DueUtilException(ctx.channel,'Sudo failed! "%s"' % command_failed.message)
     
 @commands.command(permission = Permission.DUEUTIL_ADMIN,args_pattern="PC")
 async def setpermlevel(ctx,*args,**details):
