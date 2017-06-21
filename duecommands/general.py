@@ -118,7 +118,7 @@ async def item_action(item_name,action,**details):
         if isinstance(action_result,discord.Embed):
             await util.say(details["channel"], embed = action_result)
             
-def placeholder(_,**details):
+def _placeholder(_,**details):
     embed = details["embed"]
     embed.title = "Department closed"
     return embed

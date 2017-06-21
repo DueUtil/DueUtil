@@ -13,6 +13,7 @@
       "CameBack":{
          "icon":"cameback.png",
          "name":"You're Back!",
+         "special":true,
          "message":"Return to DueUtil"
       },
       "Rank1":{
@@ -110,11 +111,13 @@
       "Admin":{
          "icon":"admin.png",
          "name":"DueUtil Admin",
+         "special":true,
          "message":"Only DueUtil admins can have this."
       },
       "Mod":{
          "icon":"mod.png",
          "name":"DueUtil Mod",
+         "special":true,
          "message":"Only DueUtil mods can have this."
       },
       "Spender":{
@@ -125,6 +128,7 @@
       "BgAccepted":{
          "icon":"bg_accepted.png",
          "name":"Background Accepted!",
+         "special":true,
          "message":"Get a background submission accepted"
       },
       "TopDog":{
@@ -135,6 +139,7 @@
       "Donor":{
          "icon":"donor_award.png",
          "name":"All MacDue Ever Wanted!",
+         "special":true,
          "message":"Donate to DueUtil"
       },
       "Emoji":{
@@ -150,6 +155,7 @@
       "Tester":{
          "icon":"tester.png",
          "name":"Something went wrong...",
+         "special":true,
          "message":"Thanks for helping with testing!"
       }
    }

@@ -136,7 +136,6 @@ def stock_weapon(weapon_name):
         return "STOCK/" + weapon_name
     return NO_WEAPON_ID
   
-              
 def _load():
   
     def load_stock_weapons():

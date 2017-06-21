@@ -10,13 +10,46 @@ from .customization import Themes, Backgrounds, Banners, Theme
 from botstuff import util, dbconn
 from botstuff.util import SlotPickleMixin
 from copy import copy
+from . import awards
+import asyncio
 
-players = dict()   
 banners = Banners()
 backgrounds = Backgrounds()
 profile_themes = Themes()
 
-""" DueUtil battles & quests. The main meat of the bot. """
+""" Player related classes & fuctions """
+
+class Players(dict):
+  
+    # Amount of time before the bot will prune a player.
+    PRUNE_INACTIVITY_TIME = 3600 # (1 Hour)
+    
+    def prune(self):
+        
+        """
+        Removes player that the bot has not seen 
+        for over an hour. If anyone metions these
+        players (in a command) their data will be
+        fetched directly from the database
+        """
+        players_pruned = 0
+        for id,player in self.items():
+            if time.time() - player.last_progress >= PRUNE_INACTIVITY_TIME:
+                del self[id]
+                players_pruned += 1
+        util.logger.info("Pruned %d players for inactivity",players_pruned)
+
+    async def prune_task(self):
+      
+        """
+        Simple task to auto prune each hour.
+        """
+        
+        while True:
+            self.prune()
+            await asyncio.sleep(3600)
+
+players = Players()
 
 class Player(DueUtilObject,SlotPickleMixin):
   
@@ -50,6 +83,8 @@ class Player(DueUtilObject,SlotPickleMixin):
                   
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
+    
+    DEFAULT_FACTORIES = {"equipped":lambda: "default","inventory":lambda: ["default"]}
   
     def __init__(self,*args,**kwargs):
         if len(args) > 0 and isinstance(args[0],discord.User):
@@ -92,7 +127,12 @@ class Player(DueUtilObject,SlotPickleMixin):
         ##### THINGS #####
         self.quests = []
         self.received_wagers = []
-        self.awards = []
+        
+        if not hasattr(self,"awards"):
+            self.awards = []
+        else:
+            # Keep special awards even after reset
+            self.awards = [award_id for award_id in self.awards if awards.get_award(award_id).special]
         
         # To help the noobz
         self.quest_spawn_build_up = 1
@@ -110,7 +150,7 @@ class Player(DueUtilObject,SlotPickleMixin):
                                       average_quest_battle_turns = 1)
 
         ##### Equiped items
-        self.equipped = defaultdict(lambda: "default",
+        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
                                     weapon = weapons.NO_WEAPON_ID,
                                     banner = "discord blue",
                                     theme = "default",
@@ -118,7 +158,7 @@ class Player(DueUtilObject,SlotPickleMixin):
         
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
-        self.inventory = defaultdict(lambda: ["default"],
+        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
                                      weapons = [],
                                      themes = ["default"],
                                      backgrounds = ["default"],
@@ -279,6 +319,9 @@ class Player(DueUtilObject,SlotPickleMixin):
         SlotPickleMixin.__setstate__(self,object_state)
         self.command_rate_limts = {}
         self.last_message_hashes = Ring(10)
+        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],self.inventory)
+        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],self.equipped)
+        self.misc_stats = defaultdict(int,self.misc_stats)
         for quest in self.quests:
             quest.quester = self
         
@@ -286,6 +329,11 @@ class Player(DueUtilObject,SlotPickleMixin):
         object_state = SlotPickleMixin.__getstate__(self)
         del object_state["last_message_hashes"]
         del object_state["command_rate_limts"]
+        # Know need to save the default dict info (as the
+        # defaults are known)
+        object_state["inventory"] = dict(object_state["inventory"])
+        object_state["equipped"] = dict(object_state["equipped"])
+        object_state["misc_stats"] = dict(object_state["misc_stats"])
         return object_state
            
 def find_player(user_id):

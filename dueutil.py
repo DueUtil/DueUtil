@@ -12,6 +12,7 @@ import traceback
 import inspect
 import re
 from fun.configs import dueserverconfig
+from fun.game import players
 
 MAX_RECOVERY_ATTEMPS = 100
 
@@ -255,6 +256,10 @@ def run_due():
             while len(shard_clients) <= loaded_clients: pass   
         while not loaded(): pass
         loader.load_modules()
+        ### Prune players - task
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(players.players.prune_task(),loop=loop)
+        loop.run_forever()
         
 def loaded():
     return all(client.loaded for client in shard_clients)

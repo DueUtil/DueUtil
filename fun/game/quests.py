@@ -199,10 +199,12 @@ class ActiveQuest(Player,util.SlotPickleMixin):
         as quests are part of the player's save.
         Also we don't want to inherit the Player setstate.
          """
+        self.equipped = defaultdict(self.DEFAULT_FACTORIES["equipped"],self.equipped)
         
     def __getstate__(self):
         object_state = SlotPickleMixin.__getstate__(self)
         del object_state["quester"]
+        object_state["equipped"] = dict(object_state["equipped"])
         return object_state
     
 def get_server_quest_list(server):
@@ -270,7 +272,6 @@ def _load():
     load_default_quests()
                   
     for quest in dbconn.get_collection_for_object(Quest).find():
-        print(quest['data'])
         loaded_quest = jsonpickle.decode(quest['data'])
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST,loaded_quest)
 

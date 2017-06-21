@@ -192,7 +192,7 @@ async def awards_screen(channel,player,page,**kwargs):
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
         image.paste(award_slot, (14, 40 + 44 * count))
         award = awards.get_award(player.awards[player_award])
-        draw.text((52, 47 + 44 * count),award.name, DUE_BLACK, font=font_med)
+        draw.text((52, 47 + 44 * count),award.name, award.get_colour(default = DUE_BLACK), font=font_med)
         draw.text((52, 61 + 44 * count),award.description,DUE_BLACK, font=font_small)
         image.paste(award.icon, (19, 45 + 44 * count))
         count += 1
