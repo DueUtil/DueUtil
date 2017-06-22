@@ -1,5 +1,6 @@
 from enum import Enum
 from botstuff import dbconn
+from typing import Dict
 
 
 class Stat(Enum):
@@ -17,6 +18,6 @@ def increment_stat(dueutil_stat: Stat, increment=1):
                                   {"$inc": {"count": increment}}, upsert=True)
 
 
-def get_stats():
+def get_stats() -> Dict[str, int]:
     stats_response = dbconn.conn()["stats"].find()
     return dict((stat["stat"], stat["count"]) for stat in stats_response)

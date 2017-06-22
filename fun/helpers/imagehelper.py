@@ -455,7 +455,7 @@ async def quest_screen(channel, quest):
     width = draw.textsize(reward, font=font_med)[0]
     draw.text((203 - width, 266), reward, DUE_BLACK, font=font_med)
 
-    await send_image(channel, image, file_name="questinfo.png", content=":pen_fountain: Here you go.");
+    await send_image(channel, image, file_name="questinfo.png", content=":pen_fountain: Here you go.")
 
 
 async def battle_screen(channel, player_one, player_two):

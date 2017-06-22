@@ -152,14 +152,14 @@ async def testbg(ctx, *args, **details):
 
     url = args[0]
     image = await imagehelper.load_image_url(url)
-    if image == None:
+    if image is None:
         raise util.DueUtilException(ctx.channel, "Failed to load image!")
 
     if not imagehelper.has_dimensions(image, (256, 299)):
         width, height = image.size
         await util.say(ctx.channel, (":thumbsdown: **That does not meet the requirements!**\n"
-                                     + "The tested image had the dimensions ``" + str(width) + "*" + str(
-            height) + "``!\n"
+                                     + "The tested image had the dimensions ``" + str(width)
+                                     + "*" + str(height) + "``!\n"
                                      + "It should be ``256*299``!"))
     else:
         await util.say(ctx.channel, (":thumbsup: **That looks good to me!**\n"

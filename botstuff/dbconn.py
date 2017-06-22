@@ -20,10 +20,12 @@ def conn():
         return db
 
 
-def insert_object(id, object):
+def insert_object(id, pickleable_object):
     if id.strip() == "":
         return
-    conn()[type(object).__name__].update({'_id': id}, {"$set": {'data': jsonpickle.encode(object)}}, upsert=True)
+    conn()[type(pickleable_object).__name__].update({'_id': id},
+                                                    {"$set": {'data': jsonpickle.encode(pickleable_object)}},
+                                                    upsert=True)
 
 
 def get_collection_for_object(object_class):

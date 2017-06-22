@@ -39,7 +39,7 @@ async def myweapons(ctx, *args, **details):
         if player.equipped["weapon"] != weapons.NO_WEAPON_ID:
             player_weapons.append(player.weapon)
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()), None)
-        if weapon != None:
+        if weapon is not None:
             embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
             info = weapon_info(weapon_name, **details, price_divisor=4 / 3, embed=embed)
             await util.say(ctx.channel, embed=info)
@@ -172,7 +172,7 @@ async def mywagers(ctx, *args, **details):
     
     """
 
-    # TODO: Update this command to pagnaitor?
+    # TODO: Update this command to paginator?
 
     player = details["author"]
     page_size = 12

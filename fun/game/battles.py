@@ -21,6 +21,9 @@ _Opponents = namedtuple("Opponents", ["p1", "p2"])
         ===################===============
 """
 
+# Some default attack messages (if the player does not have a weapon)
+BABY_MOVES = ("slapped", "scratched", "hit", "punched", "licked", "bit", "kicked", "tickled")
+
 
 class BattleRequest:
     """A class to hold a wager"""
@@ -84,7 +87,6 @@ def battle(**battleargs):
     def add_move(attacker, other, message=None):
         nonlocal opponents, moves, current_move, damage_modifier
         if message is None:
-            BABY_MOVES = ("slapped", "scratched", "hit", "punched", "licked", "bit", "kicked", "tickled")
             weapon = attacker.player.weapon
             if weapon.id == weapons.NO_WEAPON_ID:
                 message = random.choice(BABY_MOVES)
@@ -161,7 +163,7 @@ def battle(**battleargs):
     def compress_moves():
 
         """
-        Shorcut for the full process to shrink the log
+        Shortcut for the full process to shrink the log
         """
         nonlocal moves
         moves = shrink_repeats(shrink_duos(shrink_repeats(moves)))
@@ -180,8 +182,8 @@ def battle(**battleargs):
                 if not attacker.player.weapon.melee:
                     weapon_damage_modifier = attacker.player.accy
                 # Deal damage
-                hp[1 - hitter] -= (
-                                  attacker.player.weapon.damage * weapon_damage_modifier) / other.player.strg * damage_modifier
+                hp[1 - hitter] -= ((attacker.player.weapon.damage * weapon_damage_modifier)
+                                   / other.player.strg * damage_modifier)
                 add_move(attacker, other)
 
     while hp[0] > 0 and hp[1] > 0:
@@ -194,6 +196,7 @@ def battle(**battleargs):
     elif hp[0] < hp[1]:
         winner = opponents.p2
         loser = opponents.p1
+    # TODO: Handle draws
 
     turns = current_move - 1
     moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** turn%s!"

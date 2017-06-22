@@ -94,7 +94,7 @@ async def awards(ctx, *args, **details):
     
     """
 
-    await show_awards(ctx, args[0], *args[1:]);
+    await show_awards(ctx, args[0], *args[1:])
 
 
 @commands.command(args_pattern="S?")

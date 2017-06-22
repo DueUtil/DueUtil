@@ -33,7 +33,8 @@ def has_permission(member: discord.Member, permission):
             return True
         elif len(permission.value) < 3:
             for higher_permission in permissions[permissions.index(permission):]:
-                if higher_permission.value[0](member): return True
+                if higher_permission.value[0](member):
+                    return True
     return False
 
 

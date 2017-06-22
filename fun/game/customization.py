@@ -18,7 +18,7 @@ Basic classes to store themes, backgrounds and banners.
 class Customization(DueUtilObject):
     __slots__ = ["_customization_info"]
 
-    # Use kwargs so maybe I could neatly define cutomizations in code.
+    # Use kwargs so maybe I could neatly define customizations in code.
     def __init__(self, id, **customization_info):
         self._customization_info = customization_info
         super().__init__(id, self["name"])
@@ -35,7 +35,7 @@ class Customization(DueUtilObject):
             #### THIS ERROR MAY LIE
             raise AttributeError("%s has no attribute or index named %s" % (type(self).__name__, name)) from exception
 
-    # Most cutomizations are read only & don't need to set values
+    # Most customizations are read only & don't need to set values
 
     def __contains__(self, key):
         return key in self._customization_info
@@ -119,7 +119,7 @@ class Banners(dict):
 class Banner(Customization):
     """Class to hold details & methods for a profile banner
     This class is based off a legacy class from DueUtil V1
-    and hence does not properly Cutomization
+    and hence does not properly Customization
     """
 
     def __init__(self, id, **banner_data):

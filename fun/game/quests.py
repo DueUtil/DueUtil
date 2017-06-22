@@ -8,6 +8,7 @@ from ..helpers.misc import DueUtilObject, DueMap
 from .players import Player
 from collections import defaultdict
 from botstuff.util import SlotPickleMixin
+from typing import Dict, List
 
 quest_map = DueMap()
 
@@ -30,7 +31,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
         message = extras.get('ctx', None)
         given_spawn_chance = extras.get('spawn_chance', 4)
 
-        if message != None:
+        if message is not None:
             if message.server in quest_map:
                 if name.lower() in quest_map[message.server]:
                     raise util.DueUtilException(message.channel, "A foe with that name already exists on this server!")
@@ -87,7 +88,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
     @property
     def creator(self):
         creator = players.find_player(self.created_by)
-        if creator != None:
+        if creator is not None:
             return creator.name
         else:
             return "Unknown"
@@ -110,7 +111,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
                  "quester", "accy"]
 
     def __init__(self, q_id, quester: Player):
-        # The base quest (holds the quest infomation)
+        # The base quest (holds the quest information)
         self.q_id = q_id
         base_quest = self.info
 
@@ -119,7 +120,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.quester_id = quester.id
         self.quester = quester
 
-        """ The quests equipped itemes.
+        """ The quests equipped items.
         Quests only have weapons but I may add more things a quest
         can have so a default dict will help with that """
         self.equipped = defaultdict(lambda: "default",
@@ -154,7 +155,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     def get_avatar_url(self, *args):
         quest_info = self.info
-        if quest_info != None:
+        if quest_info is not None:
             return quest_info.image_url
 
     def get_reward(self):
@@ -201,7 +202,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         as quests are part of the player's save.
         Also we don't want to inherit the Player setstate.
          """
-        self.equipped = defaultdict(self.DEFAULT_FACTORIES["equipped"], self.equipped)
+        self.equipped = defaultdict(self.DEFAULT_FACTORIES["equipped"], **self.equipped)
 
     def __getstate__(self):
         object_state = SlotPickleMixin.__getstate__(self)
@@ -210,11 +211,11 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         return object_state
 
 
-def get_server_quest_list(server):
+def get_server_quest_list(server: discord.Server) -> Dict[str, Quest]:
     return quest_map[server]
 
 
-def get_quest_on_server(server, quest_name):
+def get_quest_on_server(server: discord.Server, quest_name: str) -> Quest:
     return quest_map[server.id + "/" + quest_name.lower()]
 
 
@@ -228,7 +229,7 @@ def get_quest_from_id(quest_id: str) -> Quest:
     return quest_map[quest_id]
 
 
-def get_channel_quests(channel):
+def get_channel_quests(channel: discord.Channel) -> List[Quest]:
     return [quest for quest in quest_map[channel.server].values() if quest.channel in ("ALL", channel.id)]
 
 

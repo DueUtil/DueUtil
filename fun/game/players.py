@@ -101,7 +101,7 @@ class Player(DueUtilObject, SlotPickleMixin):
 
         ### New rule: The default of all new items MUST have the id default now.
 
-        if discord_user != None:
+        if discord_user is not None:
             self.name = discord_user.name
         self.benfont = False
 
@@ -198,7 +198,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         return next((weapon for weapon in self.get_owned_weapons() if weapon.name.lower() == weapon_name.lower()), None)
 
     def owns_weapon(self, weapon_name):
-        return self.get_weapon(weapon_name) != None
+        return self.get_weapon(weapon_name) is not None
 
     def get_name_possession(self):
         if self.name.endswith('s'):
@@ -218,7 +218,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.inventory["weapons"].append(weapon.id)
 
     def weapon_hit(self):
-        return random.random() < (self.weapon_accy)
+        return random.random() < self.weapon_accy
 
     def get_avatar_url(self, *args):
         server = args[0]
@@ -266,7 +266,7 @@ class Player(DueUtilObject, SlotPickleMixin):
     @property
     def background(self):
         current_background = self.equipped["background"]
-        if not current_background in backgrounds:
+        if current_background not in backgrounds:
             # Check (just to quick fix)
             # TODO: Remove later
             if current_background in self.inventory["backgrounds"]: self.inventory["backgrounds"].remove(
@@ -282,7 +282,7 @@ class Player(DueUtilObject, SlotPickleMixin):
     def banner(self):
         banner = banners.get(self.equipped["banner"], banners["discord blue"])
         if not (self.equipped["banner"] in banners or banner.can_use_banner(self)):
-            self.inventory["banners"].remove(self.banner_id)
+            self.inventory["banners"].remove(self.equipped["banner"])
             self.equipped["banner"] = "discord blue"
         return banner
 
@@ -323,16 +323,16 @@ class Player(DueUtilObject, SlotPickleMixin):
         SlotPickleMixin.__setstate__(self, object_state)
         self.command_rate_limits = {}
         self.last_message_hashes = Ring(10)
-        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], self.inventory)
-        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], self.equipped)
-        self.misc_stats = defaultdict(int, self.misc_stats)
+        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], **self.inventory)
+        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], **self.equipped)
+        self.misc_stats = defaultdict(int, **self.misc_stats)
         for quest in self.quests:
             quest.quester = self
 
     def __getstate__(self):
         object_state = SlotPickleMixin.__getstate__(self)
         del object_state["last_message_hashes"]
-        del object_state["command_rate_limts"]
+        del object_state["command_rate_limits"]
         # Know need to save the default dict info (as the
         # defaults are known)
         object_state["inventory"] = dict(object_state["inventory"])

@@ -60,7 +60,7 @@ def command(**command_rules):
                                                  + " You can only use the following commands: ``"
                                                  + ', '.join(command_whitelist) + "``."))
                 else:
-                    await util.say(ctx.channel, (":anger: That command is blacklisted in this channel!"))
+                    await util.say(ctx.channel, ":anger: That command is blacklisted in this channel!")
                 return True
             if check(ctx.author, wrapped_command):
                 args_pattern = command_rules.get('args_pattern', "")
@@ -88,7 +88,7 @@ def command(**command_rules):
     return wrap
 
 
-def imagecommand(**command_rules):
+def imagecommand():
     def wrap(command_func):
         @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
@@ -143,7 +143,7 @@ def parse(command_message):
 
     def replace_mentions():
         nonlocal user_mentions, current_arg
-        for mention in user_mentions:  # Replade mentions
+        for mention in user_mentions:  # Replace mentions
             if mention in current_arg and len(current_arg) - len(mention) < 6:
                 current_arg = mention
                 del user_mentions[user_mentions.index(mention)]
@@ -157,7 +157,6 @@ def parse(command_message):
 
     for char_pos in range(0, len(command_string) + 1):
         current_char = command_string[char_pos] if char_pos < len(command_string) else ' '
-        next_char = command_string[char_pos + 1] if char_pos + 1 < len(command_string) else ' '
         if char_pos < len(command_string) and (not current_char.isspace() or is_string):
             if not escaped:
                 if current_char == '\\' and not (current_char.isspace() or current_char.isalpha()):
@@ -177,9 +176,9 @@ def parse(command_message):
         raise util.DueUtilException(command_message.channel, "Unclosed string in command!")
 
     if len(args) > 0:
-        return (key, args[0], args[1:])
+        return key, args[0], args[1:]
     else:
-        return (key, "", [])
+        return key, "", []
 
 
 async def determine_args(pattern, args):
@@ -292,9 +291,9 @@ async def determine_args(pattern, args):
                 # If the command is wrong by all other tests and it could be a string
                 # merge the arguments to a single string.
                 if len(args) > 0:
-                    return (' '.join(args),)
+                    return ' '.join(args),
                 return False
-            # Guesing args: Trying to figure out if the user has forgot quotes.
+            # Guessing args: Trying to figure out if the user has forgot quotes.
             # With no context on the command it's fiddly
             guessing_arguments = True
         if not guessing_arguments:
@@ -323,7 +322,7 @@ async def determine_args(pattern, args):
             'B': args[args_index].lower() in misc.POSTIVE_BOOLS,
         }
         value = switch.get(current_rule)
-        if (value is False and current_rule != 'B') or value == None:
+        if (value is False and current_rule != 'B') or value is None:
             if pattern[pos] != '*':
                 return False
             else:

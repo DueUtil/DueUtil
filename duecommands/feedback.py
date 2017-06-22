@@ -3,7 +3,7 @@ import generalconfig as gconf
 import discord
 
 
-class FeedbackHandler():
+class FeedbackHandler:
     """
     Another weird class to make something easier.
     """

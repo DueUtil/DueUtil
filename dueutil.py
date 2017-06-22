@@ -212,7 +212,7 @@ class ShardThread(Thread):
         self.shard_number = shard_number
         super().__init__()
 
-    def run(self):
+    def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
         client = DueUtilClient(shard_id=self.shard_number, shard_count=shard_count)
         shard_clients.append(client)
@@ -220,9 +220,9 @@ class ShardThread(Thread):
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
         except:
             if level < MAX_RECOVERY_ATTEMPTS: # TODO Fix this
-                util.logger.warning("Bot recovery attempted for shard %d" % shard_id)
+                util.logger.warning("Bot recovery attempted for shard %d" % self.shard_number)
                 shard_clients.remove(client)
-                self.run(asyncio.new_event_loop(), shard_id, level + 1)
+                self.run(asyncio.new_event_loop(), self.shard_number, level + 1)
             else:
                 util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
         finally:

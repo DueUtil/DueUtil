@@ -31,7 +31,7 @@ class TrelloClient:
     async def get_labels(self, board_id):
         return await self.fetch_json('boards/%s/labels' % board_id)
 
-    async def add_card(self, board_url, list_name, name, desc, labels=None, **details):
+    async def add_card(self, board_url, list_name, name, desc, labels=None):
 
         """
         The main thing I need. Adding cards.

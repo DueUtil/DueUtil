@@ -11,7 +11,7 @@ from botstuff.trello import TrelloClient
 from itertools import chain
 
 """
-A random jumble of classes & functionals that are some how
+A random jumble of classes & functions that are some how
 utilities.
 
 Other than that no two things in this module have much in common
@@ -48,20 +48,20 @@ duelogger = DueLog()
 
 
 class BotException(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, message):
+        super().__init__(message)
 
 
 class DueUtilException(BotException):
-    def __init__(self, channel, message, *args, **kwargs):
+    def __init__(self, channel, message, **kwargs):
         self.message = message
         self.channel = channel
-        self.addtional_info = kwargs.get('addtional_info', "")
+        self.additional_info = kwargs.get('additional_info', "")
 
     def get_message(self):
         message = ":bangbang: **" + self.message + "**"
-        if self.addtional_info != "":
-            message += "```css\n" + self.addtional_info + "```"
+        if self.additional_info != "":
+            message += "```css\n" + self.additional_info + "```"
         return message
 
 
@@ -201,7 +201,7 @@ def char_is_emoji(character):
 
 
 def is_server_emoji(server, possible_emoji):
-    possible_emojis = [str(emoji) for emoji in server.emojis if str(emoji) in possible_emoji]
+    possible_emojis = [str(custom_emoji) for custom_emoji in server.emojis if str(custom_emoji) in possible_emoji]
     return len(possible_emojis) == 1 and possible_emojis[0] == possible_emoji
 
 

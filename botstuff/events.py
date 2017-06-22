@@ -13,12 +13,12 @@ class MessageEvent(list):
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
 
-    def append(self, function):
-        old = (find_old(function, self))
+    def append(self, listener_function: function):
+        old = (find_old(listener_function, self))
         if old == -1:
-            super(MessageEvent, self).append(function)
+            super(MessageEvent, self).append(listener_function)
         else:
-            self[old] = function
+            self[old] = listener_function
 
 
 class CommandEvent(dict):
@@ -42,13 +42,13 @@ class CommandEvent(dict):
     def __repr__(self):
         return "Command(%s)" % dict.__repr__(self)
 
-    def __setitem__(self, key, command):
+    def __setitem__(self, key: str, command: function):
         module_name = inspect.getmodule(command).__name__.split('.')[1]
         self.command_categories[module_name + "/" + command.__name__] = command
         command.category = module_name
         super(CommandEvent, self).__setitem__(key, command)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str):
         command = self[key]
         module_name = inspect.getmodule(command).__name__.split('.')[1]
         del self.command_categories[module_name + "/" + command.__name__]
@@ -74,16 +74,17 @@ async def on_message_event(ctx):
     await command_event(ctx)
 
 
-def find_old(function, listeners):
-    return next((index for index, listener in enumerate(listeners) if listener.__name__ == function.__name__), -1)
+def find_old(listener_function, listeners):
+    return next((index for index, listener in enumerate(listeners)
+                 if listener.__name__ == listener_function.__name__), -1)
 
 
-def register_message_listener(function):
-    message_event.append(function)
+def register_message_listener(listener_function):
+    message_event.append(listener_function)
 
 
-def remove_message_listener(function):
-    message_event.remove(function)
+def remove_message_listener(listener_function):
+    message_event.remove(listener_function)
 
 
 def register_command(command_function):

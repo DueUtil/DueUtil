@@ -47,7 +47,7 @@ async def eyes(ctx, *args, **details):
         right - Eyes look right
         top - Eyes look to the top
         bottom - Eyes look to the bottom
-        derp - Random pupil postions
+        derp - Random pupil positions
         bottom left - Eyes look bottom left
         bottom right - Eyes look bottom right
         top right - Eyes look top right
@@ -55,8 +55,8 @@ async def eyes(ctx, *args, **details):
         no modifiers - Procedurally generated eyes!!!111
     """
 
-    googly_parms = args[0].lower() if len(args) == 1 else ""
-    await imagehelper.googly_eyes(ctx.channel, googly_parms)
+    googly_params = args[0].lower() if len(args) == 1 else ""
+    await imagehelper.googly_eyes(ctx.channel, googly_params)
 
 
 @commands.command(args_pattern="C?")
@@ -136,8 +136,7 @@ async def myrank(ctx, *args, **details):
         position = leaderboard_data.index(player)
         page = position // 10
         await util.say(ctx.channel, (":sparkles: You're position **" + str(position + 1) + "** on the leaderboard!\n"
-                                     + "That's on ``" + details["cmd_key"] + "leaderboard`` page " + str(
-            page + 1) + "!"))
+                                     + "That's on ``" + details["cmd_key"] + "leaderboard`` page " + str(page + 1) + "!"))
     except:
         await util.say(ctx.channel, (":confounded: I can't find you in the leaderboard!?\n"
                                      + "This probably means you're new and leaderboard has not updated yet!"))

@@ -1,10 +1,8 @@
 import importlib
 import pkgutil
-from importlib import util as importutil
-import os
 import sys
+
 from botstuff import events, util
-import os
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 BOT_PACKAGES = ('duecommands', 'fun')
@@ -34,32 +32,32 @@ def loader(action, packages=BOT_PACKAGES):
                      ', '.join(events.command_event.command_list()))
 
 
-def load_module(module):
+def load_module(module_name):
     """
   Import modules.
   """
 
-    importlib.import_module(module)
-    loaded_modules.append(module)
+    importlib.import_module(module_name)
+    loaded_modules.append(module_name)
 
 
-def reload_module(module):
+def reload_module(module_name):
     """
   Import modules.
   """
 
-    if module in loaded_modules:
-        importlib.reload(sys.modules[module])
+    if module_name in loaded_modules:
+        importlib.reload(sys.modules[module_name])
 
 
-def module_refresh(module):
+def module_refresh(module_name):
     """
   Eat fresh (TM)
   """
 
-    if module not in loaded_modules:
-        importlib.import_module(module)
-        loaded_modules.append(module)
+    if module_name not in loaded_modules:
+        importlib.import_module(module_name)
+        loaded_modules.append(module_name)
 
 
 def load_modules():
@@ -67,7 +65,7 @@ def load_modules():
 
 
 def reload_modules():
-    loaded_modules = []
+    # loaded_modules = []
     loader(reload_module)
 
 
@@ -77,6 +75,6 @@ def refresh_modules():
 
 def get_loaded_modules():
     loaded = "Loaded:\n"
-    for module in loaded_modules:
-        loaded += "``" + module + "``\n"
+    for module_name in loaded_modules:
+        loaded += "``" + module_name + "``\n"
     return loaded

@@ -1,7 +1,51 @@
 <component name="ProjectDictionaryState">
   <dictionary name="macdue">
     <words>
+      <w>acceptwager</w>
+      <w>accy</w>
+      <w>assii</w>
+      <w>bangbang</w>
+      <w>battleargs</w>
+      <w>benfont</w>
+      <w>bugreport</w>
+      <w>colourize</w>
+      <w>cooldown</w>
+      <w>declinewager</w>
+      <w>defaultweapons</w>
+      <w>demojize</w>
+      <w>duecommands</w>
+      <w>duelogger</w>
+      <w>dueutil</w>
+      <w>emoji</w>
+      <w>emojis</w>
+      <w>emojize</w>
+      <w>equiped</w>
+      <w>gconf</w>
+      <w>glittertext</w>
+      <w>imagecache</w>
+      <w>imagecommand</w>
+      <w>imagesserved</w>
+      <w>leaderboard</w>
       <w>leaderboards</w>
+      <w>moneycreated</w>
+      <w>moneytransferred</w>
+      <w>mywagers</w>
+      <w>newusers</w>
+      <w>oldplayers</w>
+      <w>pickleable</w>
+      <w>playersleveled</w>
+      <w>quester</w>
+      <w>questsattempted</w>
+      <w>questsgiven</w>
+      <w>ratelimit</w>
+      <w>serverconfigs</w>
+      <w>snek</w>
+      <w>sset</w>
+      <w>strg</w>
+      <w>subdirs</w>
+      <w>trello</w>
+      <w>unequip</w>
+      <w>unmute</w>
     </words>
   </dictionary>
 </component>

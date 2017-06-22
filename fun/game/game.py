@@ -1,11 +1,12 @@
-import enchant
-from guess_language import guess_language
-import ssdeep
-import time
 import json
 import random
 import re
 import time
+
+import enchant
+import ssdeep
+from guess_language import guess_language
+
 from botstuff import events
 from botstuff import util
 from . import stats, weapons, players, quests, awards
@@ -55,7 +56,7 @@ async def player_message(message, player, spam_level):
     def get_words():
         return re.compile('\w+').findall(message.content)
 
-    if player != None:
+    if player is not None:
 
         if progress_time(player) and spam_level < SPAM_TOLERANCE:
 
