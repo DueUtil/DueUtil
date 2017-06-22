@@ -12,7 +12,7 @@ class Stat(Enum):
     IMAGES_SERVED = "imagesserved"
 
 
-def increment_stat(dueutil_stat, increment=1):
+def increment_stat(dueutil_stat: Stat, increment=1):
     dbconn.conn()["stats"].update({"stat": dueutil_stat.value},
                                   {"$inc": {"count": increment}}, upsert=True)
 

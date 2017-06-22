@@ -107,11 +107,11 @@ def ratelimit(**command_info):
         async def wrapped_command(ctx, *args, **details):
             player = details["author"]
             command_name = details["command_name"]
-            if time.time() - player.command_rate_limts.get(command_name, 0) < command_info["cooldown"]:
+            if time.time() - player.command_rate_limits.get(command_name, 0) < command_info["cooldown"]:
                 await util.say(ctx.channel, command_info["error"])
                 return
             else:
-                player.command_rate_limts[command_name] = time.time()
+                player.command_rate_limits[command_name] = time.time()
             await command_func(ctx, *args, **details)
 
         return wrapped_command

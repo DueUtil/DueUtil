@@ -80,7 +80,7 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "received_wagers", "awards",
                  "quest_spawn_build_up", "donor",
                  "misc_stats", "equipped", "inventory",
-                 "last_message_hashes", "command_rate_limts",
+                 "last_message_hashes", "command_rate_limits",
                  "additional_attributes"]
 
     # additional_attributes is not defined but is there for possible future use.
@@ -124,7 +124,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.spam_detections = 0
-        self.command_rate_limts = {}
+        self.command_rate_limits = {}
 
         ##### THINGS #####
         self.quests = []
@@ -321,7 +321,7 @@ class Player(DueUtilObject, SlotPickleMixin):
 
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)
-        self.command_rate_limts = {}
+        self.command_rate_limits = {}
         self.last_message_hashes = Ring(10)
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], self.inventory)
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], self.equipped)
@@ -341,7 +341,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         return object_state
 
 
-def find_player(user_id):
+def find_player(user_id: str) -> Player:
     if user_id in players:
         return players[user_id]
     elif load_player(user_id):

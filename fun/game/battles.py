@@ -113,7 +113,7 @@ def battle(**battleargs):
         last_move_id = None
         moves_shrink_repeat = OrderedDict()
         for move_id, move in moves.items():
-            if last_move_id != None:
+            if last_move_id is not None:
                 # If last move and this move are from the same player
                 if last_move_id[0] == move_id[0]:
                     last_move = moves_shrink_repeat[last_move_id]

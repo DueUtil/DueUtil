@@ -105,7 +105,7 @@ async def load_image_url(url, **kwargs):
         file_name = file_name[:128]
     file_name = file_name + '.jpg'
     if not do_not_compress and os.path.isfile(file_name):
-        return Image.open(file_name);
+        return Image.open(file_name)
     else:
         try:
             image_data = await util.download_file(url)
@@ -122,7 +122,7 @@ async def load_image_url(url, **kwargs):
 def resize(image, width, height):
     if image is None:
         return None
-    return image.resize((width, height), Image.ANTIALIAS);
+    return image.resize((width, height), Image.ANTIALIAS)
 
 
 async def resize_avatar(player, server, width, height):
@@ -135,7 +135,7 @@ async def resize_image_url(url, width, height):
 
 def rescale_image(image, scale):
     if image is None:
-        return None;
+        return None
     width, height = image.size
     return image.resize((int(width * scale), int(height * scale)), Image.ANTIALIAS)
 
@@ -272,13 +272,13 @@ async def quests_screen(channel, player, page):
         quest_avatar = await resize_avatar(quest, None, 28, 28)
         if quest_avatar is not None:
             image.paste(quest_avatar, (20, 46 + 44 * count))
-        quest_bubble_postion = (12, row_size[1] - 2 + 44 * count)
+        quest_bubble_position = (12, row_size[1] - 2 + 44 * count)
         quest_index_text = str(quest_index + 1)
         quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
         draw.rectangle(
-            (quest_bubble_postion, (quest_bubble_postion[0] + quest_index_width + 5, quest_bubble_postion[1] + 11)),
+            (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
             fill="#2a52be", outline="#a1caf1")
-        draw.text((15, quest_bubble_postion[1]), quest_index_text, "white", font=font_small)
+        draw.text((15, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
         count += 1
         if count == 5:
             if quest_index != 0:
@@ -502,7 +502,7 @@ async def battle_screen(channel, player_one, player_two):
     draw.text((124 - width, 88), weap_one_name, "white", font=font)
     draw.text((132, 103), get_text_limit_len(draw, weapon_two.name, font, 85), "white", font=font)
 
-    await send_image(channel, image, file_name="battle.png");
+    await send_image(channel, image, file_name="battle.png")
 
 
 async def googly_eyes(channel, eye_type):

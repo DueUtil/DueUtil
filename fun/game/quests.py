@@ -218,13 +218,13 @@ def get_quest_on_server(server, quest_name):
     return quest_map[server.id + "/" + quest_name.lower()]
 
 
-def remove_quest_from_server(server, quest_name):
+def remove_quest_from_server(server: discord.Server, quest_name: str):
     quest_id = server.id + "/" + quest_name.lower()
     del quest_map[quest_id]
     dbconn.get_collection_for_object(Quest).remove({'_id': quest_id})
 
 
-def get_quest_from_id(quest_id):
+def get_quest_from_id(quest_id: str) -> Quest:
     return quest_map[quest_id]
 
 

@@ -26,7 +26,7 @@ class Award:
         return Award.SPECIAL_AWARD_COLOUR if self.special else default
 
 
-def get_award(award_id):
+def get_award(award_id: str) -> Award:
     if award_id in awards:
         return awards[award_id]
 

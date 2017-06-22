@@ -82,7 +82,7 @@ async def equip(ctx, *args, **details):
     current_weapon = player.weapon
 
     weapon = player.get_weapon(args[0].lower())
-    if weapon == None:
+    if weapon is None:
         raise util.DueUtilException(ctx.channel, "You do not have that weapon stored!")
 
     player.discard_stored_weapon(weapon)
@@ -263,18 +263,18 @@ async def acceptwager(ctx, *args, **details):
                         break
             amount_not_paid = max(0, wager.wager_amount - sender.money)
             amount_paid = wager.wager_amount - amount_not_paid
-            amount_paied_str = util.format_number(amount_paid, full_precision=True, money=True)
+            amount_paid_str = util.format_number(amount_paid, full_precision=True, money=True)
 
             if weapons_sold == 0:
                 payback = ("**" + sender.name_clean + "** could not afford to pay and had no weapons to sell! \n``"
-                           + amount_paied_str + "`` is all they could pay.")
+                           + amount_paid_str + "`` is all they could pay.")
             else:
                 payback = ("**" + sender.name_clean + "** could not afford to pay and had to sell "
                            + str(weapons_sold) + " weapon" + ("s" if weapons_sold != 1 else "") + " \n")
                 if amount_paid != wager.wager_amount:
-                    payback += "They were still only able to pay ``" + amount_paied_str + "``. \nPathetic."
+                    payback += "They were still only able to pay ``" + amount_paid_str + "``. \nPathetic."
                 else:
-                    payback += "They were able to muster up the full ``" + amount_paied_str + "``"
+                    payback += "They were able to muster up the full ``" + amount_paid_str + "``"
             sender.money -= amount_paid
             player.money += amount_paid
             total_transferred = amount_paid

@@ -45,7 +45,7 @@ def item_preview(thing_info_preview):
         else:
             thing_name = page.lower()
             thing = things_info["thing_getter"](thing_name)
-            if thing == None:
+            if thing is None:
                 raise util.DueUtilException(ctx.channel, thing_type.title() + " not found!")
             thing_embed = things_info["thing_info"](thing_name, **details,
                                                     embed=discord.Embed(type="rich", color=gconf.EMBED_COLOUR))

@@ -142,7 +142,7 @@ async def check_for_level_up(ctx, player):
         else:
             util.logger.info("Won't send level up image - channel blocked.")
         rank = player.rank
-        if rank >= 1 and rank <= 10:
+        if 1 <= rank <= 10:
             await awards.give_award(ctx.channel, player, "Rank%d" % rank, "Attain rank %d." % rank)
 
 

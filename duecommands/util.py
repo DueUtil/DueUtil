@@ -178,7 +178,7 @@ async def shutupdue(ctx, *args, **details):
         if mute_level == "all":
             mute_success = dueserverconfig.mute_channel(ctx.channel, mute_all=True)
             if mute_success:
-                await util.say(ctx.channel, (":mute: Disabled all commands in this channel for non-admins!"))
+                await util.say(ctx.channel, ":mute: Disabled all commands in this channel for non-admins!")
             else:
                 await util.say(ctx.channel, (":mute: Already mute af in this channel!.\n"
                                              + "To allow commands & alerts again do ``" + details[

@@ -1,9 +1,11 @@
+import discord
 import jsonpickle
 import json
 from botstuff import util, dbconn
 from ..helpers.misc import DueUtilObject, DueMap
 from collections import namedtuple
 from botstuff.util import SlotPickleMixin
+from typing import Union, Dict
 
 stock_weapons = ["none"]
 
@@ -25,7 +27,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
 
     def __init__(self, name, hit_message, damage, accy, **extras):
         message = extras.get('ctx', None)
-        if message != None:
+        if message is not None:
             if does_weapon_exist(message.server.id, name):
                 raise util.DueUtilException(message.channel, "A weapon with that name already exists on this server!")
 
@@ -81,28 +83,28 @@ class Weapon(DueUtilObject, SlotPickleMixin):
         weapons[self.w_id] = self
         self.save()
 
-    def get_summary(self):
+    def get_summary(self) -> Summary:
         return get_weapon_summary_from_id(self.id)
 
 
-#### The 'None'/No weapon weapon
+# The 'None'/No weapon weapon
 NO_WEAPON = Weapon('None', None, 1, 66, no_save=True)
 NO_WEAPON_ID = NO_WEAPON.id
 
 
-def get_weapon_from_id(weapon_id):
+def get_weapon_from_id(weapon_id: str) -> Weapon:
     if weapon_id in weapons:
         return weapons[weapon_id]
     return weapons[NO_WEAPON_ID]
 
 
-def does_weapon_exist(server_id, weapon_name):
-    if get_weapon_for_server(server_id, weapon_name) != None:
+def does_weapon_exist(server_id: str, weapon_name: str) -> bool:
+    if get_weapon_for_server(server_id, weapon_name) is not None:
         return True
     return False
 
 
-def get_weapon_for_server(server_id, weapon_name):
+def get_weapon_for_server(server_id: str, weapon_name: str) -> Weapon:
     if weapon_name.lower() in stock_weapons:
         return weapons["STOCK/" + weapon_name.lower()]
     weapon_id = server_id + "/" + weapon_name.lower()
@@ -110,14 +112,14 @@ def get_weapon_for_server(server_id, weapon_name):
         return weapons[weapon_id]
 
 
-def get_weapon_summary_from_id(weapon_id):
+def get_weapon_summary_from_id(weapon_id: str) -> Summary:
     summary = weapon_id.split('/', 1)[0].split('+')[1].split('|')
     return Summary(price=int(summary[0]),
                    damage=int(summary[1]),
                    accy=float(summary[2]))
 
 
-def remove_weapon_from_shop(server, weapon_name):
+def remove_weapon_from_shop(server: discord.Server, weapon_name: str) -> bool:
     weapon = get_weapon_for_server(server.id, weapon_name)
     if weapon is not None:
         del weapons[weapon.id]
@@ -126,11 +128,11 @@ def remove_weapon_from_shop(server, weapon_name):
     return False
 
 
-def get_weapons_for_server(server):
+def get_weapons_for_server(server: discord.Server) -> Dict[str, Weapon]:
     return dict(weapons[server], **weapons["STOCK"])
 
 
-def find_weapon(server, weapon_name_or_id):
+def find_weapon(server: discord.Server, weapon_name_or_id: str) -> Union[Weapon, None]:
     weapon = get_weapon_for_server(server.id, weapon_name_or_id)
     if weapon is None:
         weapon_id = weapon_name_or_id.lower()
@@ -140,7 +142,7 @@ def find_weapon(server, weapon_name_or_id):
     return weapon
 
 
-def stock_weapon(weapon_name):
+def stock_weapon(weapon_name: str) -> str:
     if weapon_name in stock_weapons:
         return "STOCK/" + weapon_name
     return NO_WEAPON_ID
@@ -150,8 +152,8 @@ def _load():
     def load_stock_weapons():
         with open('fun/configs/defaultweapons.json') as defaults_file:
             defaults = json.load(defaults_file)
-            for weapon, weapon_data in defaults.items():
-                stock_weapons.append(weapon)
+            for weapon_name, weapon_data in defaults.items():
+                stock_weapons.append(weapon_name)
                 Weapon(weapon_data["name"],
                        weapon_data["useText"],
                        weapon_data["damage"],

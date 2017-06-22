@@ -31,7 +31,7 @@ class ShopBuySellItem(ABC):
         channel = details["channel"]
         price_divisor = 4 / 3
 
-        if not item_name in player.inventory[self.inventory_slot]:
+        if item_name not in player.inventory[self.inventory_slot]:
             raise util.DueUtilException(channel, self.item_type.title() + " not found!")
         if item_name == self.default_item:
             raise util.DueUtilException(channel, "You can't sell that " + self.item_type + "!")

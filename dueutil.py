@@ -219,7 +219,7 @@ class ShardThread(Thread):
         try:
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
         except:
-            if level < MAX_RECOVERY_ATTEMPTS:
+            if level < MAX_RECOVERY_ATTEMPTS: # TODO Fix this
                 util.logger.warning("Bot recovery attempted for shard %d" % shard_id)
                 shard_clients.remove(client)
                 self.run(asyncio.new_event_loop(), shard_id, level + 1)

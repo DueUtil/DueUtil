@@ -15,12 +15,12 @@ Basic classes to store themes, backgrounds and banners.
 # Both Theme & Background used to be an extension of dict and DUObj
 # but had to be changed due to __slots__
 
-class Cutomization(DueUtilObject):
-    __slots__ = ["_cutomization_info"]
+class Customization(DueUtilObject):
+    __slots__ = ["_customization_info"]
 
     # Use kwargs so maybe I could neatly define cutomizations in code.
-    def __init__(self, id, **cutomization_info):
-        self._cutomization_info = cutomization_info
+    def __init__(self, id, **customization_info):
+        self._customization_info = customization_info
         super().__init__(id, self["name"])
 
     def __getattr__(self, name):
@@ -38,13 +38,13 @@ class Cutomization(DueUtilObject):
     # Most cutomizations are read only & don't need to set values
 
     def __contains__(self, key):
-        return key in self._cutomization_info
+        return key in self._customization_info
 
     def __getitem__(self, key):
-        return self._cutomization_info[key]
+        return self._customization_info[key]
 
 
-class Theme(Cutomization):
+class Theme(Customization):
     """
     Simple class to hold them data and
     be able to access DUObj methods
@@ -59,10 +59,10 @@ class Theme(Cutomization):
         super().__init__(id, **theme_data)
 
     def __copy__(self):
-        return Theme(id, **self._cutomization_info)
+        return Theme(id, **self._customization_info)
 
     def __setitem__(self, key, value):
-        self._cutomization_info[key] = value
+        self._customization_info[key] = value
 
 
 class Themes(dict):
@@ -79,7 +79,7 @@ class Themes(dict):
                 self[theme_id] = Theme(theme_id, **theme)
 
 
-class Background(Cutomization):
+class Background(Customization):
     __slots__ = ["image"]
 
     """
@@ -116,7 +116,7 @@ class Banners(dict):
                 self[banner_id] = Banner(banner_id, **banner)
 
 
-class Banner(Cutomization):
+class Banner(Customization):
     """Class to hold details & methods for a profile banner
     This class is based off a legacy class from DueUtil V1
     and hence does not properly Cutomization
@@ -137,8 +137,8 @@ class Banner(Cutomization):
     def banner_restricted(self, player):
         member = discord.Member(user={"id": player.id})
         return (
-        (not self.admin_only or self.admin_only and permissions.has_permission(member, Permission.DUEUTIL_ADMIN))
-        and (not self.mod_only or self.mod_only and permissions.has_permission(member, Permission.DUEUTIL_MOD)))
+            (not self.admin_only or self.admin_only and permissions.has_permission(member, Permission.DUEUTIL_ADMIN))
+            and (not self.mod_only or self.mod_only and permissions.has_permission(member, Permission.DUEUTIL_MOD)))
 
     def can_use_banner(self, player):
         return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)
