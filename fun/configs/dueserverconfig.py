@@ -12,11 +12,7 @@ General config for a particular server
 
 
 def update_server_config(server, **update):
-    dbconn.conn()["serverconfigs"].update({'_id': server.id},
-                                          {"$set":
-                                               update
-                                           },
-                                          upsert=True)
+    dbconn.conn()["serverconfigs"].update({'_id': server.id}, {"$set": update}, upsert=True)
 
 
 def mute_level(channel):
@@ -45,9 +41,9 @@ def set_command_whitelist(channel, command_list):
 def mute_channel(channel, **options):
     global muted_channels
     key = channel.server.id + '/' + channel.id
-    pior_mute_level = mute_level(channel)
+    prior_mute_level = mute_level(channel)
     new_level = options.get('mute_all', False)
-    if pior_mute_level != new_level:
+    if prior_mute_level != new_level:
         muted_channels[key] = new_level
         update_server_config(channel.server, **{"muted_channels": muted_channels[channel.server]})
         return True

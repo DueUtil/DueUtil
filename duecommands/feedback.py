@@ -17,7 +17,7 @@ class FeedbackHandler:
         author = ctx.author
         author_name = "%s#%s" % (author.name, str(author.discriminator))
 
-        trello_link = await util.trello_client.add_card(board=gconf.trello_board,
+        trello_link = await util.trello_client.add_card(board_url=gconf.trello_board,
                                                         name=message,
                                                         desc=("Automated %s added by DueUtil\n" % self.type
                                                               + "Author: %s (id %s)" % (author_name, author.id)),

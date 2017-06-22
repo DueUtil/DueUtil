@@ -7,8 +7,8 @@ import generalconfig as gconf
 from collections import namedtuple
 
 # Some tuples for use within this module.
-_BattleResults = namedtuple("BattleResults", ["moves", "turns_count", "winner", "loser"])
-_BattleLog = namedtuple("BattleLog", ["embed", "turns_count", "winner", "loser"])
+_BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner", "loser"])
+_BattleLog = namedtuple("BattleLog", ["embed", "turn_count", "winner", "loser"])
 _Move = namedtuple("Move", ["message", "repetitions"])
 _OpponentInfo = namedtuple("OpponentInfo", ["prefix", "player"])
 _Opponents = namedtuple("Opponents", ["p1", "p2"])
@@ -95,7 +95,7 @@ def battle(**battleargs):
 
         moves['%d/%d' % (opponents.index(attacker),
                          current_move)] = _Move(message=("%s**%s** %s %s**%s**"
-                                                         % (attacker.prefix,
+                                                         % (attacker.prefix.title(),
                                                             attacker.player.name_clean,
                                                             message,
                                                             other.prefix,
@@ -105,7 +105,7 @@ def battle(**battleargs):
         current_move += 1
         damage_modifier += 0.5
 
-    def shrink_repeats(moves):
+    def shrink_repeats(moves_to_shrink):
 
         """
         Replaces consecutive repeated moves with 
@@ -114,7 +114,7 @@ def battle(**battleargs):
 
         last_move_id = None
         moves_shrink_repeat = OrderedDict()
-        for move_id, move in moves.items():
+        for move_id, move in moves_to_shrink.items():
             if last_move_id is not None:
                 # If last move and this move are from the same player
                 if last_move_id[0] == move_id[0]:
@@ -125,7 +125,7 @@ def battle(**battleargs):
             last_move_id = move_id
         return moves_shrink_repeat
 
-    def shrink_duos(moves):
+    def shrink_duos(moves_to_shrink):
 
         """
         Replaces moves that swich between players. With a single duo move.
@@ -141,19 +141,19 @@ def battle(**battleargs):
         moves_shrink_duos = OrderedDict()
         last_move_id = None
         count = 0
-        for move_id, move in moves.items():
+        for move_id, move in moves_to_shrink.items():
             count += 1
             if last_move_id is not None and count % 2 == 0:
-                last_move = moves[last_move_id]
+                last_move = moves_to_shrink[last_move_id]
                 moves_shrink_duos[last_move_id] = last_move._replace(repetitions=last_move.repetitions - 1)
 
                 moves_shrink_duos["Duo%d" % count] = _Move(message=last_move.message + " ⇆ " + move.message,
                                                            repetitions=1)
                 moves_shrink_duos[move_id] = move._replace(repetitions=move.repetitions - 1)
             last_move_id = move_id
-        if len(moves) % 2 == 1:
+        if len(moves_to_shrink) % 2 == 1:
             # Add missed move
-            odd_move = moves.popitem()
+            odd_move = moves_to_shrink.popitem()
             moves_shrink_duos[odd_move[0]] = odd_move[1]
         for move_id, move in list(moves_shrink_duos.items()):
             if move.repetitions <= 0:
@@ -196,8 +196,9 @@ def battle(**battleargs):
     elif hp[0] < hp[1]:
         winner = opponents.p2
         loser = opponents.p1
-    # TODO: Handle draws
-
+    else:
+        # Inconceivable
+        winner = loser = None
     turns = current_move - 1
     moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** turn%s!"
                                      % (winner.prefix,
@@ -206,4 +207,4 @@ def battle(**battleargs):
                                         "s" if turns != 1 else "")
                                      ), repetitions=1)
     # Results as a simple namedturple
-    return _BattleResults(moves=moves, turns_count=turns, winner=winner.player, loser=loser.player)
+    return _BattleResults(moves=moves, turn_count=turns, winner=winner.player, loser=loser.player)

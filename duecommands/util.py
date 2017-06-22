@@ -17,18 +17,18 @@ async def help(ctx, *args, **details):
 
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
 
-    help = discord.Embed(title="DueUtil's Help", type="rich", color=gconf.EMBED_COLOUR)
+    help_embed = discord.Embed(title="DueUtil's Help", type="rich", color=gconf.EMBED_COLOUR)
     server_key = details["cmd_key"]
     categories = events.command_event.category_list()
 
     if len(args) == 1:
 
-        help.set_thumbnail(url=help_logo)
+        help_embed.set_thumbnail(url=help_logo)
         arg = args[0].lower()
         if arg not in categories:
-            command = events.get_command(arg)
+            chosen_command = events.get_command(arg)
 
-            if command == None:
+            if chosen_command is None:
                 if arg != "dumbledore":
                     command_name = 'Not found'
                     command_help = 'That command was not found!'
@@ -36,21 +36,21 @@ async def help(ctx, *args, **details):
                     # Stupid award reference
                     command_name = 'dumbledore?!?'
                     command_help = 'Some stupid *joke?* reference to old due!!!111'
-                    help.set_image(url='http://i.imgur.com/UrWhI9P.gif')
+                    help_embed.set_image(url='http://i.imgur.com/UrWhI9P.gif')
                     await awards.give_award(ctx.channel, details["author"], "Daddy",
                                             "I have no memory of this award...")
             else:
-                command_name = command.__name__
-                if command.__doc__ != None:
-                    command_help = command.__doc__.replace('[CMD_KEY]', server_key)
+                command_name = chosen_command.__name__
+                if chosen_command.__doc__ is not None:
+                    command_help = chosen_command.__doc__.replace('[CMD_KEY]', server_key)
                 else:
                     command_help = 'Sorry there is no help for that command!'
 
-            help.description = "Showing help for **" + command_name + "**"
-            help.add_field(name=command_name, value=command_help)
+            help_embed.description = "Showing help for **" + command_name + "**"
+            help_embed.add_field(name=command_name, value=command_help)
         else:
             category = arg
-            help.description = "Showing ``" + category + "`` commands."
+            help_embed.description = "Showing ``" + category + "`` commands."
 
             commands_for_all = events.command_event.command_list(
                 lambda command: command.permission == Permission.ANYONE and command.category == category)
@@ -60,27 +60,27 @@ async def help(ctx, *args, **details):
                 lambda command: command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
 
             if len(commands_for_all) > 0:
-                help.add_field(name='Commands for everyone', value=', '.join(commands_for_all), inline=False)
+                help_embed.add_field(name='Commands for everyone', value=', '.join(commands_for_all), inline=False)
             if len(admin_commands) > 0:
-                help.add_field(name='Admins only', value=', '.join(admin_commands), inline=False)
+                help_embed.add_field(name='Admins only', value=', '.join(admin_commands), inline=False)
             if len(server_op_commands) > 0:
-                help.add_field(name='Server managers only', value=', '.join(server_op_commands), inline=False)
+                help_embed.add_field(name='Server managers only', value=', '.join(server_op_commands), inline=False)
     else:
 
-        help.set_thumbnail(url=util.get_client(ctx.server.id).user.avatar_url)
+        help_embed.set_thumbnail(url=util.get_client(ctx.server.id).user.avatar_url)
 
-        help.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
-        help.add_field(name='Command categories', value=', '.join(categories))
-        help.add_field(name="Tips", value=("If DueUtil reacts to your command it means something is wrong!\n"
-                                           + "\":question:\": Something is wrong with the commands syntax.\n"
-                                           + "\":x:\": You don't have the required permissions to use the command."))
-        help.add_field(name="Links", value=("[Official site](https://dueutil.tech/)\n"
-                                            + "[Official server](https://discord.gg/ZzYvt8J)\n"
-                                            + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
-        help.set_footer(
+        help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
+        help_embed.add_field(name='Command categories', value=', '.join(categories))
+        help_embed.add_field(name="Tips", value=("If DueUtil reacts to your command it means something is wrong!\n"
+                                                 + "\":question:\": Something is wrong with the commands syntax.\n"
+                                                 + "\":x:\": You don't have the required permissions to use the command."))
+        help_embed.add_field(name="Links", value=("[Official site](https://dueutil.tech/)\n"
+                                                  + "[Official server](https://discord.gg/ZzYvt8J)\n"
+                                                  + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
+        help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
-    await util.say(ctx.channel, embed=help)
+    await util.say(ctx.channel, embed=help_embed)
 
 
 @commands.command(args_pattern=None)
@@ -128,8 +128,7 @@ async def duservers(ctx, *args, **details):
     """
 
     server_count = util.get_server_count()
-    await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server" + (
-    "s" if server_count != 1 else "") + "**")
+    await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server" + ("s" if server_count != 1 else "") + "**")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")

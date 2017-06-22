@@ -120,7 +120,7 @@ async def battle(ctx, *args, **details):
     Please do not spam anyone with unwanted battles.
     
     """
-
+    # TODO: Handle draws
     player = details["author"]
     if len(args) == 2 and args[0] == args[1] or len(args) == 1 and player == args[0]:
         raise util.DueUtilException(ctx.channel, "Don't beat yourself up!")
@@ -217,7 +217,7 @@ async def acceptwager(ctx, *args, **details):
     Accepts a wager!
     
     """
-
+    # TODO: Handle draws
     player = details["author"]
     wager_index = args[0] - 1
     if wager_index >= len(player.received_wagers):
@@ -235,14 +235,13 @@ async def acceptwager(ctx, *args, **details):
     total_transferred = wager.wager_amount
     if winner != player:
         battle_embed.add_field(name="Wager results", value=(
-        ":skull: **" + player.name_clean + "** lost to **" + sender.name_clean + "** and paid ``"
-        + wager_amount_str + "``"), inline=False)
+            ":skull: **" + player.name_clean + "** lost to **" + sender.name_clean + "** and paid ``"
+            + wager_amount_str + "``"), inline=False)
         player.money -= wager.wager_amount
         sender.money += wager.wager_amount
         sender.wagers_won += 1
     else:
         player.wagers_won += 1
-        payback = ""
         if sender.money - wager.wager_amount >= 0:
             payback = ("**" + sender.name_clean + "** paid **" + player.name_clean + "** ``"
                        + wager_amount_str + "``")
@@ -279,7 +278,10 @@ async def acceptwager(ctx, *args, **details):
             player.money += amount_paid
             total_transferred = amount_paid
         battle_embed.add_field(name="Wager results",
-                               value=":sparkles: **" + player.name_clean + "** won agaist **" + sender.name_clean + "**!\n" + payback,
+                               value=(":sparkles: **"
+                                      + player.name_clean
+                                      + "** won against **"
+                                      + sender.name_clean + "**!\n" + payback),
                                inline=False)
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, total_transferred)
     await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
@@ -357,7 +359,7 @@ async def removeweapon(ctx, *args, **details):
 
     weapon_name = args[0].lower()
     weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
-    if weapon == None or weapon.id == weapons.NO_WEAPON_ID:
+    if weapon is None or weapon.id == weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel, "Weapon not found")
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel, "You can't remove stock weapons!")
@@ -371,7 +373,7 @@ async def buy_weapon(weapon_name, **details):
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
     channel = details["channel"]
 
-    if weapon == None or weapon_name == "none":
+    if weapon is None or weapon_name == "none":
         raise util.DueUtilException(channel, "Weapon not found")
     if customer.money - weapon.price < 0:
         await util.say(channel, ":anger: You can't afford that weapon.")
@@ -417,7 +419,7 @@ async def sell_weapon(weapon_name, **details):
     else:
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),
                               None)
-        if weapon_to_sell == None:
+        if weapon_to_sell is None:
             raise util.DueUtilException(channel, "Weapon not found!")
         player.discard_stored_weapon(weapon_to_sell)
 
@@ -432,7 +434,7 @@ def weapon_info(weapon_name, **details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor', 1)
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
-    if weapon == None:
+    if weapon is None:
         raise util.DueUtilException(details["channel"], "Weapon not found")
     embed.title = weapon.icon + ' | ' + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)

@@ -136,7 +136,8 @@ async def myrank(ctx, *args, **details):
         position = leaderboard_data.index(player)
         page = position // 10
         await util.say(ctx.channel, (":sparkles: You're position **" + str(position + 1) + "** on the leaderboard!\n"
-                                     + "That's on ``" + details["cmd_key"] + "leaderboard`` page " + str(page + 1) + "!"))
+                                     + "That's on ``" + details["cmd_key"]
+                                     + "leaderboard`` page " + str(page + 1) + "!"))
     except:
         await util.say(ctx.channel, (":confounded: I can't find you in the leaderboard!?\n"
                                      + "This probably means you're new and leaderboard has not updated yet!"))

@@ -238,7 +238,6 @@ async def quests_screen(channel, player, page):
     draw = ImageDraw.Draw(image)
     suffix = " Quests"
     page_no_string_len = 0
-    name = get_text_limit_len(draw, player.get_name_possession(), font, 175 - page_no_string_len)
     if page > 0:
         page_info = ": Page " + str(page + 1)
         suffix += page_info
@@ -505,18 +504,15 @@ async def battle_screen(channel, player_one, player_two):
     await send_image(channel, image, file_name="battle.png")
 
 
-async def googly_eyes(channel, eye_type):
+async def googly_eyes(channel, eye_descriptor):
     """
     Googly eye generator.
-    
-    WARNING: I messed up! eye_type could mean eye_postion or eye_type (pos + buch of mods)
-    Depending on context
     """
 
     eye_types = ("derp", "left", "right", "center", "bottom", "top", "centre")
 
-    def strip_modifier(eye_type, modifer):
-        return eye_type.replace(modifer, "").strip()
+    def strip_modifier(eye_type, modifier):
+        return eye_type.replace(modifier, "").strip()
 
     def random_eyes():
 
@@ -541,21 +537,21 @@ async def googly_eyes(channel, eye_type):
             mods.remove(mod)
         return eye_type + random_eyes()
 
-    if eye_type == "":
-        eye_type = random_eye_type()
+    if eye_descriptor == "":
+        eye_descriptor = random_eye_type()
 
     size = (300 * 2, 300 * 2)
     border_scale = 1
     pupil_scale = 1
     high_scale = 1
-    if "small" in eye_type:
-        eye_type = strip_modifier(eye_type, "small")
+    if "small" in eye_descriptor:
+        eye_descriptor = strip_modifier(eye_descriptor, "small")
         size = (150 * 2, 150 * 2)
         border_scale = 1.5
         pupil_scale = 1.5
         high_scale = 0.7
-    if "emoji" in eye_type:
-        eye_type = strip_modifier(eye_type, "emoji")
+    if "emoji" in eye_descriptor:
+        eye_descriptor = strip_modifier(eye_descriptor, "emoji")
         size = (32 * 2, 32 * 2)
         border_scale = 0
         pupil_scale = 2.3
@@ -566,11 +562,11 @@ async def googly_eyes(channel, eye_type):
     draw = ImageDraw.Draw(image)
 
     def draw_eye(x, y):
-        nonlocal size, draw, width, height, eye_types, border_scale, pupil_scale, high_scale, eye_type
+        nonlocal size, draw, width, height, eye_types, border_scale, pupil_scale, high_scale, eye_descriptor
         pupil_colour = "black"
         border_colour = "black"
         eye_colour = "white"
-        given_eye_type = eye_type
+        given_eye_type = eye_descriptor
         if "evil" in given_eye_type:
             pupil_colour = "red"
             given_eye_type = strip_modifier(given_eye_type, "evil")
@@ -611,7 +607,7 @@ async def googly_eyes(channel, eye_type):
 
         if not any(direction in given_eye_type for direction in ("left", "right", "top", "bottom", "centre", "center")):
             given_eye_type = random_eyes()
-            eye_type = eye_type.replace(given_eye_type, " ") + given_eye_type
+            eye_descriptor = eye_descriptor.replace(given_eye_type, " ") + given_eye_type
         if given_eye_type == "derp":
             pupli_x_limit_1 = border_width + pupil_width + pupil_x_centre - inner_width // 2
             pupli_x_limit_2 = pupil_x_centre - border_width - pupil_width + inner_width // 2

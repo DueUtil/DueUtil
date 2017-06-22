@@ -42,7 +42,7 @@ async def spawnquest(ctx, *args, **details):
             spoof_values = {}
             if len(spoofs) == 3:
                 spoof_values = {'q_stats': spoofs[0], 'w_damage': spoofs[1], 'w_accy': spoofs[2]}
-            active_quest.__calculate_stats__(**spoof_values)
+            active_quest._calculate_stats(**spoof_values)
         player.save()
         await util.say(ctx.channel,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
@@ -61,7 +61,7 @@ async def questinfo(ctx, *args, **details):
 
     player = details["author"]
     quest_index = args[0] - 1
-    if quest_index >= 0 and quest_index < len(player.quests):
+    if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
     else:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
@@ -112,53 +112,61 @@ async def acceptquest(ctx, *args, **details):
     battle_embed = battle_log.embed
     turns = battle_log.turn_count
     winner = battle_log.winner
-    loser = battle_log.loser
     stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
     # Not really an average (but w/e)
     average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats[
                                                                                         "average_quest_battle_turns"] + turns) / 2
-    if winner != player:
-        battle_embed.add_field(name="Quest results", value=(
-        ":skull: **" + player.name_clean + "** lost to the **" + quest.name_clean + "** and dropped ``"
-        + util.format_number(quest.money // 2, full_precision=True, money=True) + "``"), inline=False)
+    if winner == quest:
+        quest_results = (":skull: **" + player.name_clean + "** lost to the **" + quest.name_clean + "** and dropped ``"
+                         + util.format_number(quest.money // 2, full_precision=True, money=True) + "``")
         player.money -= quest.money // 2
         player.quest_spawn_build_up += 0.1
-    else:
+    elif winner == player:
         if player.quest_day_start == 0:
             player.quest_day_start = time.time()
         player.quests_completed_today += 1
         player.quests_won += 1
 
         reward = (
-        ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
-        + util.format_number(quest.money, full_precision=True, money=True) + "``\n")
+            ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
+            + util.format_number(quest.money, full_precision=True, money=True) + "``\n")
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
-        attr_gain = lambda stat: (stat / avg_player_stat) * quest.level / (
-        player.level * 2) * turns / average_quest_battle_turns / quest_scale
+
+        def attr_gain(stat): return ((stat / avg_player_stat)
+                                     * quest.level / (player.level * 2)
+                                     * turns / average_quest_battle_turns / quest_scale)
+
         add_attack = min(attr_gain(quest.attack), 100)
         add_strg = min(attr_gain(quest.strg), 100)
         add_accy = min(attr_gain(quest.accy), 100)
 
         stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" % (add_attack, add_strg, add_accy)
-        battle_embed.add_field(name="Quest results", value=reward + stats_reward, inline=False)
+        quest_results = reward + stats_reward
 
         player.progress(add_attack, add_strg, add_accy, max_attr=100, max_exp=10000)
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
 
         quest_info = quest.info
-        if quest_info != None:
+        if quest_info is not None:
             quest_info.times_beaten += 1
             quest_info.save()
         await game.check_for_level_up(ctx, player)
-    player.save()
+    else:
+        quest_results = ":question: Against all the odds the battle was a draw!"
+    battle_embed.add_field(name="Quest results", value=quest_results, inline=False)
     await imagehelper.battle_screen(ctx.channel, player, quest)
     await util.say(ctx.channel, embed=battle_embed)
+    # Put this here to avoid 'spoiling' results before battle log
     if winner == player:
         await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the server!")
-    else:
+    elif winner == quest:
         await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
+    else:
+        # TODO There needs to be an award for this almost impossible event
+        pass
+    player.save()
 
 
 @commands.command(args_pattern='C')
@@ -177,7 +185,7 @@ async def declinequest(ctx, *args, **details):
         del player.quests[quest_index]
         player.save()
         quest_info = quest.info
-        if quest_info != None:
+        if quest_info is not None:
             quest_task = quest_info.task
         else:
             quest_task = "do a long forgotten quest:"
@@ -220,7 +228,7 @@ async def createquest(ctx, *args, **details):
     if len(args) >= 7:
         weapon_name_or_id = args[6]
         weapon = weapons.find_weapon(ctx.server, weapon_name_or_id)
-        if weapon == None:
+        if weapon is None:
             raise util.DueUtilException(ctx.channel, "Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
     if len(args) >= 8:
@@ -260,54 +268,54 @@ async def editquest(ctx, *args, **details):
     quest_name = args[0].lower()
     updates = args[1:]
     quest = quests.get_quest_on_server(ctx.server, quest_name)
-    if quest == None:
+    if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
     next_prop = 0
     while next_prop < len(updates):
-        property = updates[next_prop].lower()
-        if property in editable_props:
-            if editable_props.index(property) <= 3:
+        quest_property = updates[next_prop].lower()
+        if quest_property in editable_props:
+            if editable_props.index(quest_property) <= 3:
                 try:
                     value = float(updates[next_prop + 1])
-                except:
+                except ValueError:
                     value = -1
             else:
                 value = updates[next_prop + 1]
             changed = True
-            if property == "attack" and value >= 1:
+            if quest_property == "attack" and value >= 1:
                 quest.base_attack = value
-            elif property == "hp" and value >= 30:
+            elif quest_property == "hp" and value >= 30:
                 quest.base_hp = value
-            elif property == "accy" and value >= 1:
+            elif quest_property == "accy" and value >= 1:
                 quest.base_accy
-            elif property == "spawn" and value <= 25 and value >= 1:
+            elif quest_property == "spawn" and 25 >= value >= 1:
                 quest.spawn_chance = value / 100
-            elif property == "weap" and weapons.find_weapon(ctx.server, value) != None:
+            elif quest_property == "weap" and weapons.find_weapon(ctx.server, value) is not None:
                 weapon = weapons.find_weapon(ctx.server, value)
                 quest.w_id = weapon.w_id
                 value = str(weapon)
-            elif property == "image":
+            elif quest_property == "image":
                 quest.image_url = value
-            elif property == "task":
+            elif quest_property == "task":
                 quest.task = value
-            elif property == "channel":
+            elif quest_property == "channel":
                 channel_id = value.replace("<#", "").replace(">", "")
                 channel = util.get_client(ctx.server.id).get_channel(channel_id)
-                if channel != None:
+                if channel is not None:
                     quest.channel = channel.id
             else:
                 changed = False
             if changed:
-                if property != "channel":
-                    changes[property] = util.ultra_escape_string(str(value))
+                if quest_property != "channel":
+                    changes[quest_property] = util.ultra_escape_string(str(value))
                 else:
-                    changes[property] = value
+                    changes[quest_property] = value
         next_prop += 2
     quest.save()
     changes_message = ""
-    for property, value in changes.items():
-        changes_message += "``%s`` → %s\n" % (property, value)
+    for quest_property, value in changes.items():
+        changes_message += "``%s`` → %s\n" % (quest_property, value)
     if len(changes_message):
         await util.say(ctx.channel, (":white_check_mark: Quest **" + quest_name + "** edited:\n"
                                      + changes_message))
@@ -328,7 +336,7 @@ async def removequest(ctx, *args, **details):
 
     quest_name = args[0].lower()
     quest = quests.get_quest_on_server(ctx.server, quest_name)
-    if quest == None:
+    if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
     quests.remove_quest_from_server(ctx.server, quest_name)
@@ -354,7 +362,7 @@ async def serverquests(ctx, *args, **details):
                 break
             quest = quests_list[quest_index]
             embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time" + (
-            "s" if quest.times_beaten != 1 else ""))
+                "s" if quest.times_beaten != 1 else ""))
         if quest_index < len(quests_list) - 1:
             embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
         else:

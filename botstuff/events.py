@@ -2,10 +2,12 @@ import inspect
 from botstuff import commands
 from fun.helpers.misc import DueMap
 from fun.configs import dueserverconfig
+from typing import Callable
+from discord import Message
 
 
 class MessageEvent(list):
-    async def __call__(self, ctx):
+    async def __call__(self, ctx: Message):
         for listener in self:
             if await listener(ctx):
                 break
@@ -13,7 +15,7 @@ class MessageEvent(list):
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
 
-    def append(self, listener_function: function):
+    def append(self, listener_function: Callable[[Message], None]):
         old = (find_old(listener_function, self))
         if old == -1:
             super(MessageEvent, self).append(listener_function)
@@ -42,7 +44,7 @@ class CommandEvent(dict):
     def __repr__(self):
         return "Command(%s)" % dict.__repr__(self)
 
-    def __setitem__(self, key: str, command: function):
+    def __setitem__(self, key: str, command: Callable[..., None]):
         module_name = inspect.getmodule(command).__name__.split('.')[1]
         self.command_categories[module_name + "/" + command.__name__] = command
         command.category = module_name

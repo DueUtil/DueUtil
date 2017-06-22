@@ -64,46 +64,47 @@ buy_sell_banners = BuySellBanner()
 def shop_weapons_list(page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
-    shop = weap_cmds.weapons_page(shop_weapons, page, "DueUtil's Weapon Shop!",
-                                  footer_more="But wait there's more! Do " + details["cmd_key"] + "shop weapons " + str(
-                                      page + 2),
-                                  footer_end='Want more? Ask an admin on ' + details["server_name"] + ' to add some!')
-    return shop
+    shop_list = weap_cmds.weapons_page(shop_weapons, page, "DueUtil's Weapon Shop!",
+                                       footer_more=("But wait there's more! Do "
+                                                    + details["cmd_key"] + "shop weapons " + str(page + 2)),
+                                       footer_end=('Want more? Ask an admin on '
+                                                   + details["server_name"] + ' to add some!'))
+    return shop_list
 
 
 def shop_theme_list(page, **details):
     themes = list(players.get_themes().values())
     themes.remove(players.get_theme("default"))
-    shop = player_cmds.theme_page(themes, page, "DueUtil's Theme Shop!",
-                                  footer_more="But wait there's more! Do " + details["cmd_key"] + "shop themes " + str(
-                                      page + 2),
-                                  footer_end='More themes coming soon!')
-    return shop
+    shop_list = player_cmds.theme_page(themes, page, "DueUtil's Theme Shop!",
+                                       footer_more=("But wait there's more! Do "
+                                                    + details["cmd_key"] + "shop themes " + str(page + 2)),
+                                       footer_end='More themes coming soon!')
+    return shop_list
 
 
 def shop_background_list(page, **details):
     backgrounds = list(players.backgrounds.values())
     backgrounds.remove(players.backgrounds["default"])
-    shop = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
-                                       footer_more="But wait there's more! Do " + details[
-                                           "cmd_key"] + "shop bgs " + str(page + 2),
-                                       footer_end='More backgrounds coming soon!')
-    return shop
+    shop_list = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
+                                            footer_more="But wait there's more! Do " + details[
+                                                "cmd_key"] + "shop bgs " + str(page + 2),
+                                            footer_end='More backgrounds coming soon!')
+    return shop_list
 
 
 def shop_banner_list(page, **details):
     banners = list(players.banners.values())
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
-    shop = player_cmds.banner_page(banners, page, "DueUtil's Banner Shop!",
-                                   footer_more="But wait there's more! Do " + details[
-                                       "cmd_key"] + "shop banners " + str(page + 2),
-                                   footer_end='More banners coming soon!')
-    return shop
+    shop_list = player_cmds.banner_page(banners, page, "DueUtil's Banner Shop!",
+                                        footer_more="But wait there's more! Do " + details[
+                                            "cmd_key"] + "shop banners " + str(page + 2),
+                                        footer_end='More banners coming soon!')
+    return shop_list
 
 
 def get_department_from_name(name):
     return next(
-        (department_info for department_info in departments.values() if name.lower() in department_info["alisas"]),
+        (department_info for department_info in departments.values() if name.lower() in department_info["alias"]),
         None)
 
 
@@ -119,7 +120,7 @@ async def item_action(item_name, action, **details):
         if ' ' in item_name:
             item_name = '"%s"' % item_name
         for department_info in possible_departments:
-            error += "``" + details["cmd_key"] + details["command_name"] + " " + department_info["alisas"][
+            error += "``" + details["cmd_key"] + details["command_name"] + " " + department_info["alias"][
                 0] + " " + item_name + "``\n"
         await util.say(details["channel"], error)
     elif len(possible_departments) == 0:
@@ -143,7 +144,7 @@ def _placeholder(_, **details):
 
 departments = {
     "weapons": {
-        "alisas": [
+        "alias": [
             "weapons",
             "weaps",
             "weap",
@@ -161,7 +162,7 @@ departments = {
                                                    or details["author"].owns_weapon(name))
     },
     "themes": {
-        "alisas": [
+        "alias": [
             "themes",
             "skins",
             "theme",
@@ -178,7 +179,7 @@ departments = {
 
     },
     "backgrounds": {
-        "alisas": [
+        "alias": [
             "backgrounds",
             "bgs",
             "bg",
@@ -194,7 +195,7 @@ departments = {
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["backgrounds"]
     },
     "banners": {
-        "alisas": [
+        "alias": [
             "banners",
             "banner"
         ],
@@ -204,9 +205,9 @@ departments = {
             "buy_action": buy_sell_banners.buy_item,
             "sell_action": buy_sell_banners.sell_item
         },
-        "item_exists": lambda details,
-                              name: name.lower() != "discord blue" and name.lower() in players.banners and players.get_banner(
-            name).can_use_banner(details["author"]),
+        "item_exists": lambda details, name: (name.lower() != "discord blue"
+                                              and name.lower() in players.banners
+                                              and players.get_banner(name).can_use_banner(details["author"])),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
     }
 }
@@ -231,16 +232,16 @@ async def shop(ctx, *args, **details):
     that have spaces with this command due to it's internal workings.
     """
 
-    shop = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
-    details["embed"] = shop
+    shop_embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
+    details["embed"] = shop_embed
 
     if len(args) == 0:
         greet = ":wave: **Welcome to the DueUtil general store!**\n"
         department_available = "Please have a look in some of our splendiferous departments!\n"
         for department_info in departments.values():
-            department_available += "``" + details["cmd_key"] + "shop " + department_info["alisas"][0] + "``\n"
-        help = "For more info on the new shop do ``" + details["cmd_key"] + "help shop``"
-        await util.say(ctx.channel, greet + department_available + help)
+            department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"
+        shop_help = "For more info on the new shop do ``" + details["cmd_key"] + "help shop``"
+        await util.say(ctx.channel, greet + department_available + shop_help)
     else:
         department = get_department_from_name(args[0])
         if department is not None:

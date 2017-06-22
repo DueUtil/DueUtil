@@ -25,7 +25,7 @@ async def battlename(ctx, *args, **details):
         if len(name) not in name_len_range:
             raise util.DueUtilException(ctx.channel, ("Battle name must be between **"
                                                       + str(min(name_len_range)) + "-" + str(
-                max(name_len_range)) + "** characters long!"))
+                                                        max(name_len_range)) + "** characters long!"))
         player.name = name
     else:
         player.name = details["author_name"]
@@ -65,7 +65,7 @@ async def show_awards(ctx, player, *args):
     else:
         page = args[0] - 1
 
-    if page > len(player.awards) / 5:
+    if page > len(player.awards) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
 
     await imagehelper.awards_screen(ctx.channel, player, page)

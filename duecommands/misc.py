@@ -25,7 +25,8 @@ async def permissions(ctx, *args, **details):
     for permission in botstuff.permissions.permissions:
         permissions_report += ("``" + permission.value[1] + "`` → "
                                + (":white_check_mark:" if botstuff.permissions.has_permission(ctx.author,
-                                                                                              permission) else ":no_entry:") + "\n")
+                                                                                              permission)
+                                  else ":no_entry:") + "\n")
     await util.say(ctx.channel, permissions_report)
 
 
@@ -179,7 +180,7 @@ async def deletebg(ctx, *args, **details):
 
     background_to_delete = args[0].lower()
 
-    if not background_to_delete in players.backgrounds:
+    if background_to_delete not in players.backgrounds:
         raise util.DueUtilException(ctx.channel, "Background not found!")
     if background_to_delete == "default":
         raise util.DueUtilException(ctx.channel, "Can't delete default background!")
@@ -191,7 +192,7 @@ async def deletebg(ctx, *args, **details):
         backgrounds_file.seek(0)
         backgrounds_file.truncate()
         json.dump(backgrounds, backgrounds_file, indent=4)
-    os.remove("backgrounds/" + background["image"]);
+    os.remove("backgrounds/" + background["image"])
 
     players.backgrounds.load_backgrounds()
 

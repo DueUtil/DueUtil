@@ -28,7 +28,7 @@ class AutoReply:
         kwargs.get('channel_id', "all")
 
 
-class DueUtilObject():
+class DueUtilObject:
     """
     Base object for DueUtil items
     """
@@ -172,8 +172,9 @@ class Ring(list):
     """
 
     def __init__(self, size):
+        super().__init__()
         self.clear()
-        self += [None] * size
+        self.extend([None] * size)
         self.size = size
         self.wrap_index = 0
 
@@ -186,9 +187,10 @@ class Ring(list):
     def _setitem(self, index, value, depth=0):
         try:
             super(Ring, self).__setitem__(index % self.size, value)
-        except:
+        except IndexError:
             self.__init__(self.size)
-            if depth == 0: self._setitem(index, value, depth + 1)
+            if depth == 0:
+                self._setitem(index, value, depth + 1)
 
     def __delitem__(self, index):
         super(Ring, self).__delitem__(index % self.size)
@@ -197,12 +199,12 @@ class Ring(list):
         try:
             next_index = self.index(None)
             self[next_index] = item
-        except:
+        except ValueError:
             self[self.wrap_index] = item
             self.wrap_index += 1
 
 
-#### End - MacDue's wacky data clases
+#### End - MacDue's wacky data classes
 
 class Wizzard(ABC):
     """
