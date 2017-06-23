@@ -123,6 +123,7 @@ async def battle(ctx, *args, **details):
     # TODO: Handle draws
     player = details["author"]
     if len(args) == 2 and args[0] == args[1] or len(args) == 1 and player == args[0]:
+        # TODO Check if args are the author or random player
         raise util.DueUtilException(ctx.channel, "Don't beat yourself up!")
     if len(args) == 2:
         player_one = args[0]
@@ -131,9 +132,13 @@ async def battle(ctx, *args, **details):
         player_one = player
         player_two = args[0]
 
-    battle_embed = battles.get_battle_log(player_one=player_one, player_two=player_two).embed
+    battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
+    if battle_log.winner is None:
+        # Both players get the draw battle award
+        awards.give_award(ctx.channel, player_one, "InconceivableBattle")
+        awards.give_award(ctx.channel, player_two, "InconceivableBattle")
     await imagehelper.battle_screen(ctx.channel, player_one, player_two)
-    await util.say(ctx.channel, embed=battle_embed)
+    await util.say(ctx.channel, embed=battle_log.embed)
 
 
 @commands.command(args_pattern='PC')
@@ -233,14 +238,13 @@ async def acceptwager(ctx, *args, **details):
     loser = battle_log.loser
     wager_amount_str = util.format_number(wager.wager_amount, full_precision=True, money=True)
     total_transferred = wager.wager_amount
-    if winner != player:
-        battle_embed.add_field(name="Wager results", value=(
-            ":skull: **" + player.name_clean + "** lost to **" + sender.name_clean + "** and paid ``"
-            + wager_amount_str + "``"), inline=False)
+    if winner == sender:
+        wager_results = (":skull: **" + player.name_clean + "** lost to **"
+                         + sender.name_clean + "** and paid ``" + wager_amount_str + "``")
         player.money -= wager.wager_amount
         sender.money += wager.wager_amount
         sender.wagers_won += 1
-    else:
+    elif winner == player:
         player.wagers_won += 1
         if sender.money - wager.wager_amount >= 0:
             payback = ("**" + sender.name_clean + "** paid **" + player.name_clean + "** ``"
@@ -277,19 +281,24 @@ async def acceptwager(ctx, *args, **details):
             sender.money -= amount_paid
             player.money += amount_paid
             total_transferred = amount_paid
-        battle_embed.add_field(name="Wager results",
-                               value=(":sparkles: **"
-                                      + player.name_clean
-                                      + "** won against **"
-                                      + sender.name_clean + "**!\n" + payback),
-                               inline=False)
+        wager_results = (":sparkles: **"
+                         + player.name_clean
+                         + "** won against **"
+                         + sender.name_clean + "**!\n" + payback)
+    else:
+        wager_results = "Against all the odds the wager ended in a draw!"
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, total_transferred)
-    await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
-    await awards.give_award(ctx.channel, loser, "YouLose", "Lose a wager!")
-    sender.save()
-    player.save()
+    battle_embed.add_field(name="Wager results", value=wager_results, inline=False)
     await imagehelper.battle_screen(ctx.channel, player, sender)
     await util.say(ctx.channel, embed=battle_embed)
+    if winner is not None:
+        await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
+        await awards.give_award(ctx.channel, loser, "YouLose", "Lose a wager!")
+    else:
+        await  awards.give_award(ctx.channel, player, "InconceivableWager")
+        await  awards.give_award(ctx.channel, sender, "InconceivableWager")
+    sender.save()
+    player.save()
 
 
 @commands.command(args_pattern='C')

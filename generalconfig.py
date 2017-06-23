@@ -15,3 +15,7 @@ report_channel = None
 log_channel = None
 feedback_channel = None
 announcement_channel = None
+
+# Silly things:
+DEAD_BOT_ID = "173391791884599297"
+

@@ -82,7 +82,7 @@ async def myquests(ctx, *args, **details):
         page = 0
     else:
         page = args[0] - 1
-    if page > len(player.quests) / 5:
+    if page > len(player.quests) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
     await imagehelper.quests_screen(ctx.channel, player, page)
 
@@ -154,7 +154,7 @@ async def acceptquest(ctx, *args, **details):
             quest_info.save()
         await game.check_for_level_up(ctx, player)
     else:
-        quest_results = ":question: Against all the odds the battle was a draw!"
+        quest_results = ":question: Against all you drew with the quest!"
     battle_embed.add_field(name="Quest results", value=quest_results, inline=False)
     await imagehelper.battle_screen(ctx.channel, player, quest)
     await util.say(ctx.channel, embed=battle_embed)
@@ -164,8 +164,7 @@ async def acceptquest(ctx, *args, **details):
     elif winner == quest:
         await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
     else:
-        # TODO There needs to be an award for this almost impossible event
-        pass
+        await awards.give_award(ctx.channel, player, "InconceivableQuest")
     player.save()
 
 
@@ -288,7 +287,7 @@ async def editquest(ctx, *args, **details):
             elif quest_property == "hp" and value >= 30:
                 quest.base_hp = value
             elif quest_property == "accy" and value >= 1:
-                quest.base_accy
+                quest.base_accy = value
             elif quest_property == "spawn" and 25 >= value >= 1:
                 quest.spawn_chance = value / 100
             elif quest_property == "weap" and weapons.find_weapon(ctx.server, value) is not None:

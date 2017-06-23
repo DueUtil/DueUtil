@@ -134,6 +134,7 @@
       "TopDog":{
          "icon":"top_dog.png",
          "name":"TOP DOG",
+         "special":true,
          "message":"While you have this award you're undefeated"
       },
       "Donor":{
@@ -157,6 +158,26 @@
          "name":"Something went wrong...",
          "special":true,
          "message":"Thanks for helping with testing!"
+      },
+      "SoCold":{
+        "icon":"deaddue.png",
+        "name":"So cold...",
+        "message":"...and so very dark"
+      },
+      "InconceivableBattle":{
+        "icon":"inconceivable_battle.png",
+        "name":"INCONCEIVABLE!",
+        "message":"Draw in battle!"
+      },
+      "InconceivableWager":{
+        "icon":"inconceivable_wager.png",
+        "name":"INCONCEIVABLE!",
+        "message":"Draw in a wager!"
+      },
+      "InconceivableQuest":{
+        "icon":"inconceivable_quest.png",
+        "name":"INCONCEIVABLE!",
+        "message":"Draw in a quest!"
       }
    }
 }

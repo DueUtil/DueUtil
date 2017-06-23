@@ -12,6 +12,7 @@ from botstuff import util
 from . import stats, weapons, players, quests, awards
 from ..configs import dueserverconfig
 from ..helpers import imagehelper
+import generalconfig as gconf
 
 exp_per_level = dict()
 SPAM_TOLERANCE = 50
@@ -58,6 +59,10 @@ async def player_message(message, player, spam_level):
 
     if player is not None:
 
+        # Mention the old bot award
+        if gconf.DEAD_BOT_ID in message.raw_mentions:
+            await awards.give_award(message.channel, player, "SoCold", "They're not coming back.")
+
         if progress_time(player) and spam_level < SPAM_TOLERANCE:
 
             if len(message.content) > 0:
@@ -65,20 +70,16 @@ async def player_message(message, player, spam_level):
             else:
                 return
 
-            ### Comeback award
-
+            # Comeback award
             if player.id in old_players:
                 await awards.give_award(message.channel, player, "CameBack", "Return to DueUtil")
-
+            # Tester award
             if player.id in testers:
                 await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
-
-            ### Donor award
-
+            # Donor award
             if player.donor:
                 await awards.give_award(message.channel, player, "Donor",
                                         "Donate to DueUtil!!! :money_with_wings: :money_with_wings: :money_with_wings:")
-
             ### DueUtil - the hidden spelling game!
 
             lang = guess_language(message.content)

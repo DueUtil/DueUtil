@@ -406,7 +406,7 @@ async def stats_screen(channel, player):
         draw.text((38, 183), "None", side_colour, font=font)
 
     await send_image(channel, image, file_name="myinfo.png",
-                     content=":pen_fountain: **" + player.get_name_possession_clean() + "** information.");
+                     content=":pen_fountain: **" + player.get_name_possession_clean() + "** information.")
 
 
 async def quest_screen(channel, quest):

@@ -84,7 +84,7 @@ class Background(Customization):
 
     """
     Unlike Theme copy() & setting background data should
-    never beed needed
+    never be needed
     """
 
     def __init__(self, id, **background_data):

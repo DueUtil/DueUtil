@@ -219,7 +219,7 @@ class Wizzard(ABC):
 
     def progress_bar(self):
         bar_width = 20
-        progress = self.complete / self.question_count
+        progress = self.complete // self.question_count
         bar_complete_len = progress * bar_width
         bar_incomplete_len = bar_width - bar_complete_len
         return '[' + ('"' * bar_complete_len) + (' ' * bar_incomplete_len) + ']'
