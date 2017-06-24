@@ -1,0 +1,22 @@
+{
+   "material orange":{
+      "name":"Material Orange",
+      "icon":":large_orange_diamond:",
+      "description":"Material Design: Orange",
+      "banner":"orange",
+      "background":"simple grey",
+      "headerColour":"#758187",
+      "mainColour":"#82888c",
+      "bannerColour":"#FFFFFF",
+      "sideColour":"#FFFFFF",
+      "expColour":"#82888c",
+      "icons":"../icons.png",
+      "avatar":"../avatar.png",
+      "expBarColour":[
+         "#FFFFFF",
+         "#82888c"
+      ],
+      "preview":"http://i.imgur.com/KG05OnY.png",
+      "price":1
+   }
+}

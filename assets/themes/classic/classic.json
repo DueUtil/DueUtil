@@ -1,0 +1,20 @@
+{
+   "classic due":{
+      "name":"Classic Due",
+      "icon":":spider_web:",
+      "description":"Based on the design of prerelease Due",
+      "banner":"translucent black",
+      "background":"classic",
+      "headerColour":"#FFFFFF",
+      "mainColour":"#FFFFFF",
+      "bannerColour":"#FFFFFF",
+      "sideColour":"#303030",
+      "expColour":"#FFFFFF",
+      "expBarColour":[
+         "#FFFFFF",
+         "#C24747"
+      ],
+      "preview":"",
+      "price":1
+   }
+}
