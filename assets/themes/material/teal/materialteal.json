@@ -1,5 +1,5 @@
 {
-   "material teal":{
+   "theme":{
       "name":"Material Teal",
       "icon":":tea:",
       "description":"Material Design: Teal",
@@ -10,8 +10,6 @@
       "bannerColour":"#FFFFFF",
       "sideColour":"#FFFFFF",
       "expColour":"#82888c",
-      "icons":"../icons.png",
-      "avatar":"../avatar.png",
       "expBarColour":[
          "#FFFFFF",
          "#82888c"

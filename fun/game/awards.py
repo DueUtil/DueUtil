@@ -20,7 +20,7 @@ class Award:
         self.name = name
         self.description = description
         self.special = special
-        self.icon = Image.open("awards/" + icon_name)
+        self.icon = Image.open("assets/awards/" + icon_name)
 
     def get_colour(self, default="white"):
         return Award.SPECIAL_AWARD_COLOUR if self.special else default
@@ -32,7 +32,7 @@ def get_award(award_id: str) -> Award:
 
 
 def _load():
-    with open('fun/configs/awards.json') as awards_file:
+    with open('assets/awards/awards.json') as awards_file:
         awards_json = json.load(awards_file)
         for award_id, award in awards_json["awards"].items():
             awards[award_id] = Award(award["icon"],

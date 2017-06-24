@@ -1,5 +1,5 @@
 {
-   "material orange":{
+   "theme":{
       "name":"Material Orange",
       "icon":":large_orange_diamond:",
       "description":"Material Design: Orange",
@@ -10,8 +10,6 @@
       "bannerColour":"#FFFFFF",
       "sideColour":"#FFFFFF",
       "expColour":"#82888c",
-      "icons":"../icons.png",
-      "avatar":"../avatar.png",
       "expBarColour":[
          "#FFFFFF",
          "#82888c"

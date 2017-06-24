@@ -179,21 +179,21 @@ class Ring(list):
         self.wrap_index = 0
 
     def __getitem__(self, index):
-        return super(Ring, self).__getitem__(index % self.size)
+        return super().__getitem__(index % self.size)
 
     def __setitem__(self, index, value):
         self._setitem(index, value)
 
     def _setitem(self, index, value, depth=0):
         try:
-            super(Ring, self).__setitem__(index % self.size, value)
+            super().__setitem__(index % self.size, value)
         except IndexError:
             self.__init__(self.size)
             if depth == 0:
                 self._setitem(index, value, depth + 1)
 
     def __delitem__(self, index):
-        super(Ring, self).__delitem__(index % self.size)
+        super().__delitem__(index % self.size)
 
     def append(self, item):
         try:

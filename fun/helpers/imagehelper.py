@@ -9,6 +9,7 @@ from ..game import game
 from ..game import players
 from ..game import stats
 from ..game import weapons
+from ..game.customization import Themes
 from botstuff import util
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -19,22 +20,22 @@ Images very ugly throwway code.
 """
 
 # DueUtil fonts
-font = ImageFont.truetype("fonts/Due_Robo.ttf", 12)
-font_big = ImageFont.truetype("fonts/Due_Robo.ttf", 18)
-font_med = ImageFont.truetype("fonts/Due_Robo.ttf", 14)
-font_small = ImageFont.truetype("fonts/Due_Robo.ttf", 11)
-font_tiny = ImageFont.truetype("fonts/Due_Robo.ttf", 9)
-font_epic = ImageFont.truetype("fonts/benfont.ttf", 12)
+font = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 12)
+font_big = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 18)
+font_med = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 14)
+font_small = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 11)
+font_tiny = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 9)
+font_epic = ImageFont.truetype("assets/fonts/benfont.ttf", 12)
 
 # Templates
-level_up_template = Image.open("screens/level_up.png")
-new_quest_template = Image.open("screens/new_quest.png")
-awards_screen_template = Image.open("screens/awards_screen.png")
-quest_info_template = Image.open("screens/stats_page_quest.png")
-battle_screen_template = Image.open("screens/battle_screen.png")
-award_slot = Image.open("screens/award_slot.png")
-quest_row = Image.open("screens/quest_row.png")
-mini_icons = Image.open("screens/mini_icons.png")
+level_up_template = Image.open("assets/screens/level_up.png")
+new_quest_template = Image.open("assets/screens/new_quest.png")
+awards_screen_template = Image.open("assets/screens/awards_screen.png")
+quest_info_template = Image.open("assets/screens/stats_page_quest.png")
+battle_screen_template = Image.open("assets/screens/battle_screen.png")
+award_slot = Image.open("assets/screens/award_slot.png")
+quest_row = Image.open("assets/screens/quest_row.png")
+mini_icons = Image.open("assets/screens/mini_icons.png")
 profile_parts = dict()
 
 DUE_BLACK = (48, 48, 48)
@@ -315,16 +316,14 @@ async def stats_screen(channel, player):
     image = player.background.image.copy()
 
     draw = ImageDraw.Draw(image)
-    profile_screen = profile_parts["screens"][theme["screen"]]
+    profile_screen = profile_parts["screen"][theme["screen"]]
     paste_alpha(image, profile_screen, (0, 0))
 
-    if player.banner.image is None:
-        init_banners()
     banner = player.banner.image
     paste_alpha(image, banner, (91, 34))
 
     # draw avatar slot
-    avatar_border = profile_parts["avatarborders"][theme["avatarBorder"]]
+    avatar_border = profile_parts["avatar"][theme["avatar"]]
     paste_alpha(image, avatar_border, (3, 6))
 
     try:
@@ -651,25 +650,26 @@ def get_text_limit_len(draw, text, given_font, length):
             return text
 
 
-def load_profile_parts():
-    global profile_parts
-    profile_parts["icons"] = dict()
-    profile_parts["avatarborders"] = dict()
-    profile_parts["screens"] = dict()
-    for path, subdirs, files in os.walk("screens/profiles/"):
-        for name in files:
-            if name.endswith(".png"):
-                file_path = os.path.join(path, name)
-                part_type = path.rsplit("/", 1)[-1]
-                name = name.replace('.png', '')
-                profile_parts[part_type][name] = Image.open(file_path)
+def _load_profile_parts():
+
+    """
+    Loads the images that make up themes
+    (so they don't need to be constantly reloaded)
+    """
+
+    for theme in players.get_themes().values():
+        for part in Themes.PROFILE_PARTS:
+            if part not in profile_parts:
+                profile_parts[part] = dict()
+            part_path = theme[part]
+            profile_parts[part][part_path] = Image.open(part_path)
 
 
-def init_banners():
+def _init_banners():
     for banner in players.banners.values():
         if banner.image is None:
             banner.image = set_opacity(Image.open('screens/info_banners/' + banner.image_name), 0.9)
 
 
-init_banners()
-load_profile_parts()
+_init_banners()
+_load_profile_parts()

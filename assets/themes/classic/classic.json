@@ -1,8 +1,8 @@
 {
-   "classic due":{
+   "theme":{
       "name":"Classic Due",
       "icon":":spider_web:",
-      "description":"Based on the design of prerelease Due",
+      "description":"Based on the design of pre-release Due",
       "banner":"translucent black",
       "background":"classic",
       "headerColour":"#FFFFFF",
