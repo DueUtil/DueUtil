@@ -245,19 +245,8 @@ def load_config():
 
 
 def run_due():
-    global stopped, shard_clients
-    if not os.path.exists("saves/players"):
-        os.makedirs("saves/players")
-    if not os.path.exists("saves/weapons"):
-        os.makedirs("saves/weapons")
-    if not os.path.exists("saves/gamequests"):
-        os.makedirs("saves/gamequests")
-    if not os.path.exists("saves/util"):
-        os.makedirs("saves/util")
-    if not os.path.exists("autobackups/"):
-        os.makedirs("autobackups/")
-    if not os.path.exists("imagecache/"):
-        os.makedirs("imagecache/")
+    if not os.path.exists("assets/imagecache/"):
+        os.makedirs("assets/imagecache/")
     if not stopped:
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)

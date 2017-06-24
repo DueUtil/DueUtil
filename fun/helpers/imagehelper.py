@@ -101,7 +101,7 @@ async def load_image_url(url, **kwargs):
     if url is None:
         return None
     do_not_compress = kwargs.get('raw', False)
-    file_name = 'imagecache/' + re.sub(r'\W+', '', url)
+    file_name = 'assets/imagecache/' + re.sub(r'\W+', '', url)
     if len(file_name) > 128:
         file_name = file_name[:128]
     file_name = file_name + '.jpg'
