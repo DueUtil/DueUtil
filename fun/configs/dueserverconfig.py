@@ -72,7 +72,7 @@ def server_cmd_key(server, *args):
             return DEFAULT_SERVER_KEY
 
 
-def load():
+def _load():
     global server_keys, muted_channels
     configs = dbconn.conn()["serverconfigs"].find()
     for config in configs:
@@ -85,4 +85,4 @@ def load():
             command_whitelist[server_id] = config["command_whitelist"]
 
 
-load()
+_load()

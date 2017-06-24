@@ -1,0 +1,7 @@
+Plan:
+  Attempt to write recursive theme finder:
+  Simple theme json:
+  Specs: Colours, Bgs, Banner, name, icon, decs
+  Look for theme.json use pngs in the folder:
+  If missing use ones from parent folder
+  if missing use default

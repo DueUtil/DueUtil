@@ -45,7 +45,8 @@ class DueUtilClient(discord.Client):
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
-    async def __check_task_queue(self):
+    @asyncio.coroutine
+    def __check_task_queue(self):
 
         while True:
             try:
@@ -54,12 +55,12 @@ class DueUtilClient(discord.Client):
                 args = task_details.get('args', ())
                 kwargs = task_details.get('kwargs', {})
                 if inspect.iscoroutinefunction(task):
-                    await task(*args, **kwargs)
+                    yield from task(*args, **kwargs)
                 else:
                     task(args, kwargs)
             except queue.Empty:
                 pass
-            await asyncio.sleep(0.1)
+            yield from asyncio.sleep(0.1)
 
     def run_task(self, task, *args, **kwargs):
 
@@ -69,27 +70,28 @@ class DueUtilClient(discord.Client):
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
     @asyncio.coroutine
-    async def on_server_join(self, server):
+    def on_server_join(self, server):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
             # Announce every 100 servers (for now)
-            await util.say(gconf.announcement_channel,
-                           ":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111" % server_count)
+            yield from util.say(gconf.announcement_channel,
+                                ":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111" % server_count)
 
-        payload = {"key": 'macdue0a873a71hjd673o1', "servercount": server_count}
-        url = "https://www.carbonitex.net/discord/data/botdata.php"
+        # payload = {"key": 'macdue0a873a71hjd673o1', "servercount": server_count}
+        # url = "https://www.carbonitex.net/discord/data/botdata.php"
         # reponse = await aiohttp.post(url, data=payload)
         # reponse.close()
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
 
         if not any(role.name == "Due Commander" for role in server.roles):
-            await self.create_role(server, name="Due Commander", color=discord.Color(16038978))
+            yield from self.create_role(server, name="Due Commander", color=discord.Color(16038978))
 
         server_stats = self.server_stats(server)
-        await util.duelogger.info(("DueUtil has joined the server **" + util.ultra_escape_string(server.name) + "**!\n"
-                                   + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
-                                   + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
-                                   + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
+        yield from util.duelogger.info(("DueUtil has joined the server **"
+                                        + util.ultra_escape_string(server.name) + "**!\n"
+                                        + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
+                                        + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
+                                        + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
     @staticmethod
     def server_stats(server):
@@ -97,27 +99,27 @@ class DueUtilClient(discord.Client):
         bot_count = sum(member.bot for member in server.members)
         bot_percent = int((bot_count / member_count) * 100)
         bot_server = bot_percent > 70
-        return {"member_count": member_count, "bot_percent": bot_percent
-            , "bot_count": bot_count, "bot_server": bot_server}
+        return {"member_count": member_count, "bot_percent": bot_percent,
+                "bot_count": bot_count, "bot_server": bot_server}
 
     @asyncio.coroutine
-    async def on_error(self, event, *args):
+    def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx is None:
-            await util.duelogger.error(("**DueUtil experienced an error!**\n"
-                                        + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
+            yield from util.duelogger.error(("**DueUtil experienced an error!**\n"
+                                             + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.DueUtilException):
             if error.channel is not None:
-                await self.send_message(error.channel, error.get_message())
+                yield from self.send_message(error.channel, error.get_message())
             else:
-                await self.send_message(ctx.channel, error.get_message())
+                yield from self.send_message(ctx.channel, error.get_message())
             return
         elif isinstance(error, util.DueReloadException):
             loader.reload_modules()
-            await util.say(error.channel, loader.get_loaded_modules())
+            yield from util.say(error.channel, loader.get_loaded_modules())
             return
         elif isinstance(error, discord.Forbidden):
             if ctx_is_message:
@@ -126,58 +128,60 @@ class DueUtilClient(discord.Client):
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
         elif ctx_is_message:
-            await self.send_message(ctx.channel, (":bangbang: **Something went wrong...**"))
+            yield from self.send_message(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.EMBED_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
-            await util.duelogger.error(("**Message/command triggred error!**\n"
-                                        + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
-                                       embed=trigger_message)
+            yield from util.duelogger.error(("**Message/command triggred error!**\n"
+                                            + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
+                                            embed=trigger_message)
         traceback.print_exc()
 
     @asyncio.coroutine
-    async def on_message(self, message):
+    def on_message(self, message):
         if (message.author == self.user
             or message.channel.is_private
             or message.author.bot
-            or not loaded()):
+                or not loaded()):
             return
 
         if message.content.startswith(self.user.mention):
             message.content = re.sub(self.user.mention + "\s*",
                                      dueserverconfig.server_cmd_key(message.server),
                                      message.content)
-        await events.on_message_event(message)
+        yield from events.on_message_event(message)
 
     @asyncio.coroutine
-    async def on_server_remove(self, server):
+    def on_server_remove(self, server):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
                 print(dbconn.db[collection].delete_many({'_id': {'$regex': '%s\/.*' % server.id}}).deleted_count)
                 print(dbconn.db[collection].delete_many({'_id': server.id}).deleted_count)
-        await util.duelogger.info("DueUtil been removed from the server **%s**" % util.ultra_escape_string(server.name))
+        yield from util.duelogger.info("DueUtil been removed from the server **%s**"
+                                       % util.ultra_escape_string(server.name))
 
-    async def change_avatar(self, channel, avatar_name):
+    @asyncio.coroutine
+    def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
             avatar_object = avatar.read()
-            await self.edit_profile(avatar=avatar_object)
-            await self.send_message(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
+            yield from self.edit_profile(avatar=avatar_object)
+            yield from self.send_message(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
         except:
-            await self.send_message(channel, ":bangbang: **Avatar change failed!**")
+            yield from self.send_message(channel, ":bangbang: **Avatar change failed!**")
 
     @asyncio.coroutine
-    async def on_ready(self):
+    def on_ready(self):
         shard_number = shard_clients.index(self) + 1
         help_status = discord.Game()
         help_status.name = "dueutil.tech | shard " + str(shard_number) + "/" + str(shard_count)
-        await self.change_presence(game=help_status, afk=False)
+        yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.__set_log_channels()
         self.loaded = True
         if loaded():
-            await util.duelogger.bot("DueUtil has *(re)*started\n"
-                                     + "Bot version → ``%s``" % config["botVersion"])
+            yield from util.duelogger.bot("DueUtil has *(re)*started\n"
+                                          + "Bot version → ``%s``" % config["botVersion"])
 
     def __set_log_channels(self):
 
@@ -219,10 +223,11 @@ class ShardThread(Thread):
         try:
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
         except:
-            if level < MAX_RECOVERY_ATTEMPTS: # TODO Fix this
+            if level < MAX_RECOVERY_ATTEMPTS:  # TODO Fix this
                 util.logger.warning("Bot recovery attempted for shard %d" % self.shard_number)
                 shard_clients.remove(client)
-                self.run(asyncio.new_event_loop(), self.shard_number, level + 1)
+                self.event_loop = asyncio.new_event_loop()
+                self.run(level + 1)
             else:
                 util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
         finally:
@@ -258,8 +263,10 @@ def run_due():
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-            while len(shard_clients) <= loaded_clients: pass
-        while not loaded(): pass
+            while len(shard_clients) <= loaded_clients:
+                pass
+        while not loaded():
+            pass
         loader.load_modules()
         ### Prune players - task
         loop = asyncio.get_event_loop()

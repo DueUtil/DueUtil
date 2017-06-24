@@ -59,8 +59,8 @@ def strip_permissions(member: discord.Member):
 
 
 def load_dueutil_roles():
-    permissions = dbconn.conn()["permissions"].find()
-    for permission in permissions:
+    loaded_permissions = dbconn.conn()["permissions"].find()
+    for permission in loaded_permissions:
         special_permissions[permission["_id"]] = permission["permission"]
 
 
