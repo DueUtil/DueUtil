@@ -522,7 +522,6 @@ async def googly_eyes(channel, eye_descriptor):
         Returns a random eye postion
         """
 
-        nonlocal eye_types
         return random.choice(eye_types)
 
     def random_eye_type():
@@ -530,7 +529,6 @@ async def googly_eyes(channel, eye_descriptor):
         """
         A random eye type pos + mods
         """
-        nonlocal eye_types
         mods = ["evil", "gay", "snek", "high", "ogre", "emoji", "small"]
         eye_type = ""
         for number_of_mods in range(0, random.randrange(0, len(mods))):
@@ -611,12 +609,12 @@ async def googly_eyes(channel, eye_descriptor):
             given_eye_type = random_eyes()
             eye_descriptor = eye_descriptor.replace(given_eye_type, " ") + given_eye_type
         if given_eye_type == "derp":
-            pupli_x_limit_1 = border_width + pupil_width + pupil_x_centre - inner_width // 2
-            pupli_x_limit_2 = pupil_x_centre - border_width - pupil_width + inner_width // 2
-            pupil_x = random.randrange(min(pupli_x_limit_1, pupli_x_limit_2), max(pupli_x_limit_1, pupli_x_limit_2))
-            pupli_y_limit_1 = border_width + pupil_height + pupil_y_centre - inner_height // 2
-            pupli_y_limit_2 = pupil_y_centre - border_width - pupil_height + inner_height // 2
-            pupil_y = random.randrange(min(pupli_y_limit_1, pupli_y_limit_2), max(pupli_y_limit_1, pupli_y_limit_2))
+            pupil_x_limit_1 = border_width + pupil_width + pupil_x_centre - inner_width // 2
+            pupil_x_limit_2 = pupil_x_centre - border_width - pupil_width + inner_width // 2
+            pupil_x = random.randrange(min(pupil_x_limit_1, pupil_x_limit_2), max(pupil_x_limit_1, pupil_x_limit_2))
+            pupil_y_limit_1 = border_width + pupil_height + pupil_y_centre - inner_height // 2
+            pupil_y_limit_2 = pupil_y_centre - border_width - pupil_height + inner_height // 2
+            pupil_y = random.randrange(min(pupil_y_limit_1, pupil_y_limit_2), max(pupil_y_limit_1, pupil_y_limit_2))
         else:
             pupil_x = pupil_x_centre
             pupil_y = pupil_y_centre

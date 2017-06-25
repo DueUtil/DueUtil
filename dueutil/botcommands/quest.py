@@ -54,7 +54,7 @@ async def spawnquest(ctx, *args, **details):
 
 @commands.command(args_pattern='C')
 @commands.imagecommand()
-async def questinfo(ctx, *args, **details):
+async def questinfo(ctx, quest_index, **details):
     """
     [CMD_KEY]questinfo index
     
@@ -62,7 +62,7 @@ async def questinfo(ctx, *args, **details):
     """
 
     player = details["author"]
-    quest_index = args[0] - 1
+    quest_index -= 1
     if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
     else:
@@ -71,7 +71,7 @@ async def questinfo(ctx, *args, **details):
 
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
-async def myquests(ctx, *args, **details):
+async def myquests(ctx, page=1, **details):
     """
     [CMD_KEY]myquests
     
@@ -80,10 +80,7 @@ async def myquests(ctx, *args, **details):
     """
 
     player = details["author"]
-    if len(args) == 0:
-        page = 0
-    else:
-        page = args[0] - 1
+    page -= 1
     if page > len(player.quests) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
     await imagehelper.quests_screen(ctx.channel, player, page)
@@ -91,7 +88,7 @@ async def myquests(ctx, *args, **details):
 
 @commands.command(args_pattern='C')
 @commands.imagecommand()
-async def acceptquest(ctx, *args, **details):
+async def acceptquest(ctx, quest_index, **details):
     """
     [CMD_KEY]acceptquest (quest number)
 
@@ -100,7 +97,7 @@ async def acceptquest(ctx, *args, **details):
     """
 
     player = details["author"]
-    quest_index = args[0] - 1
+    quest_index -= 1
     if quest_index >= len(player.quests):
         raise util.DueUtilException(ctx.channel, "Quest not found!")
     if player.money - player.quests[quest_index].money // 2 < 0:
@@ -171,7 +168,7 @@ async def acceptquest(ctx, *args, **details):
 
 
 @commands.command(args_pattern='C')
-async def declinequest(ctx, *args, **details):
+async def declinequest(ctx, quest_index, **details):
     """
     [CMD_KEY]declinequest index
 
@@ -180,7 +177,7 @@ async def declinequest(ctx, *args, **details):
     """
 
     player = details["author"]
-    quest_index = args[0] - 1
+    quest_index -= 1
     if quest_index < len(player.quests):
         quest = player.quests[quest_index]
         del player.quests[quest_index]
@@ -198,7 +195,8 @@ async def declinequest(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?R?')
-async def createquest(ctx, *args, **details):
+async def createquest(ctx, name, attack, strg, accy, hp,
+                      task=None, weapon=None, image=None, spawn_chane=25, **details):
     """
     [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
     
@@ -224,26 +222,25 @@ async def createquest(ctx, *args, **details):
     """
 
     extras = dict()
-    if len(args) >= 6:
-        extras['task'] = args[5]
-    if len(args) >= 7:
-        weapon_name_or_id = args[6]
+    if task is not None:
+        extras['task'] = task
+    if weapon is not None:
+        weapon_name_or_id = weapon
         weapon = weapons.find_weapon(ctx.server, weapon_name_or_id)
         if weapon is None:
             raise util.DueUtilException(ctx.channel, "Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
-    if len(args) >= 8:
-        extras['image_url'] = args[7]
-    if len(args) == 9:
-        extras['spawn_chance'] = args[8]
+    if image is not None:
+        extras['image_url'] = image
+    extras['spawn_chance'] = spawn_chane
 
-    new_quest = quests.Quest(*args[:5], **extras, ctx=ctx)
+    new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
-async def editquest(ctx, *args, **details):
+async def editquest(ctx, quest_name, *args, **details):
     """
     [CMD_KEY]editquest name (property value)+
     
@@ -266,7 +263,6 @@ async def editquest(ctx, *args, **details):
 
     editable_props = ("attack", "hp", "accy", "spawn", "weap", "image", "task", "channel")
     changes = OrderedDict()
-    quest_name = args[0].lower()
     updates = args[1:]
     quest = quests.get_quest_on_server(ctx.server, quest_name)
     if quest is None:

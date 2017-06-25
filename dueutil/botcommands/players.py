@@ -118,7 +118,7 @@ async def resetme(ctx, cnf="", **details):
 
 
 @commands.command(args_pattern='PCS?')
-async def sendcash(ctx, *args, **details):
+async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     """
     [CMD_KEY]sendcash @player amount (optional message)
     
@@ -136,8 +136,6 @@ async def sendcash(ctx, *args, **details):
     """
 
     sender = details["author"]
-    receiver = args[0]
-    transaction_amount = args[1]
     amount_string = util.format_number(transaction_amount, money=True, full_precision=True)
 
     if receiver.id == sender.id:
@@ -177,15 +175,15 @@ async def sendcash(ctx, *args, **details):
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
     transaction_log.add_field(name="Transaction amount (DUT):", value=amount_string, inline=False)
-    if len(args) > 2:
-        transaction_log.add_field(name=":pencil: Attached note:", value=args[2], inline=False)
+    if message != "":
+        transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
     transaction_log.set_footer(text="Please keep this receipt for your records.")
 
     await util.say(ctx.channel, embed=transaction_log)
 
 
 @commands.command(hidden=True)
-async def benfont(ctx, *args, **details):
+async def benfont(ctx, **details):
     """
     [CMD_KEY]benfont 
     

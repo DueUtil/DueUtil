@@ -1,6 +1,5 @@
 import asyncio
 import re
-import sys
 import time
 from functools import wraps
 
@@ -12,6 +11,8 @@ from . import events, util
 from .permissions import Permission
 
 IMAGE_REQUEST_COOLDOWN = 5
+# The max number the bot will accept. To avoid issues with crazy big numbers.
+MAX_NUMBER = 99999999999999999999999999999999999999999999
 
 """
 DueUtils random command system.
@@ -210,27 +211,30 @@ async def determine_args(pattern, args):
     
     """
 
+    original_pattern = pattern
+
     def represents_int(string):
         try:
-            return min(int(string), int(sys.float_info.max))
-        except:
+            return min(int(string), MAX_NUMBER)
+        except ValueError:
             return False
 
     def represents_count(string):
-        value = represents_int(string)
-        if not value:
+        # The counting numbers.
+        # Natural numbers starting from 1
+        int_value = represents_int(string)
+        if not int_value:
             return False
-        elif value - 1 >= 0:
-            return value
+        elif int_value - 1 >= 0:
+            return int_value
 
     def represents_float(string):
         try:
-            return min(float(string), sys.float_info.max)
-        except:
+            return min(float(string), MAX_NUMBER)
+        except ValueError:
             return False
 
     def remove_optional(pattern):
-        nonlocal args
         pattern_pos = len(pattern) - 1
         while pattern_pos >= 0:
             if len(pattern.replace('?', '')) == len(args):
@@ -253,7 +257,14 @@ async def determine_args(pattern, args):
                         pattern_pos -= 2
                         continue
                     return False
-            return True
+            return pattern == "S" or len(pattern) > 1
+        return False
+
+    def attempt_args_as_string(args, pattern):
+        # A last ditch effort to get some use out of the shit known as input.
+        if len(args) > 0 and could_be_string(pattern):
+            # Only a pattern that can just be a string is valid
+            return ' '.join(args),
         return False
 
     def valid_args_len(args, pattern):
@@ -264,7 +275,7 @@ async def determine_args(pattern, args):
         return len(args) == pattern_type_count
 
     def represents_string(string):
-
+        # When is a string not a string?
         """
         This may seem dumb. But not all strings are strings in my
         world. Fuck zerowidth bullshittery & stuff like that.
@@ -311,6 +322,8 @@ async def determine_args(pattern, args):
         if pos_change:
             current_rule = pattern[pos]
         if pos + 1 < len(pattern) and pattern[pos + 1] == '*':
+            # We don't move in were we are in the pattern
+            # if the rule is a Kleene star
             pos += 1
             pos_change = False
         switch = {
@@ -321,26 +334,33 @@ async def determine_args(pattern, args):
             'P': players.find_player(args[args_index]),
             # This one is for page selectors that could be a page number or a string like a weapon name.
             'M': represents_count(args[args_index]) if represents_count(args[args_index]) else args[args_index],
-            'B': args[args_index].lower() in misc.POSTIVE_BOOLS,
+            'B': args[args_index].lower() in misc.POSITIVE_BOOLS,
         }
+        # Get the value as the type it should be (if possible). Will return False or None if it fails.
         value = switch.get(current_rule)
         if (value is False and current_rule != 'B') or value is None:
+            # We've got a incorrect value and are not expecting multiple (*)
             if pattern[pos] != '*':
-                return False
+                # We've been unable to parse it.
+                # One last try.
+                return attempt_args_as_string(args, original_pattern)
             else:
+                # Must be the end of the repeated set of values (*)
                 if pos + 1 < len(pattern):
                     args_index -= 1
                     pos_change = True
                 else:
-                    return False
+                    # Okay I'm super cereal - Giving up after this
+                    return attempt_args_as_string(args, original_pattern)
         else:
+            # Normal - All is good
             args[args_index] = value
             checks_satisfied += 1
         args_index += 1
         if pos_change:
             pos += 1
     if (checks_satisfied == len(args) and not guessing_arguments
-        and valid_args_len(args, pattern)):
+            and valid_args_len(args, pattern)):
         return args
     elif guessing_arguments:
         """
@@ -357,14 +377,3 @@ async def determine_args(pattern, args):
                     if checks_satisfied == len(new_args) and valid_args_len(new_args, pattern):
                         return new_args
     return False
-
-
-def point_error(command_string):
-    """Maybe make a programming lang style error string."""
-
-    error_string = command_string + "\n"
-    for char_pos in range(len(command_string), -1, -1):
-        if command_string[char_pos - 1] == '"':
-            error_string += ' ' * (char_pos - 1)
-            break
-    return error_string + '^'

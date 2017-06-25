@@ -9,7 +9,7 @@ from dueutil import util
 Generic wrappers to make listing items (e.g. backgrounds)
 and setting them faster (to make)
 """
-#TODO renamed to playersabstarct
+
 
 def item_preview(thing_info_preview):
     """

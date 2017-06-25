@@ -228,9 +228,9 @@ async def sudo(ctx, victim, command, **details):
 async def setpermlevel(ctx, player, level, **details):
     member = discord.Member(user={"id": player.id})
     permission_index = level - 1
-    permissions = dueutil.permissions.permissions
-    if permission_index < len(permissions):
-        permission = permissions[permission_index]
+    permission_list = dueutil.permissions.permissions
+    if permission_index < len(permission_list):
+        permission = permission_list[permission_index]
         dueutil.permissions.give_permission(member, permission)
         await util.say(ctx.channel,
                        "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
@@ -249,8 +249,7 @@ async def setpermlevel(ctx, player, level, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def ban(ctx, *args, **details):
-    player = args[0]
+async def ban(ctx, player, **details):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.BANNED)
     await util.say(ctx.channel, ":hammer: **" + player.name_clean + "** banned!")
@@ -258,8 +257,7 @@ async def ban(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def unban(ctx, *args, **details):
-    player = args[0]
+async def unban(ctx, player, **details):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.ANYONE)
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
@@ -267,8 +265,7 @@ async def unban(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def toggledonor(ctx, *args, **details):
-    player = args[0]
+async def toggledonor(ctx, player, **details):
     player.donor = not player.donor
     if player.donor:
         await util.say(ctx.channel, "**" + player.name_clean + "** is now a donor!")
@@ -277,16 +274,14 @@ async def toggledonor(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def duereload(ctx, *args, **details):
+async def duereload(ctx, **details):
     await util.say(ctx.channel, ":ferris_wheel: Reloading DueUtil modules!")
     await util.duelogger.concern("DueUtil Reloading!")
     raise util.DueReloadException(ctx.channel)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
-async def givecash(ctx, *args, **details):
-    player = args[0]
-    amount = args[1]
+async def givecash(ctx, player, amount, **details):
     player.money += amount
     amount_str = util.format_number(abs(amount), money=True, full_precision=True)
     if amount >= 0:

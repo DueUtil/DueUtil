@@ -10,7 +10,7 @@ import generalconfig as gconf
 from dueutil import dbconn
 from dueutil import util
 
-POSTIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
+POSITIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
 GLITTER_TEXT_URL = ("http://www.gigaglitters.com/procesing.php?text=%s"
                     + "&size=90&text_color=img/DCdarkness.gif"

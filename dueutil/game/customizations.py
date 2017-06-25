@@ -8,6 +8,8 @@ from .. import permissions
 from ..game.helpers.misc import DueUtilObject
 from ..permissions import Permission
 
+from typing import Dict
+
 """
 
 Basic classes to store themes, backgrounds and banners.
@@ -185,28 +187,29 @@ class _Banners(dict):
                 self[banner_id] = Banner(banner_id, **banner)
 
 
+# Load customizations from json files
 backgrounds = _Backgrounds()
 banners = _Banners()
 themes = _Themes()
 
 
-def get_theme(theme_id):
+def get_theme(theme_id: str) -> Theme:
     theme_id = theme_id.lower()
     if theme_id in themes:
         return themes[theme_id]
 
 
-def get_background(background_id):
+def get_background(background_id: str) -> Background:
     background_id = background_id.lower()
     if background_id in backgrounds:
         return backgrounds[background_id]
 
 
-def get_banner(banner_id):
+def get_banner(banner_id: str) -> Banner:
     banner_id = banner_id.lower()
     if banner_id in banners:
         return banners[banner_id]
 
 
-def get_themes():
+def get_themes() -> Dict[str, Theme]:
     return themes
