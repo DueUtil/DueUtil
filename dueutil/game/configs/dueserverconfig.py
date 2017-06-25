@@ -1,4 +1,4 @@
-from dueutil import dbconn
+from ... import dbconn
 from ..helpers.misc import DueMap
 
 muted_channels = DueMap()

@@ -1,8 +1,8 @@
 import threading
 import time
 
-from dueutil import events, util
-from dueutil.game import players
+from .. import events, util
+from ..game import players
 
 leaderboards = dict()
 last_leaderboard_update = 0

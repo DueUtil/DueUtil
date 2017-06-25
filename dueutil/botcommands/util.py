@@ -1,8 +1,8 @@
 import discord
 
 import generalconfig as gconf
-from dueutil.game.configs import dueserverconfig
-from dueutil.permissions import Permission
+from ..game.configs import dueserverconfig
+from ..permissions import Permission
 from ..game import stats, awards
 from ..game.stats import Stat
 from .. import commands, events, util

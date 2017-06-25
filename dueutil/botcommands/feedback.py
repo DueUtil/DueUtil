@@ -1,7 +1,7 @@
 import discord
 
 import generalconfig as gconf
-from dueutil import util, commands
+from .. import util, commands
 
 
 class FeedbackHandler:
@@ -44,7 +44,7 @@ suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="sugges
 
 @commands.command(args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
-async def bugreport(ctx, *args, **details):
+async def bugreport(ctx, report, **details):
     """
     [CMD_KEY]bugreport (report)
     
@@ -52,12 +52,12 @@ async def bugreport(ctx, *args, **details):
     
     """
 
-    await bug_reporter.send_report(ctx, args[0])
+    await bug_reporter.send_report(ctx, report)
 
 
 @commands.command(args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":hushed: Please no more feedback (for a few minutes)!")
-async def suggest(ctx, *args, **details):
+async def suggest(ctx, suggestion, **details):
     """
     [CMD_KEY]suggest (suggestion)
     
@@ -65,4 +65,4 @@ async def suggest(ctx, *args, **details):
     
     """
 
-    await suggestion_sender.send_report(ctx, args[0])
+    await suggestion_sender.send_report(ctx, suggestion)

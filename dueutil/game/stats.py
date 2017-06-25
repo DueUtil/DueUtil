@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict
 
-from dueutil import dbconn
+from .. import dbconn
 
 
 class Stat(Enum):

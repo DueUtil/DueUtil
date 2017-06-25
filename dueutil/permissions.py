@@ -2,7 +2,7 @@ from enum import Enum
 
 import discord
 
-from dueutil import dbconn
+from . import dbconn
 
 special_permissions = dict()
 

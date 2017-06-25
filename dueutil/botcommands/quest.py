@@ -5,8 +5,8 @@ from collections import OrderedDict
 import discord
 
 import generalconfig as gconf
-from dueutil.game.helpers import imagehelper
-from dueutil.permissions import Permission
+from ..game.helpers import imagehelper
+from ..permissions import Permission
 from ..game import (
     quests,
     game,

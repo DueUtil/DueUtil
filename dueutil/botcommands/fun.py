@@ -5,7 +5,7 @@ import discord
 import repoze.timeago
 
 import generalconfig as gconf
-from dueutil import commands, util
+from .. import commands, util
 from ..game import awards
 from ..game import leaderboards
 from ..game.helpers import misc, imagehelper
@@ -20,7 +20,7 @@ async def glitter_text(channel, text):
 
 @commands.command(args_pattern='S')
 @commands.imagecommand()
-async def glitter(ctx, *args, **details):
+async def glitter(ctx, text, **details):
     """
     [CMD_KEY]glitter(text)
     
@@ -29,12 +29,12 @@ async def glitter(ctx, *args, **details):
     (Glitter text from http://www.gigaglitters.com/)
     """
 
-    await glitter_text(ctx.channel, args[0])
+    await glitter_text(ctx.channel, text)
 
 
 @commands.command(args_pattern="S?")
 @commands.imagecommand()
-async def eyes(ctx, *args, **details):
+async def eyes(ctx, eye_description="", **details):
     """
     [CMD_KEY]eyes modifiers
     
@@ -58,12 +58,11 @@ async def eyes(ctx, *args, **details):
         no modifiers - Procedurally generated eyes!!!111
     """
 
-    googly_params = args[0].lower() if len(args) == 1 else ""
-    await imagehelper.googly_eyes(ctx.channel, googly_params)
+    await imagehelper.googly_eyes(ctx.channel, eye_description)
 
 
 @commands.command(args_pattern="C?")
-async def leaderboard(ctx, *args, **details):
+async def leaderboard(ctx, page=1, **details):
     """
     [CMD_KEY]leaderboard (page)
     
@@ -77,7 +76,8 @@ async def leaderboard(ctx, *args, **details):
     """
 
     page_size = 10
-    page = 0
+    # Subtract one as the count arg type starts at 1 not zero.
+    page -= 1
 
     leaderboard_embed = discord.Embed(title="DueUtil Leaderboard", type="rich", color=gconf.EMBED_COLOUR)
 
@@ -86,8 +86,6 @@ async def leaderboard(ctx, *args, **details):
 
         leaderboard_data = player_leaderboard[0]
 
-        if len(args) == 1:
-            page = args[0] - 1
         if page > 0:
             leaderboard_embed.title += ": Page " + str(page + 1)
         if page * page_size >= len(leaderboard_data):
@@ -126,7 +124,7 @@ async def leaderboard(ctx, *args, **details):
 
 
 @commands.command(args_pattern=None)
-async def myrank(ctx, *args, **details):
+async def myrank(ctx, **details):
     """
     [CMD_KEY]myrank
     
@@ -141,7 +139,7 @@ async def myrank(ctx, *args, **details):
         await util.say(ctx.channel, (":sparkles: You're position **" + str(position + 1) + "** on the leaderboard!\n"
                                      + "That's on ``" + details["cmd_key"]
                                      + "leaderboard`` page " + str(page + 1) + "!"))
-    except:
+    except IndexError:
         await util.say(ctx.channel, (":confounded: I can't find you in the leaderboard!?\n"
                                      + "This probably means you're new and leaderboard has not updated yet!"))
 
@@ -155,7 +153,7 @@ async def give_emoji(channel, sender, receiver, emoji):
 
 
 @commands.command(args_pattern='PS')
-async def giveemoji(ctx, *args, **details):
+async def giveemoji(ctx, receiver, emoji, **details):
     """
     [CMD_KEY]giveemoji player emoji
     
@@ -166,10 +164,9 @@ async def giveemoji(ctx, *args, **details):
     
     """
     sender = details["author"]
-    receiver = args[0]
 
     try:
-        await give_emoji(ctx.channel, sender, receiver, args[1])
+        await give_emoji(ctx.channel, sender, receiver, emoji)
         sender.misc_stats["emojis_given"] += 1
         receiver.misc_stats["emojis"] += 1
     except util.DueUtilException as command_error:
@@ -180,14 +177,13 @@ async def giveemoji(ctx, *args, **details):
 
 
 @commands.command(args_pattern='P')
-async def givepotato(ctx, *args, **details):
+async def givepotato(ctx, receiver, **details):
     """
     [CMD_KEY]givepotato player
     
     Who doesn't like potatoes?
     """
     sender = details["author"]
-    receiver = args[0]
 
     try:
         await give_emoji(ctx.channel, sender, receiver, '🥔')

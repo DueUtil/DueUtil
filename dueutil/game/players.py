@@ -12,9 +12,9 @@ import numpy
 from ..util import SlotPickleMixin
 from .. import dbconn
 from .. import util
-from dueutil.game import awards
-from dueutil.game import weapons
-from dueutil.game.helpers.misc import DueUtilObject, Ring
+from ..game import awards
+from ..game import weapons
+from ..game.helpers.misc import DueUtilObject, Ring
 from . import customizations
 from .customizations import Theme
 

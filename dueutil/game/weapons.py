@@ -6,9 +6,9 @@ import discord
 import jsonpickle
 
 from ..util import SlotPickleMixin
-from dueutil import dbconn
-from dueutil import util
-from dueutil.game.helpers.misc import DueUtilObject, DueMap
+from .. import dbconn
+from .. import util
+from ..game.helpers.misc import DueUtilObject, DueMap
 
 stock_weapons = ["none"]
 

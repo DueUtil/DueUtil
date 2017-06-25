@@ -2,16 +2,16 @@ import discord
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
-from dueutil import permissions
-from dueutil.game import players, customizations
-from dueutil.permissions import Permission
+from .. import permissions
+from ..game import players, customizations
+from ..permissions import Permission
 from ..game import stats
 from ..game.helpers import misc, playersabstract, imagehelper
 from .. import commands, util
 
 
 @commands.command(args_pattern="S?")
-async def battlename(ctx, *args, **details):
+async def battlename(ctx, name="", **details):
     """
     [CMD_KEY]battlename (name)
     
@@ -22,8 +22,7 @@ async def battlename(ctx, *args, **details):
     """
 
     player = details["author"]
-    if len(args) == 1:
-        name = args[0]
+    if name != "":
         name_len_range = players.Player.NAME_LENGTH_RANGE
         if len(name) not in name_len_range:
             raise util.DueUtilException(ctx.channel, ("Battle name must be between **"
@@ -38,7 +37,7 @@ async def battlename(ctx, *args, **details):
 
 @commands.command(args_pattern=None)
 @commands.imagecommand()
-async def myinfo(ctx, *args, **details):
+async def myinfo(ctx, **details):
     """
     [CMD_KEY]myinfo
     
@@ -51,7 +50,7 @@ async def myinfo(ctx, *args, **details):
 
 @commands.command(args_pattern='P')
 @commands.imagecommand()
-async def info(ctx, *args, **details):
+async def info(ctx, player, **details):
     """
     [CMD_KEY]info @player
     
@@ -59,14 +58,10 @@ async def info(ctx, *args, **details):
     
     """
 
-    await imagehelper.stats_screen(ctx.channel, args[0])
+    await imagehelper.stats_screen(ctx.channel, player)
 
 
-async def show_awards(ctx, player, *args):
-    if len(args) == 0:
-        page = 0
-    else:
-        page = args[0] - 1
+async def show_awards(ctx, player, page=0):
 
     if page > len(player.awards) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
@@ -76,7 +71,7 @@ async def show_awards(ctx, player, *args):
 
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
-async def myawards(ctx, *args, **details):
+async def myawards(ctx, page=1, **details):
     """
     [CMD_KEY]myawards (page number)
     
@@ -84,12 +79,12 @@ async def myawards(ctx, *args, **details):
     
     """
 
-    await show_awards(ctx, details["author"], *args)
+    await show_awards(ctx, details["author"], page-1)
 
 
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
-async def awards(ctx, *args, **details):
+async def awards(ctx, player, page=1, **details):
     """
     [CMD_KEY]awards @player (page number)
     
@@ -97,11 +92,11 @@ async def awards(ctx, *args, **details):
     
     """
 
-    await show_awards(ctx, args[0], *args[1:])
+    await show_awards(ctx, player, page-1)
 
 
 @commands.command(args_pattern="S?")
-async def resetme(ctx, *args, **details):
+async def resetme(ctx, cnf="", **details):
     """
     [CMD_KEY]resetme
     
@@ -109,7 +104,7 @@ async def resetme(ctx, *args, **details):
     This cannot be reversed!
     
     """
-    if len(args) == 1 and args[0].lower() == "cnf":
+    if cnf.lower() == "cnf":
         player = details["author"]
         player.reset(ctx.author)
         await util.say(ctx.channel, "Your user has been reset.")

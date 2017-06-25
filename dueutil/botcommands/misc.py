@@ -5,18 +5,19 @@ import subprocess
 
 import discord
 
-import dueutil.permissions
 import generalconfig as gconf
-from dueutil.game.helpers import imagehelper
-from dueutil.permissions import Permission
+import dueutil.permissions
+from ..game.helpers import imagehelper
+from ..permissions import Permission
 from .. import commands, util, events
+from ..game import customizations, awards, leaderboards
 
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
 
 @commands.command(args_pattern=None)
-async def permissions(ctx, *args, **details):
+async def permissions(ctx, **details):
     """
     [CMD_KEY]permissions
     
@@ -45,7 +46,7 @@ async def test(ctx, *args, **details):
 
 
 @commands.command(args_pattern="RR", hidden=True)
-async def add(ctx, *args, **details):
+async def add(ctx, first_number, second_number, **details):
     """
     [CMD_KEY]add (number) (number)
     
@@ -54,14 +55,12 @@ async def add(ctx, *args, **details):
     
     """
 
-    first_number = args[0]
-    second_number = args[1]
     result = first_number + second_number
     await util.say(ctx.channel, "Is " + str(result))
 
 
 @commands.command()
-async def wish(ctx, *args, **details):
+async def wish(ctx, **details):
     """
     [CMD_KEY]wish
     
@@ -78,7 +77,7 @@ async def wish(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="SSSSIP?")
-async def uploadbg(ctx, *args, **details):
+async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **details):
     """
     
     [CMD_KEY]uploadbg (a bunch of args)
@@ -96,28 +95,19 @@ async def uploadbg(ctx, *args, **details):
     
     """
 
-    submitter = None
-    if len(args) == 6:
-        submitter = args[5]
-
-    icon = args[0]
     if not util.char_is_emoji(icon):
         raise util.DueUtilException(ctx.channel, "Icon must be emoji!")
-    description = args[2]
-    price = args[4]
 
-    name = util.filter_string(args[1])
-    if name != args[1]:
+    if name != util.filter_string(name):
         raise util.DueUtilException(ctx.channel, "Invalid background name!")
     name = re.sub(' +', ' ', name)
 
-    if name.lower() in players.backgrounds:
+    if name.lower() in customizations.backgrounds:
         raise util.DueUtilException(ctx.channel, "That background name has already been used!")
 
     if price < 0:
         raise util.DueUtilException(ctx.channel, "Cannot have a negative background price!")
 
-    url = args[3]
     image = await imagehelper.load_image_url(url, raw=True)
     if image is None:
         raise util.DueUtilException(ctx.channel, "Failed to load image!")
@@ -136,7 +126,7 @@ async def uploadbg(ctx, *args, **details):
         backgrounds_file.truncate()
         json.dump(backgrounds, backgrounds_file, indent=4)
 
-    players.backgrounds.load_backgrounds()
+    customizations.backgrounds._load_backgrounds()
 
     await util.say(ctx.channel, ":white_check_mark: Background **" + name + "** has been uploaded!")
     await util.duelogger.info("**%s** added the background **%s**" % (details["author"].name_clean, name))
@@ -146,7 +136,7 @@ async def uploadbg(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S")
-async def testbg(ctx, *args, **details):
+async def testbg(ctx, url, **details):
     """
     [CMD_KEY]testbg (image url)
 
@@ -154,7 +144,6 @@ async def testbg(ctx, *args, **details):
     
     """
 
-    url = args[0]
     image = await imagehelper.load_image_url(url)
     if image is None:
         raise util.DueUtilException(ctx.channel, "Failed to load image!")
@@ -171,7 +160,7 @@ async def testbg(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S")
-async def deletebg(ctx, *args, **details):
+async def deletebg(ctx, background_to_delete, **details):
     """
     [CMD_KEY]deletebg (background name)
     
@@ -181,13 +170,11 @@ async def deletebg(ctx, *args, **details):
     
     """
 
-    background_to_delete = args[0].lower()
-
-    if background_to_delete not in players.backgrounds:
+    if background_to_delete not in customizations.backgrounds:
         raise util.DueUtilException(ctx.channel, "Background not found!")
     if background_to_delete == "default":
         raise util.DueUtilException(ctx.channel, "Can't delete default background!")
-    background = players.backgrounds[background_to_delete]
+    background = customizations.backgrounds[background_to_delete]
 
     with open('backgrounds/backgrounds.json', 'r+') as backgrounds_file:
         backgrounds = json.load(backgrounds_file)
@@ -197,7 +184,7 @@ async def deletebg(ctx, *args, **details):
         json.dump(backgrounds, backgrounds_file, indent=4)
     os.remove("backgrounds/" + background["image"])
 
-    players.backgrounds.load_backgrounds()
+    customizations.backgrounds._load_backgrounds()
 
     await util.say(ctx.channel, ":wastebasket: Background **" + background.name_clean + "** has been deleted!")
     await util.duelogger.info(
@@ -205,7 +192,7 @@ async def deletebg(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="S")
-async def dueeval(ctx, *args, **details):
+async def dueeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
@@ -214,14 +201,14 @@ async def dueeval(ctx, *args, **details):
     # print(player.last_message_hashes)
     try:
         await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
-                                    "**Result** ```" + str(eval(args[0])) + "```")
+                                    "**Result** ```" + str(eval(statement)) + "```")
     except Exception as eval_exception:
         await util.say(ctx.channel, (":cry: Could not evaluate!\n"
                                      + "``%s``" % eval_exception))
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
-async def sudo(ctx, *args, **details):
+async def sudo(ctx, victim, command, **details):
     """
     [CMD_KEY]sudo victim command
     
@@ -229,9 +216,8 @@ async def sudo(ctx, *args, **details):
     """
 
     try:
-        victim = args[0]
         ctx.author = ctx.server.get_member(victim.id)
-        ctx.content = args[1]
+        ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
     except util.DueUtilException as command_failed:
@@ -239,10 +225,9 @@ async def sudo(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
-async def setpermlevel(ctx, *args, **details):
-    player = args[0]
+async def setpermlevel(ctx, player, level, **details):
     member = discord.Member(user={"id": player.id})
-    permission_index = args[1] - 1
+    permission_index = level - 1
     permissions = dueutil.permissions.permissions
     if permission_index < len(permissions):
         permission = permissions[permission_index]
@@ -314,14 +299,14 @@ async def givecash(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def updateleaderboard(ctx, *args, **details):
+async def updateleaderboard(ctx, **details):
     leaderboards.last_leaderboard_update = 0
     await leaderboards.update_leaderboards(ctx)
     await util.say(ctx.channel, ":ferris_wheel: Updating leaderboard!")
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def updatebot(ctx, *args, **details):
+async def updatebot(ctx, **details):
     """
     [CMD_KEY]updatebot
     
@@ -347,14 +332,14 @@ async def updatebot(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def stopbot(ctx, *args, **details):
+async def stopbot(ctx, **details):
     await util.say(ctx.channel, ":wave: Stopping DueUtil!")
     await util.duelogger.concern("DueUtil shutting down!")
     os._exit(0)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def restartbot(ctx, *args, **details):
+async def restartbot(ctx, **details):
     await util.say(ctx.channel, ":ferris_wheel: Restarting DueUtil!")
     await util.duelogger.concern("DueUtil restarting!!")
     os._exit(1)

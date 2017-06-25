@@ -5,8 +5,8 @@ from collections import namedtuple
 import discord
 
 import generalconfig as gconf
-from dueutil import util
-from dueutil.game import weapons
+from .. import util
+from ..game import weapons
 
 # Some tuples for use within this module.
 _BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner", "loser"])

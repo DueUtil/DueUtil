@@ -4,12 +4,12 @@ import sys
 import time
 from functools import wraps
 
-from dueutil import permissions
-from dueutil.game import players
-from dueutil.game.configs import dueserverconfig
-from dueutil.game.helpers import misc
+from . import permissions
+from .game import players
+from .game.configs import dueserverconfig
+from .game.helpers import misc
 from . import events, util
-from dueutil.permissions import Permission
+from .permissions import Permission
 
 IMAGE_REQUEST_COOLDOWN = 5
 

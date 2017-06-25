@@ -2,7 +2,7 @@ import importlib
 import pkgutil
 import sys
 
-from dueutil import events, util
+from . import events, util
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 BOT_PACKAGES = ('dueutil.botcommands', 'dueutil.game')

@@ -2,8 +2,8 @@ import json
 
 from PIL import Image
 
-from dueutil import util
-from dueutil.game.configs import dueserverconfig
+from .. import util
+from ..game.configs import dueserverconfig
 
 awards = dict()
 

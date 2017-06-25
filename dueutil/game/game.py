@@ -8,12 +8,12 @@ import ssdeep
 from guess_language import guess_language
 
 import generalconfig as gconf
-from dueutil import events
-from dueutil import util
-from dueutil.game import players
-from dueutil.game.configs import dueserverconfig
-from dueutil.game import stats, weapons, quests, awards
-from dueutil.game.helpers import imagehelper
+from .. import events
+from .. import util
+from ..game import players
+from ..game.configs import dueserverconfig
+from ..game import stats, weapons, quests, awards
+from ..game.helpers import imagehelper
 
 exp_per_level = dict()
 SPAM_TOLERANCE = 50

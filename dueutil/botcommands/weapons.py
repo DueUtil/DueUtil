@@ -1,8 +1,8 @@
 import discord
 
 import generalconfig as gconf
-from dueutil.game import players
-from dueutil.permissions import Permission
+from ..game import players
+from ..permissions import Permission
 from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
 from .. import commands, util

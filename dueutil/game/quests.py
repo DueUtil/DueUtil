@@ -7,11 +7,11 @@ import discord
 import jsonpickle
 
 from ..util import SlotPickleMixin
-from dueutil import dbconn
-from dueutil import util
-from dueutil.game import players
-from dueutil.game import weapons
-from dueutil.game.helpers.misc import DueUtilObject, DueMap
+from .. import dbconn
+from .. import util
+from ..game import players
+from ..game import weapons
+from ..game.helpers.misc import DueUtilObject, DueMap
 from .players import Player
 
 quest_map = DueMap()

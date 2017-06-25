@@ -4,9 +4,9 @@ import os
 import discord
 from PIL import Image
 
-from dueutil import permissions
-from dueutil.game.helpers.misc import DueUtilObject
-from dueutil.permissions import Permission
+from .. import permissions
+from ..game.helpers.misc import DueUtilObject
+from ..permissions import Permission
 
 """
 

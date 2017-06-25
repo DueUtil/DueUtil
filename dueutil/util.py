@@ -10,7 +10,7 @@ import discord
 import emoji  # The emoji list in this is outdated/not complete.
 
 import generalconfig as gconf
-from dueutil.trello import TrelloClient
+from .trello import TrelloClient
 
 """
 A random jumble of classes & functions that are some how
