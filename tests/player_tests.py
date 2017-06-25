@@ -1,4 +1,3 @@
-from fun.game import players
 import discord
 
 """

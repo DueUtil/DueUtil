@@ -1,4 +1,4 @@
-from fun.helpers.misc import DefaultBunch
+from dueutil.game.helpers.misc import DefaultBunch
 
 test_bunch = DefaultBunch(default="Test",test_value = "cheese")
 print (test_bunch.test_value)

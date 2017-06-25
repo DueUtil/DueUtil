@@ -1,18 +1,22 @@
-import discord
-import generalconfig as gconf
-from botstuff import util, loader, events, permissions, dbconn
-from botstuff.permissions import Permission
-import os
-import sys
 import asyncio
-from threading import Thread
-import queue
-import json
-import traceback
 import inspect
+import json
+import os
+import queue
 import re
-from fun.configs import dueserverconfig
-from fun.game import players
+import sys
+import traceback
+from threading import Thread
+
+import discord
+from dueutil.permissions import Permission
+
+import generalconfig as gconf
+from dueutil import loader
+from dueutil.game import players
+from dueutil.game.configs import dueserverconfig
+from dueutil import permissions
+from dueutil import util, events, dbconn
 
 MAX_RECOVERY_ATTEMPTS = 100
 

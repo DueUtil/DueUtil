@@ -1,4 +1,4 @@
-from fun.helpers.misc import Ring
+from dueutil.game.helpers.misc import Ring
 
 ring = Ring(10)
 
