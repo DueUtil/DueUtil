@@ -47,14 +47,14 @@ class CommandEvent(dict):
         return "Command(%s)" % dict.__repr__(self)
 
     def __setitem__(self, key: str, command: Callable[..., None]):
-        module_name = inspect.getmodule(command).__name__.split('.')[1]
+        module_name = inspect.getmodule(command).__name__.rsplit('.', 1)[1]
         self.command_categories[module_name + "/" + command.__name__] = command
         command.category = module_name
         super(CommandEvent, self).__setitem__(key, command)
 
     def __delitem__(self, key: str):
         command = self[key]
-        module_name = inspect.getmodule(command).__name__.split('.')[1]
+        module_name = inspect.getmodule(command).__name__.rsplit('.', 1)[1]
         del self.command_categories[module_name + "/" + command.__name__]
         super(CommandEvent, self).__delitem__(key)
 

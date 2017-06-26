@@ -6,7 +6,8 @@ import discord
 
 import generalconfig as gconf
 from .. import util
-from ..game import weapons
+from ..game import weapons, awards
+from ..game.players import Player
 
 # Some tuples for use within this module.
 _BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner", "loser"])
@@ -41,6 +42,26 @@ class BattleRequest:
     def _add(self, receiver):
         receiver.received_wagers.append(self)
         receiver.save()
+
+
+async def give_awards_for_battle(channel, battle_log: _BattleLog):
+    """
+    Award triggers that can be called after a battle.
+    This can be called after a battle. Passing the battle log.
+    """
+
+    if not (isinstance(battle_log.winner, Player) or isinstance(battle_log.loser, Player)):
+        return
+    if battle_log.winner is not None:
+        if "Duerus" in battle_log.winner.awards:
+            await awards.give_award(channel, battle_log.loser, "Duerus")
+        if "TopDog" in battle_log.loser.awards:
+            battle_log.loser.awards.remove("TopDog")
+            await awards.give_award(channel, battle_log.winner, "TopDog")
+            awards.update_award_stat("TopDog", "top_dog", battle_log.winner.id)
+        # If it's me
+        if battle_log.loser.id == "132315148487622656":
+            await awards.give_award(channel, battle_log.winner, "KillMe")
 
 
 def get_battle_log(**battleargs):

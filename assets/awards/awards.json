@@ -135,7 +135,7 @@
          "icon":"top_dog.png",
          "name":"TOP DOG",
          "special":true,
-         "message":"While you have this award you're undefeated"
+         "message":"You're undefeated while you have this!"
       },
       "Donor":{
          "icon":"donor_award.png",
@@ -178,6 +178,41 @@
         "icon":"inconceivable_quest.png",
         "name":"INCONCEIVABLE!",
         "message":"Draw in a quest!"
-      }
+      },
+      "CritHit":{
+         "icon":"crithit.png",
+         "name":"CRITICAL HIT!",
+         "message":"One shot another player!"
+      },
+      "ItsART":{
+         "icon":"itsart.png",
+         "name":"Art.",
+         "message":"Spam eyes and glitter text!"
+      },
+     "KillMe":{
+         "icon":"killme.png",
+         "name":"Forgot my cheats!",
+         "message":"Defeat MacDue"
+      },
+     "500Wagers":{
+         "icon":"kingwager.png",
+         "name":"499...500!",
+         "message":"Win 500 wagers!"
+      },
+     "QuestLoser":{
+         "icon":"questloser.png",
+         "name":"L-O-S-E-R",
+         "message":"Fail 10 quests in a row!"
+      },
+     "Sauce":{
+         "icon":"sauce.png",
+         "name":"Saucy",
+         "message":"🍆✊"
+     },
+     "Duerus":{
+         "icon":"duerus.png",
+         "name":"☣ INFECTED ☣",
+         "message":"It's like super AIDs. Spreads to losers."
+     }
    }
 }

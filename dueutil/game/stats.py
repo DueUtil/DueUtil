@@ -3,6 +3,10 @@ from typing import Dict
 
 from .. import dbconn
 
+"""
+General game stats
+"""
+
 
 class Stat(Enum):
     MONEY_CREATED = "moneycreated"

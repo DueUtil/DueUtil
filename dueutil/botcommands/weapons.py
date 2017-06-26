@@ -134,12 +134,14 @@ async def battle(ctx, *args, **details):
         player_two = args[0]
 
     battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
+
+    await imagehelper.battle_screen(ctx.channel, player_one, player_two)
+    await util.say(ctx.channel, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player_one, "InconceivableBattle")
         awards.give_award(ctx.channel, player_two, "InconceivableBattle")
-    await imagehelper.battle_screen(ctx.channel, player_one, player_two)
-    await util.say(ctx.channel, embed=battle_log.embed)
+    await battles.give_awards_for_battle(ctx.channel, battle_log)
 
 
 @commands.command(args_pattern='PC')
@@ -298,6 +300,7 @@ async def acceptwager(ctx, *args, **details):
     else:
         await  awards.give_award(ctx.channel, player, "InconceivableWager")
         await  awards.give_award(ctx.channel, sender, "InconceivableWager")
+    await battles.give_awards_for_battle(ctx.channel, battle_log)
     sender.save()
     player.save()
 

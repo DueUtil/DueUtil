@@ -5,9 +5,8 @@ import discord
 import repoze.timeago
 
 import generalconfig as gconf
-from .. import commands, util
-from ..game import awards
-from ..game import leaderboards
+from .. import commands, util, dbconn
+from ..game import awards, players, leaderboards
 from ..game.helpers import misc, imagehelper
 
 
@@ -139,7 +138,7 @@ async def myrank(ctx, **details):
         await util.say(ctx.channel, (":sparkles: You're position **" + str(position + 1) + "** on the leaderboard!\n"
                                      + "That's on ``" + details["cmd_key"]
                                      + "leaderboard`` page " + str(page + 1) + "!"))
-    except IndexError:
+    except (IndexError, ValueError):
         await util.say(ctx.channel, (":confounded: I can't find you in the leaderboard!?\n"
                                      + "This probably means you're new and leaderboard has not updated yet!"))
 
@@ -194,3 +193,50 @@ async def givepotato(ctx, receiver, **details):
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
     if sender.misc_stats["potatoes_given"] == 100:
         await awards.give_award(ctx.channel, sender, "KingTat", ":crown: :potato: **Potato King!** :potato: :crown:")
+
+
+@commands.command(args_pattern=None)
+async def topdog(ctx, **details):
+    """
+    [CMD_KEY]topdog
+
+    View the "top dog"
+    """
+    top_dog_stats = awards.get_award_stat("TopDog")
+    if "top_dog" in top_dog_stats:
+        top_dog = players.find_player(top_dog_stats["top_dog"])
+        await util.say(ctx.channel, (":dog: The current top dog is **%s** (%s)!\n"
+                                     + "They are the **%s** to earn the rank of top dog!")
+                       % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
+    else:
+        await util.say(ctx.channel, "There is not a top dog yet!")
+
+
+@commands.command(args_pattern=None)
+async def pandemic(ctx, **details):
+    """
+    [CMD_KEY]pandemic
+
+    Tracks the current DueUtil pandemic.
+    """
+    virus_stats = awards.get_award_stat("Duerus")
+
+    if virus_stats is None or virus_stats["times_given"] == 0:
+        await util.say(ctx.channel, "All looks good now though a pandemic could break out any day.")
+        return
+
+    total_players = dbconn.get_collection_for_object(players.Player).count()
+    total_infected = virus_stats["times_given"]
+    total_uninfected = total_players - total_infected
+    percent_infected = (total_infected/total_players) * 100
+
+    pandemic_embed = discord.Embed(title="DueUtil Pandemic", type="rich", color=gconf.EMBED_COLOUR)
+
+    pandemic_embed.add_field(name=":family: Population", value=util.format_number(total_players, full_precision=True))
+    pandemic_embed.add_field(name=":biohazard: Total infected",
+                             value=util.format_number(total_infected, full_precision=True))
+    pandemic_embed.add_field(name=":pill: Total uninfected",
+                             value=util.format_number(total_uninfected, full_precision=True))
+    pandemic_embed.add_field(name=":information_source: Percent infected", value="%.2g%%" % percent_infected)
+
+    await util.say(ctx.channel, embed=pandemic_embed)

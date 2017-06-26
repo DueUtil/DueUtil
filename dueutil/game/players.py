@@ -135,7 +135,11 @@ class Player(DueUtilObject, SlotPickleMixin):
             self.awards = []
         else:
             # Keep special awards even after reset
-            self.awards = [award_id for award_id in self.awards if awards.get_award(award_id).special]
+            kept_awards = [award_id for award_id in self.awards if awards.get_award(award_id).special]
+            # To ensure stats don't get weird
+            for award_id in set(self.awards) - set(kept_awards):
+                awards.update_award_stat(award_id, "times_given", -1)
+            self.awards = kept_awards
 
         # To help the noobz
         self.quest_spawn_build_up = 1

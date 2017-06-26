@@ -218,7 +218,7 @@ def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)
 
 
-def filter_string(string):
+def filter_string(string: str) -> str:
     new = ""
     for i in range(0, len(string)):
         if 32 <= ord(string[i]) <= 126:
@@ -231,3 +231,14 @@ def filter_string(string):
 def load(shards):
     global shard_clients
     shard_clients = shards
+
+
+SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}
+def int_to_ordinal(number: int) -> str:
+    if 10 <= number % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = SUFFIXES.get(number % 10, "th")
+    return str(number)+suffix
+
+

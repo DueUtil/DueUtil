@@ -2,7 +2,7 @@ import json
 
 from PIL import Image
 
-from .. import util
+from .. import util, dbconn
 from ..game.configs import dueserverconfig
 
 awards = dict()
@@ -49,8 +49,22 @@ async def give_award(channel, player, award_id, text=None):
         player.save()
         if not channel.is_private and dueserverconfig.mute_level(channel) < 0:
             if text is None:
-                text = get_award(award_id).description
+                text = get_award(award_id).name
             await util.say(channel, "**" + player.name_clean + "** :trophy: **Award!** " + text)
+        update_award_stat(award_id, "times_given", 1)
+
+
+def update_award_stat(award_id, stat, value, increment=True):
+    if get_award(award_id) is not None:
+        if increment and type(value) is int:
+            update = {"$inc": {stat: value}}
+        else:
+            update = {"$set": {stat: value}}
+        dbconn.conn()["award_stats"].update({"award": award_id}, update, upsert=True)
+
+
+def get_award_stat(award_id):
+    return dbconn.conn()["award_stats"].find_one({"award": award_id})
 
 
 _load()
