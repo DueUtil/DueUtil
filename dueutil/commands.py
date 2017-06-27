@@ -13,6 +13,7 @@ from .permissions import Permission
 IMAGE_REQUEST_COOLDOWN = 5
 # The max number the bot will accept. To avoid issues with crazy big numbers.
 MAX_NUMBER = 99999999999999999999999999999999999999999999
+STRING_TYPES = ('S', 'M')
 
 """
 DueUtils random command system.
@@ -249,7 +250,7 @@ async def determine_args(pattern, args):
         return pattern.replace('?', '')
 
     def could_be_string(pattern):
-        if pattern[0] == 'S':
+        if pattern[0] in STRING_TYPES:
             if len(pattern) > 1:
                 pattern_pos = len(pattern) - 1
                 while pattern_pos > 0:
@@ -257,7 +258,7 @@ async def determine_args(pattern, args):
                         pattern_pos -= 2
                         continue
                     return False
-            return pattern == "S" or len(pattern) > 1
+            return pattern in STRING_TYPES or len(pattern) > 1
         return False
 
     def attempt_args_as_string(args, pattern):
@@ -370,7 +371,13 @@ async def determine_args(pattern, args):
         !command arg0 arg1 arg2 A String here
         """
         if len(args) > len(pattern):
-            last_string = pattern.rfind('S')
+            last_string = -1
+            # Find the last type that could be a string in the pattern.
+            # Use a simple loop as the regex (re) kinda sucks for this
+            for string_type in STRING_TYPES:
+                last_string_type = pattern.rfind(string_type)
+                if last_string_type > last_string:
+                    last_string = last_string_type
             if last_string != -1:
                 if could_be_string(pattern[last_string:]):
                     new_args = tuple(args[:last_string]) + (' '.join(args[last_string:]),)

@@ -135,9 +135,10 @@ async def acceptquest(ctx, quest_index, **details):
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
-        def attr_gain(stat): return ((stat / avg_player_stat)
-                                     * quest.level / (player.level * 2)
-                                     * turns / average_quest_battle_turns / quest_scale)
+        def attr_gain(stat):
+            return ((stat / avg_player_stat)
+                    * quest.level / (player.level * 2)
+                    * turns / average_quest_battle_turns / quest_scale)
 
         add_attack = min(attr_gain(quest.attack), 100)
         add_strg = min(attr_gain(quest.strg), 100)
@@ -200,7 +201,7 @@ async def declinequest(ctx, quest_index, **details):
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?R?')
 async def createquest(ctx, name, attack, strg, accy, hp,
-                      task=None, weapon=None, image=None, spawn_chane=25, **details):
+                      task=None, weapon=None, image_url=None, spawn_chane=25, **details):
     """
     [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
     
@@ -234,13 +235,19 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         if weapon is None:
             raise util.DueUtilException(ctx.channel, "Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
-    if image is not None:
-        extras['image_url'] = image
+    if image_url is not None:
+        extras['image_url'] = image_url
     extras['spawn_chance'] = spawn_chane
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
+    # TODO Fix is_image_url
+    if image_url is not None and not await imagehelper.is_image_url(image_url):
+        await util.say(ctx.channel, ":warning: The url you provided for your quests "
+                                    + "image does not appear to be an image!\n"
+                                    + "Remember the url must be to an image (not a webpage)"
+                                    + " i.e. a url ending in an image type (.png, .jpeg...)")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
@@ -348,38 +355,68 @@ async def removequest(ctx, quest_name, **details):
     await util.say(ctx.channel, ":white_check_mark: **" + quest.name_clean + "** is no more!")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='C?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='M?')
 async def serverquests(ctx, page=1, **details):
-    page -= 1
-    embed = discord.Embed(title=(":crossed_swords: Quests on " + details["server_name_clean"]
-                                 + (" : Page " + str(page + 1) if page > 0 else "")), type="rich",
-                          color=gconf.EMBED_COLOUR)
-    page_size = 12
-    quests_list = list(quests.get_server_quest_list(ctx.server).values())
-    if page * page_size >= len(quests_list):
-        raise util.DueUtilException(None, "Page not found")
-    if len(quests_list) > 0:
-        quest_index = 0
-        for quest_index in range(page_size * page, page_size * page + page_size):
-            if quest_index >= len(quests_list):
-                break
-            quest = quests_list[quest_index]
-            if quest.channel == "ALL":
-                active_channel = "All"
-            else:
-                channel = ctx.server.get_channel(quest.channel)
-                if channel is None:
-                    active_channel = "``Deleted``"
-                else:
-                    active_channel = channel.mention
-            embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time"
-                                                         + ("s" if quest.times_beaten != 1 else "") + "\n"
-                                                         + "Active channel: %s" % active_channel)
-        if quest_index < len(quests_list) - 1:
-            embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
-        else:
-            embed.set_footer(text="That's all!")
-    else:
-        embed.description = "There are no quests on this server!\nHow sad."
+    """
+    [CMD_KEY]serverquests (page or quest name)
 
+    Lists the quests active on your server.
+
+    If you would like to see the base stats of a quest do [CMD_KEY]serverquests (quest name)
+
+    Remember you can edit any of the quests on your server with [CMD_KEY]editquest
+    """
+
+    embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
+    if type(page) is int:
+        page -= 1
+        embed.title = (":crossed_swords: Quests on " + details["server_name_clean"]
+                       + (" : Page " + str(page + 1) if page > 0 else ""))
+        page_size = 12
+        quests_list = list(quests.get_server_quest_list(ctx.server).values())
+        if page * page_size >= len(quests_list):
+            raise util.DueUtilException(None, "Page not found")
+        if len(quests_list) > 0:
+            quest_index = 0
+            for quest_index in range(page_size * page, page_size * page + page_size):
+                if quest_index >= len(quests_list):
+                    break
+                quest = quests_list[quest_index]
+                if quest.channel == "ALL":
+                    active_channel = "All"
+                else:
+                    channel = ctx.server.get_channel(quest.channel)
+                    if channel is None:
+                        active_channel = "``Deleted``"
+                    else:
+                        active_channel = channel.mention
+                embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time"
+                                                             + ("s" if quest.times_beaten != 1 else "") + "\n"
+                                                             + "Active channel: %s" % active_channel)
+            if quest_index < len(quests_list) - 1:
+                embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
+            else:
+                embed.set_footer(text="That's all!")
+        else:
+            embed.description = "There are no quests on this server!\nHow sad."
+
+    else:
+        quest_name = page
+        quest = quests.get_quest_on_server(ctx.server, quest_name)
+        if quest is None:
+            raise util.DueUtilException(ctx.channel, "Quest not found!")
+        embed.title = "Quest information for the %s " % quest.name_clean
+        embed.description = "You can edit these values with ``%seditquest %s (values)``" \
+                            % (details["cmd_key"], quest.name_clean.lower())
+        embed.add_field(name="Base stats", value=(":punch: ``Attack``: %.2g \n" % quest.base_attack
+                                                  + ":heart: ``HP``: %.2g\n" % quest.base_hp
+                                                  + ":dart: ``ACCY``: %.2g\n" % quest.base_accy
+                                                  + ":new: ``Spawn %%``: %.2g\n" % (quest.spawn_chance * 100)))
+        embed.add_field(name="Other attributes", value=(":frame_photo: ``Image``: %s\n" % util.ultra_escape_string(quest.image_url)
+                                                        + ':speech_left: ``Task message``: "%s"\n'
+                                                        % util.ultra_escape_string(quest.task)
+                                                        + ":gun: ``Weapon``: %s\n" % util.ultra_escape_string(str(quest.w_id))
+                                                        + ":tv: ``Channel``: %s\n" % quest.channel), inline=False)
+        await imagehelper.is_image_url(quest.image_url)
+        embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)

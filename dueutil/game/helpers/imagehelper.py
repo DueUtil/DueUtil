@@ -3,6 +3,7 @@ import os
 import random
 import re
 from io import BytesIO
+import aiohttp
 
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
@@ -10,7 +11,6 @@ from colour import Color
 from dueutil import util
 from .. import awards
 from .. import game
-from .. import players
 from .. import stats
 from .. import weapons
 from .. import customizations
@@ -121,6 +121,13 @@ async def load_image_url(url, **kwargs):
             if os.path.isfile(file_name):
                 os.remove(file_name)
             return None
+
+
+async def is_image_url(url):
+    async with aiohttp.head(url) as response:
+        if "Content-Type" in response.headers:
+            return response.headers["Content-Type"] == "image/png"
+    return False
 
 
 def resize(image, width, height):
