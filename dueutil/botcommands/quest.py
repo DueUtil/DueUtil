@@ -243,7 +243,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
     # TODO Fix is_image_url
-    if image_url is not None and not await imagehelper.is_image_url(image_url):
+    if not await imagehelper.is_image_url(new_quest.image_url):
         await util.say(ctx.channel, ":warning: The url you provided for your quests "
                                     + "image does not appear to be an image!\n"
                                     + "Remember the url must be to an image (not a webpage)"

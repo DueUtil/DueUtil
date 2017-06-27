@@ -31,6 +31,8 @@ class Quest(DueUtilObject, SlotPickleMixin):
                  "base_attack", "base_strg", "base_accy", "base_hp",
                  "channel", "times_beaten"]
 
+    DEFAULT_IMAGE = "http://i.imgur.com/zHnDAdX.png"
+
     def __init__(self, name, base_attack, base_strg, base_accy, base_hp, **extras):
         message = extras.get('ctx', None)
         given_spawn_chance = extras.get('spawn_chance', 4)
@@ -63,7 +65,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
         self.task = extras.get('task', "Battle a")
         self.w_id = extras.get('weapon_id', weapons.NO_WEAPON_ID)
         self.spawn_chance = given_spawn_chance / 100
-        self.image_url = extras.get('image_url', "")
+        self.image_url = extras.get('image_url', Quest.DEFAULT_IMAGE)
         self.base_attack = base_attack
         self.base_strg = base_strg
         self.base_accy = base_accy

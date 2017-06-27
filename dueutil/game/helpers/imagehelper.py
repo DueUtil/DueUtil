@@ -126,6 +126,7 @@ async def load_image_url(url, **kwargs):
 async def is_image_url(url):
     async with aiohttp.head(url) as response:
         if "Content-Type" in response.headers:
+            print(response.headers["Content-Type"],response.headers["Content-Type"] == "image/png")
             return response.headers["Content-Type"] == "image/png"
     return False
 
@@ -486,7 +487,7 @@ async def battle_screen(channel, player_one, player_two):
     wep_image_one = await resize_image_url(weapon_one.image_url, 30, 30)
 
     if wep_image_one is None:
-        wep_image_one = await resize_image_url(weapons.NO_WEAPON.image_url, 30, 30)
+        wep_image_one = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
 
     try:
         image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
@@ -496,7 +497,7 @@ async def battle_screen(channel, player_one, player_two):
     wep_image_two = await resize_image_url(weapon_two.image_url, 30, 30)
 
     if wep_image_two is None:
-        wep_image_two = await resize_image_url(weapons.NO_WEAPON.image_url, 30, 30)
+        wep_image_two = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
     try:
         image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
     except:

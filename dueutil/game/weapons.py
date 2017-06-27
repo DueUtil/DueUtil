@@ -22,7 +22,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
     """A simple weapon that can be used by a monster or player in DueUtil"""
 
     PRICE_CONSTANT = 0.04375
-    DEFAULT_IMAGE = "https://cdn.discordapp.com/attachments/213007664005775360/280114370560917505/dueuti_deathl.png"
+    DEFAULT_IMAGE = "http://i.imgur.com/2fBwaNY.png"
 
     __slots__ = ["damage", "accy", "price",
                  "icon", "hit_message", "melee", "image_url",
@@ -64,7 +64,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
         self.icon = extras.get('icon', "🔫")
         self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee', True)
-        self.image_url = extras.get('image_url', self.DEFAULT_IMAGE)
+        self.image_url = extras.get('image_url', Weapon.DEFAULT_IMAGE)
 
         self.weapon_sum = self._weapon_sum()
         self._add()
