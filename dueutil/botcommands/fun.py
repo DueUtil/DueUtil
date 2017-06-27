@@ -171,6 +171,8 @@ async def giveemoji(ctx, receiver, emoji, **details):
     except util.DueUtilException as command_error:
         raise command_error
     await awards.give_award(ctx.channel, sender, "Emoji", ":fire: __Breakdown Of Society__ :city_dusk:")
+    if emoji == "🍆":
+        await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
     if sender.misc_stats["emojis_given"] == 100:
         await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
@@ -225,18 +227,27 @@ async def pandemic(ctx, **details):
         await util.say(ctx.channel, "All looks good now though a pandemic could break out any day.")
         return
 
+    warning_symbols = {0: ":heart: - Healthy", 1: ":yellow_heart: - Worrisome", 2: ":black_heart: - Doomed"}
+    thumbnails = {0: "http://i.imgur.com/NENJMOP.jpg",
+                  1: "http://i.imgur.com/we6XgpG.gif",
+                  2: "http://i.imgur.com/EJVYJ9C.gif"}
+
     total_players = dbconn.get_collection_for_object(players.Player).count()
     total_infected = virus_stats["times_given"]
     total_uninfected = total_players - total_infected
-    percent_infected = (total_infected/total_players) * 100
-
-    pandemic_embed = discord.Embed(title="DueUtil Pandemic", type="rich", color=gconf.EMBED_COLOUR)
-
-    pandemic_embed.add_field(name=":family: Population", value=util.format_number(total_players, full_precision=True))
-    pandemic_embed.add_field(name=":biohazard: Total infected",
-                             value=util.format_number(total_infected, full_precision=True))
-    pandemic_embed.add_field(name=":pill: Total uninfected",
-                             value=util.format_number(total_uninfected, full_precision=True))
-    pandemic_embed.add_field(name=":information_source: Percent infected", value="%.2g%%" % percent_infected)
+    percent_infected = (total_infected / total_players) * 100
+    pandemic_level = percent_infected // 33
+    pandemic_embed = discord.Embed(title=":biohazard: DueUtil Pandemic :biohazard:", type="rich",
+                                   color=gconf.EMBED_COLOUR)
+    pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
+    pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
+    pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
+                                                           + ":biohazard: **%s** are infected.\n"
+                                                           + ":pill: **%s** are uninfected.\n\n"
+                                                           + "This means **%.2g**%% of all players are infected!")
+                                                          % (total_players, total_infected,
+                                                             total_uninfected, percent_infected))
+    pandemic_embed.add_field(name="Health level",
+                             value=warning_symbols.get(pandemic_level, warning_symbols[2]))
 
     await util.say(ctx.channel, embed=pandemic_embed)

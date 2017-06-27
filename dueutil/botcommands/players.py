@@ -10,6 +10,12 @@ from ..game.helpers import misc, playersabstract, imagehelper
 from .. import commands, util
 
 
+@commands.command(args_pattern=None)
+@commands.ratelimit(cooldown=86400, error="You can't collect you're daily reward again for ")
+async def daily(ctx, **details):
+    pass
+
+
 @commands.command(args_pattern="S?")
 async def battlename(ctx, name="", **details):
     """
@@ -108,10 +114,6 @@ async def resetme(ctx, cnf="", **details):
         player = details["author"]
         player.reset(ctx.author)
         await util.say(ctx.channel, "Your user has been reset.")
-        if permissions.has_special_permission(ctx.author, Permission.DUEUTIL_MOD):
-            await game_awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-        elif permissions.has_special_permission(ctx.author, Permission.DUEUTIL_ADMIN):
-            await game_awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
     else:
         await util.say(ctx.channel, ("Are you sure?! This will **__permanently__** reset your user!"
                                      + "\nDo ``" + details["cmd_key"] + "resetme cnf`` if you're sure!"))

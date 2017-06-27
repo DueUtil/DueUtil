@@ -274,8 +274,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         if current_background not in customizations.backgrounds:
             # Check (just to quick fix)
             # TODO: Remove later
-            if current_background in self.inventory["backgrounds"]: self.inventory["backgrounds"].remove(
-                current_background)
+            if current_background in self.inventory["backgrounds"]:
+                self.inventory["backgrounds"].remove(current_background)
             self.equipped.background = "default"
         return customizations.backgrounds[self.equipped["background"]]
 

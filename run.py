@@ -170,7 +170,7 @@ class DueUtilClient(discord.Client):
             avatar_object = avatar.read()
             yield from self.edit_profile(avatar=avatar_object)
             yield from self.send_message(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
-        except:
+        except FileNotFoundError:
             yield from self.send_message(channel, ":bangbang: **Avatar change failed!**")
 
     @asyncio.coroutine
@@ -226,14 +226,15 @@ class ShardThread(Thread):
         shard_clients.append(client)
         try:
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
-        except:
-            if level < MAX_RECOVERY_ATTEMPTS:  # TODO Fix this
+        except Exception as client_exception:
+            util.logger.exception(client_exception, exc_info=True)
+            if level < MAX_RECOVERY_ATTEMPTS:
                 util.logger.warning("Bot recovery attempted for shard %d" % self.shard_number)
                 shard_clients.remove(client)
                 self.event_loop = asyncio.new_event_loop()
                 self.run(level + 1)
             else:
-                util.logger.critical("FALTAL ERROR: Shard down! Recovery failed")
+                util.logger.critical("FATAL ERROR: Shard down! Recovery failed")
         finally:
             util.logger.critical("Shard is down! Bot needs restarting!")
             # Should restart bot

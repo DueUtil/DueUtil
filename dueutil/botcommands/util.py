@@ -85,7 +85,7 @@ async def help(ctx, *args, **details):
 
 
 @commands.command(args_pattern=None)
-async def dustats(ctx, *args, **details):
+async def dustats(ctx, **details):
     """
     [CMD_KEY]dustats
     
@@ -141,7 +141,7 @@ async def giveaward(ctx, player, award_id, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")
-async def setcmdkey(ctx, *args, **details):
+async def setcmdkey(ctx, new_key, **details):
     """
     [CMD_KEY]setcmdkey
     
@@ -149,11 +149,10 @@ async def setcmdkey(ctx, *args, **details):
     The default is '!'
     """
 
-    new_key = args[0]
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.server, new_key)
         await util.say(ctx.channel,
-                       "Command preix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
+                       "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
     else:
         raise util.DueUtilException(ctx.channel, "Command prefixes can only be one or two characters!")
 
@@ -226,7 +225,7 @@ async def leave(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
-async def unshutupdue(ctx, *args, **details):
+async def unshutupdue(ctx, **details):
     if dueserverconfig.unmute_channel(ctx.channel):
         await util.say(ctx.channel,
                        ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")

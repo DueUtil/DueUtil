@@ -31,6 +31,7 @@ class CommandEvent(dict):
     """
 
     def __init__(self):
+        super().__init__()
         self.command_categories = DueMap()
 
     def command_list(self, *args):

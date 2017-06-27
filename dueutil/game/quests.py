@@ -105,7 +105,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
     def home(self):
         try:
             return util.get_client(self.server_id).get_server(self.server_id).name
-        except:
+        except AttributeError:
             return "Unknown"
 
 

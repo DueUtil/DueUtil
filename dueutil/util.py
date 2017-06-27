@@ -28,7 +28,6 @@ trello_client = TrelloClient(api_key=gconf.trello_api_key,
 
 
 class DueLog:
-
     @staticmethod
     async def bot(message, **kwargs):
         await say(gconf.log_channel, ":robot: %s" % message, **kwargs)
@@ -181,11 +180,11 @@ def format_number(number, **kwargs):
         number = number / pow(10, reg + 2)
         try:
             string = " " + units[math.floor(reg / 3) - 1]
-        except:
+        except IndexError:
             string = " Fucktonillion"
         number = int(number * 100) / float(100)
-        formatted = '{0:g}'.format(number)
-        return formatted + string if len(formatted) < 17 else str(math.trunc(number)) + string
+        formatted_number = '{0:g}'.format(number)
+        return formatted_number + string if len(formatted_number) < 17 else str(math.trunc(number)) + string
 
     if number >= 1000000 and not kwargs.get('full_precision', False):
         formatted = really_large_format()
@@ -234,11 +233,11 @@ def load(shards):
 
 
 SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}
+
+
 def int_to_ordinal(number: int) -> str:
     if 10 <= number % 100 <= 20:
         suffix = "th"
     else:
         suffix = SUFFIXES.get(number % 10, "th")
-    return str(number)+suffix
-
-
+    return str(number) + suffix

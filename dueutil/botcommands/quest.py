@@ -120,6 +120,9 @@ async def acceptquest(ctx, quest_index, **details):
                          + util.format_number(quest.money // 2, full_precision=True, money=True) + "``")
         player.money -= quest.money // 2
         player.quest_spawn_build_up += 0.1
+        player.misc_stats["quest_losing_streak"] += 1
+        if player.misc_stats["quest_losing_streak"] == 10:
+            await awards.give_award(ctx.channel, player, "QuestLoser")
     elif winner == player:
         if player.quest_day_start == 0:
             player.quest_day_start = time.time()
@@ -152,6 +155,7 @@ async def acceptquest(ctx, quest_index, **details):
             quest_info.times_beaten += 1
             quest_info.save()
         await game.check_for_level_up(ctx, player)
+        player.misc_stats["quest_losing_streak"] = 0
     else:
         quest_results = ":question: Against all you drew with the quest!"
     battle_embed.add_field(name="Quest results", value=quest_results, inline=False)
@@ -240,7 +244,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
-async def editquest(ctx, quest_name, *args, **details):
+async def editquest(ctx, quest_name, *updates, **details):
     """
     [CMD_KEY]editquest name (property value)+
     
@@ -263,8 +267,8 @@ async def editquest(ctx, quest_name, *args, **details):
 
     editable_props = ("attack", "hp", "accy", "spawn", "weap", "image", "task", "channel")
     changes = OrderedDict()
-    updates = args[1:]
     quest = quests.get_quest_on_server(ctx.server, quest_name)
+
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
@@ -297,10 +301,14 @@ async def editquest(ctx, quest_name, *args, **details):
             elif quest_property == "task":
                 quest.task = value
             elif quest_property == "channel":
-                channel_id = value.replace("<#", "").replace(">", "")
-                channel = util.get_client(ctx.server.id).get_channel(channel_id)
-                if channel is not None:
-                    quest.channel = channel.id
+                if value.upper() != "ALL":
+                    channel_id = value.replace("<#", "").replace(">", "")
+                    channel = util.get_client(ctx.server.id).get_channel(channel_id)
+                    if channel is not None:
+                        quest.channel = channel.id
+                else:
+                    quest.channel = "ALL"
+                    value = "All"
             else:
                 changed = False
             if changed:
@@ -322,7 +330,7 @@ async def editquest(ctx, quest_name, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
-async def removequest(ctx, *args, **details):
+async def removequest(ctx, quest_name, **details):
     """
     [CMD_KEY]removequest (quest name)
     
@@ -331,7 +339,7 @@ async def removequest(ctx, *args, **details):
     
     """
 
-    quest_name = args[0].lower()
+    quest_name = quest_name.lower()
     quest = quests.get_quest_on_server(ctx.server, quest_name)
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
@@ -341,10 +349,8 @@ async def removequest(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='C?')
-async def serverquests(ctx, *args, **details):
-    page = 0
-    if len(args) == 1:
-        page = args[0] - 1
+async def serverquests(ctx, page=1, **details):
+    page -= 1
     embed = discord.Embed(title=(":crossed_swords: Quests on " + details["server_name_clean"]
                                  + (" : Page " + str(page + 1) if page > 0 else "")), type="rich",
                           color=gconf.EMBED_COLOUR)
@@ -358,8 +364,17 @@ async def serverquests(ctx, *args, **details):
             if quest_index >= len(quests_list):
                 break
             quest = quests_list[quest_index]
-            embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time" + (
-                "s" if quest.times_beaten != 1 else ""))
+            if quest.channel == "ALL":
+                active_channel = "All"
+            else:
+                channel = ctx.server.get_channel(quest.channel)
+                if channel is None:
+                    active_channel = "``Deleted``"
+                else:
+                    active_channel = channel.mention
+            embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time"
+                                                         + ("s" if quest.times_beaten != 1 else "") + "\n"
+                                                         + "Active channel: %s" % active_channel)
         if quest_index < len(quests_list) - 1:
             embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
         else:

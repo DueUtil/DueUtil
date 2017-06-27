@@ -49,7 +49,7 @@ async def myweapons(ctx, *args, **details):
 
 
 @commands.command(args_pattern=None)
-async def unequip(ctx, *args, **details):
+async def unequip(ctx, **details):
     """
     [CMD_KEY]unequip
     
@@ -72,7 +72,7 @@ async def unequip(ctx, *args, **details):
 
 
 @commands.command(args_pattern='S')
-async def equip(ctx, *args, **details):
+async def equip(ctx, weapon_name, **details):
     """
     [CMD_KEY]equip (weapon name)
     
@@ -82,7 +82,7 @@ async def equip(ctx, *args, **details):
     player = details["author"]
     current_weapon = player.weapon
 
-    weapon = player.get_weapon(args[0].lower())
+    weapon = player.get_weapon(weapon_name.lower())
     if weapon is None:
         raise util.DueUtilException(ctx.channel, "You do not have that weapon stored!")
 
@@ -145,7 +145,7 @@ async def battle(ctx, *args, **details):
 
 
 @commands.command(args_pattern='PC')
-async def wagerbattle(ctx, *args, **details):
+async def wagerbattle(ctx, receiver, money, **details):
     """
     [CMD_KEY]wagerbattle player amount
     
@@ -155,8 +155,6 @@ async def wagerbattle(ctx, *args, **details):
     
     """
     sender = details["author"]
-    receiver = args[0]
-    money = args[1]
 
     if sender == receiver:
         raise util.DueUtilException(ctx.channel, "You can't wager against yourself!")
@@ -172,7 +170,7 @@ async def wagerbattle(ctx, *args, **details):
 
 
 @commands.command(args_pattern='C?')
-async def mywagers(ctx, *args, **details):
+async def mywagers(ctx, page=1, **details):
     """
     [CMD_KEY]mywagers (page)
     
@@ -184,9 +182,7 @@ async def mywagers(ctx, *args, **details):
 
     player = details["author"]
     page_size = 12
-    page = 0
-    if len(args) == 1:
-        page = args[0] - 1
+    page -=1
     title = player.get_name_possession_clean() + " Received Wagers" + (" : Page " + str(page + 1) if page > 0 else "")
     wagers_embed = discord.Embed(title=title, type="rich", color=gconf.EMBED_COLOUR)
     wager_list = player.received_wagers
@@ -218,7 +214,7 @@ async def mywagers(ctx, *args, **details):
 
 @commands.command(args_pattern='C')
 @commands.imagecommand()
-async def acceptwager(ctx, *args, **details):
+async def acceptwager(ctx, wager_index, **details):
     """
     [CMD_KEY]acceptwager (wager number)
     
@@ -227,7 +223,7 @@ async def acceptwager(ctx, *args, **details):
     """
     # TODO: Handle draws
     player = details["author"]
-    wager_index = args[0] - 1
+    wager_index -= 1
     if wager_index >= len(player.received_wagers):
         raise util.DueUtilException(ctx.channel, "Request not found!")
     if player.money - player.received_wagers[wager_index].wager_amount // 2 < 0:
@@ -306,7 +302,7 @@ async def acceptwager(ctx, *args, **details):
 
 
 @commands.command(args_pattern='C')
-async def declinewager(ctx, *args, **details):
+async def declinewager(ctx, wager_index, **details):
     """
     [CMD_KEY]declinewager (wager number)
     
@@ -315,7 +311,7 @@ async def declinewager(ctx, *args, **details):
     """
 
     player = details["author"]
-    wager_index = args[0] - 1
+    wager_index -= 1
     if wager_index < len(player.received_wagers):
         wager = player.received_wagers[wager_index]
         del player.received_wagers[wager_index]
@@ -328,7 +324,7 @@ async def declinewager(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSCCB?S?S?')
-async def createweapon(ctx, *args, **details):
+async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image=None, **details):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
     
@@ -350,27 +346,25 @@ async def createweapon(ctx, *args, **details):
     """
 
     extras = dict()
-    if len(args) >= 5:
-        extras['melee'] = args[4]
-    if len(args) >= 6:
-        extras['icon'] = args[5]
-    if len(args) == 7:
-        extras['image_url'] = args[6]
+    extras['melee'] = not ranged
+    extras['icon'] = icon
+    if image is not None:
+        extras['image_url'] = image
 
-    weapon = weapons.Weapon(*args[:4], **extras, ctx=ctx)
+    weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
     await util.say(ctx.channel, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
                                  + util.format_number(weapon.price, money=True) + "!"))
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
-async def removeweapon(ctx, *args, **details):
+async def removeweapon(ctx, weapon_name, **details):
     """
     [CMD_KEY]removeweapon (weapon name)
     
     Screw all the people that bought it :D
     """
 
-    weapon_name = args[0].lower()
+    weapon_name = weapon_name.lower()
     weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
     if weapon is None or weapon.id == weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel, "Weapon not found")
