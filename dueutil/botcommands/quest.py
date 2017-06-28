@@ -37,6 +37,7 @@ async def spawnquest(ctx, *args, **details):
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id + "/" + quest_name)
     try:
+    #if 1 == 1:
         active_quest = quests.ActiveQuest(quest.q_id, player)
         if len(args) >= 3:
             active_quest.level = args[2]
@@ -308,14 +309,14 @@ async def editquest(ctx, quest_name, *updates, **details):
             elif quest_property == "task":
                 quest.task = value
             elif quest_property == "channel":
-                if value.upper() != "ALL":
+                if value.upper() not in ("ALL", "NONE"):
                     channel_id = value.replace("<#", "").replace(">", "")
                     channel = util.get_client(ctx.server.id).get_channel(channel_id)
                     if channel is not None:
                         quest.channel = channel.id
                 else:
-                    quest.channel = "ALL"
-                    value = "All"
+                    quest.channel = value.upper()
+                    value = value.title()
             else:
                 changed = False
             if changed:
@@ -366,6 +367,7 @@ async def serverquests(ctx, page=1, **details):
 
     Remember you can edit any of the quests on your server with [CMD_KEY]editquest
     """
+    # TODO Rewrite at some point to use paginator
 
     embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
     if type(page) is int:
@@ -382,17 +384,10 @@ async def serverquests(ctx, page=1, **details):
                 if quest_index >= len(quests_list):
                     break
                 quest = quests_list[quest_index]
-                if quest.channel == "ALL":
-                    active_channel = "All"
-                else:
-                    channel = ctx.server.get_channel(quest.channel)
-                    if channel is None:
-                        active_channel = "``Deleted``"
-                    else:
-                        active_channel = channel.mention
                 embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time"
                                                              + ("s" if quest.times_beaten != 1 else "") + "\n"
-                                                             + "Active channel: %s" % active_channel)
+                                                             + "Active channel: %s"
+                                                               % quest.get_channel_mention(ctx.server))
             if quest_index < len(quests_list) - 1:
                 embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
             else:
@@ -409,14 +404,19 @@ async def serverquests(ctx, page=1, **details):
         embed.description = "You can edit these values with ``%seditquest %s (values)``" \
                             % (details["cmd_key"], quest.name_clean.lower())
         embed.add_field(name="Base stats", value=(":punch: ``Attack``: %.2g \n" % quest.base_attack
-                                                  + ":heart: ``HP``: %.2g\n" % quest.base_hp
+                                                  + ":muscle: ``STRG``: %.2g\n" % quest.base_strg
                                                   + ":dart: ``ACCY``: %.2g\n" % quest.base_accy
+                                                  + ":heart: ``HP``: %.2g\n" % quest.base_hp
                                                   + ":new: ``Spawn %%``: %.2g\n" % (quest.spawn_chance * 100)))
-        embed.add_field(name="Other attributes", value=(":frame_photo: ``Image``: %s\n" % util.ultra_escape_string(quest.image_url)
+        quest_weapon = weapons.get_weapon_from_id(quest.w_id)
+        embed.add_field(name="Other attributes", value=(":frame_photo: ``Image``: %s\n"
+                                                        % util.ultra_escape_string(quest.image_url)
                                                         + ':speech_left: ``Task message``: "%s"\n'
                                                         % util.ultra_escape_string(quest.task)
-                                                        + ":gun: ``Weapon``: %s\n" % util.ultra_escape_string(str(quest.w_id))
-                                                        + ":tv: ``Channel``: %s\n" % quest.channel), inline=False)
+                                                        + ":gun: ``Weapon``: %s\n"
+                                                        % util.ultra_escape_string(str(quest_weapon))
+                                                        + ":tv: ``Channel``: %s\n"
+                                                        % quest.get_channel_mention(ctx.server)), inline=False)
         await imagehelper.is_image_url(quest.image_url)
         embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)

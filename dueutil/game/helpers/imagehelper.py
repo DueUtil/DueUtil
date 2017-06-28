@@ -10,7 +10,7 @@ from colour import Color
 
 from dueutil import util
 from .. import awards
-from .. import game
+from .. import gamerules
 from .. import stats
 from .. import weapons
 from .. import customizations
@@ -126,7 +126,7 @@ async def load_image_url(url, **kwargs):
 async def is_image_url(url):
     async with aiohttp.head(url) as response:
         if "Content-Type" in response.headers:
-            print(response.headers["Content-Type"],response.headers["Content-Type"] == "image/png")
+            # print(response.headers["Content-Type"],response.headers["Content-Type"] == "image/png")
             return response.headers["Content-Type"] == "image/png"
     return False
 
@@ -353,7 +353,7 @@ async def stats_screen(channel, player):
     paste_alpha(image, profile_icons, (95, 112))
 
     # Draw exp bar
-    next_level_exp = game.get_exp_for_next_level(player.level)
+    next_level_exp = gamerules.get_exp_for_next_level(player.level)
     exp_bar_width = player.exp / next_level_exp * 140
     draw.rectangle(((96, 70), (240, 82)), theme["expBarColour"][1])
     draw.rectangle(((97, 71), (239, 81)), fill=theme["expBarColour"][0])

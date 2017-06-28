@@ -1,11 +1,11 @@
 {
-  "gun": {
-    "name": "Gun",
-    "useText": "shoots",
+  "dagger": {
+    "name": "Dagger",
+    "useText": "stabs",
     "damage": 10,
-    "accy": 20.5,
-    "melee": false,
-    "icon": "🔫",
-    "image": "http://i.imgur.com/LJpQqWM.gif"
+    "accy": 28.5,
+    "melee": true,
+    "icon": ":dagger:",
+    "image": "http://i.imgur.com/QFyiU6O.png"
   }
 }

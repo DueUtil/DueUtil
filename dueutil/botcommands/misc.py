@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+import math
 
 import discord
 
@@ -10,8 +11,7 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
-from ..game import customizations, awards, leaderboards
-
+from ..game import customizations, awards, leaderboards, game
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
@@ -198,6 +198,7 @@ async def dueeval(ctx, statement, **details):
     """
 
     player = details["author"]
+    player.quests_completed_today += 10
     # print(player.last_message_hashes)
     try:
         await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
@@ -291,6 +292,27 @@ async def givecash(ctx, player, amount, **details):
         await util.say(ctx.channel,
                        "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!")
     player.save()
+
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
+async def giveaward(ctx, player, award_id, **details):
+    if awards.get_award(award_id) is not None:
+        await awards.give_award(ctx.channel, player, award_id)
+    else:
+        raise util.DueUtilException(ctx.channel, "Award not found!")
+
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PR")
+async def giveexp(ctx, player, exp, **details):
+    # (attack + strg + accy) * 100
+    if exp < 0.1:
+        raise util.DueUtilException(ctx.channel, "The minimum exp that can be given is 0.!")
+    increase_stat = exp/300
+    player.progress(increase_stat, increase_stat, increase_stat,
+                    max_exp=math.inf, max_attr=math.inf)
+    await util.say(ctx.channel, "**%s** has been given **%s** exp!"
+                   % (player.name_clean, util.format_number(exp, full_precision=True)))
+    await game.check_for_level_up(ctx, player)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)

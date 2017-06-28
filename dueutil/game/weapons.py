@@ -22,7 +22,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
     """A simple weapon that can be used by a monster or player in DueUtil"""
 
     PRICE_CONSTANT = 0.04375
-    DEFAULT_IMAGE = "http://i.imgur.com/2fBwaNY.png"
+    DEFAULT_IMAGE = "http://i.imgur.com/QFyiU6O.png"
 
     __slots__ = ["damage", "accy", "price",
                  "icon", "hit_message", "melee", "image_url",
@@ -46,7 +46,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
             if accy > 86 or accy < 1:
                 raise util.DueUtilException(message.channel, "Accuracy must be between 1% and 86%!")
 
-            if not util.char_is_emoji(extras.get('icon', "🔫")):
+            if not util.char_is_emoji(extras.get('icon', "🗡️")):
                 raise util.DueUtilException(message.channel, ":eyes: Weapon icons must be emojis! :ok_hand:")
 
             self.server_id = message.server.id
@@ -61,7 +61,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
 
         super().__init__(self._weapon_id(), **extras)
 
-        self.icon = extras.get('icon', "🔫")
+        self.icon = extras.get('icon', "🗡️")
         self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee', True)
         self.image_url = extras.get('image_url', Weapon.DEFAULT_IMAGE)
@@ -91,7 +91,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
 
 
 # The 'None'/No weapon weapon
-NO_WEAPON = Weapon('None', None, 1, 66, no_save=True)
+NO_WEAPON = Weapon('None', None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png")
 NO_WEAPON_ID = NO_WEAPON.id
 
 

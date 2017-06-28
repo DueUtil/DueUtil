@@ -1,4 +1,3 @@
-import json
 import random
 import re
 import time
@@ -11,11 +10,11 @@ import generalconfig as gconf
 from .. import events
 from .. import util
 from ..game import players
-from ..game.configs import dueserverconfig
 from ..game import stats, weapons, quests, awards
+from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
+from . import gamerules
 
-exp_per_level = dict()
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read()  # For comeback award
@@ -63,6 +62,9 @@ async def player_message(message, player, spam_level):
         # Mention the old bot award
         if gconf.DEAD_BOT_ID in message.raw_mentions:
             await awards.give_award(message.channel, player, "SoCold", "They're not coming back.")
+        # Art award
+        if player.misc_stats["art_created"] >= 100:
+            await awards.give_award(message.channel, player, "ItsART")
 
         if progress_time(player) and spam_level < SPAM_TOLERANCE:
 
@@ -71,6 +73,7 @@ async def player_message(message, player, spam_level):
             else:
                 return
 
+            # Special Awards
             # Comeback award
             if player.id in old_players:
                 await awards.give_award(message.channel, player, "CameBack", "Return to DueUtil")
@@ -81,6 +84,7 @@ async def player_message(message, player, spam_level):
             if player.donor:
                 await awards.give_award(message.channel, player, "Donor",
                                         "Donate to DueUtil!!! :money_with_wings: :money_with_wings: :money_with_wings:")
+
             ### DueUtil - the hidden spelling game!
 
             lang = guess_language(message.content)
@@ -127,7 +131,7 @@ async def check_for_level_up(ctx, player):
     Handles player level ups.
     """
 
-    exp_for_next_level = get_exp_for_next_level(player.level)
+    exp_for_next_level = gamerules.get_exp_for_next_level(player.level)
     level_up_reward = 0
     while player.exp >= exp_for_next_level:
         player.exp -= exp_for_next_level
@@ -137,7 +141,7 @@ async def check_for_level_up(ctx, player):
 
         stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
 
-        exp_for_next_level = get_exp_for_next_level(player.level)
+        exp_for_next_level = gamerules.get_exp_for_next_level(player.level)
     stats.increment_stat(stats.Stat.MONEY_CREATED, level_up_reward)
     if level_up_reward > 0:
         if dueserverconfig.mute_level(ctx.channel) < 0:
@@ -206,26 +210,6 @@ async def check_for_recalls(ctx, player):
         + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
 
 
-def get_exp_for_next_level(level):
-    for level_range, exp_details in exp_per_level.items():
-        if level in level_range:
-            return eval(exp_details.replace("oldLevel", str(level)))
-    return -1
-
-
-def _load_game_rules():
-    with open('dueutil/game/configs/progression.json') as progression_file:
-        progression = json.load(progression_file)
-        exp = progression["dueutil-ranks"]
-        for levels, exp_details in exp.items():
-            if "," in levels:
-                level_range = eval("range(" + levels + "+1)")
-            else:
-                level_range = eval("range(" + levels + "," + levels + "+1)")
-            exp_expression = str(exp_details["expForNextLevel"])
-            exp_per_level[level_range] = exp_expression
-
-
 async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
@@ -237,5 +221,4 @@ async def on_message(message):
         await check_for_recalls(message, player)
 
 
-_load_game_rules()
 events.register_message_listener(on_message)

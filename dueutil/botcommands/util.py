@@ -1,9 +1,10 @@
 import discord
+import math
 
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards
+from ..game import stats, awards, game
 from ..game.stats import Stat
 from .. import commands, events, util
 
@@ -130,14 +131,6 @@ async def duservers(ctx, **details):
 
     server_count = util.get_server_count()
     await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server" + ("s" if server_count != 1 else "") + "**")
-
-
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
-async def giveaward(ctx, player, award_id, **details):
-    if awards.get_award(award_id) is not None:
-        await awards.give_award(ctx.channel, player, award_id)
-    else:
-        raise util.DueUtilException(ctx.channel, "Award not found!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")

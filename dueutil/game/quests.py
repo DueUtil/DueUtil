@@ -2,6 +2,7 @@ import json
 import random
 from collections import defaultdict
 from typing import Dict, List
+import math
 
 import discord
 import jsonpickle
@@ -13,6 +14,7 @@ from ..game import players
 from ..game import weapons
 from ..game.helpers.misc import DueUtilObject, DueMap
 from .players import Player
+from . import gamerules
 
 quest_map = DueMap()
 
@@ -31,7 +33,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
                  "base_attack", "base_strg", "base_accy", "base_hp",
                  "channel", "times_beaten"]
 
-    DEFAULT_IMAGE = "http://i.imgur.com/zHnDAdX.png"
+    DEFAULT_IMAGE = "http://i.imgur.com/zOIJM9T.png"
 
     def __init__(self, name, base_attack, base_strg, base_accy, base_hp, **extras):
         message = extras.get('ctx', None)
@@ -87,6 +89,16 @@ class Quest(DueUtilObject, SlotPickleMixin):
         return (self.base_hp, self.base_attack,
                 self.base_strg, self.base_accy,)
 
+    def get_channel_mention(self, server):
+        if self.channel in ("ALL", "NONE"):
+            return self.channel.title()
+        else:
+            channel = server.get_channel(self.channel)
+            if channel is None:
+                return "``Deleted``"
+            else:
+                return channel.mention
+
     @property
     def made_on(self):
         return self.server_id
@@ -114,7 +126,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
 class ActiveQuest(Player, util.SlotPickleMixin):
     __slots__ = ["level", "attack", "strg", "hp",
                  "equipped", "q_id", "quester_id", "cash_iv",
-                 "quester", "accy"]
+                 "quester", "accy", "exp", "total_exp"]
 
     def __init__(self, q_id, quester: Player):
         # The base quest (holds the quest information)
@@ -132,12 +144,14 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.equipped = defaultdict(lambda: "default",
                                     weapon=base_quest.w_id)
 
-        self.level = random.randint(quester.level, quester.level * 2)
+        self.level = random.randint(quester.level, int(quester.level * 1.3))
+        self.total_exp = self.exp = 0
         self._calculate_stats()
         quester.quests.append(self)
         quester.save()
 
-    def _calculate_stats(self, **spoof_values):
+    """
+    def __calculate_stats(self, **spoof_values):
         # HP is not the same! Don't treat it as such
         base_values = self.info.base_values()
         stats = []
@@ -157,7 +171,29 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.attack = stats[0]
         self.strg = stats[1]
         self.accy = stats[2]
-        self.cash_iv = random.uniform(MIN_QUEST_IV, avg_base_value) * weapon_damage * (weapon_accy / 100)
+    """
+
+    def _calculate_stats(self, **spoof_values):
+        base_hp, base_attack, base_strg, base_accy = tuple(base_value/1.7 for base_value in
+                                                           self.info.base_values())
+        self.attack = self.accy = self.strg = 1
+        target_level = self.level
+        self.level = 0
+        increment = random.randrange(400, 1000)/300
+        self.hp = (base_hp * target_level * random.uniform(0.6, 1))
+        print(self.hp)
+        while self.level < target_level:
+            if self.exp >= gamerules.get_exp_for_next_level(self.level):
+                self.level += 1
+                self.exp = 0
+            self.progress(increment * random.uniform(0.6, 1),
+                          increment * random.uniform(0.6, 1),
+                          increment * random.uniform(0.6, 1),
+                          max_attr=math.inf,
+                          max_exp=math.inf)
+            self.attack += -increment + increment*base_attack
+            self.strg += -increment + increment*base_strg
+            self.accy += -increment + increment*base_accy
 
     def get_avatar_url(self, *args):
         quest_info = self.info
@@ -165,18 +201,12 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             return quest_info.image_url
 
     def get_reward(self):
-        if not hasattr(self, "cash_iv"):
-            self.cash_iv = 0
-        avg_stat = self.get_avg_stat()
-        hp_scale = self.hp / self.quester.hp
-        reward_multiplier = (avg_stat / self.quester.get_avg_stat() + hp_scale) / 2
-        return int(avg_stat / self.quester.level * self.cash_iv / self.get_quest_scale() * reward_multiplier) + 1
+        return 5 * self.level // self.get_quest_scale() + 1
 
     def get_quest_scale(self):
-        quester_weapon = self.quester.weapon
-        scale_value = (quester_weapon.damage * (quester_weapon.accy / 100)
-                       / max(1, (MAX_DAILY_QUESTS - self.quester.quests_completed_today) / 2))
-        return max(1 / 3, scale_value)
+        # TODO
+        return 1
+
 
     def get_threat_level(self, player):
         return [

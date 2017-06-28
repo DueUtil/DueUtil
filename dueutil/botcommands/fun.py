@@ -27,7 +27,7 @@ async def glitter(ctx, text, **details):
     
     (Glitter text from http://www.gigaglitters.com/)
     """
-
+    details["author"].misc_stats["art_created"] += 1
     await glitter_text(ctx.channel, text)
 
 
@@ -56,7 +56,7 @@ async def eyes(ctx, eye_description="", **details):
         top left - Eyes look top left
         no modifiers - Procedurally generated eyes!!!111
     """
-
+    details["author"].misc_stats["art_created"] += 1
     await imagehelper.googly_eyes(ctx.channel, eye_description)
 
 

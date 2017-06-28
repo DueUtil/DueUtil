@@ -182,7 +182,7 @@
       "CritHit":{
          "icon":"crithit.png",
          "name":"CRITICAL HIT!",
-         "message":"One shot another player!"
+         "message":"One shot another player near your level!"
       },
       "ItsART":{
          "icon":"itsart.png",
