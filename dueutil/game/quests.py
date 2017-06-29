@@ -181,7 +181,6 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.level = 0
         increment = random.randrange(400, 1000)/300
         self.hp = (base_hp * target_level * random.uniform(0.6, 1))
-        print(self.hp)
         while self.level < target_level:
             if self.exp >= gamerules.get_exp_for_next_level(self.level):
                 self.level += 1
@@ -194,6 +193,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             self.attack += -increment + increment*base_attack
             self.strg += -increment + increment*base_strg
             self.accy += -increment + increment*base_accy
+        self.cash_iv = min(self.info.base_values()) * 3 * random.uniform(0.8, 1.6)
 
     def get_avatar_url(self, *args):
         quest_info = self.info
@@ -201,12 +201,19 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             return quest_info.image_url
 
     def get_reward(self):
-        return 5 * self.level // self.get_quest_scale() + 1
+        base_reward = self.cash_iv * self.level
+        print(self.get_quest_scale())
+        return max(1, int(base_reward + base_reward * (self.get_quest_scale()+1)*10))
 
     def get_quest_scale(self):
-        # TODO
-        return 1
-
+        avg_stats = self.get_avg_stat()
+        quest_weapon = self.weapon
+        quester_weapon = self.quester.weapon
+        hp_difference = (self.hp - self.quester.hp) / self.hp / 10
+        stat_difference = (avg_stats - self.quester.get_avg_stat()) / avg_stats
+        weapon_damage_difference = (quest_weapon.damage - quester_weapon.damage) / quest_weapon.damage
+        weapon_accy_difference = (quest_weapon.accy - quester_weapon.accy) / quest_weapon.accy
+        return (stat_difference * 10 + weapon_damage_difference/3 + weapon_accy_difference * 5 + hp_difference * 5)/20
 
     def get_threat_level(self, player):
         return [

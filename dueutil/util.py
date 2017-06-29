@@ -217,6 +217,10 @@ def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)
 
 
+def normalize(number, min_val, max_val):
+    return (number - min_val)/(max_val - min_val)
+
+
 def filter_string(string: str) -> str:
     new = ""
     for i in range(0, len(string)):

@@ -226,7 +226,7 @@ async def acceptwager(ctx, wager_index, **details):
     wager_index -= 1
     if wager_index >= len(player.received_wagers):
         raise util.DueUtilException(ctx.channel, "Request not found!")
-    if player.money - player.received_wagers[wager_index].wager_amount // 2 < 0:
+    if player.money - player.received_wagers[wager_index].wager_amount < 0:
         raise util.DueUtilException(ctx.channel, "You can't afford the risk!")
 
     wager = player.received_wagers.pop(wager_index)

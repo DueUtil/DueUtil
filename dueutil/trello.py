@@ -52,7 +52,7 @@ class TrelloClient:
                         label_ids = ''
 
                         if labels is not None:
-                            labels = list_name(map(str.lower, labels))
+                            labels = list(map(str.lower, labels))
                             board_labels = await self.get_labels(board["id"])
 
                             label_ids_list = [label["id"] for label in board_labels if label["name"].lower() in labels]

@@ -37,7 +37,6 @@ async def spawnquest(ctx, *args, **details):
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id + "/" + quest_name)
     try:
-    #if 1 == 1:
         active_quest = quests.ActiveQuest(quest.q_id, player)
         if len(args) >= 3:
             active_quest.level = args[2]
@@ -137,9 +136,8 @@ async def acceptquest(ctx, quest_index, **details):
         avg_player_stat = player.get_avg_stat()
 
         def attr_gain(stat):
-            return ((stat / avg_player_stat)
-                    * quest.level / (player.level * 2)
-                    * turns / average_quest_battle_turns / quest_scale)
+            return (max(0.01, (stat / avg_player_stat)
+                    * quest.level * turns / average_quest_battle_turns * (quest_scale+0.5)*2))
 
         add_attack = min(attr_gain(quest.attack), 100)
         add_strg = min(attr_gain(quest.strg), 100)

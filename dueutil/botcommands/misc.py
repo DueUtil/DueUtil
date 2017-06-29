@@ -60,7 +60,7 @@ async def add(ctx, first_number, second_number, **details):
 
 
 @commands.command()
-async def wish(ctx, **details):
+async def wish(ctx, *args, **details):
     """
     [CMD_KEY]wish
     

@@ -212,7 +212,6 @@ def battle(**battleargs):
                 hp[1 - hitter] -= ((attacker.player.weapon.damage * weapon_damage_modifier)
                                    / other.player.strg * damage_modifier)
                 add_move(attacker, other)
-                print(hp)
 
     while hp[0] > 0 and hp[1] > 0:
         fight()
@@ -229,7 +228,7 @@ def battle(**battleargs):
         winner = loser = None
     turns = current_move - 1
     moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** turn%s!"
-                                     % (winner.prefix,
+                                     % (winner.prefix.title(),
                                         winner.player.name_clean,
                                         turns,
                                         "s" if turns != 1 else "")
