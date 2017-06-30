@@ -75,7 +75,8 @@ async def help(ctx, *args, **details):
         help_embed.add_field(name="Tips", value=("If DueUtil reacts to your command it means something is wrong!\n"
                                                  + "\":question:\": Something is wrong with the commands syntax.\n"
                                                  + "\":x:\": You don't have the required permissions to use the command."))
-        help_embed.add_field(name="Links", value=("[Official site](https://dueutil.tech/)\n"
+        help_embed.add_field(name="Links", value=("[Invite link!](%s)\n" % gconf.BOT_INVITE
+                                                  + "[Official site](https://dueutil.tech/)\n"
                                                   + "[Official server](https://discord.gg/ZzYvt8J)\n"
                                                   + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
         help_embed.set_footer(
