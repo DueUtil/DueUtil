@@ -166,9 +166,11 @@ def ultra_escape_string(string):
 
 
 def format_number(number, **kwargs):
+
     def small_format():
         nonlocal number
-        return '{:,g}'.format(number)
+        full_number = '{:,f}'.format(number).rstrip('0').rstrip('.')
+        return full_number if len(full_number) < 27 else '{:,g}'.format(number)
 
     def really_large_format():
         nonlocal number
@@ -245,3 +247,25 @@ def int_to_ordinal(number: int) -> str:
     else:
         suffix = SUFFIXES.get(number % 10, "th")
     return str(number) + suffix
+
+# Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
+intervals = (
+    ('weeks', 604800),  # 60 * 60 * 24 * 7
+    ('days', 86400),    # 60 * 60 * 24
+    ('hours', 3600),    # 60 * 60
+    ('minutes', 60),
+    ('seconds', 1),
+    )
+
+
+def display_time(seconds, granularity=2):
+    result = []
+
+    for name, count in intervals:
+        value = seconds // count
+        if value:
+            seconds -= value * count
+            if value == 1:
+                name = name.rstrip('s')
+            result.append("{:d} {}".format(int(value), name))
+    return ', '.join(result[:granularity])

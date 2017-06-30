@@ -2,6 +2,7 @@ import asyncio
 import re
 import time
 from functools import wraps
+from datetime import datetime
 
 from . import permissions
 from .game import players
@@ -111,8 +112,15 @@ def ratelimit(**command_info):
         async def wrapped_command(ctx, *args, **details):
             player = details["author"]
             command_name = details["command_name"]
-            if time.time() - player.command_rate_limits.get(command_name, 0) < command_info["cooldown"]:
-                await util.say(ctx.channel, command_info["error"])
+            if command_info.get('save', False):
+                command_name += "_saved_cooldown"
+            time_since_last_used = time.time() - player.command_rate_limits.get(command_name, 0)
+            if time_since_last_used < command_info["cooldown"]:
+                error = command_info["error"]
+                if "[COOLDOWN]" in error:
+                    time_to_wait = command_info["cooldown"] - time_since_last_used
+                    error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
+                await util.say(ctx.channel, error)
                 return
             else:
                 player.command_rate_limits[command_name] = time.time()

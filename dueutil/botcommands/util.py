@@ -1,5 +1,4 @@
 import discord
-import math
 
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
@@ -130,7 +129,8 @@ async def duservers(ctx, **details):
     """
 
     server_count = util.get_server_count()
-    await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server" + ("s" if server_count != 1 else "") + "**")
+    await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server"
+                                + ("s" if server_count != 1 else "") + "**")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")
@@ -189,7 +189,7 @@ async def shutupdue(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
-async def leave(ctx, *args, **details):
+async def leave(ctx, cnf="", **details):
     """
     [CMD_KEY]leave
     
@@ -202,7 +202,7 @@ async def leave(ctx, *args, **details):
     
     """
 
-    if len(args) == 1 and args[0].lower() == "cnf":
+    if cnf.lower() == "cnf":
 
         bye_embed = discord.Embed(title="Goodbye!", color=gconf.EMBED_COLOUR)
         bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")

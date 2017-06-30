@@ -4,7 +4,7 @@ import os
 import discord
 from PIL import Image
 
-from .. import permissions
+from .. import permissions, util
 from ..game.helpers.misc import DueUtilObject
 from ..permissions import Permission
 
@@ -133,14 +133,23 @@ class Background(Customization):
 
 
 class _Backgrounds(dict):
+    BASE_PATH = 'assets/backgrounds/'
+
     def __init__(self):
         super().__init__()
         self._load_backgrounds()
 
     def _load_backgrounds(self):
         self.clear()
-        with open('assets/backgrounds/stockbackgrounds.json') as backgrounds_file:
-            background_details = json.load(backgrounds_file)
+        with open(self.BASE_PATH+'stockbackgrounds.json') as stock_backgrounds_file:
+            background_details = json.load(stock_backgrounds_file)
+            added_backgrounds_path = self.BASE_PATH+'backgrounds.json'
+            if os.path.isfile(added_backgrounds_path):
+                with open(added_backgrounds_path) as uploaded_backgrounds_file:
+                    try:
+                        background_details.update(json.load(uploaded_backgrounds_file))
+                    except ValueError:
+                        util.logger.info("No none-stock backgrounds loaded/found.")
             for background_id, background in background_details.items():
                 self[background_id] = Background(background_id, **background)
 

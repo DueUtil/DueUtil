@@ -158,8 +158,8 @@ class DueUtilClient(discord.Client):
     def on_server_remove(self, server):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
-                print(dbconn.db[collection].delete_many({'_id': {'$regex': '%s\/.*' % server.id}}).deleted_count)
-                print(dbconn.db[collection].delete_many({'_id': server.id}).deleted_count)
+                dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
+                dbconn.db[collection].delete_many({'_id': server.id})
         yield from util.duelogger.info("DueUtil been removed from the server **%s**"
                                        % util.ultra_escape_string(server.name))
 

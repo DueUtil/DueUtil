@@ -25,7 +25,7 @@ class TrelloClient:
         return await self.fetch_json('boards/%s/lists' % board_id)
 
     async def fetch_json(self, url):
-        async with aiohttp.get(self.base_request + url, params=self.key_and_token) as response:
+        async with aiohttp.ClientSession().get(self.base_request + url, params=self.key_and_token) as response:
             return await response.json()
 
     async def get_labels(self, board_id):
@@ -67,8 +67,8 @@ class TrelloClient:
 
                         card_url = "cards"
 
-                        async with aiohttp.post(self.base_request + card_url, params=self.key_and_token,
-                                                data=args) as response:
+                        async with aiohttp.ClientSession().post(self.base_request + card_url, params=self.key_and_token,
+                                                                data=args) as response:
                             result = await response.json()
                             if "shortUrl" in result:
                                 return result["shortUrl"]

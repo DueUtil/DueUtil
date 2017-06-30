@@ -17,10 +17,10 @@ from ..game import (
 from .. import commands, util
 
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?I?I?R?", hidden=True)
+@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?", hidden=True)
 async def spawnquest(ctx, *args, **details):
     """
-    [CMD_KEY]spawnquest (name) (@user) (level) (money,wep damage,wep accy)
+    [CMD_KEY]spawnquest (name) (@user) (level)
     
     A command for TESTING only please (awais) do not abuse this power.
     All arguments are optional however the final three must all be entered
@@ -38,13 +38,9 @@ async def spawnquest(ctx, *args, **details):
         quest = quests.get_quest_from_id(ctx.server.id + "/" + quest_name)
     try:
         active_quest = quests.ActiveQuest(quest.q_id, player)
-        if len(args) >= 3:
+        if len(args) == 3:
             active_quest.level = args[2]
-            spoofs = args[3:]
-            spoof_values = {}
-            if len(spoofs) == 3:
-                spoof_values = {'q_stats': spoofs[0], 'w_damage': spoofs[1], 'w_accy': spoofs[2]}
-            active_quest._calculate_stats(**spoof_values)
+            active_quest._calculate_stats()
         player.save()
         await util.say(ctx.channel,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
@@ -137,7 +133,7 @@ async def acceptquest(ctx, quest_index, **details):
 
         def attr_gain(stat):
             return (max(0.01, (stat / avg_player_stat)
-                    * quest.level * turns / average_quest_battle_turns * (quest_scale+0.5)*2))
+                    * quest.level * (turns / average_quest_battle_turns)/2 * (quest_scale+0.5)*3))
 
         add_attack = min(attr_gain(quest.attack), 100)
         add_strg = min(attr_gain(quest.strg), 100)
@@ -219,7 +215,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
             Accy = 1.1
             HP = 32
     Advanced Quest:
-        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Gun" http://i.imgur.com/sP8Rnhc.png 21``
+        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" http://i.imgur.com/sP8Rnhc.png 21``
         This creates a quest with the same base values as before but with the message "Kill the"
         when the quest pops up, a gun, a quest icon image and a spawn chance of 21%
         
@@ -241,12 +237,6 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
-    # TODO Fix is_image_url
-    if not await imagehelper.is_image_url(new_quest.image_url):
-        await util.say(ctx.channel, ":warning: The url you provided for your quests "
-                                    + "image does not appear to be an image!\n"
-                                    + "Remember the url must be to an image (not a webpage)"
-                                    + " i.e. a url ending in an image type (.png, .jpeg...)")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
@@ -415,6 +405,5 @@ async def serverquests(ctx, page=1, **details):
                                                         % util.ultra_escape_string(str(quest_weapon))
                                                         + ":tv: ``Channel``: %s\n"
                                                         % quest.get_channel_mention(ctx.server)), inline=False)
-        await imagehelper.is_image_url(quest.image_url)
         embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)

@@ -1,19 +1,74 @@
 import discord
+import random
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
-from .. import permissions
 from ..game import players, customizations
-from ..permissions import Permission
 from ..game import stats
 from ..game.helpers import misc, playersabstract, imagehelper
 from .. import commands, util
 
+DAILY_AMOUNT = 50
+TRAIN_RANGE = (0.1, 0.2)
+
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=86400, error="You can't collect you're daily reward again for ")
+@commands.ratelimit(cooldown=86400, error="You can't collect your daily reward again for **[COOLDOWN]**!", save=True)
 async def daily(ctx, **details):
-    pass
+    """
+    [CMD_KEY]daily
+
+    ¤50! Your daily pocket money!
+
+    You can use this command once very 24 hours!
+    """
+
+    player = details["author"]
+    player.money += DAILY_AMOUNT
+    player.save()
+    await util.say(ctx.channel, ":moneybag: **%s** collected their daily ¤%d!" % (player, DAILY_AMOUNT))
+
+
+@commands.command(args_pattern=None)
+@commands.ratelimit(cooldown=21600,
+                    error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
+                    save=True)
+async def train(ctx, **details):
+    """
+    [CMD_KEY]train
+
+    Train to get a little exp to help you with quests.
+
+    This will never give you much exp! But should help you out with quests early on!
+
+    You can use this command once every 6 hours!
+    """
+
+    player = details["author"]
+
+    attack_increase = random.uniform(*TRAIN_RANGE)
+    strg_increase = random.uniform(*TRAIN_RANGE)
+    accy_increase = random.uniform(*TRAIN_RANGE)
+    player.progress(attack_increase, strg_increase, accy_increase,
+                    max_exp=100, max_attr=0.3)
+    progress_message = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f"\
+                       % (attack_increase, strg_increase, accy_increase)
+    player.save()
+    await util.say(ctx.channel, "**%s** training complete!\n%s" % (player, progress_message))
+
+
+@commands.command(args_pattern=None)
+async def mylimit(ctx, **details):
+    """
+
+    [CMD_KEY]mylimit
+
+    Shows the weapon price you're limited to.
+    """
+
+    player = details["author"]
+    await util.say(ctx.channel, "You're currently limited to weapons with a value up to **%s**!"
+                                % util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
 @commands.command(args_pattern="S?")
@@ -326,9 +381,10 @@ def background_page(backgrounds_embed, background, **extras):
 @misc.paginator
 def banner_page(banners_embed, banner, **extras):
     price_divisor = extras.get('price_divisor', 1)
-    banners_embed.add_field(name=banner.icon + " | " + banner.name, value=(banner.description + "\n ``"
-                                                                           + util.format_number(
-        banner.price // price_divisor, money=True, full_precision=True) + "``"))
+    banners_embed.add_field(name=banner.icon + " | " + banner.name,
+                            value=(banner.description + "\n ``"
+                                                      + util.format_number(banner.price // price_divisor,
+                                                                           money=True, full_precision=True) + "``"))
 
 
 def theme_info(theme_name, **details):

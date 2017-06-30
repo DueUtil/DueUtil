@@ -50,6 +50,7 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
     This can be called after a battle. Passing the battle log.
     """
 
+    # NOTE: do not use !duereload outside of tests. It will break stuff!
     if not (isinstance(battle_log.winner, Player) or isinstance(battle_log.loser, Player)):
         return
     if battle_log.winner is not None:

@@ -125,7 +125,9 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.spam_detections = 0
-        self.command_rate_limits = {}
+
+        if not hasattr(self, "command_rate_limits"):
+            self.command_rate_limits = {}
 
         ##### THINGS #####
         self.quests = []
@@ -237,7 +239,7 @@ class Player(DueUtilObject, SlotPickleMixin):
 
     @property
     def item_value_limit(self):
-        return int(100 * (math.pow(self.level, 2) / 3 + 0.5 * math.pow(self.level + 1, 2) * self.level))
+        return int(30 * (math.pow(self.level, 2) / 3 + 0.5 * math.pow(self.level + 1, 2) * self.level))
 
     @property
     def rank(self):
@@ -327,7 +329,9 @@ class Player(DueUtilObject, SlotPickleMixin):
 
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)
-        self.command_rate_limits = {}
+        # TODO Remove:
+        if not hasattr(self, "command_rate_limits"):
+            self.command_rate_limits = {}
         self.last_message_hashes = Ring(10)
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], **self.inventory)
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], **self.equipped)
@@ -338,7 +342,11 @@ class Player(DueUtilObject, SlotPickleMixin):
     def __getstate__(self):
         object_state = SlotPickleMixin.__getstate__(self)
         del object_state["last_message_hashes"]
-        del object_state["command_rate_limits"]
+        object_state["command_rate_limits"] = {command_name: last_used for (command_name, last_used) in
+                                               self.command_rate_limits.items()
+                                               if command_name.endswith("_saved_cooldown")}
+        if len(object_state["command_rate_limits"]) == 0:
+            del object_state["command_rate_limits"]
         # Know need to save the default dict info (as the
         # defaults are known)
         object_state["inventory"] = dict(object_state["inventory"])

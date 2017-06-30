@@ -116,10 +116,17 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
         raise util.DueUtilException(ctx.channel, "Image must be ``256*299``!")
 
     image_name = name.lower().replace(' ', '_') + ".png"
-    image.save('backgrounds/' + image_name)
+    image.save('assets/backgrounds/' + image_name)
 
-    with open('backgrounds/backgrounds.json', 'r+') as backgrounds_file:
-        backgrounds = json.load(backgrounds_file)
+    try:
+        backgrounds_file = open('assets/backgrounds/backgrounds.json', 'r+')
+    except IOError:
+        backgrounds_file = open('assets/backgrounds/backgrounds.json', 'w+')
+    with backgrounds_file:
+        try:
+            backgrounds = json.load(backgrounds_file)
+        except ValueError:
+            backgrounds = {}
         backgrounds[name.lower()] = {"name": name, "icon": icon, "description": description, "image": image_name,
                                      "price": price}
         backgrounds_file.seek(0)
@@ -169,20 +176,26 @@ async def deletebg(ctx, background_to_delete, **details):
     DO NOT DO THIS UNLESS THE BACKGROUND IS FREE
     
     """
-
+    background_to_delete = background_to_delete.lower()
     if background_to_delete not in customizations.backgrounds:
         raise util.DueUtilException(ctx.channel, "Background not found!")
     if background_to_delete == "default":
         raise util.DueUtilException(ctx.channel, "Can't delete default background!")
     background = customizations.backgrounds[background_to_delete]
 
-    with open('backgrounds/backgrounds.json', 'r+') as backgrounds_file:
-        backgrounds = json.load(backgrounds_file)
-        del backgrounds[background_to_delete]
-        backgrounds_file.seek(0)
-        backgrounds_file.truncate()
-        json.dump(backgrounds, backgrounds_file, indent=4)
-    os.remove("backgrounds/" + background["image"])
+    try:
+        with open('assets/backgrounds/backgrounds.json', 'r+') as backgrounds_file:
+            backgrounds = json.load(backgrounds_file)
+            if background_to_delete not in backgrounds:
+                raise util.DueUtilException(ctx.channel, "You cannot delete this background!")
+            del backgrounds[background_to_delete]
+            backgrounds_file.seek(0)
+            backgrounds_file.truncate()
+            json.dump(backgrounds, backgrounds_file, indent=4)
+    except IOError:
+        raise util.DueUtilException(ctx.channel,
+                                    "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!")
+    os.remove("assets/backgrounds/" + background["image"])
 
     customizations.backgrounds._load_backgrounds()
 

@@ -173,7 +173,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.accy = stats[2]
     """
 
-    def _calculate_stats(self, **spoof_values):
+    def _calculate_stats(self):
         base_hp, base_attack, base_strg, base_accy = tuple(base_value/1.7 for base_value in
                                                            self.info.base_values())
         self.attack = self.accy = self.strg = 1
@@ -202,7 +202,6 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     def get_reward(self):
         base_reward = self.cash_iv * self.level
-        print(self.get_quest_scale())
         return max(1, int(base_reward + base_reward * (self.get_quest_scale()+1)*10))
 
     def get_quest_scale(self):

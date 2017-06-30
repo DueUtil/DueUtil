@@ -123,14 +123,6 @@ async def load_image_url(url, **kwargs):
             return None
 
 
-async def is_image_url(url):
-    async with aiohttp.head(url) as response:
-        if "Content-Type" in response.headers:
-            # print(response.headers["Content-Type"],response.headers["Content-Type"] == "image/png")
-            return response.headers["Content-Type"] == "image/png"
-    return False
-
-
 def resize(image, width, height):
     if image is None:
         return None
