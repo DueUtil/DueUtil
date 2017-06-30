@@ -205,7 +205,7 @@ async def topdog(ctx, **details):
     View the "top dog"
     """
     top_dog_stats = awards.get_award_stat("TopDog")
-    if "top_dog" in top_dog_stats:
+    if top_dog_stats is not None and "top_dog" in top_dog_stats:
         top_dog = players.find_player(top_dog_stats["top_dog"])
         await util.say(ctx.channel, (":dog: The current top dog is **%s** (%s)!\n"
                                      + "They are the **%s** to earn the rank of top dog!")
