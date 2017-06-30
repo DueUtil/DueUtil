@@ -1,0 +1,20 @@
+{
+   "theme":{
+      "name":"Material Teal",
+      "icon":":tea:",
+      "description":"Material Design: Teal",
+      "banner":"teal",
+      "background":"simple teal",
+      "headerColour":"#758187",
+      "mainColour":"#82888c",
+      "bannerColour":"#FFFFFF",
+      "sideColour":"#FFFFFF",
+      "expColour":"#82888c",
+      "expBarColour":[
+         "#FFFFFF",
+         "#82888c"
+      ],
+      "preview":"http://i.imgur.com/KG05OnY.png",
+      "price":1500
+   }
+}

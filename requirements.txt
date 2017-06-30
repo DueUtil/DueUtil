@@ -1,0 +1,15 @@
+PIL
+colour
+discord.py
+bs4
+pymongo
+jsonpickle
+pillow
+numpy
+emoji
+pyenchant
+ssdeep
+guess_language-spirit
+repoze.timeago
+# Other
+All aspell langs

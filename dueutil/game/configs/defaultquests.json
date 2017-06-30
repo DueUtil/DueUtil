@@ -1,0 +1,15 @@
+{
+  "slime": {
+    "name": "Slime",
+    "task": "Kill the",
+    "weapon": "none",
+    "spawnChance": 5,
+    "channel": "ALL",
+    "baseAttack": 1.9,
+    "baseStrg": 1.4,
+    "baseHP": 30,
+    "baseAccy": 1.5,
+    "baseReward": 5,
+    "image": "http://i.imgur.com/GJAhP09.png"
+  }
+}

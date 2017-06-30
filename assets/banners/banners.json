@@ -1,0 +1,45 @@
+{
+   "discord blue":{
+      "name":"Discord Blue",
+      "icon":":cd:",
+      "description":"The default banner",
+      "image":"info_banner.png",
+      "price":0
+   },
+   "deep blue":{
+      "name":"Deep Blue",
+      "icon":":large_blue_diamond:",
+      "description":"A dark blue banner",
+      "image":"deepblue.png",
+      "price":450
+   },
+   "orange":{
+      "name":"Orange",
+      "icon":":large_orange_diamond:",
+      "description":"An orange banner",
+      "image":"orange.png",
+      "price":450
+   },
+   "teal":{
+      "name":"Teal",
+      "icon":":tea:",
+      "description":"Is it grean or blue? Who knows.",
+      "image":"teal.png",
+      "price":450
+   },
+   "translucent black":{
+      "name":"Translucent Black",
+      "icon":":black_large_square:",
+      "description":"It's like sorta see-through!",
+      "image":"classicbanner.png",
+      "price":25
+   },
+   "donor test":{
+      "name":"Donor Test",
+      "icon":":cd:",
+      "description":"Donor test banner",
+      "image":"info_banner.png",
+      "price":0,
+      "donor": true
+   }
+}

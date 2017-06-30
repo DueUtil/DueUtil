@@ -1,0 +1,31 @@
+{
+  "dueutil-ranks": {
+    "1,10":{ 
+      "expForNextLevel": "1000*oldLevel"
+    },
+    "11,14": {
+      "expForNextLevel": 10000
+    },
+    "15": {
+      "expForNextLevel": 15000
+    },
+    "16,18": {
+      "expForNextLevel": 20000
+    },
+   "19,1000": {
+      "expForNextLevel": "20000+300*oldLevel"
+    }
+  },
+  "rank-awards": {
+    "10": "Duseless",
+    "20": "Duseless",
+    "30": "Duseless",
+    "40": "Duseless",
+    "50": "Duseless",
+    "60": "Duseless",
+    "70": "Duseless",
+    "80": "Duseless",
+    "90": "Duseless",
+    "100":"Duseless"
+  }
+}
