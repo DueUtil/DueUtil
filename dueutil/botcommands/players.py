@@ -240,7 +240,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     await util.say(ctx.channel, embed=transaction_log)
 
 
-@commands.command(hidden=True)
+@commands.command(hidden=True, args_pattern=None)
 async def benfont(ctx, **details):
     """
     [CMD_KEY]benfont 

@@ -1,6 +1,7 @@
 import math
 import time
 from collections import OrderedDict
+import random
 
 import discord
 
@@ -137,8 +138,9 @@ async def acceptquest(ctx, quest_index, **details):
 
         add_strg = min(attr_gain(quest.strg), 100)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
-        add_attack = min(attr_gain(quest.attack), min(add_strg * 10, 100))
-        add_accy = min(attr_gain(quest.accy), min(add_strg * 10, 100))
+        # Add a little random so the limit is not super visible
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
 
         stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
@@ -262,7 +264,7 @@ async def editquest(ctx, quest_name, *updates, **details):
     
     """
 
-    editable_props = ("attack", "hp", "accy", "spawn", "weap", "image", "task", "channel")
+    editable_props = ("attack", "strg", "hp", "accy", "spawn", "weap", "image", "task", "channel")
     changes = OrderedDict()
     quest = quests.get_quest_on_server(ctx.server, quest_name)
 
@@ -273,7 +275,7 @@ async def editquest(ctx, quest_name, *updates, **details):
     while next_prop < len(updates):
         quest_property = updates[next_prop].lower()
         if quest_property in editable_props:
-            if editable_props.index(quest_property) <= 3:
+            if editable_props.index(quest_property) <= 4:
                 try:
                     value = float(updates[next_prop + 1])
                 except ValueError:
@@ -289,6 +291,8 @@ async def editquest(ctx, quest_name, *updates, **details):
                 quest.base_accy = value
             elif quest_property == "spawn" and 25 >= value >= 1:
                 quest.spawn_chance = value / 100
+            elif quest_property == "strg" and value >= 1:
+                quest.base_strg = value
             elif quest_property == "weap" and weapons.find_weapon(ctx.server, value) is not None:
                 weapon = weapons.find_weapon(ctx.server, value)
                 quest.w_id = weapon.w_id
