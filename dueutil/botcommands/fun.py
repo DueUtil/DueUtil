@@ -11,10 +11,13 @@ from ..game.helpers import misc, imagehelper
 
 
 async def glitter_text(channel, text):
-    gif_text = await misc.get_glitter_text(text)
-    await util.get_client(channel).send_file(channel, fp=gif_text,
-                                             filename="glittertext.gif",
-                                             content=":sparkles: Your glitter text!")
+    try:
+        gif_text = await misc.get_glitter_text(text)
+        await util.get_client(channel).send_file(channel, fp=gif_text,
+                                                 filename="glittertext.gif",
+                                                 content=":sparkles: Your glitter text!")
+    except ValueError:
+        await util.say(channel, ":cry: Could not fetch glitter text!")
 
 
 @commands.command(args_pattern='S')

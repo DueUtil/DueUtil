@@ -41,5 +41,26 @@
       "image":"info_banner.png",
       "price":0,
       "donor": true
+   },
+   "quest red":{
+      "name":"Quest Red",
+      "icon":":red_circle:",
+      "description":"Roleplay being a quest!",
+      "image":"quest_red.png",
+      "price":50
+   },
+   "totally pink":{
+      "name":"Totally Pink",
+      "icon":":peach:",
+      "description":"Manly banner for real men.",
+      "image":"totally_pink.png",
+      "price":50
+   },
+   "zombie green":{
+      "name":"Zombie Green",
+      "icon":":nauseated_face:",
+      "description":"BRAINS!!!",
+      "image":"zombie_green.png",
+      "price":50
    }
 }

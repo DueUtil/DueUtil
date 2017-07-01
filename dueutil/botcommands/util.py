@@ -292,7 +292,7 @@ async def blacklist(ctx, *args, **details):
         await util.say(ctx.channel, ":pencil: Command blacklist removed.")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
 async def setuproles(ctx, **details):
     """
     [CMD_KEY]setuproles

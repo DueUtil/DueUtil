@@ -73,7 +73,6 @@ def server_cmd_key(server, *args):
 
 
 def _load():
-    global server_keys, muted_channels
     configs = dbconn.conn()["serverconfigs"].find()
     for config in configs:
         server_id = config["_id"]

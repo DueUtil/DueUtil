@@ -14,6 +14,7 @@ from .. import dbconn
 from .. import util
 from ..game import awards
 from ..game import weapons
+from ..game import gamerules
 from ..game.helpers.misc import DueUtilObject, Ring
 from . import customizations
 from .customizations import Theme
@@ -239,7 +240,11 @@ class Player(DueUtilObject, SlotPickleMixin):
 
     @property
     def item_value_limit(self):
-        return int(30 * (math.pow(self.level, 2) / 3 + 0.5 * math.pow(self.level + 1, 2) * self.level))
+        # Take into account the progress in the current level.
+        precise_level = self.level + self.exp/gamerules.get_exp_for_next_level(self.level)
+        return int(30 * (math.pow(precise_level, 2) / 3
+                         + 0.5 * math.pow(precise_level + 1, 2)
+                         * precise_level))
 
     @property
     def rank(self):

@@ -4,7 +4,7 @@ import random
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
 from ..game import players, customizations
-from ..game import stats
+from ..game import stats, game
 from ..game.helpers import misc, playersabstract, imagehelper
 from .. import commands, util
 
@@ -53,6 +53,7 @@ async def train(ctx, **details):
                     max_exp=100, max_attr=0.3)
     progress_message = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f"\
                        % (attack_increase, strg_increase, accy_increase)
+    await game.check_for_level_up(ctx, player)
     player.save()
     await util.say(ctx.channel, "**%s** training complete!\n%s" % (player, progress_message))
 
