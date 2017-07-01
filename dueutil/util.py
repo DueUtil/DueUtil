@@ -154,6 +154,11 @@ def get_client(source):
 
 
 def ultra_escape_string(string):
+
+    """
+    A simple function to escape all discord crap!
+    """
+
     if not isinstance(string, str):
         return string
     escaped_string = string
@@ -162,6 +167,12 @@ def ultra_escape_string(string):
         if not character.isalnum() and not character.isspace() and character not in escaped:
             escaped.append(character)
             escaped_string = escaped_string.replace(character, '\\' + character)
+
+    # Escape the ultra annoying mentions that \@everyone does not block
+    # Why? Idk
+    escaped_string = escaped_string.replace("@everyone", u"@\u200Beveryone")\
+                                   .replace("@here", u"@\u200Bhere")
+
     return escaped_string
 
 
