@@ -7,6 +7,7 @@ import re
 import sys
 import traceback
 from threading import Thread
+import aiohttp
 
 import discord
 from dueutil.permissions import Permission
@@ -19,6 +20,7 @@ from dueutil import permissions
 from dueutil import util, events, dbconn
 
 MAX_RECOVERY_ATTEMPTS = 100
+CARBON_BOTDATA = "https://www.carbonitex.net/discord/data/botdata.php"
 
 stopped = False
 start_time = 0
@@ -46,6 +48,7 @@ class DueUtilClient(discord.Client):
         self.queue_tasks = queue.Queue()
         self.name = shard_names[self.shard_id]
         self.loaded = False
+        self.session = aiohttp.ClientSession()
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -73,6 +76,14 @@ class DueUtilClient(discord.Client):
         """
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
+    async def carbon_stats_update(self):
+
+        headers = {'content-type': 'application/json'}
+        server_count = util.get_server_count()
+        carbon_payload = {"key": config["carbonKey"], "servercount": server_count}
+        async with self.session.post(CARBON_BOTDATA, data=json.dumps(carbon_payload), headers=headers) as response:
+            util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
+
     @asyncio.coroutine
     def on_server_join(self, server):
         server_count = util.get_server_count()
@@ -81,10 +92,6 @@ class DueUtilClient(discord.Client):
             yield from util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111" % server_count)
 
-        # payload = {"key": 'macdue0a873a71hjd673o1', "servercount": server_count}
-        # url = "https://www.carbonitex.net/discord/data/botdata.php"
-        # reponse = await aiohttp.post(url, data=payload)
-        # reponse.close()
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
 
         if not any(role.name == "Due Commander" for role in server.roles):
@@ -104,6 +111,8 @@ class DueUtilClient(discord.Client):
                                      + "server have a look at the ``%shelp util`` commands.\n" % cmd_key
                                      + " You can set the command prefix for me here and which "
                                      + "channels I or my commands can be used in.")
+        # Update carbon stats
+        yield from self.carbon_stats_update()
 
     @staticmethod
     def server_stats(server):
@@ -170,6 +179,8 @@ class DueUtilClient(discord.Client):
                 dbconn.db[collection].delete_many({'_id': server.id})
         yield from util.duelogger.info("DueUtil been removed from the server **%s**"
                                        % util.ultra_escape_string(server.name))
+        # Update carbon stats
+        yield from self.carbon_stats_update()
 
     @asyncio.coroutine
     def change_avatar(self, channel, avatar_name):
@@ -193,7 +204,7 @@ class DueUtilClient(discord.Client):
         self.loaded = True
         if loaded():
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
-                                          + "Bot version → ``%s``" % config["botVersion"])
+                                          + "Bot version → ``%s``" % gconf.VERSION)
 
     def __set_log_channels(self):
 

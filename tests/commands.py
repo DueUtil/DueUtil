@@ -3,7 +3,7 @@ import data_and_classes as d;
 def command(**command_rules):
     def wrap(command_func):
         def wrapped_command(ctx, *args,**kwargs):
-            if(ctx == command_rules.get('only_for',"No")):
+            if ctx == command_rules.get('only_for', "No"):
                 command_func(ctx,*args,**kwargs);
                 return True;
             else:

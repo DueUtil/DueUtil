@@ -19,5 +19,6 @@ announcement_channel = None
 # Silly things:
 DEAD_BOT_ID = "173391791884599297"
 
-BOT_INVITE = "https://discordapp.com/oauth2/authorize?client_id=213271889760616449&scope=bot&permissions=268553280"
+BOT_INVITE = "https://dueutil.tech/invite"
 
+VERSION = "Release 2.0"

@@ -75,14 +75,36 @@ async def help(ctx, *args, **details):
         help_embed.add_field(name="Tips", value=("If DueUtil reacts to your command it means something is wrong!\n"
                                                  + "\":question:\": Something is wrong with the commands syntax.\n"
                                                  + "\":x:\": You don't have the required permissions to use the command."))
-        help_embed.add_field(name="Links", value=("[Invite link!](%s)\n" % gconf.BOT_INVITE
-                                                  + "[Official site](https://dueutil.tech/)\n"
-                                                  + "[Official server](https://discord.gg/ZzYvt8J)\n"
+        help_embed.add_field(name="Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
+                                                  + "DueUtil site: https://dueutil.tech/\n"
+                                                  + "Support server: https://discord.gg/ZzYvt8J\n"
                                                   + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
     await util.say(ctx.channel, embed=help_embed)
+
+
+@commands.command(args_pattern=None)
+async def botinfo(ctx,**details):
+
+    """
+    [CMD_KEY]botinfo
+
+    General information about DueUtil.
+    """
+
+    info_embed = discord.Embed(title="DueUtil's Information", type="rich", color=gconf.EMBED_COLOUR)
+    info_embed.description = "DueUtil is customizable bot to add fun commands, quests and battles to your server."
+    info_embed.add_field(name="Created by", value="[MacDue#4453](https://dueutil.tech/)")
+    info_embed.add_field(name="Framework",
+                         value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
+                               % discord.__version__)
+    info_embed.add_field(name="Version", value=gconf.VERSION),
+    info_embed.add_field(name="Invite Due!", value="https://dueutil.tech/invite", inline=False)
+    info_embed.add_field(name="Support server",
+                         value="For help with the bot or a laugh join **https://discord.gg/ZzYvt8J**!")
+    await util.say(ctx.channel, embed=info_embed)
 
 
 @commands.command(args_pattern=None)

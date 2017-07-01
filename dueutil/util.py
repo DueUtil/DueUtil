@@ -93,16 +93,17 @@ class SlotPickleMixin:
 
 async def download_file(url):
     with aiohttp.Timeout(10):
-        async with aiohttp.get(url) as response:
-            file_data = io.BytesIO()
-            while True:
-                chunk = await response.content.read(128)
-                if not chunk:
-                    break
-                file_data.write(chunk)
-            response.release()
-            file_data.seek(0)
-            return file_data
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                file_data = io.BytesIO()
+                while True:
+                    chunk = await response.content.read(128)
+                    if not chunk:
+                        break
+                    file_data.write(chunk)
+                response.release()
+                file_data.seek(0)
+                return file_data
 
 
 async def say(channel, *args, **kwargs):

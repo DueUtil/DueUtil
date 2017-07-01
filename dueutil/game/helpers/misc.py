@@ -264,12 +264,13 @@ async def get_glitter_text(gif_text):
     """
 
     with aiohttp.Timeout(10):
-        async with aiohttp.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.strip("'"))) as page_response:
-            html = await page_response.text()
-            soup = BeautifulSoup(html, "html.parser")
-            box = soup.find("textarea", {"id": "dLink"})
-            gif_text_area = str(box)
-            gif_url = gif_text_area.replace(
-                '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">', "",
-                1).replace('</textarea>', "", 1)
-            return await util.download_file(gif_url)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.strip("'"))) as page_response:
+                html = await page_response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                box = soup.find("textarea", {"id": "dLink"})
+                gif_text_area = str(box)
+                gif_url = gif_text_area.replace(
+                    '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">', "",
+                    1).replace('</textarea>', "", 1)
+                return await util.download_file(gif_url)
