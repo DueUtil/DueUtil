@@ -135,9 +135,10 @@ async def acceptquest(ctx, quest_index, **details):
             return (max(0.01, (stat / avg_player_stat)
                     * quest.level * (turns / average_quest_battle_turns)/2 * (quest_scale+0.5)*3))
 
-        add_attack = min(attr_gain(quest.attack), 100)
         add_strg = min(attr_gain(quest.strg), 100)
-        add_accy = min(attr_gain(quest.accy), 100)
+        # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 10, 100))
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 10, 100))
 
         stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
