@@ -307,7 +307,7 @@ async def givecash(ctx, player, amount, **details):
     player.save()
 
 
-@commands.command(Permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
 async def setcash(ctx, player, amount, **details):
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
