@@ -77,7 +77,7 @@ async def help(ctx, *args, **details):
                                                  + "\":x:\": You don't have the required permissions to use the command."))
         help_embed.add_field(name="Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
                                                   + "DueUtil site: https://dueutil.tech/\n"
-                                                  + "Support server: https://discord.gg/ZzYvt8J\n"
+                                                  + "Support server: https://discord.gg/n4b94VA\n"
                                                   + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
@@ -103,7 +103,7 @@ async def botinfo(ctx,**details):
     info_embed.add_field(name="Version", value=gconf.VERSION),
     info_embed.add_field(name="Invite Due!", value="https://dueutil.tech/invite", inline=False)
     info_embed.add_field(name="Support server",
-                         value="For help with the bot or a laugh join **https://discord.gg/ZzYvt8J**!")
+                         value="For help with the bot or a laugh join **https://discord.gg/n4b94VA**!")
     await util.say(ctx.channel, embed=info_embed)
 
 
