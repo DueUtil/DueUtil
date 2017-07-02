@@ -419,8 +419,8 @@ async def sell_weapon(weapon_name, **details):
     channel = details["channel"]
 
     price_divisor = 4 / 3
-
-    if player.weapon.name.lower() == weapon_name:
+    player_weapon = player.weapon
+    if player_weapon != weapons.NO_WEAPON and player_weapon.name.lower() == weapon_name:
         weapon_to_sell = player.weapon
         player.weapon = weapons.NO_WEAPON_ID
     else:
