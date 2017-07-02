@@ -97,7 +97,12 @@ NO_WEAPON_ID = NO_WEAPON.id
 
 def get_weapon_from_id(weapon_id: str) -> Weapon:
     if weapon_id in weapons:
-        return weapons[weapon_id]
+        weapon = weapons[weapon_id]
+        # Getting from the store WILL not ensure an exact match.
+        # It will only use the name and server id.
+        # We must compare here to ensure the meta data is the same.
+        if weapon.id == weapon_id:
+            return weapon
     return weapons[NO_WEAPON_ID]
 
 
