@@ -56,7 +56,7 @@ async def bugreport(ctx, report, **details):
 
 
 @commands.command(args_pattern="S")
-@commands.ratelimit(cooldown=300, error=":hushed: Please no more feedback (for a few minutes)!")
+@commands.ratelimit(cooldown=300, error=":hushed: Please no more suggestions (for a few minutes)!")
 async def suggest(ctx, suggestion, **details):
     """
     [CMD_KEY]suggest (suggestion)

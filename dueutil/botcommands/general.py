@@ -8,9 +8,12 @@ from . import players as player_cmds
 from . import weapons as weap_cmds
 from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
-
+from functools import  wraps
 
 ### Fill in the blanks buy/sell functions
+DEPARTMENT_NOT_FOUND = "Department not found"
+ITEM_NOT_FOUND = "Item not found!"
+
 
 class BuySellTheme(ShopBuySellItem):
     item_type = "theme"
@@ -108,25 +111,30 @@ def get_department_from_name(name):
         None)
 
 
-async def item_action(item_name, action, **details):
+async def item_action(item_name, action, department=None, **details):
+    # Does not support list action page. Since I have no case where I need that.
     exists_check = details.get('exists_check', "item_exists")
-    message = details.get('error', "An item with that name exists in multiple departments!")
-    # TODO pass full details
-    possible_departments = [department_info for department_info in departments.values() if
-                            department_info[exists_check](details, item_name)]
-    if len(possible_departments) > 1:
-        error = (":confounded: " + message + "\n"
-                 + "Please be more specific!\n")
-        if ' ' in item_name:
-            item_name = '"%s"' % item_name
-        for department_info in possible_departments:
-            error += "``" + details["cmd_key"] + details["command_name"] + " " + department_info["alias"][
-                0] + " " + item_name + "``\n"
-        await util.say(details["channel"], error)
-    elif len(possible_departments) == 0:
-        raise util.DueUtilException(details["channel"], "Item not found!")
-    else:
+    if department is None:
+        # We have to find where it could be
+        message = details.get('error', "An item with that name exists in multiple departments!")
+        possible_departments = [department_info for department_info in departments.values() if
+                                department_info[exists_check](details, item_name)]
+        if len(possible_departments) > 1:
+            error = (":confounded: " + message + "\n"
+                     + "Please be more specific!\n")
+            if ' ' in item_name:
+                item_name = '"%s"' % item_name
+            for department_info in possible_departments:
+                error += "``" + details["cmd_key"] + details["command_name"] + " " + department_info["alias"][
+                    0] + " " + item_name + "``\n"
+            await util.say(details["channel"], error)
+            return  # Too many possible departments
+        elif len(possible_departments) == 0:
+            raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)
         department = possible_departments[0]
+    # We should know have a department if we get this far
+    # First condition we found it so must exist. 2nd We were given the department.
+    if 'possible_departments' in locals() or department[exists_check](details, item_name):
         action = department["actions"][action]
         if inspect.iscoroutinefunction(action):
             action_result = await action(item_name, **details)
@@ -134,6 +142,8 @@ async def item_action(item_name, action, **details):
             action_result = action(item_name, **details)
         if isinstance(action_result, discord.Embed):
             await util.say(details["channel"], embed=action_result)
+    else:
+        raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)
 
 
 def _placeholder(_, **details):
@@ -213,7 +223,30 @@ departments = {
 }
 
 
+def try_again(general_command):
+    # Try again wrapper. If the department/item not found error is thrown.
+    # This could be because they forgot the quotes. This is a simple
+    # fix to that very common mistake.
+    @wraps(general_command)
+    async def wrapped_command(ctx, *args, **details):
+        try:
+            await general_command(ctx, *args, **details)
+        except util.DueUtilException as command_error:
+            if command_error.message == DEPARTMENT_NOT_FOUND:
+                # Try with just one arg (i.e the args being an item name)
+                await general_command(ctx, ' '.join(args), **details)
+            elif command_error.message == ITEM_NOT_FOUND and args[0].count(' ') >= 2:
+                # A fix for a less common mistake. Missing quotes around
+                # item name with spaces in it while setting a department too.
+                args = args[0].split(' ', 1)
+                await general_command(ctx, *args, **details)
+            else:
+                raise command_error
+    return wrapped_command
+
+
 @commands.command(args_pattern='S?M?')
+@try_again
 async def shop(ctx, *args, **details):
     """
     [CMD_KEY]shop department (page or name)
@@ -236,6 +269,7 @@ async def shop(ctx, *args, **details):
     details["embed"] = shop_embed
 
     if len(args) == 0:
+        # Greet
         greet = ":wave: **Welcome to the DueUtil general store!**\n"
         department_available = "Please have a look in some of our splendiferous departments!\n"
         for department_info in departments.values():
@@ -243,24 +277,27 @@ async def shop(ctx, *args, **details):
         shop_help = "For more info on the new shop do ``" + details["cmd_key"] + "help shop``"
         await util.say(ctx.channel, greet + department_available + shop_help)
     else:
+        # If 1 args could be department or name.
+        # If two. Department then name.
         department = get_department_from_name(args[0])
         if department is not None:
             list_action = department["actions"]["list_action"]
-            info_action = department["actions"]["info_action"]
             if len(args) == 1:
                 await util.say(ctx.channel, embed=list_action(0, **details))
             else:
                 if type(args[1]) is int:
                     await util.say(ctx.channel, embed=list_action(args[1] - 1, **details))
                 else:
-                    await util.say(ctx.channel, embed=info_action(args[1], **details))
+                    # Use item_action since it will do the check if item exists
+                    await item_action(args[1], "info_action", department=department, **details)
         elif len(args) == 1:
             await item_action(args[0].lower(), "info_action", **details)
         else:
-            raise util.DueUtilException(ctx.channel, "Department not found")
+            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
 @commands.command(args_pattern='SS?')
+@try_again
 async def buy(ctx, *args, **details):
     """
     [CMD_KEY]buy item
@@ -276,10 +313,11 @@ async def buy(ctx, *args, **details):
         if department is not None:
             await department["actions"]["buy_action"](args[1].lower(), **details)
         else:
-            raise util.DueUtilException(ctx.channel, "Department not found")
+            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
 @commands.command(args_pattern='SS?')
+@try_again
 async def sell(ctx, *args, **details):
     """
     [CMD_KEY]sell item
@@ -294,7 +332,6 @@ async def sell(ctx, *args, **details):
     else:
         department = get_department_from_name(args[0])
         if department is not None:
-            await department["actions"]["sell_action"](args[1].lower(), **details, exists_check="item_exists_sell",
-                                                       error=error)
+            await department["actions"]["sell_action"](args[1].lower(), **details)
         else:
-            raise util.DueUtilException(ctx.channel, "Department not found")
+            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)

@@ -272,7 +272,7 @@ async def editquest(ctx, quest_name, *updates, **details):
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
     next_prop = 0
-    while next_prop < len(updates):
+    while next_prop < len(updates) - 1:
         quest_property = updates[next_prop].lower()
         if quest_property in editable_props:
             if editable_props.index(quest_property) <= 4:
@@ -305,11 +305,13 @@ async def editquest(ctx, quest_name, *updates, **details):
                 if value.upper() not in ("ALL", "NONE"):
                     channel_id = value.replace("<#", "").replace(">", "")
                     channel = util.get_client(ctx.server.id).get_channel(channel_id)
-                    if channel is not None:
-                        quest.channel = channel.id
+                    if channel is None:
+                        next_prop += 2
+                        continue
                 else:
-                    quest.channel = value.upper()
+                    channel_id = value.upper()
                     value = value.title()
+                quest.channel = channel_id
             else:
                 changed = False
             if changed:
