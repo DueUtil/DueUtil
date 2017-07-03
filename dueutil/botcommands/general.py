@@ -234,7 +234,8 @@ def try_again(general_command):
         except util.DueUtilException as command_error:
             if command_error.message == DEPARTMENT_NOT_FOUND:
                 # Try with just one arg (i.e the args being an item name)
-                await general_command(ctx, ' '.join(args), **details)
+                probable_item_name = ' '.join((str(arg) for arg in args))
+                await general_command(ctx, probable_item_name, **details)
             elif command_error.message == ITEM_NOT_FOUND and args[0].count(' ') >= 2:
                 # A fix for a less common mistake. Missing quotes around
                 # item name with spaces in it while setting a department too.
