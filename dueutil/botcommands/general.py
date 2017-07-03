@@ -260,9 +260,6 @@ async def shop(ctx, *args, **details):
     will show extra details about that item.
     If you want anything from the shop use the
     [CMD_KEY]buy command!
-    
-    **Note**: You must always use quotes around item names
-    that have spaces with this command due to it's internal workings.
     """
 
     shop_embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
@@ -300,10 +297,7 @@ async def shop(ctx, *args, **details):
 @try_again
 async def buy(ctx, *args, **details):
     """
-    [CMD_KEY]buy item
-
-    **Note**: You must always use quotes around item names
-    that have spaces with this command due to it's internal workings.
+    [CMD_KEY]buy item name
     """
 
     if len(args) == 1:
@@ -320,10 +314,7 @@ async def buy(ctx, *args, **details):
 @try_again
 async def sell(ctx, *args, **details):
     """
-    [CMD_KEY]sell item
-    
-    **Note**: You must always use quotes around item names
-    that have spaces with this command due to it's internal workings.
+    [CMD_KEY]sell item name
     """
     error = "You own multiple items with the same name!"
 
