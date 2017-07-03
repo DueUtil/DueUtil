@@ -254,7 +254,7 @@ async def editquest(ctx, quest_name, *updates, **details):
     
     Properties:
         __attack__, __hp__, __accy__, __spawn__, __weap__,
-        __image__, __task__ and __channel__
+        __image__, __task__, __strg__ and __channel__
         
     Example usage:
     
