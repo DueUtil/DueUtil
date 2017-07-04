@@ -211,7 +211,6 @@ async def dueeval(ctx, statement, **details):
     """
 
     player = details["author"]
-    player.quests_completed_today += 10
     # print(player.last_message_hashes)
     try:
         await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
