@@ -220,7 +220,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     Advanced Quest:
         ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" http://i.imgur.com/sP8Rnhc.png 21``
         This creates a quest with the same base values as before but with the message "Kill the"
-        when the quest pops up, a gun, a quest icon image and a spawn chance of 21%
+        when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
         
     """
 
