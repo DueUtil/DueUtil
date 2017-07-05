@@ -61,7 +61,6 @@ async def train(ctx, **details):
 @commands.command(args_pattern=None)
 async def mylimit(ctx, **details):
     """
-
     [CMD_KEY]mylimit
 
     Shows the weapon price you're limited to.

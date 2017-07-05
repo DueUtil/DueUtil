@@ -2,7 +2,7 @@ import importlib
 import pkgutil
 import sys
 
-from . import events, util
+from . import events, util, dbconn
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 BOT_PACKAGES = ('dueutil.botcommands', 'dueutil.game')
@@ -30,6 +30,7 @@ def loader(action, packages=BOT_PACKAGES):
     # if packages == BOT_PACKAGES:
     util.logger.info('Bot extensions loaded with %d commands\n%s', len(events.command_event),
                      ', '.join(events.command_event.command_list()))
+    dbconn.conn()["commands"].insert_one(events.command_event.to_dict())
 
 
 def load_module(module_name):

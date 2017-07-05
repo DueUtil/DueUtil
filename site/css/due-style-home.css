@@ -1,0 +1,103 @@
+
+.group-box.new-group{
+  text-align: center;
+}
+
+.leave-button{
+    float:left;
+}
+
+.open-group-button{
+    float:right;
+}
+
+.option-buttons{
+    position: relative;
+    margin-top: 12px;
+}
+
+.group-footer{
+    position: absolute;
+    width: 80%;
+    bottom: 24px;
+}
+
+.page-content{
+    padding-left: 12px;
+}
+
+/* All cete popups will need a little tweaking to work.*/
+#create-group{
+    height: 324px;
+    width: 400px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+}
+
+#leave-warning{
+    height: 200px;
+    width: 400px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+}
+
+.star-group{
+  left: 8px;
+  top: 8px;
+}
+
+.star-yellow{
+  color: #FAF288 !important;
+}
+
+.star-grey{
+  color: #4A5F73 !important;
+}
+
+.group-title{
+    text-align: center;
+    display:table;
+    margin:0 auto;
+    padding-bottom: 12px;
+    max-width:180px;
+      overflow: hidden;
+  text-overflow: ellipsis;
+    word-break: break-word;
+}
+  
+#new-group-button{
+    position: absolute;
+    width: 85px;
+    height: auto;
+    top: 50%;
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto; 
+    transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    opacity: 0.5;
+}
+
+#new-group-button:hover{
+    opacity: 0.9;
+    filter:alpha(opacity=90);
+    -webkit-transition: all 0.15s ease-in-out;
+    -moz-transition: all 0.15s ease-in-out;
+    -o-transition: all 0.15s ease-in-out;
+    transition: all 0.15s ease-in-out;
+}
+
+#new-group-link{
+    text-decoration:
+    none;color:inherit;
+}
+
+#new-group-icon{
+    margin-bottom:12px;
+}
+
+

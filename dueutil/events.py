@@ -69,6 +69,17 @@ class CommandEvent(dict):
         if command in self:
             await self[command](ctx, *args)
 
+    def to_dict(self):
+        command_data = dict()
+        for category, commands_dict in self.command_categories.items():
+            command_data[category] = dict()
+            for command_name, command_func in commands_dict.items():
+                command_data[category][command_name] = {"name": command_func.__name__,
+                                                        "help": command_func.__doc__,
+                                                        "hidden": command_func.is_hidden,
+                                                        "permission": command_func.permission.name}
+        return command_data
+
 
 message_event = MessageEvent()
 command_event = CommandEvent()
