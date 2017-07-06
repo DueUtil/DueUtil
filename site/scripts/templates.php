@@ -200,19 +200,20 @@ class Leaderboard extends Template {
         $this->set_value('logrows',"");
     }
 
-    public function add_row($player){
-        $this->rankings[] = new LeaderboardRow($player);
+    public function add_row($player, $rank){
+        $this->rankings[] = new LeaderboardRow($player, $rank);
         $this->set_value('logrows', $this->rankings);
     }    
     
 }
 
 class LeaderboardRow extends Template {
-    function __construct($player){
+    function __construct($player, $rank){
         parent:: __construct('../templates/leaderboardrow.tpl');
-        $this->set_value('playername',$player["name"]);
-        $this->set_value('playerid',$player["id"]);
+        $this->set_value('playername',htmlspecialchars($player["name"]));
+        $this->set_value('playerid',htmlspecialchars($player["id"]));
         $this->set_value('totalexp',intval($player["total_exp"]));
+        $this->set_value('rank', $rank);
         $avatar = get_avatar_url($player);
         if (is_null($avatar))
             $avatar = "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";      

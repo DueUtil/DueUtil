@@ -28,8 +28,7 @@ if (sizeof($leaderboard_data) == 0){
     foreach ($leaderboard_data as $player_rank) {
         $player_rank = object_to_array($player_rank);
         $player = find_player($player_rank['player_id']);
-        $leaderboard->add_row($player);
-        get_avatar_url($player);
+        $leaderboard->add_row($player,$player_rank['rank']);
     }
 }
  

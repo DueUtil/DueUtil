@@ -1,6 +1,6 @@
 <div class="table-log flex-content mdl-shadow--6dp">
        <div class="content-box-inner">
-          <span class="mdl-layout-title">Leaderboard</span>
+          <span class="mdl-layout-title">Leaderboard - Top 10</span>
           <div class="log-bg">
              <table style="table-layout: fixed;" class="mdl-data-table mdl-js-data-table log-table">
                 <thead class="log-head">

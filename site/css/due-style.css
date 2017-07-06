@@ -315,12 +315,24 @@ right: 16px;
 }
 
 .rank{
-    width: 32px;
+    padding-top: 6px;
+    width: 45px;
     height: 32px;
-    background-color: #95d3bd;
+    background-image: url('../img/rankthing.png');
+    background-size: 45px 32px;
+    background-repeat: no-repeat;
     color: #1a344b;
     text-align: center;
     font-size: 24px;
+    position: relative;
+}
+
+.rank-inner{
+    height: 32px;
+    width: 32px;
+    right: 12px;
+    text-align: center;
+    position: absolute;
 }
 
 .leaderboard-row:hover{

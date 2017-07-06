@@ -1,6 +1,6 @@
 <tr class="leaderboard-row log-row">
    <td class="log-cell mdl-data-table__cell--non-numeric">
-      <div class="rank">1</div><br>
+      <div class="rank"><div class="rank-inner">[@rank]</div></div>
    </td>
    <td class="log-cell mdl-data-table__cell--non-numeric">
       <img class="cete-avatar" src="[@avatar]" alt="[@playername] Avatar"></img>
