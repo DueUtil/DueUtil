@@ -153,11 +153,11 @@ abstract class Layout extends Template
         $this->set_value('header',$this->header);
     }
 
-    protected function set_css($css){
+    function set_css($css){
         $this->set_header("<link rel=\"stylesheet\" href=\"$css\" />");
     }
 
-    protected function set_script($script){
+    function set_script($script){
         $this->set_header("<script src=\"$script\"></script>");
     }
 }
@@ -176,6 +176,13 @@ class CommandList extends Template
         parent::__construct('../templates/command_list.tpl');
         $this->set_value('listname',$name);
         $this->set_value('commands',$command_list);
+    }  
+}
+
+class QuestLog extends Template
+{
+    function __construct() {
+        parent::__construct('../templates/questlog.tpl');
     }  
 }
 
