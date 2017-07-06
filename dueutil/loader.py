@@ -28,9 +28,11 @@ def loader(action, packages=BOT_PACKAGES):
                 # print(subpackages)
                 # loader(action,packages=subpackages)
     # if packages == BOT_PACKAGES:
+    db = dbconn.conn()
+    db.drop_collection("commands")
     util.logger.info('Bot extensions loaded with %d commands\n%s', len(events.command_event),
                      ', '.join(events.command_event.command_list()))
-    dbconn.conn()["commands"].insert_one(events.command_event.to_dict())
+    db["commands"].insert_one(events.command_event.to_dict())
 
 
 def load_module(module_name):

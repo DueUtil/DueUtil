@@ -18,4 +18,10 @@ function int_to_ordinal($number){
     return $number.$suffix;
 }
 
+
+function object_to_array($object)
+{
+    return json_decode(json_encode($object), true);
+}
+
 ?>

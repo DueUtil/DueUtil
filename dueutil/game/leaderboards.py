@@ -1,7 +1,7 @@
 import threading
 import time
 
-from .. import events, util
+from .. import events, util, dbconn
 from ..game import players
 
 leaderboards = dict()
@@ -11,8 +11,12 @@ UPDATE_INTERVAL = 3600
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
     global leaderboards
-    leaderboards[rank_name] = [sorted(players.players.values(), key=sort_function, reverse=reverse), sort_function,
-                               reverse]
+    leaderboards[rank_name] = [sorted(players.players.values(),
+                                      key=sort_function, reverse=reverse), sort_function, reverse]
+    db = dbconn.conn()
+    db.drop_collection(rank_name)
+    for rank, player in enumerate(leaderboards[rank_name][0]):
+        db[rank_name].insert({"rank": rank+1, "player_id": player.id})
 
 
 def calculate_level_leaderboard():

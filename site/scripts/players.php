@@ -30,4 +30,12 @@ function get_player_wagers($player){
         $wagers[] = $wager_data["py/state"];
     return $wagers;  
 }
+
+function get_avatar_url($player){
+    $image_name = "../imagecache/httpscdndiscordappcomavatars*".$player['id']."*";
+    foreach (glob($image_name) as $image_found) {
+        return $image_found;
+    }
+    return null;
+}
 ?>

@@ -1,6 +1,7 @@
 <?php
 
 require_once("templatesystem.php");
+require_once("players.php");
 
 /*
  * Templates.
@@ -192,11 +193,33 @@ class QuestLog extends Template
 }
 
 class Leaderboard extends Template {
-  
-    function __construct() {
+    private $rankings = array();
+
+    function __construct(){
         parent::__construct('../templates/leaderboard.tpl');
+        $this->set_value('logrows',"");
+    }
+
+    public function add_row($player){
+        $this->rankings[] = new LeaderboardRow($player);
+        $this->set_value('logrows', $this->rankings);
+    }    
+    
+}
+
+class LeaderboardRow extends Template {
+    function __construct($player){
+        parent:: __construct('../templates/leaderboardrow.tpl');
+        $this->set_value('playername',$player["name"]);
+        $this->set_value('playerid',$player["id"]);
+        $this->set_value('totalexp',intval($player["total_exp"]));
+        $avatar = get_avatar_url($player);
+        if (is_null($avatar))
+            $avatar = "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";      
+        $this->set_value('avatar',$avatar);
     }  
 }
+
 
 class StandardLayout extends Layout
 {

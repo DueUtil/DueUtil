@@ -1,6 +1,8 @@
 <?php
 require_once("../scripts/sidebar.php");
 require_once("../scripts/dbconn.php");
+require_once("../scripts/util.php");
+
 /*
  * Command listing
  */
@@ -19,7 +21,7 @@ $find_all_commands_query = new MongoDB\Driver\Query(array());
 $cursor = $manager->executeQuery('dueutil.commands',$find_all_commands_query);
 
 
-$all_commands_data = json_decode(json_encode($cursor->toArray()[0]), true);
+$all_commands_data = object_to_array($cursor->toArray()[0]);
 array_shift($all_commands_data);
 
 $command_help = array();

@@ -16,7 +16,7 @@ $find_topdog_query = new MongoDB\Driver\Query(array('award' => 'TopDog'));
 $cursor = $manager->executeQuery('dueutil.award_stats',$find_topdog_query);
 $topdog_data = $cursor->toArray();
 if (sizeof($topdog_data) == 1) {
-  $topdog_stats = json_decode(json_encode($topdog_data[0]), true);
+  $topdog_stats = object_to_array($topdog_data[0]);
   if (array_key_exists('top_dog',$topdog_stats))
   {
       $top_dog = find_player($topdog_stats['top_dog']);

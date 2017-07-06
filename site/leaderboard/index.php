@@ -2,12 +2,38 @@
 require_once("../scripts/sidebar.php");
 require_once("../scripts/dbconn.php");
 require_once("../scripts/players.php");
+require_once("../scripts/util.php");
+
 
 /*
  * Leaderboard
  */
  
-$page = new StandardLayout($sidebar,new Leaderboard(),$title = "<h2>Global Leaderboard</h2>");
+
+$start_rank = 1;
+
+$find_players = new \MongoDB\Driver\Query(
+        [], // query (empty: select all)
+        [ 'sort' => [ 'rank' => $start_rank ], 'limit' => 10 ]
+);
+
+// Find in player leaderboard
+$cursor = $manager->executeQuery('dueutil.levels', $find_players); 
+$leaderboard_data = $cursor->toArray();
+$leaderboard = new Leaderboard();
+
+if (sizeof($leaderboard_data) == 0){
+  // No leaderboard yet.
+} else {
+    foreach ($leaderboard_data as $player_rank) {
+        $player_rank = object_to_array($player_rank);
+        $player = find_player($player_rank['player_id']);
+        $leaderboard->add_row($player);
+        get_avatar_url($player);
+    }
+}
+ 
+$page = new StandardLayout($sidebar,$leaderboard ,$title = "<h2>Global Leaderboard</h2>");
 
 $page->set_css('../css/due-style-tables.css');
 $page->show();

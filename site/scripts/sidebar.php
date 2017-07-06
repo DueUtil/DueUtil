@@ -16,7 +16,7 @@ $sidebar_content[] = new Navigation('Tools',
                                     array(
                                       'Quest Builder'=>'#',
                                       'Weapon Builder'=>'#',
-                                      'Dashboard' => '#'
+                                      'MyDashboard' => '#'
                                     ));
 $sidebar = new Sidebar($sidebar_content);
 ?>
