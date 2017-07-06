@@ -31,7 +31,7 @@
          [@body]
          <header class="mdl-layout__header">
             <div class="mdl-layout__header-row">
-               <a href="../dashboard/" style="height:100%">
+               <a href="../home/" style="height:100%">
                  <img src="../img/logo.png" class="cete-logo" alt="DueUtil logo">
                </a>
                <!-- Title -->
@@ -55,16 +55,18 @@
             </div>
          </header>
          [@sidebar]
-         <main class="mdl-layout__content">
+         <main style="position: relative" class="mdl-layout__content">
             <span id="content-title" class="mdl-layout-title">[@contenttitle]</span>
             <div class="page-content">
                [@content]
+               <div style="width:100%"></div>
+               <div style="flex-grow: 1;"></div>
+               <footer id="due-footer" class="mdl-mini-footer">
+                <div class="mdl-mini-footer__left-section">
+                  <div class="mdl-logo">DueUtil &copy; 2017 MacDue&#x23;4453 (Ben)</div>
+                </div>
+              </footer>   
             </div>
-            <footer id="due-footer" class="mdl-mini-footer">
-            <div class="mdl-mini-footer__left-section">
-              <div class="mdl-logo">DueUtil &copy; 2017 MacDue&#x23;4453 (Ben)</div>
-            </div>
-          </footer>   
          </main>
       
       </div>

@@ -7,10 +7,10 @@ $sidebar_content[] = new User(array('name' => 'Placeholder',
                                     'avatar' => 'https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png'));
 $sidebar_content[] = new Navigation('General',
                                     array(
-                                      'DueUtil' => '/dueutil/home',
+                                      'DueUtil' => '../home',
                                       'How To Guide'=>'#',
                                       'Commands'=>'../commands',
-                                      'Leaderboard'=>'#'
+                                      'Leaderboard'=>'../leaderboard'
                                     ));                                  
 $sidebar_content[] = new Navigation('Tools',
                                     array(

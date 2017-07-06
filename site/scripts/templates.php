@@ -191,6 +191,13 @@ class QuestLog extends Template
     }  
 }
 
+class Leaderboard extends Template {
+  
+    function __construct() {
+        parent::__construct('../templates/leaderboard.tpl');
+    }  
+}
+
 class StandardLayout extends Layout
 {
    function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
