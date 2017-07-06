@@ -60,17 +60,11 @@
             <div class="page-content">
                [@content]
             </div>
-            <!--
-            <footer class="mdl-mini-footer">
+            <footer id="due-footer" class="mdl-mini-footer">
             <div class="mdl-mini-footer__left-section">
-              <div class="mdl-logo">DueUtil</div>
-              <ul class="mdl-mini-footer__link-list">
-                <li><a href="#">Help</a></li>
-                <li><a href="#">Privacy & Terms</a></li>
-              </ul>
+              <div class="mdl-logo">DueUtil &copy; 2017 MacDue&#x23;4453 (Ben)</div>
             </div>
           </footer>   
-          --!>
          </main>
       
       </div>

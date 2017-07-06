@@ -164,8 +164,13 @@ abstract class Layout extends Template
 
 class HomePageContent extends Template
 {
-    function __construct() {
+    function __construct($topdog, $topdog_count, $server_invite, $bot_invite) {
         parent::__construct('../templates/content_home.tpl');
+        $this->set_value('topdog',htmlspecialchars($topdog['name']));
+        $this->set_value('topdogid',htmlspecialchars($topdog['id']));
+        $this->set_value('topdogcount',$topdog_count);
+        $this->set_value('serverinvite', $server_invite);
+        $this->set_value('botinvite', $bot_invite);
     }
 
 }

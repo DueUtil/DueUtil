@@ -11,14 +11,6 @@
     vertical-align: top;
 }
 
-.flex-content{
-    flex-basis: auto; 
-    flex-grow: 1;
-    background-color: #6c708b;
-    margin-top: 12px;
-    margin-right:12px;
-}
-
 .table-log{
     position: relative;
     min-height: 40vh;

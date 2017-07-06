@@ -23,7 +23,7 @@ $all_commands_data = json_decode(json_encode($cursor->toArray()[0]), true);
 array_shift($all_commands_data);
 
 $command_help = array();
-$command_help[] = new StaticContent("<span style='font-size:18px;text-align:center'>DueUtil has a bunch of commands (with more on the way) that you can use!<br>"
+$command_help[] = new StaticContent("<span class='big-p mdl-layout-title' style='font-size:18px;text-align:center'>DueUtil has a bunch of commands (with more on the way) that you can use!<br>"
                                     ."The default command prefix for DueUtil is <code>!</code> or mentioning the bot.<br>"
                                     ."The prefix the bot uses can be changed with the <code>!setcmdkey</code> command (listed in the util section).</span>");
 

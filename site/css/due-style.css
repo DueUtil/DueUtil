@@ -7,6 +7,8 @@ body{
 
 code{
     background-color: #575B76;
+    padding-left:2px;
+    padding-right:2px;
 }
 
 .centre-vert-content{
@@ -57,6 +59,14 @@ code{
 
 .member-li:hover{
     cursor:pointer;
+}
+
+.flex-content{
+    flex-basis: auto; 
+    flex-grow: 1;
+    background-color: #6c708b;
+    margin-top: 12px;
+    margin-right:12px;
 }
 
 #user-info-header{
@@ -248,6 +258,40 @@ position:  relative;
 .admin-command{
 right: 16px;
     z-index:6;
+}
+
+#banner{
+  margin-top: 32px;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  background: rgba(149,211,189, 1);
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.home-info{
+  padding: 24px;
+  width: 260px;
+}
+
+.home-info-inner{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.big-p{
+  line-height: 130% !important;
+
+}
+
+#due-footer{
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-bottom: -24px;
+  height: 10px;
+  background: #575B76;
+
 }
 
 #overlay{
