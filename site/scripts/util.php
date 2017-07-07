@@ -10,7 +10,7 @@ function int_to_ordinal($number){
         $suffix = "th";
     else {
         $index = ($number % 10) - 1;
-        if ($index < sizeof($SUFFIXES))
+        if ($index >= 0 && $index < sizeof($SUFFIXES))
             $suffix = $SUFFIXES[$index];
         else
             $suffix = "th";

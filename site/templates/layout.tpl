@@ -47,9 +47,7 @@
                   </button>
                   <ul style="width:auto" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
                      for="options-button">
-                     <a href="#" class="mdl-menu__item"><li>Placeholder</li></a>
-                     <li class="mdl-menu__item">Placeholder</li>
-                     <li class="mdl-menu__item">Placeholder</li>
+                     [@dropdownoption]
                   </ul>
                </div>
             </div>

@@ -2,6 +2,9 @@
 
 require_once("templatesystem.php");
 require_once("players.php");
+require_once("auth.php");
+
+define("DEFAULT_AVATAR","https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png");
 
 /*
  * Templates.
@@ -86,11 +89,17 @@ class CommandBox extends Template
 
 class User extends Template
 {
-   function __construct($user) {
-       parent::__construct('../templates/user.tpl');
-       $this->set_value('userid', $user["id"]);
-       $this->set_value('name', $user["name"]);
-       $this->set_value('avatar', $user["avatar"]);
+   function __construct($user, $auth_url = null) {
+       if (is_null($auth_url)) {
+           parent::__construct('../templates/user.tpl');
+           $this->set_value('userid', htmlspecialchars($user["id"]));
+           $this->set_value('name', htmlspecialchars($user["name"]));
+           $this->set_value('avatar', $user["avatar"]);
+       } else {
+           parent::__construct('../templates/userlogin.tpl');
+           $this->set_value('authurl', $auth_url);
+           $this->set_value('avatar', DEFAULT_AVATAR);
+       }
    }
 }
 
@@ -216,7 +225,7 @@ class LeaderboardRow extends Template {
         $this->set_value('rank', $rank);
         $avatar = get_avatar_url($player);
         if (is_null($avatar))
-            $avatar = "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";      
+            $avatar = DEFAULT_AVATAR;      
         $this->set_value('avatar',$avatar);
     }  
 }
@@ -227,6 +236,12 @@ class StandardLayout extends Layout
    function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
        parent::__construct('The Worst Discord Bot',$sidebar,$title,$content,$header_buttons);
        $this->set_css("../css/due-style-dash.css");
+       $auth = get_auth();
+       if ($auth['login']) {
+          $this->set_value('dropdownoption','<a href="../logout/" class="mdl-menu__item"><li>Logout</li></a>');
+       } else {
+          $this->set_value('dropdownoption','<a href="'.$auth['authURL'].'" class="mdl-menu__item"><li>Login</li></a>');
+       }
    }
 }
 

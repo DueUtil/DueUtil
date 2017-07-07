@@ -22,6 +22,17 @@
     padding: 12px;
 }
 
+.table-leader{
+    position: relative;
+    max-width: 800px;
+    min-width: 425px;
+    padding: 12px;
+}
+
+.content-box-inner-leader{
+    height: calc(100% - 24px);
+}
+
 .content-box-inner{
     position: absolute;
     width: calc(100% - 24px);

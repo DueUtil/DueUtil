@@ -1,0 +1,5 @@
+{
+    "require": {
+        "team-reflex/oauth2-discord": "^1.0"
+    }
+}
