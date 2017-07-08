@@ -3,6 +3,7 @@
 require_once("templatesystem.php");
 require_once("players.php");
 require_once("auth.php");
+require_once("util.php");
 
 define("DEFAULT_AVATAR","../img/avatardue.png");
 
@@ -194,25 +195,29 @@ class CommandList extends Template
     }  
 }
 
-class QuestLog extends Template
-{
-    function __construct() {
-        parent::__construct('../templates/questlog.tpl');
-    }  
-}
 
-class Leaderboard extends Template {
-    private $rankings = array();
+abstract class LogBox extends Template {
+    private $listitems = array();
 
-    function __construct(){
-        parent::__construct('../templates/leaderboard.tpl');
+    function __construct($template){
+        parent::__construct("../templates/$template.tpl");
         $this->set_value('logrows',"");
         $this->set_value('message',"");
     }
 
-    public function add_row($player, $rank){
-        $this->rankings[] = new LeaderboardRow($player, $rank);
-        $this->set_value('logrows', $this->rankings);
+    abstract public function add_row(...$row_args);
+}
+
+class Leaderboard extends LogBox {
+
+    function __construct(){
+        parent::__construct('leaderboard');
+    }
+
+    public function add_row(...$player_details){
+        // Player + Ranking
+        $this->listitems[] = new LeaderboardRow($player_details[0], $player_details[1]);
+        $this->set_value('logrows', $this->listitems);
     }    
     
 }
@@ -231,6 +236,36 @@ class LeaderboardRow extends Template {
     }  
 }
 
+class QuestLog extends LogBox
+{
+    function __construct() {
+        parent::__construct('questlog');
+    }
+    
+    public function add_row(...$quest_details){
+        $this->listitems[] = new QuestRow(...$quest_details);
+        $this->set_value('logrows', $this->listitems);
+    }
+}
+
+class QuestRow extends Template {
+  
+    function __construct($active_quest ,$quest ,$reward, $weapon) {
+        parent::__construct('../templates/questrow.tpl');
+        $image_path = get_cached_image_from_url($quest['image_url']);
+        if (!is_null($image_path)) {
+            $this->set_value('image', $image_path);
+        } else {
+            $this->set_value('image', DEFAULT_AVATAR);
+        }
+        $this->set_value('questname', htmlspecialchars($active_quest['name']));
+        $this->set_value('attack', round($active_quest['attack'], 2));
+        $this->set_value('strg', round($active_quest['strg'], 2));
+        $this->set_value('weapon', $weapon["name"]);
+        $this->set_value('reward', $reward);
+        $this->set_value('accy',round($active_quest['accy'], 2));
+    }
+}
 
 class StandardLayout extends Layout
 {

@@ -22,12 +22,7 @@ if (isset($_GET['code']) && !isset($_SESSION['access_token'])){
       'code' => $_GET['code'],
     ]);
     $_SESSION['access_token'] = $token;
-    if (isset($_COOKIE["dueutil_tech_redirect"])) {
-        header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
-        //var_dump();
-         die();
-    }
-
+    redirect();
 } else if (isset($_SESSION['access_token'])) {
     check_auth();
 }
@@ -69,7 +64,16 @@ function get_auth() {
   }
 }
 
+function redirect() {
+  if (isset($_COOKIE["dueutil_tech_redirect"])) {
+    header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
+    //var_dump();
+    die();
+  }
+}
+
 function logout() {
   session_destroy();
+  redirect();
 }
 ?>

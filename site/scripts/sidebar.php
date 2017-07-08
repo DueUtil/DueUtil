@@ -16,9 +16,13 @@ if (!$auth['login']) {
     $user_data = $user->toArray();
     $user_id = $user_data['id'];
     $avatar = $user_data['avatar'];
+    if (!is_null($avatar))
+        $avatar = "https://cdn.discordapp.com/avatars/$user_id/$avatar.jpg";
+    else
+        $avatar = DEFAULT_AVATAR;
     $sidebar_content[] = new User(array('name' => htmlspecialchars(trim($user_data['username'])),
                                         'id' => htmlspecialchars(trim($user_id)),
-                                        'avatar' => "https://cdn.discordapp.com/avatars/$user_id/$avatar.jpg"));
+                                        'avatar' => $avatar));
 }
 $sidebar_content[] = new Navigation('General',
                                     array(

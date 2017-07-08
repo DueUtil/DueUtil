@@ -5,10 +5,13 @@
              <table class="mdl-data-table mdl-js-data-table log-table">
                 <thead class="log-head">
                    <tr>
-                      <th title="Name" class="log-from mdl-data-table__cell--non-numeric"><i class="material-icons">person</i></th>
-                      <th title="Attack" class="log-amount mdl-data-table__cell"><i class="material-icons">attach_money</i></th>
-                      <th title="Strg" class="log-desc mdl-data-table__cell--non-numeric"><i class="material-icons">description</i></th>
-                      <th title="Accy" class="log date mdl-data-table__cell--non-numeric"><i class= "material-icons">date_range</i></th>
+		      <th title="Image" class="log-from mdl-data-table__cell--non-numeric"><i class="material-icons">person</i></th>
+                      <th title="Name" class="log-from mdl-data-table__cell--non-numeric"></th>
+                      <th title="Attack" class="log-amount mdl-data-table__cell"></th>
+                      <th title="Strg" class="log-desc mdl-data-table__cell--non-numeric"></th>
+                      <th title="Accy" class="log date mdl-data-table__cell--non-numeric"></th>
+                      <th title="Weapon" class="log date mdl-data-table__cell--non-numeric"></th>
+                      <th title="Reward" class="log date mdl-data-table__cell--non-numeric"><i class="material-icons">attach_money</i></th>
                    </tr>
                 </thead>
                 <tbody>
@@ -16,5 +19,6 @@
                 </tbody>
              </table>
           </div>
+                                        [@message]
        </div>
 </div>
