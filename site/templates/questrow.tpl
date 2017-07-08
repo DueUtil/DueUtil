@@ -5,6 +5,8 @@
    <td style="background-color: "class="log-cell mdl-data-table__cell--non-numeric">
       <span class="player">[@questname]
       </span>
+      <br>
+      <span class="level">Level [@level]</span>
    </td>
   <td class="log-cell">
       Attack [@attack]

@@ -9,6 +9,8 @@
       <span class="player">[@playername]
       (<code>[@playerid]</code>)
       </span>
+            <br>
+      <span class="level">Level [@level]</span>
    </td>
   <td class="log-cell">
       Total EXP [@totalexp]

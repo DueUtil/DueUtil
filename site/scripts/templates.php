@@ -6,6 +6,8 @@ require_once("auth.php");
 require_once("util.php");
 
 define("DEFAULT_AVATAR","../img/avatardue.png");
+define("DEFAULT_IMAGE","../img/missingimg.png");
+
 
 /*
  * Templates.
@@ -229,6 +231,7 @@ class LeaderboardRow extends Template {
         $this->set_value('playerid',htmlspecialchars($player["id"]));
         $this->set_value('totalexp',intval($player["total_exp"]));
         $this->set_value('rank', $rank);
+        $this->set_value('level',$player['level']);
         $avatar = get_avatar_url($player);
         if (is_null($avatar))
             $avatar = DEFAULT_AVATAR;      
@@ -256,8 +259,9 @@ class QuestRow extends Template {
         if (!is_null($image_path)) {
             $this->set_value('image', $image_path);
         } else {
-            $this->set_value('image', DEFAULT_AVATAR);
+            $this->set_value('image', DEFAULT_IMAGE);
         }
+        $this->set_value('level',$active_quest['level']);
         $this->set_value('questname', htmlspecialchars($active_quest['name']));
         $this->set_value('attack', round($active_quest['attack'], 2));
         $this->set_value('strg', round($active_quest['strg'], 2));

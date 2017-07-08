@@ -30,6 +30,14 @@ code{
     text-align: left !important;
 }
 
+.level{
+    background: #95d3bd;
+    color: #575c75;
+    padding: 2px;
+    white-space:nowrap;
+    border-radius: 1px;
+}
+
 .member-list{
     margin-top: 24px;
     margin-left: 12px;
