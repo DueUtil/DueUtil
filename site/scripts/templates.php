@@ -4,7 +4,7 @@ require_once("templatesystem.php");
 require_once("players.php");
 require_once("auth.php");
 
-define("DEFAULT_AVATAR","https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png");
+define("DEFAULT_AVATAR","../img/avatardue.png");
 
 /*
  * Templates.
@@ -207,6 +207,7 @@ class Leaderboard extends Template {
     function __construct(){
         parent::__construct('../templates/leaderboard.tpl');
         $this->set_value('logrows',"");
+        $this->set_value('message',"");
     }
 
     public function add_row($player, $rank){

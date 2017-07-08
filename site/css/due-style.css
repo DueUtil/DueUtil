@@ -256,6 +256,19 @@ position:  relative;
 
 }
 
+.command-list-m {
+
+	display: -ms-flexbox;
+	-ms-flex-direction: column;
+	-ms-flex-wrap: wrap;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	height: 100vw;
+	font-size: 0; 
+    justify-content: center;
+}
+
 .admin-command{
 right: 16px;
     z-index:6;

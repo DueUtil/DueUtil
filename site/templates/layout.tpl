@@ -1,4 +1,10 @@
 <!doctype html>
+<!--
+OH SHITTTT!
+
+You just did view source on my page!
+That means your now a certified hacker man and have totally hacked me.
+--!>
 <html lang="en">
    <head>
       <meta charset="utf-8">

@@ -29,8 +29,12 @@ $command_help[] = new StaticContent("<span class='big-p mdl-layout-title' style=
                                     ."The default command prefix for DueUtil is <code>!</code> or mentioning the bot.<br>"
                                     ."The prefix the bot uses can be changed with the <code>!setcmdkey</code> command (listed in the util section).</span>");
 
+# Sort categorys apha
+ksort($all_commands_data);
 foreach ($all_commands_data as $category_name => $command_category){
     $command_boxes = array();
+    # Sort help context by length (asc)
+    usort($command_category, "cmp");
     foreach ($command_category as $command_info){
         if ($command_info["hidden"] or !in_array($command_info["permission"],$viewable_command_perms))
             continue;
@@ -64,4 +68,9 @@ foreach ($all_commands_data as $category_name => $command_category){
     $command_help[] = $command_list;
 }
 (new StandardLayout($sidebar,$command_help, $title = "<h2>Commands</h2>"))->show();
+
+
+function cmp($command, $other_command) {
+  return strlen($command["help"]) - strlen($other_command["help"]);
+}
 ?>

@@ -57,7 +57,7 @@ For more information look at the "how to" guide!
           It's ranked on total player exp that you gain from chatting, completing quests and training.
         </div>
         <div class="mdl-card__actions mdl-card--border">
-            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            <a href="../leaderboard" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
               See leaderboard
             </a>
         </div>

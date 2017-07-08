@@ -23,7 +23,8 @@ $leaderboard_data = $cursor->toArray();
 $leaderboard = new Leaderboard();
 
 if (sizeof($leaderboard_data) == 0){
-  // No leaderboard yet.
+  $leaderboard->set_value('message','<div class="log-bg" style="width: calc(100% -12px); margin-top:0px; padding: 12px">'
+                                    .'No leaderboard data! Please check back later!</div>');
 } else {
     foreach ($leaderboard_data as $player_rank) {
         $player_rank = object_to_array($player_rank);

@@ -21,8 +21,13 @@ if (isset($_GET['code']) && !isset($_SESSION['access_token'])){
     $token = $provider->getAccessToken('authorization_code', [
       'code' => $_GET['code'],
     ]);
-
     $_SESSION['access_token'] = $token;
+    if (isset($_COOKIE["dueutil_tech_redirect"])) {
+        header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
+        //var_dump();
+         die();
+    }
+
 } else if (isset($_SESSION['access_token'])) {
     check_auth();
 }
@@ -52,6 +57,12 @@ function get_auth() {
   
   check_auth();
   if (!isset($_SESSION['access_token'])) {
+      // TODO: Domain
+      if (isset($_COOKIE["dueutil_tech_redirect"])) {
+          unset($_COOKIE["dueutil_tech_redirect"]);
+          setcookie('dueutil_tech_redirect', '', time() - 3600);
+      }
+      setcookie('dueutil_tech_redirect', "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", time()+3600, '/');
       return array('login' => False, 'authURL' => $provider->getAuthorizationUrl(array('scope' => $auth_scopes)));
   } else {
       return array('login' => True, 'token' => $_SESSION['access_token']);

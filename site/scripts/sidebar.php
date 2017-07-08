@@ -2,6 +2,8 @@
 require_once("../scripts/templates.php");
 require_once("../scripts/auth.php");
 
+unset($_SERVER['QUERY_STRING']);
+
 $sidebar_content = array();
 
 $auth = get_auth();
@@ -27,9 +29,9 @@ $sidebar_content[] = new Navigation('General',
                                     ));                                  
 $sidebar_content[] = new Navigation('Tools',
                                     array(
+                                      'MyDashboard' => '../mydash',
                                       'Quest Builder'=>'#',
-                                      'Weapon Builder'=>'#',
-                                      'MyDashboard' => '#'
+                                      'Weapon Builder'=>'#'
                                     ));
 $sidebar = new Sidebar($sidebar_content);
 ?>

@@ -1,6 +1,6 @@
 <div class="table-leader flex-content mdl-shadow--6dp">
        <div class="content-box-inner-leader">
-          <span class="mdl-layout-title">Leaderboard - Top 10</span>
+          <span class="mdl-layout-title">Leaderboard - Top Players</span>
           <div class="log-bg">
              <table style="table-layout: fixed;" class="mdl-data-table mdl-js-data-table log-table">
                 <thead class="log-head">
@@ -16,5 +16,6 @@
                 </tbody>
              </table>
           </div>
+                              [@message]
        </div>
 </div>
