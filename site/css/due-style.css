@@ -5,10 +5,18 @@ body{
     background-color: #575B76;
 }
 
+/**
 code{
     background-color: #575B76;
     padding-left:2px;
     padding-right:2px;
+}
+**/
+
+code {
+  font-family: Menlo,Consolas,Monaco,monospace;
+  font-size: 14px;
+  line-height: 16px;
 }
 
 .centre-vert-content{

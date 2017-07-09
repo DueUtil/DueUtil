@@ -1,0 +1,96 @@
+DU Guide:
+
+Playing:
+
+    Game:
+      Quests
+      Battles
+      Wagers
+      Shopping
+      profile
+      awards
+      daily
+      train
+      customization
+      
+
+Admin:    
+    ##:icon-fist: Setting up channels:##
+    
+        After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
+        This can be done with the ``!shutupdue`` command, ``!shutupdue`` will stop the bot from sending alerts (new quest, level up, etc)
+        and ``!shutupdue all`` will completely disable the bot in a channel.
+        
+        If you just want to limit what commands can be used in channels that can be done with the ``!whitelist`` and ``!blacklist`` commands,
+        both commands just take a list of commands (seperated with spaces).
+        These commands only effect non-admins and are not independant (blacklist just sets and inverted whitelist).
+        
+    ##:icon-dagger: Creating weapons:##
+    
+        You can create weapons for your server's weapon shop (``!shop weaps``).
+        The command to do this is a litte long.
+        
+        If you just want to make a really basic weapon with just a name, an attack message and damage and accuracy,
+        you can do something like this:
+        
+        ``!createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
+        
+        This would create a weapon called "Laser" with the attack message "FIRES THEIR LAZOR AT" and it would have 100 damage and 50% accuracy.
+        
+        [Weapon in shop]
+        
+        If you want to make a weapon that's a little more interesting you can add a few extra parameters.
+        
+        ``!createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50 True :gun: http://i.imgur.com/wAET49W.png``
+        
+        [Weapon in shop]
+        
+        This will create a "Laser" weapon like before but it will also be marked as ranged (the "True" in the command),
+        will have and icon the ``:gun:`` emoji and a image that shows up on the ``!shop <item name>`` page (that shows the weapons information)
+        and on the battle screen.
+        
+    ##:icon-slime: Creating quests:##
+     
+        Like with weapons you can create basic and more intersting quests.
+        
+        To make a simple quest you could do something like:
+        
+        ``!createquest "Mega Mouse" 1.3 2 1.1 32``
+        
+        This will create a very simple quest called "Mega Mouse".
+        
+        The will have the base values:
+          1.3 Attack
+          2 Strength
+          1.1 Accuracy
+          32 HP
+          
+        [Quest spawn image]
+          
+        If you want to spice up this quest a little you could do:
+        
+        ``!createquest "Mega Mouse" 1.3 2 1.1 32 "Oh crap it's a" "Dagger" http://i.imgur.com/ZKGSWRZ.png 21``
+        
+        This would create the "Mega Mouse" like before but would have the spawn message "Oh crap it's a", 
+        the quest will be equipped with a dagger, will have a custom image for the quest and will have a spawn rate of 21%.
+        
+        [Quest spawn image]
+        
+        Setting quest channels:
+     
+    
+    Giving others "admin" pemissions for the bot.
+
+    
+    
+    Create weapons & remove them
+    + quests
+  
+  due commandar
+  white list + black list
+  
+  
+Misc:
+    
+    Bugs
+    Features
