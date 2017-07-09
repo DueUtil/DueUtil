@@ -92,12 +92,12 @@ class CommandBox extends Template
 
 class User extends Template
 {
-   function __construct($user, $auth_url = null) {
+   function __construct($player, $avatar, $auth_url = null) {
        if (is_null($auth_url)) {
            parent::__construct('../templates/user.tpl');
-           $this->set_value('userid', htmlspecialchars($user["id"]));
-           $this->set_value('name', htmlspecialchars($user["name"]));
-           $this->set_value('avatar', $user["avatar"]);
+           $this->set_value('level', $player["level"]);
+           $this->set_value('name', htmlspecialchars($player["name"]));
+           $this->set_value('avatar', $avatar);
        } else {
            parent::__construct('../templates/userlogin.tpl');
            $this->set_value('authurl', $auth_url);

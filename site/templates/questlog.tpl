@@ -5,7 +5,7 @@
              <table class="mdl-data-table mdl-js-data-table log-table">
                 <thead class="log-head">
                    <tr>
-		      <th title="Image" class="log-from mdl-data-table__cell--non-numeric"><i class="material-icons">person</i></th>
+                      <th title="Quest" class="log-from mdl-data-table__cell--non-numeric"><span style="font-size: 28px" class="icon-slime"></span></th>
                       <th title="Name" class="log-from mdl-data-table__cell--non-numeric"></th>
                       <th title="Attack" class="log-amount mdl-data-table__cell"></th>
                       <th title="Strg" class="log-desc mdl-data-table__cell--non-numeric"></th>

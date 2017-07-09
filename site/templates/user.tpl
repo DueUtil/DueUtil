@@ -1,7 +1,7 @@
-<div class="cete-user ">
-    <img class="cete-avatar" src="[@avatar]" alt="Your avatar">
-    <span class="cete-user-info">
-        <span id="current-user-name">[@name]</span><br>
-        id: <code data-clipboard-text="[@userid]" title="click to copy" class="cete-id" id="current-userid">[@userid]</code><br>
-    </span>
+<div id="sidebar-user" class="cete-user ">
+    <img id="sidebar-avatar" class="cete-avatar" src="[@avatar]" alt="Your avatar">
+    <div class="cete-user-info">
+        <div id="current-user-name">[@name]</div>
+     	<div style="margin-top: 2px;display: inline-block" class="level">Level [@level]</div>
+    </div>
 </div>

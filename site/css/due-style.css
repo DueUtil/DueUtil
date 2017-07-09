@@ -70,6 +70,10 @@ code{
     cursor:pointer;
 }
 
+#sidebar-user{
+   white-space: nowrap;
+}
+
 .flex-content{
     flex-basis: auto; 
     flex-grow: 1;
