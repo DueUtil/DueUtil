@@ -38,17 +38,7 @@ foreach ($all_commands_data as $category_name => $command_category){
     foreach ($command_category as $command_info){
         if ($command_info["hidden"] or !in_array($command_info["permission"],$viewable_command_perms))
             continue;
-        $help = $command_info["help"];
-        # Bold
-        $help = preg_replace('/\*\*(.*?)\*\*/', "<b>$1</b>", $help);
-        # Underline
-        $help = preg_replace('/__(.*?)__/', "<u>$1</u>", $help);
-        # Code
-        $help = preg_replace('/``(.*?)``/', "<code>$1</code>", $help);
-        # New lines
-        $help = str_replace("\n","<br>",$help);
-        # Prefix
-        $help = str_replace("[CMD_KEY]",'!',$help);
+        $help = due_markdown_to_html($command_info["help"]);
         if ($command_info["permission"] == "ANYONE"){
             $perm_icon = "people";
             $perm_colour = "#95d3bd";

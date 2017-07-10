@@ -50,6 +50,33 @@ class StaticContent extends Template
     }
 }
 
+
+class StringTemplate extends Template
+{
+    private $template_contents;
+    
+    function __construct($template_contents)
+    {
+        parent::__construct(null);
+        $this->template_contents = $template_contents;
+    }
+    
+    protected function template_contents()
+    {
+      return $this->template_contents;
+    }
+}
+
+
+class Box extends Template 
+{
+    function __construct($content) {
+        parent::__construct('../templates/box.tpl');
+        $this->set_value('content',$content);
+    }
+}
+
+
 class Sidebar extends Template
 {
    private $sidebar_content;

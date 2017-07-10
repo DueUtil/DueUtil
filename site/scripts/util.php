@@ -1,5 +1,6 @@
 <?php
 require_once("dbconn.php");
+require_once("templates.php");
 
 
 $SUFFIXES = array("st","nd","rd","th");
@@ -85,6 +86,44 @@ function get_object($object_id, $object_collection)
     } catch (Exception $e) {
         return null;
     }
+}
+
+
+function due_markdown_to_html($markdown)
+{
+    # Bold
+    $markdown = preg_replace('/\*\*(.*?)\*\*/', "<b>$1</b>", $markdown);
+    # Underline
+    $markdown = preg_replace('/__(.*?)__/', "<u>$1</u>", $markdown);
+    # Code
+    $markdown = preg_replace('/``(.*?)``/', "<code>$1</code>", $markdown);
+    # New lines
+    $markdown = str_replace("\n","<br>", $markdown);
+    # Prefix
+    $markdown = str_replace("[CMD_KEY]",'!', $markdown);
+    # Headers
+    $markdown = preg_replace('/##(.*?)##/', "<h4>$1</h4>", $markdown);
+    # Emoji/Icons
+    $markdown = preg_replace('/:icon-(.*?):/', "<span class='icon-$1'></span>", $markdown);
+    # Escaped stuff
+    $markdown = preg_replace_callback('/\\\(.)/', 
+        function ($matches) {
+                return htmlspecialchars(substr($matches[0], 1, strlen($matches[0])));;
+        }, $markdown);
+    # Embeded templates
+    preg_match_all('/<TPL:(.*?).tpl>/',$markdown, $matches);
+    if (sizeof($matches) > 0) {
+        $templates = array();
+        foreach($matches[1] as $template_embed) {
+            $index = array_search($template_embed, $matches[1]);
+            $markdown = str_replace($matches[0][$index], "[@$template_embed]", $markdown);
+            $templates[$template_embed] = new StaticContent("$template_embed.tpl");
+        }
+        $markdown = new StringTemplate($markdown);
+        $markdown->set_values($templates);
+        $markdown = $markdown->output();
+    }
+    return $markdown;
 }
 
 ?>
