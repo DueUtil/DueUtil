@@ -295,7 +295,7 @@ async def quests_screen(channel, player, page):
         msg = "You don't have any quests!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
-    await send_image(channel, image, file_name="awards_list.png",
+    await send_image(channel, image, file_name="myquests.png",
                      content=":crossed_swords: **" + player.get_name_possession_clean() + "** Quests!")
 
 

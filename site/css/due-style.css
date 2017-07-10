@@ -26,6 +26,7 @@ code {
   padding: 10px;
   display: inline-block;
   border-radius: 4px;
+      flex-grow: 0;
   white-space: nowrap;
 }
 
@@ -95,11 +96,16 @@ code {
 .extra-info {
     padding-left: 10px;
     display:flex;
-    margin-top: 10px;
     align-items: center;
     flex-shrink: 2;
     flex: 1 1 260px;
     min-width: 260px;
+}
+
+.maccy-tip {
+  background-color: #575B76;
+  border: 1px #858aaa;
+  padding: 10px;
 }
 
 .flex-content-row{
