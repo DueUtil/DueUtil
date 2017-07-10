@@ -1,13 +1,11 @@
-##:icon-fist: Setting up channels:##
-    After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
+##:icon-fist: Setting up channels:## After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
     This can be done with the ``!shutupdue`` command, ``!shutupdue`` will stop the bot from sending alerts (new quest, level up, etc)
     and ``!shutupdue all`` will completely disable the bot in a channel.
         
     If you just want to limit what commands can be used in channels that can be done with the ``!whitelist`` and ``!blacklist`` commands,
     both commands just take a list of commands (seperated with spaces).
     These commands only effect non-admins and are not independant (blacklist just sets and inverted whitelist).
-##:icon-dagger: Creating weapons:##
-    You can create weapons for your server's weapon shop (``!shop weaps``).
+##:icon-dagger: Creating weapons:## You can create weapons for your server's weapon shop (``!shop weaps``).
         
     The command to do this is a litte long.
       
@@ -20,28 +18,24 @@
         
     Here's how that would look in the shop.
     <TPL:embeds/basiclaser.tpl>
-        
     If you want to make a weapon that's a little more interesting you can add a few extra parameters.
         
     ``!createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50 True :gun: http://i.imgur.com/wAET49W.png``
     
     This one would appear like so - note the custom image.
     <TPL:embeds/laser.tpl>
-    
     This will create a "Laser" weapon like before but it will also be marked as ranged (the "True" in the command),
     will have and icon the ``:gun:`` emoji and a image that shows up on the ``!shop \<item name\>`` page (that shows the weapons information)
     and on the battle screen.
     
-    **Some things to note:**
-    <ul style="font-size: inherit; line-height: inherit; margin-bottom: -30px;">
+    **Some things to note:** <ul style="font-size: inherit; line-height: inherit; margin: 0px; margin-bottom: -30px;">
       <li>You cannot set the price of weapons. 
       This is because the bot and any weapons you create can be used on any server.</li>
       <li>The max accuracy is 86% - no weapon can have more than this.</li>
       <li>The min damage is 1.</li>
     </ul>
-##:icon-slime: Creating quests:##
-    Like with weapons you can create basic and more intersting quests.
-        
+##:icon-slime: Creating quests:## Like with weapons you can create basic and more intersting quests.
+    
     To make a simple quest you could do something like:
         
     ``!createquest "Mega Mouse" 1.3 2 1.1 32``

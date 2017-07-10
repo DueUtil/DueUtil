@@ -209,8 +209,8 @@ class HomePageContent extends Template
         $this->set_value('topdog',htmlspecialchars($topdog['name']));
         $this->set_value('topdogid',htmlspecialchars($topdog['id']));
         $this->set_value('topdogcount',$topdog_count);
-        $this->set_value('serverinvite', $server_invite);
-        $this->set_value('botinvite', $bot_invite);
+        $this->set_value('serverinvite', htmlspecialchars($server_invite));
+        $this->set_value('botinvite', htmlspecialchars($bot_invite));
     }
 
 }
@@ -307,7 +307,7 @@ class StandardLayout extends Layout
        if ($auth['login']) {
           $this->set_value('dropdownoption','<a href="../logout/" class="mdl-menu__item"><li>Logout</li></a>');
        } else {
-          $this->set_value('dropdownoption','<a href="'.$auth['authURL'].'" class="mdl-menu__item"><li>Login</li></a>');
+          $this->set_value('dropdownoption','<a href="'.htmlspecialchars($auth['authURL']).'" class="mdl-menu__item"><li>Login</li></a>');
        }
    }
 }

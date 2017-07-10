@@ -20,6 +20,15 @@ code {
   background-color: #575B76;
 }
 
+.discord-message{
+  background-color: #36393E;
+  border: 1px #3E4146;
+  padding: 10px;
+  display: inline-block;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 .centre-vert-content{
     display: table-cell; vertical-align: middle;
 }
@@ -31,7 +40,7 @@ code {
 .center{
   -webkit-transform: translate(-50%,-0%);
   transform: translate(-50%,-0%);
-      position: absolute !important;
+  position: absolute !important;
   left: 50%;
 }
 
@@ -83,8 +92,30 @@ code {
    white-space: nowrap;
 }
 
+.extra-info {
+    padding-left: 10px;
+    display:flex;
+    margin-top: 10px;
+    align-items: center;
+    flex-shrink: 2;
+    flex: 1 1 260px;
+    min-width: 260px;
+}
+
+.flex-content-row{
+   display: -webkit-flex;
+   display: flex;
+   -webkit-flex-direction: row;
+   flex-direction: row;
+    background-color: #6c708b;
+    margin-top: 12px;
+    margin-right:12px;
+    flex-flow: row wrap;
+
+}
+
 .flex-content{
-    flex-basis: auto; 
+    flex-basis: 30%; 
     flex-grow: 1;
     background-color: #6c708b;
     margin-top: 12px;
