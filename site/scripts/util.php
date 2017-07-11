@@ -102,7 +102,7 @@ function due_markdown_to_html($markdown)
     # Prefix
     $markdown = str_replace("[CMD_KEY]",'!', $markdown);
     # Headers
-    $markdown = preg_replace('/##(.*?)##/', "<h4>$1</h4>", $markdown);
+    $markdown = preg_replace('/##(.*?)##/', "<h3>$1</h3>", $markdown);
     # Emoji/Icons
     $markdown = preg_replace('/:icon-(.*?):/', "<span class='icon-$1'></span>", $markdown);
     # Escaped stuff
