@@ -28,6 +28,7 @@ code {
   border-radius: 4px;
       flex-grow: 0;
   white-space: nowrap;
+    align-self: flex-start;  
 }
 
 .centre-vert-content{
@@ -127,6 +128,10 @@ code {
     background-color: #6c708b;
     margin-top: 12px;
     margin-right:12px;
+}
+
+.due-link{
+    color:#95d3bd !important;
 }
 
 #user-info-header{

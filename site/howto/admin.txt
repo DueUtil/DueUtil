@@ -1,11 +1,33 @@
-##:icon-fist: Setting up channels:## After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
-    This can be done with the ``!shutupdue`` command, ``!shutupdue`` will stop the bot from sending alerts (new quest, level up, etc)
-    and ``!shutupdue all`` will completely disable the bot in a channel.
-        
+##:icon-fist: Setting up channels## After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
+    This can be done with the ``!shutupdue`` command. <!-- , ``!shutupdue`` will stop the bot from sending alerts (new quest, level up, etc)      and ``!shutupdue all`` will completely disable the bot in a channel.--!>
+    <div class="flex-content-row">
+    <div class="discord-message"><img src="https://discordapp.com/assets/ae6953e18a8e761c0ca17c5b7ba9fa9c.svg" alt=":mute:" class="emoji" draggable="false"> I won't send any alerts in this channel!
+    If you meant to disable commands too do <code class="discord-code">!shutupdue all</code>.
+    </div>
+    <div class="extra-info"><div class="maccy-tip">This is the result of just running ``!shutupdue``.
+    DueUtil will still respond to commands but won't send any alerts e.g. "new quest" here.</div></div>
+    </div>
+    Doing ``!shutupdue all`` will completely disable the bot in a channel.
+    <div class="flex-content-row">
+    <div class="discord-message"><img src="https://discordapp.com/assets/ae6953e18a8e761c0ca17c5b7ba9fa9c.svg" alt=":mute:" class="emoji" draggable="false"> Disabled all commands in this channel for non-admins!
+    </div>
+    <div class="extra-info"><div class="maccy-tip">The bot will still reply to users with the ``Due Commander`` role or server admins.
+    It still won't send any alerts to them though.</div></div>
+    </div>
+    If come you to see what a horrible mistake you made and want to allow DueUtil to work in a channel again you can do ``!unshutupdue``.
+    <div class="flex-content-row">
+    <div class="discord-message"><img src="https://discordapp.com/assets/f0fa3c1e815fa570f97b21eec4c666dd.svg" alt=":speaker:" class="emoji" draggable="false"> Okay! I'll once more send alerts and listen for commands in this channel!
+    </div>
+    <div class="extra-info"><div class="maccy-tip">Just look how happy he is!</div></div>
+    </div>
+    You can also have it so only certain commands are allowd in some channels with ``!whitelist`` and ``!blacklist``.
+    
+    TODO: Blacklist/whitelist examples.
+    
     If you just want to limit what commands can be used in channels that can be done with the ``!whitelist`` and ``!blacklist`` commands,
     both commands just take a list of commands (seperated with spaces).
     These commands only effect non-admins and are not independant (blacklist just sets and inverted whitelist).
-##:icon-dagger: Creating weapons:## You can create weapons for your server's weapon shop (``!shop weaps``).
+##:icon-dagger: Creating weapons## You can create weapons for your server's weapon shop (``!shop weaps``).
         
     The command to do this is a litte long.
       
@@ -34,7 +56,7 @@
       <li>The max accuracy is 86% - no weapon can have more than this.</li>
       <li>The min damage is 1.</li>
     </ul>
-##:icon-slime: Creating quests:## Like with weapons you can create basic and more intersting quests.
+##:icon-slime: Creating quests## Like with weapons you can create basic and more intersting quests.
     
     To make a simple quest you could do something like:
         
