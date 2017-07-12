@@ -13,7 +13,7 @@
       "expForNextLevel": 20000
     },
    "19,1000": {
-      "expForNextLevel": "20000+3000*oldLevel"
+      "expForNextLevel": "20000+3000**((oldLevel)**1/50)+3000*(oldLevel)"
     }
   },
   "rank-awards": {
