@@ -75,7 +75,7 @@ Do ``!acceptquest \<quest number\>``
   You need half the reward of a quest to start it, as it you lose the quest you'll lose that cash.
   You cannot go into debt.</div></div>
 </div><h6>I only get +0.01 stats WTF!</h6> Ha! You can't use OP weapons agaist poor little quests with weak or crappy weapons and expect a big reward.
-Give your quests weapons don't use your __**ULTRA MEGA CANNON**__ agaist your poor little slime quest.
+Give your quests weapons and don't use your __**ULTRA MEGA CANNON**__ agaist your poor little slime quest.
 
 ##:icon-dagger: Weapons## When you have a little cash you'll probably want to get yourself a weapon.
 On DueUtil, weapons are created by the admins on whatever server you're on and appear in that server's shop!
