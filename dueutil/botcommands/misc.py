@@ -213,8 +213,13 @@ async def dueeval(ctx, statement, **details):
     player = details["author"]
     # print(player.last_message_hashes)
     try:
-        await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
-                                    "**Result** ```" + str(eval(statement)) + "```")
+        if statement.startswith("await"):
+            result = await eval(statement.replace("await", '', 1))
+        else:
+            result = eval(statement)
+        if result is not None:
+            await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
+                                        "**Result** ```" + str(result) + "```")
     except Exception as eval_exception:
         await util.say(ctx.channel, (":cry: Could not evaluate!\n"
                                      + "``%s``" % eval_exception))
