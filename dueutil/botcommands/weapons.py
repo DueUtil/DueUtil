@@ -48,8 +48,8 @@ async def myweapons(ctx, *args, **details):
             raise util.DueUtilException(ctx.channel, "You don't have a weapon with that name!")
 
 
-@commands.command(args_pattern=None)
-async def unequip(ctx, **details):
+@commands.command(args_pattern="S?")
+async def unequip(ctx, useless_arg=None, **details):
     """
     [CMD_KEY]unequip
     
