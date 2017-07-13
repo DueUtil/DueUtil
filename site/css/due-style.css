@@ -27,8 +27,16 @@ code {
   display: inline-block;
   border-radius: 4px;
       flex-grow: 0;
-  white-space: nowrap;
+  /*white-space: nowrap;*/
     align-self: flex-start;  
+}
+
+.mention {
+    background-color: rgba(115,139,215,.1);
+    color: #7289da;
+    background: #f1f3fb;
+    font-weight: 500;
+    transition: background-color .05s,color .05s;
 }
 
 .centre-vert-content{

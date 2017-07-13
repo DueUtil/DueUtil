@@ -307,3 +307,6 @@ form.deprecated.auth-form .control-group input[type=text]::-webkit-input-placeho
     color: hsla(0,0%,100%,.6);
     letter-spacing: 0;
 }
+.markup{
+color: hsla(0,0%,100%,.7);
+}

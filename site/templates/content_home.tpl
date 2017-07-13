@@ -31,7 +31,7 @@ For more information look at the "how to" guide!
             You can see the full list by following the link below!<br>
         </div>
         <div class="mdl-card__actions mdl-card--border">
-            <a href="../commands" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            <a href="../commands/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
               View commands
             </a>
         </div>
@@ -45,7 +45,7 @@ For more information look at the "how to" guide!
             Take a look at the link below!
         </div>
         <div class="mdl-card__actions mdl-card--border">
-            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            <a href="../howto/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
               Take a look
             </a>
         </div>
@@ -57,7 +57,7 @@ For more information look at the "how to" guide!
           It's ranked on total player exp that you gain from chatting, completing quests and training.
         </div>
         <div class="mdl-card__actions mdl-card--border">
-            <a href="../leaderboard" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            <a href="../leaderboard/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
               See leaderboard
             </a>
         </div>
