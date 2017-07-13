@@ -23,7 +23,7 @@ def _load_game_rules():
 def get_exp_for_next_level(level):
     for level_range, exp_details in exp_per_level.items():
         if level in level_range:
-            return eval(exp_details.replace("oldLevel", str(level)))
+            return int(eval(exp_details.replace("oldLevel", str(level))))
     return -1
 
 
