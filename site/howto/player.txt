@@ -4,7 +4,7 @@ You\'ll start of as a <span style="font-size:14px" class="level">Level 1</span> 
 To start off, you might want to have a look at your profile. You can do this with ``!myinfo``.
 The bot will respond with something a little like:
 <div class="flex-content-row">
-  <div class="discord-message"><img src="https://discordapp.com/assets/a307f008c0df67604bf9d07f4c11f6c2.svg" alt=":pen_fountain:" class="emoji" draggable="false"> **MacDue\'s** information.
+  <div class="discord-message"><img src="../img//discordassets/emojis/a307f008c0df67604bf9d07f4c11f6c2.png" alt=":pen_fountain:" class="emoji" draggable="false"> **MacDue\'s** information.
     <img src="../img/myinfo.png"></img>
   </div><div class="extra-info"><div class="maccy-tip">This is your basic stock profile. 
   Next to your avatar is your banner that has your battle name, level and current exp shown on it. 
@@ -15,20 +15,20 @@ The bot will respond with something a little like:
 If you want to improve your stats a little (helps with quests early on), you can ``!train`` every six hours.
 <div class="flex-content-row">
   <div class="discord-message">**MacDue** training complete!
-  <img src="https://discordapp.com/assets/54e1b293350b4fdc172e2b5fb7e28bd8.svg" alt=":crossed_swords:" class="emoji" draggable="false">+0.15<img src="https://discordapp.com/assets/0e2bb36113661c72bb9b3b4e5c834f97.svg" alt=":muscle:" class="emoji" draggable="false">+0.19<img src="https://discordapp.com/assets/43df7da20ea936e1016d1ea5d79a2c6c.svg" alt=":dart:" class="emoji" draggable="false">+0.14
+  <img src="../img//discordassets/emojis/54e1b293350b4fdc172e2b5fb7e28bd8.png" alt=":crossed_swords:" class="emoji" draggable="false">+0.15<img src="../img//discordassets/emojis/0e2bb36113661c72bb9b3b4e5c834f97.png" alt=":muscle:" class="emoji" draggable="false">+0.19<img src="../img//discordassets/emojis/43df7da20ea936e1016d1ea5d79a2c6c.png" alt=":dart:" class="emoji" draggable="false">+0.14
   </div><div class="extra-info"><div class="maccy-tip">The stats gained from this are random!
   (in the range of 0.1 to 0.2)</div></div>
 </div>
 Want a little pocket money? Try ``!daily``!
 <div class="flex-content-row">
-<div class="discord-message"><img src="https://discordapp.com/assets/ccebe0b729ff7530c5e37dbbd9f9938c.svg" alt=":moneybag:" class="emoji" draggable="false"> **MacDue** collected their daily ¤50!</div><div class="extra-info"><div class="maccy-tip">You can do this once every 24 hours</div></div>
+<div class="discord-message"><img src="../img//discordassets/emojis/ccebe0b729ff7530c5e37dbbd9f9938c.png" alt=":moneybag:" class="emoji" draggable="false"> **MacDue** collected their daily ¤50!</div><div class="extra-info"><div class="maccy-tip">You can do this once every 24 hours</div></div>
 </div>
  ##:icon-quest: Questing## Quests are the main way to gain exp and stats.
  Every 6 minutes you get a chance of a quest spawn (you are **not** guaranteed a quest every time).
  
  When you do you a quest the bot will send you a "new quest" alert like the one below!
 <div class="flex-content-row">
-<div class="discord-message"><img src="https://discordapp.com/assets/54e1b293350b4fdc172e2b5fb7e28bd8.svg" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
+<div class="discord-message"><img src="../img//discordassets/emojis/54e1b293350b4fdc172e2b5fb7e28bd8.png" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
 <img src="../img/new_quest.png"></img>
 </div><div class="extra-info"><div class="maccy-tip">The level of quests you get will be near (but not exactly) your level.
 "Kill the" is the spawn message you can set when you create a quest.</div></div>
@@ -36,7 +36,7 @@ Want a little pocket money? Try ``!daily``!
 If you want to accept this quest first check ``!myquests``.
 You'll see a list like this:
 <div class="flex-content-row">
-  <div class="discord-message"><img src="https://discordapp.com/assets/54e1b293350b4fdc172e2b5fb7e28bd8.svg" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue\'s** Quests!
+  <div class="discord-message"><img src="../img//discordassets/emojis/54e1b293350b4fdc172e2b5fb7e28bd8.png" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue\'s** Quests!
     <img src="../img/myquests.png"></img>
   </div><div class="extra-info"><div class="maccy-tip">This is what your quest list will look like with a few active quests.
 The little blue box in the top left corner of a quest is that quest's number (used for ``!questinfo`` and ``!acceptquest``).
@@ -46,7 +46,7 @@ So if you've checked your ``!myquests`` you should now know the number of the qu
 BUT first you probably should (unless the quest appears super easy) check the quests stats.
 You can do this with ``!questinfo \<quest number\>``
 <div class="flex-content-row">
-  <div class="discord-message"><img src="https://discordapp.com/assets/a307f008c0df67604bf9d07f4c11f6c2.svg" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
+  <div class="discord-message"><img src="../img//discordassets/emojis/a307f008c0df67604bf9d07f4c11f6c2.png" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
     <img src="../img/questinfo.png"></img>
   </div><div class="extra-info"><div class="maccy-tip">``!questinfo`` is similar to ``!myinfo`` just without the awards and for quests.</div></div>
 </div>
@@ -69,7 +69,7 @@ Do ``!acceptquest \<quest number\>``
   Same for stat gain.</div></div>
 </div>
 <h5>Common problems!</h5> <h6>The bot won't let me do the quest but I'm strong!</h6><div class="flex-content-row">
-<div style="height: 22px" class="discord-message"><img src="https://discordapp.com/assets/94a29a1805306022db268195f85831fb.svg" alt=":bangbang:" class="emoji" draggable="false"> **You can't afford the risk!**
+<div style="height: 22px" class="discord-message"><img src="../img//discordassets/emojis/94a29a1805306022db268195f85831fb.png" alt=":bangbang:" class="emoji" draggable="false"> **You can't afford the risk!**
   </div><div class="extra-info"><div class="maccy-tip">This **does not** mean you're weak!
   It means you don't have the money to start the quest.
   You need half the reward of a quest to start it, as it you lose the quest you'll lose that cash.
@@ -114,7 +114,7 @@ You can view the list of whats on offer as well as view a preview the same as wi
 Checking the list of themes (for example), is the same as with weapons but you swap "weaps" for "themes" (``!shop themes``).
 Just doing ``!shop`` will tell you this.
 <div class="flex-content-row">
-<div class="discord-message"><img src="https://discordapp.com/assets/593c4a3437fbb5b89fbb148f7b96424d.svg" alt=":wave:" class="emoji" draggable="false"> **Welcome to the DueUtil general store!**
+<div class="discord-message"><img src="../img//discordassets/emojis/593c4a3437fbb5b89fbb148f7b96424d.png" alt=":wave:" class="emoji" draggable="false"> **Welcome to the DueUtil general store!**
 Please have a look in some of our splendiferous departments!
 <code class="discord-code">!shop backgrounds
 !shop banners
@@ -129,7 +129,7 @@ Nobody has a better departments than we do!</div></div>
 
 Here's an example of how you could get your profile looking.
 <div class="flex-content-row">
-  <div class="discord-message"><img src="https://discordapp.com/assets/a307f008c0df67604bf9d07f4c11f6c2.svg" alt=":pen_fountain:" class="emoji" draggable="false"> **MacDue\'s** information.
+  <div class="discord-message"><img src="../img//discordassets/emojis/a307f008c0df67604bf9d07f4c11f6c2.png" alt=":pen_fountain:" class="emoji" draggable="false"> **MacDue\'s** information.
     <img src="../img/myinfocustom.png"></img>
   </div><div class="extra-info"><div class="maccy-tip">This is my profile with the Material Blue theme and the Geometric background.
   Themes set your background, banner and the ui design.

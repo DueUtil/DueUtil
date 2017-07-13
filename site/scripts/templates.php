@@ -4,6 +4,7 @@ require_once("templatesystem.php");
 require_once("players.php");
 require_once("auth.php");
 require_once("util.php");
+require_once("gamerules.php");
 
 define("DEFAULT_AVATAR","../img/avatardue.png");
 define("DEFAULT_IMAGE","../img/missingimg.png");
@@ -310,6 +311,18 @@ class StandardLayout extends Layout
           $this->set_value('dropdownoption','<a href="'.htmlspecialchars($auth['authURL']).'" class="mdl-menu__item"><li>Login</li></a>');
        }
    }
+}
+
+class ExpBar extends Template
+{
+    function __construct($player){
+        parent::__construct('../templates/expbar.tpl');
+        $exp_for_next_level = get_exp_for_next_level($player['level']);
+        $progess = $player['exp']/$exp_for_next_level * 100;
+        $this->set_value('progress', $progess);
+        $this->set_value('expneeded', intval($exp_for_next_level - $player['exp']));
+        $this->set_value('nextlevel', $player['level'] + 1);
+    }
 }
 
 ?>

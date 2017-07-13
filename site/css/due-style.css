@@ -12,6 +12,13 @@ code{
     padding-right:2px;
 }
 **/
+#player-exp {
+  margin-bottom: 12px;
+}
+
+#exp-message{
+  margin-bottom: 4px;
+}
 
 code {
   font-family: Menlo,Consolas,Monaco,monospace;

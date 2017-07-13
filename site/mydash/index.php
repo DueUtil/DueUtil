@@ -7,11 +7,9 @@ require_once("../scripts/quests.php");
 require_once("../scripts/weapons.php");
 
 
-
 /*
  * Player dash
  */
-
 
 
 # TODO Check it it really is a discord id
@@ -39,6 +37,7 @@ foreach (array_reverse(get_player_quests($player)) as $active_quest) {
 // Will be Quest log, weapons, wagers, inventory
 $content = array();
 
+$content[] = new ExpBar($player);
 $content[] = $active_quests;
 
 $page = new StandardLayout($sidebar,$content,$title = "<h2>".htmlspecialchars($player["name"])."</h2>");

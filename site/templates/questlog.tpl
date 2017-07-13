@@ -1,4 +1,4 @@
-<div class="table-log flex-content mdl-shadow--6dp">
+<div style="min-height:350px" class="table-log flex-content mdl-shadow--6dp">
        <div class="content-box-inner">
           <span class="mdl-layout-title">Active quests</span>
           <div class="log-bg">

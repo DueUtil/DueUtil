@@ -1,7 +1,7 @@
 ##:icon-fist: Setting up## <h5>Bot prefix</h5>
 There are <i>a lot</i> of bots now and too few prefixes to go around.
 
-When you first add the bot it will respond to the very overused ``!`` prefix but this can be changed very quickly with the ``!setcmdkey`` command.
+When you first add the bot it will respond to the very overused ``!`` prefix, but this can be changed very quickly with the ``!setcmdkey`` command.
 
 ``!setcmdkey d$``
 <div class="flex-content-row">
@@ -9,10 +9,10 @@ When you first add the bot it will respond to the very overused ``!`` prefix but
 <div class="extra-info"><div class="maccy-tip">The prefix can be any one to two character string.</div></div>
 </div>
  <h5>Channels</h5>
-After adding the bot you may want to limit it's use to certain channels or not allow it to send unprompted alerts in some channels.
+After adding the bot you may want to limit its use to certain channels or not allow it to send unprompted alerts in some channels.
     This can be done with the ``!shutupdue`` command. <!-- , ``!shutupdue`` will stop the bot from sending alerts (new quest, level up, etc)      and ``!shutupdue all`` will completely disable the bot in a channel.--!>
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/ae6953e18a8e761c0ca17c5b7ba9fa9c.svg" alt=":mute:" class="emoji" draggable="false"> I won't send any alerts in this channel!
+    <div class="discord-message"><img src="../img//discordassets/emojis/ae6953e18a8e761c0ca17c5b7ba9fa9c.png" alt=":mute:" class="emoji" draggable="false"> I won't send any alerts in this channel!
     If you meant to disable commands too do <code class="discord-code">!shutupdue all</code>.
     </div>
     <div class="extra-info"><div class="maccy-tip">This is the result of just running ``!shutupdue``.
@@ -20,29 +20,29 @@ After adding the bot you may want to limit it's use to certain channels or not a
     </div>
     Doing ``!shutupdue all`` will completely disable the bot in a channel.
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/ae6953e18a8e761c0ca17c5b7ba9fa9c.svg" alt=":mute:" class="emoji" draggable="false"> Disabled all commands in this channel for non-admins!
+    <div class="discord-message"><img src="../img//discordassets/emojis/ae6953e18a8e761c0ca17c5b7ba9fa9c.png" alt=":mute:" class="emoji" draggable="false"> Disabled all commands in this channel for non-admins!
     </div>
     <div class="extra-info"><div class="maccy-tip">The bot will still reply to users with the ``Due Commander`` role or server admins.
     It still won't send any alerts to them though.</div></div>
     </div>
     If come you to see what a horrible mistake you made and want to allow DueUtil to work in a channel again you can do ``!unshutupdue``.
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/f0fa3c1e815fa570f97b21eec4c666dd.svg" alt=":speaker:" class="emoji" draggable="false"> Okay! I'll once more send alerts and listen for commands in this channel!
+    <div class="discord-message"><img src="../img//discordassets/emojis/f0fa3c1e815fa570f97b21eec4c666dd.png" alt=":speaker:" class="emoji" draggable="false"> Okay! I'll once more send alerts and listen for commands in this channel!
     </div>
     <div class="extra-info"><div class="maccy-tip">Just look how happy he is!</div></div>
     </div>
-    You can also have it so only certain commands are allowd in some channels with ``!whitelist`` and ``!blacklist``.
+    You can also have it so only certain commands are allowed in some channels with ``!whitelist`` and ``!blacklist``.
     
     ``!whitelist myinfo battle info myquests``
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/908f9e562fb536d4f05c0e1d651ca6fe.svg" alt=":notepad_spiral:" class="emoji" draggable="false"> Whitelist in this channel set to the following commands: <code class="discord-code">info, myinfo, battle, myquests</code>
+    <div class="discord-message"><img src="../img//discordassets/emojis/908f9e562fb536d4f05c0e1d651ca6fe.png" alt=":notepad_spiral:" class="emoji" draggable="false"> Whitelist in this channel set to the following commands: <code class="discord-code">info, myinfo, battle, myquests</code>
     </div>
-    <div class="extra-info"><div class="maccy-tip">These would be the only commands useable in the channel this command was used in.
+    <div class="extra-info"><div class="maccy-tip">These would be the only commands usable in the channel.
     A blacklist would do the opposite, all but the commands listed would work.</div></div>
     </div>
-    To reset a whitelist or blacklist you can just run the command with no arguments.
+    To reset a whitelist or blacklist, you can just run the command with no arguments.
     
-##:icon-dagger: Creating weapons## When the bot first joins your server the weapon shop will be very bare - with just a single dagger available.
+##:icon-dagger: Creating weapons## When the bot first joins your server, the weapon shop will be very bare - with just a single dagger available.
     Though fear not! You can make any weapon you like for your server!
       
     If you just want to make a really basic weapon with just a name, an attack message and damage and accuracy,
@@ -62,7 +62,7 @@ After adding the bot you may want to limit it's use to certain channels or not a
     That would give you this:
     <div class="flex-content-row">
     <div class="discord-message"><TPL:embeds/laser.tpl></div>
-    <div class="extra-info"><div class="maccy-tip">This weapon is the same as before but it now has a custom image (that will appear in the shop and battles). It also has it's different emoji icon and is marked as a ranged weapon.</div></div>
+    <div class="extra-info"><div class="maccy-tip">This weapon is the same as before but it now has a custom image (that will appear in the shop and battles). It also has a different emoji icon and is marked as a ranged weapon.</div></div>
     </div>
     That's pretty much it for making weapons!
     <h5>Some things to note</h5> <ul style="font-size: inherit; line-height: inherit; margin: 0px; margin-bottom: -30px;"> <li>You cannot set the price of weapons. 
@@ -84,15 +84,15 @@ After adding the bot you may want to limit it's use to certain channels or not a
 
     Here's how it will spawn:
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/54e1b293350b4fdc172e2b5fb7e28bd8.svg" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
+    <div class="discord-message"><img src="../img/discordassets/emojis/54e1b293350b4fdc172e2b5fb7e28bd8.png" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
     <img src="../img/newmegabasic.png"></img>
     </div><div class="extra-info"><div class="maccy-tip">Not the best!
     It just has the default icon and message.</div></div>
     </div>
     <div class="flex-content-row">
-      <div class="discord-message"><img src="https://discordapp.com/assets/a307f008c0df67604bf9d07f4c11f6c2.svg" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
+      <div class="discord-message"><img src="../img//discordassets/emojis/a307f008c0df67604bf9d07f4c11f6c2.png" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
         <img src="../img/questinfoadmin.png"></img>
-      </div><div class="extra-info"><div class="maccy-tip">It's stats are derive from the base stats in the command.
+      </div><div class="extra-info"><div class="maccy-tip">Its stats are derived from the base stats in the command.
       Note that there is not a 1:1 correlation.</div></div>
     </div>
     If you want to spice up this quest a little you could do:
@@ -102,13 +102,13 @@ After adding the bot you may want to limit it's use to certain channels or not a
     
     Here's how it would spawn now:
     <div class="flex-content-row">
-    <div class="discord-message"><img src="https://discordapp.com/assets/54e1b293350b4fdc172e2b5fb7e28bd8.svg" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
+    <div class="discord-message"><img src="../img//discordassets/emojis/54e1b293350b4fdc172e2b5fb7e28bd8.png" alt=":crossed_swords:" class="emoji" draggable="false"> **MacDue** New Quest!
     <img src="../img/newquestcoolio.png"></img>
     </div><div class="extra-info"><div class="maccy-tip">Better!
     Now the quest has a custom avatar and spawn message!</div></div>
     </div>
     <div class="flex-content-row">
-      <div class="discord-message"><img src="https://discordapp.com/assets/a307f008c0df67604bf9d07f4c11f6c2.svg" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
+      <div class="discord-message"><img src="../img//discordassets/emojis/a307f008c0df67604bf9d07f4c11f6c2.png" alt=":pen_fountain:" class="emoji" draggable="false"> Here you go.
         <img src="../img/megamoose.png"></img>
       </div><div class="extra-info"><div class="maccy-tip">It also has the dagger equipped now!
       Giving your quests weapons makes them harder but will mean you get much better rewards.</div></div>
@@ -119,7 +119,7 @@ After adding the bot you may want to limit it's use to certain channels or not a
     This is done with the ``!editquest channel \<channel\>`` command (it allows you to edit any other attribute of your quest too).
     The channel you set can be any channel the bot can see or "all"/"none".
     
-    You can check the quests on your server with ``!serverquests``.
+    You can check the quest's on your server with ``!serverquests``.
     <div class="flex-content-row">
       <div class="discord-message"><TPL:embeds/serverquests.tpl></div><div class="extra-info"><div class="maccy-tip">Here you can check how many times the quests you've made have been beat,
        and what channels they are active on.</div></div>
@@ -127,10 +127,10 @@ After adding the bot you may want to limit it's use to certain channels or not a
     Doing ``!serverquests \<quest name\>`` will show a quests base stats (good for checking or editing).
     <div class="flex-content-row">
       <div class="discord-message"><TPL:embeds/serverquestsquest.tpl></div><div class="extra-info"><div class="maccy-tip">A good thing to check here is if your image works.
-      If you don't see a thumbnail in the top corner it doesnt!</div></div>
+      If you don't see a thumbnail in the top corner it doesn't!</div></div>
     </div>
     <h5>Some things to note</h5> <ul style="font-size: inherit; line-height: inherit; margin: 0px; margin-bottom: -30px;"> <li>You cannot spawn quests.</li>
-      <li>A quests spawn chance cannot be over 25%.</li>
+      <li>A quest's spawn chance cannot be over 25%.</li>
       <li>Base HP must be at least 30, all other base values must be at least 1.</li>
     </ul>
 ##:icon-slime: Final things## <h5>Giving users bot permissions</h5> You can give anybody permission to use admin commands on DueUtil by giving them the ``Due Commander`` role.

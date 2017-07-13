@@ -16,12 +16,8 @@ require_once("../scripts/util.php");
 
 $viewable_command_perms = array("ANYONE","SERVER_ADMIN","REAL_SERVER_ADMIN");
 
-$find_all_commands_query = new MongoDB\Driver\Query(array());
 
-$cursor = $manager->executeQuery('dueutil.commands',$find_all_commands_query);
-
-
-$all_commands_data = object_to_array($cursor->toArray()[0]);
+$all_commands_data = get_collection_data('commands');
 array_shift($all_commands_data);
 
 $command_help = array();
