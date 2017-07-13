@@ -28,6 +28,12 @@ def insert_object(id, pickleable_object):
                                                     upsert=True)
 
 
+def drop_and_insert(collection, data):
+    connection = conn()
+    connection.drop_collection(collection)
+    connection[collection].insert_one(data)
+
+
 def get_collection_for_object(object_class):
     return conn()[object_class.__name__]
 
