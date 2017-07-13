@@ -7,14 +7,5 @@
     "melee": true,
     "icon": ":dagger:",
     "image": "http://i.imgur.com/QFyiU6O.png"
-  },
-    "net neutrality": {
-    "name": "Net Neutrality",
-    "useText": "fills in https://www.battleforthenet.com/ with",
-    "damage": 5,
-    "accy": 80,
-    "melee": true,
-    "icon": ":desktop:",
-    "image": "http://internetsafety.trendmicro.com/wp-content/uploads/2016/11/hackerimage-for-blog.jpg"
   }
 }
