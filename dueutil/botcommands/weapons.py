@@ -7,6 +7,7 @@ from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
 from .. import commands, util
 
+import traceback
 
 @commands.command(args_pattern='M?')
 async def myweapons(ctx, *args, **details):
@@ -42,7 +43,7 @@ async def myweapons(ctx, *args, **details):
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()), None)
         if weapon is not None:
             embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
-            info = weapon_info(weapon_name, **details, price_divisor=4 / 3, embed=embed)
+            info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
             await util.say(ctx.channel, embed=info)
         else:
             raise util.DueUtilException(ctx.channel, "You don't have a weapon with that name!")
@@ -437,12 +438,14 @@ async def sell_weapon(weapon_name, **details):
     player.save()
 
 
-def weapon_info(weapon_name, **details):
+def weapon_info(weapon_name=None, **details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor', 1)
-    weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
+    weapon = details.get('weapon')
     if weapon is None:
-        raise util.DueUtilException(details["channel"], "Weapon not found")
+        weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
+        if weapon is None:
+            raise util.DueUtilException(details["channel"], "Weapon not found")
     embed.title = weapon.icon + ' | ' + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
     embed.add_field(name='Damage', value=util.format_number(weapon.damage))
