@@ -277,7 +277,7 @@ async def editquest(ctx, quest_name, *updates, **details):
         if quest_property in editable_props:
             if editable_props.index(quest_property) <= 4:
                 try:
-                    value = float(updates[next_prop + 1])
+                    value = min(float(updates[next_prop + 1]), commands.MAX_NUMBER)
                 except ValueError:
                     value = -1
             else:
