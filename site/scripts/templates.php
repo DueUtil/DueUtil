@@ -325,4 +325,14 @@ class ExpBar extends Template
     }
 }
 
+class NoThingsFound extends Template
+{
+    function __construct($title, $message)
+    {
+        parent::__construct('../templates/nothings.tpl');
+        $this->set_value('title', $title);
+        $this->set_value('thing', $message);
+    }
+}
+
 ?>

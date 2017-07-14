@@ -22,17 +22,20 @@ $player = find_player($player_id);
 if (is_null($player))
     die();
 
-$active_quests = new QuestLog();
-
-foreach (array_reverse(get_player_quests($player)) as $active_quest) {
-  $quest = get_quest($active_quest["q_id"]);
-  if (is_null($quest))
-      $quest = array('image_url' => DEFAULT_AVATAR);
-  $active_quests->add_row($active_quest, $quest, 
-                          get_quest_reward($active_quest, $player), 
-                          get_weapon_by_id($active_quest["equipped"]["weapon"]));
+$player_quests = get_player_quests($player);
+if (sizeof($player_quests) > 0) {
+    $active_quests = new QuestLog();
+    foreach (array_reverse($player_quests) as $active_quest) {
+      $quest = get_quest($active_quest["q_id"]);
+      if (is_null($quest))
+          $quest = array('image_url' => DEFAULT_AVATAR);
+      $active_quests->add_row($active_quest, $quest, 
+                              get_quest_reward($active_quest, $player), 
+                              get_weapon_by_id($active_quest["equipped"]["weapon"]));
+    }
+} else {
+    $active_quests = new NoThingsFound("Active quests","quests right now");
 }
-
 // Show dashboard.    
 // Will be Quest log, weapons, wagers, inventory
 $content = array();

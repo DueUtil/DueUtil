@@ -50,6 +50,34 @@ code {
     display: table-cell; vertical-align: middle;
 }
 
+.frame {
+    height: 80%; 
+    width: 100%; 
+    white-space: nowrap;
+    text-align: center; margin: 1em 0;
+}
+
+.center-both {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  flex-flow: row wrap;
+}
+
+.helper {
+    display: inline-block;
+    height: 65%;
+    vertical-align: middle;
+}
+
+.center-img {
+    vertical-align: middle;
+    width: 100%;
+text-align: center;
+}
+
+
 #content-title{
     text-align: center; 
 }
