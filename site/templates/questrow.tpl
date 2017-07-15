@@ -21,6 +21,6 @@
       Weapon [@weapon]
    </td>
   <td class="log-cell">
-      Reward [@reward]
+      Reward ¤[@reward]
    </td>
 </tr>

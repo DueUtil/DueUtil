@@ -1,6 +1,7 @@
 <?php
 require_once("../scripts/dbconn.php");
 require_once("../scripts/util.php");
+require_once("../scripts/weapons.php");
 
 
 function find_player($player_id)
@@ -26,5 +27,21 @@ function get_player_wagers($player){
 function get_avatar_url($player){
     $image_name = "../imagecache/httpscdndiscordappcomavatars*".$player['id']."*";
     return get_cached_image($image_name);
+}
+
+
+function get_player_weapons($player) {
+    global $NO_WEAPON;
+    $equipped = get_weapon_by_id($player['equipped']['weapon']);
+    $stored = array();
+    foreach($player['inventory']['weapons'] as $weapon_id) {
+        $weapon = get_weapon_by_id($weapon_id);
+        if ($weapon == $NO_WEAPON)
+            continue;
+        $stored[] = $weapon;
+    }
+    array_unshift($stored, $equipped);
+    $all_weapons = $stored;
+    return $all_weapons;
 }
 ?>

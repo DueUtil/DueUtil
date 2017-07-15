@@ -20,6 +20,7 @@
     max-height: 600px;
     min-width: 425px;
     padding: 12px;
+    flex-basis: 700px;
 }
 
 .table-leader{

@@ -5,6 +5,7 @@ require_once("players.php");
 require_once("auth.php");
 require_once("util.php");
 require_once("gamerules.php");
+require_once("weapons.php");
 
 define("DEFAULT_AVATAR","../img/avatardue.png");
 define("DEFAULT_IMAGE","../img/missingimg.png");
@@ -227,7 +228,7 @@ class CommandList extends Template
 
 
 abstract class LogBox extends Template {
-    private $listitems = array();
+    protected $listitems = array();
 
     function __construct($template){
         parent::__construct("../templates/$template.tpl");
@@ -294,8 +295,48 @@ class QuestRow extends Template {
         $this->set_value('attack', round($active_quest['attack'], 2));
         $this->set_value('strg', round($active_quest['strg'], 2));
         $this->set_value('weapon', $weapon["name"]);
-        $this->set_value('reward', $reward);
+        $this->set_value('reward', number_format($reward));
         $this->set_value('accy',round($active_quest['accy'], 2));
+    }
+}
+
+class WeaponBox extends LogBox
+{
+    private $set_equipped = False;
+    
+    function __construct() {
+        parent::__construct('myweapons');
+    }
+    
+    public function add_row(...$weapon_details){
+        if (sizeof($weapon_details) == 1) {
+            $weapon = $weapon_details[0];
+            if (!$this->set_equipped) {
+                $this->set_value('equippedimage', get_weapon_image($weapon));
+                $this->set_value('equippedname', htmlspecialchars($weapon['name']));
+                $this->set_value('damage', $weapon['damage']);
+                $this->set_value('accy', $weapon['accy']*100);
+                $this->set_equipped = True;
+            } else {
+                $this->listitems[] = new Weapon($weapon);
+            }
+        } else {
+            $this->listitems[] = new StaticContent('weaponslot.tpl');
+        }
+        $this->set_value('logrows', $this->listitems);
+    }
+}
+
+class Weapon extends Template{
+  
+    function __construct($weapon)
+    {
+        parent::__construct('../templates/weapons.tpl');
+        $this->set_value('image', get_weapon_image($weapon));
+        $this->set_value('name', htmlspecialchars($weapon['name']));
+        $this->set_value('damage', $weapon['damage']);
+        $this->set_value('accy', $weapon['accy']*100);
+        $this->set_value('hitmessage', $weapon['hit_message']);
     }
 }
 

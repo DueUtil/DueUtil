@@ -77,6 +77,88 @@ code {
 text-align: center;
 }
 
+.due-emoji-th {
+    font-size: 18px;
+    position: absolute;
+    top: 17px;
+}
+
+.weapon-icon {
+    height: 28px;
+    width: 28px;
+    border: solid #252B34;
+    border-width: 1px;
+}
+
+
+.weapon-card {
+  background: #575B76;
+  display: inline-block;
+  padding: 6px;
+  margin-top: 12px;
+  margin-right: 8px;
+  width: 230px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+    width: 230px;
+    height: 80px;
+}
+
+#current-user-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+#myweapons{
+min-height:367px; max-width:500px; min-width:500px;
+max-height:420px;
+flex: 0 0 auto;
+
+}
+
+.cete-user-info{
+  width: 65%;
+
+}
+
+.weapon-list {
+position: absolute;
+    right: -8px;
+
+}
+
+.weapon-slot {
+
+  padding: 6px;
+  margin-top: 12px;
+  margin-right: 8px;
+  background-image: url('../img/weapon-slot.png');
+  background-repeat: no-repeat;
+background-position: 8px 8px;
+
+}
+
+.hit-message{
+  background-color: #36393E;
+  border: solid #252B34;
+  border-width: 1px;
+  border-radius: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weapons-inner{
+  height: 100%;
+  width: 100%;
+  
+}
 
 #content-title{
     text-align: center; 
@@ -99,6 +181,34 @@ text-align: center;
     padding: 2px;
     white-space:nowrap;
     border-radius: 1px;
+}
+
+.damage{
+    background: rgba(255, 105, 97, 0.55);
+    /* color: #575c75; */
+    padding: 2px;
+    white-space: nowrap;
+    border-radius: 1px;
+}
+
+.weapon-name {
+    width: 180px;
+
+}
+
+
+.accy{
+    background: rgba(119, 158, 203, 0.55);
+    /* color: #575c75; */
+    padding: 2px;
+    white-space: nowrap;
+    border-radius: 1px;
+}
+
+.weapon-stats{
+  margin-top: 4px;
+  margin-right: 4px;
+
 }
 
 .member-list{
@@ -251,7 +361,13 @@ text-align: center;
 }
 
 .text-center{
-    text-align: center;
+    text-align: center !important;
+}
+
+.due-emoji-mat {
+    font-size: 34px  !important; 
+    top: 7px  !important;
+    position: absolute  !important;
 }
 
 .cete-logo-text{

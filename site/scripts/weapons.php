@@ -42,4 +42,13 @@ function get_weapon_by_id($weapon_id){
 }
 
 
+function get_weapon_image($weapon) {
+    $image_path = get_cached_image_from_url($weapon['image_url']);
+    if (!is_null($image_path)) {
+        return $image_path;
+    }
+    return DEFAULT_WEAPON_IMAGE;
+}
+
+
 ?>

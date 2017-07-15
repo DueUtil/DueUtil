@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon.eot?t699vn');
-  src:  url('../fonts/icomoon.eot?t699vn#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon.ttf?t699vn') format('truetype'),
-    url('../fonts/icomoon.woff?t699vn') format('woff'),
-    url('../fonts/icomoon.svg?t699vn#icomoon') format('svg');
+  src:  url('../fonts/icomoon.eot?eobfje');
+  src:  url('../fonts/icomoon.eot?eobfje#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon.ttf?eobfje') format('truetype'),
+    url('../fonts/icomoon.woff?eobfje') format('woff'),
+    url('../fonts/icomoon.svg?eobfje#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -35,4 +35,16 @@
 }
 .icon-slime:before {
   content: "\e903";
+}
+.icon-fist-profile:before {
+  content: "\e904";
+}
+.icon-strg:before {
+  content: "\e905";
+}
+.icon-accy:before {
+  content: "\e906";
+}
+.icon-weapon:before {
+  content: "\e907";
 }
