@@ -282,7 +282,7 @@ class QuestLog extends LogBox
 
 class QuestRow extends Template {
   
-    function __construct($active_quest ,$quest ,$reward, $weapon) {
+    function __construct($active_quest ,$quest ,$reward, $weapon, $quest_index) {
         parent::__construct('../templates/questrow.tpl');
         $image_path = get_cached_image_from_url($quest['image_url']);
         if (!is_null($image_path)) {
@@ -297,6 +297,7 @@ class QuestRow extends Template {
         $this->set_value('weapon', $weapon["name"]);
         $this->set_value('reward', number_format($reward));
         $this->set_value('accy',round($active_quest['accy'], 2));
+        $this->set_value('questindex',$quest_index);
     }
 }
 
@@ -354,15 +355,19 @@ class StandardLayout extends Layout
    }
 }
 
-class ExpBar extends Template
+class PlayerInfoHeader extends Template
 {
     function __construct($player){
-        parent::__construct('../templates/expbar.tpl');
+        parent::__construct('../templates/playerinfoheader.tpl');
         $exp_for_next_level = get_exp_for_next_level($player['level']);
         $progess = $player['exp']/$exp_for_next_level * 100;
         $this->set_value('progress', $progess);
         $this->set_value('expneeded', intval($exp_for_next_level - $player['exp']));
         $this->set_value('nextlevel', $player['level'] + 1);
+        $this->set_value('attack', round($player['attack'], 2));
+        $this->set_value('strg', round($player['strg'], 2));
+        $this->set_value('accy', round($player['accy'], 2));
+
     }
 }
 
@@ -374,6 +379,18 @@ class NoThingsFound extends Template
         $this->set_value('title', $title);
         $this->set_value('thing', $message);
     }
+}
+
+class MyWagers extends LogBox
+{
+  function __construct() {
+      parent::__construct('mywagers');
+  }
+  
+  public function add_row(...$weapon_details){
+
+  }
+  
 }
 
 ?>

@@ -119,15 +119,40 @@ flex: 0 0 auto;
 
 }
 
+.wrapped {
+    max-width: 800px  !important;
+    flex-basis: 700px;
+    flex: 1 1 auto !important ;
+    height: auto !important;
+    min-height: 274px !important;
+}
+
 .cete-user-info{
   width: 65%;
 
 }
 
 .weapon-list {
-position: absolute;
-    right: -8px;
+position: relative;
+    right: -4px;
+}
 
+.player-stats-dash {
+    margin-top: -20px;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.quest-index{
+  position: absolute;
+  min-width: 10px;
+    text-align: center; 
+
+}
+
+.player-icon-inline {
+  margin-left: 6px;
+  margin-right: 6px;
 }
 
 .weapon-slot {
@@ -198,7 +223,7 @@ background-position: 8px 8px;
 
 
 .accy{
-    background: rgba(119, 158, 203, 0.55);
+    background: rgb(105, 137, 185);
     /* color: #575c75; */
     padding: 2px;
     white-space: nowrap;
