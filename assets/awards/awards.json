@@ -213,6 +213,11 @@
          "icon":"duerus.png",
          "name":"☣ INFECTED ☣",
          "message":"It's like super AIDs. Spreads to losers."
+     },
+     "DueUtilTech":{
+         "icon":"dueutiltech.png",
+         "name":"https://dueutil.tech/",
+         "message":"Login to dueutil.tech!"
      }
    }
 }

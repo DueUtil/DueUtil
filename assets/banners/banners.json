@@ -62,5 +62,12 @@
       "description":"BRAINS!!!",
       "image":"zombie_green.png",
       "price":50
+   },
+   "pastel green":{
+      "name":"Pastel Green",
+      "icon":":melon:",
+      "description":"Get teal! More green!",
+      "image":"dueutiltech.png",
+      "price":150	
    }
 }

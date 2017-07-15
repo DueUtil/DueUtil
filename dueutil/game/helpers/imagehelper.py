@@ -307,11 +307,13 @@ async def stats_screen(channel, player):
         header_colour = font_colour
         main_colour = font_colour
         banner_colour = font_colour
-        side_colour = DUE_BLACK
         exp_colour = font_colour
+        side_colour = DUE_BLACK
+        icon_colour = font_colour
     else:
         header_colour = theme["headerColour"]
         main_colour = theme["mainColour"]
+        icon_colour = theme._customization_info.get("iconColour", main_colour)
         banner_colour = theme["bannerColour"]
         side_colour = theme["sideColour"]
         exp_colour = theme["expColour"]
@@ -364,11 +366,11 @@ async def stats_screen(channel, player):
     # Text
     draw.text((96, 49), "LEVEL " + level, banner_colour, font=font_big)
     draw.text((94, 87), "INFORMATION", header_colour, font=font_big)
-    draw.text((117, 121), "ATK", main_colour, font=font)
-    draw.text((117, 149), "STRG", main_colour, font=font)
-    draw.text((117, 177), "ACCY", main_colour, font=font)
-    draw.text((117, 204), "CASH", main_colour, font=font)
-    draw.text((117, 231), "WPN", main_colour, font=font)
+    draw.text((117, 121), "ATK", icon_colour, font=font)
+    draw.text((117, 149), "STRG", icon_colour, font=font)
+    draw.text((117, 177), "ACCY", icon_colour, font=font)
+    draw.text((117, 204), "CASH", icon_colour, font=font)
+    draw.text((117, 231), "WPN", icon_colour, font=font)
     draw.text((96, 252), "QUESTS BEAT", main_colour, font=font)
     draw.text((96, 267), "WAGERS WON", main_colour, font=font)
 

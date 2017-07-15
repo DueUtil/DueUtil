@@ -1,0 +1,34 @@
+{
+   "theme":{
+      "name":"dueutil.tech",
+      "icon":":earth_africa:",
+      "description":"The look of dueutil.tech",
+      "banner":"pastel green",
+      "background":"dueutiltech",
+      "headerColour":"#e4ded1",
+      "mainColour":"#e4ded1",
+      "bannerColour":"#575C75",
+      "sideColour":"#CDDAF2",
+      "iconColour":"#1A344B",
+      "expColour":"#575B76",
+      "expBarColour":[
+         "#575B76",
+         "#95d3bd"
+      ],
+      "rankColours":[
+         "#575B76",
+         "#575B76",
+         "#867C5F",
+         "#D98A34",
+         "#4C7F6A",
+         "#625585",
+         "#4660A2",
+         "#7D6168",
+         "#AD3733",
+         "#212229"
+      ],
+      "preview":"http://i.imgur.com/6Bnm4zP.png",
+      "price":0,
+      "donor": true
+   }
+}

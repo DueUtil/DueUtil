@@ -57,7 +57,7 @@ class ShopBuySellItem(ABC):
             raise util.DueUtilException(channel, self.item_type.title() + " not found!")
         if not self.can_buy(customer, item):
             return True
-        if customer.money - item.price > 0:
+        if customer.money - item.price >= 0:
             customer.money -= item.price
             customer.inventory[self.inventory_slot].append(item_name)
             if self.item_equipped_on_buy(customer, item_name):
