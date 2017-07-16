@@ -4,6 +4,11 @@ $(window).resize(function() {
 
 $(document).ready(function() {
   wrapped();
+  saveDefaultWindowState($("#profile-link"));
+  
+  $(".mdl-layout").on('click', '#add-user-btn', function() {
+      openWindow($("#profile-link"));
+  });
 });
 
 function wrapped() {

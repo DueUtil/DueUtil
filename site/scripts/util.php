@@ -89,6 +89,23 @@ function get_object($object_id, $object_collection)
 }
 
 
+function startsWith($haystack, $needle)
+{
+     $length = strlen($needle);
+     return (substr($haystack, 0, $length) === $needle);
+}
+
+function endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
+
+    return (substr($haystack, -$length) === $needle);
+}
+
+
 function due_markdown_to_html($markdown)
 {
     # Bold

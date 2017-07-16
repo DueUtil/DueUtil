@@ -1,0 +1,7 @@
+#profile-link{
+    height: 250px;
+    width: 400px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+}

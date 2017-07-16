@@ -11,15 +11,23 @@ require_once("../scripts/weapons.php");
  * Player dash
  */
 
-
-# TODO Check it it really is a discord id
-$player_id = $user_data["id"];
-
-$player = find_player($player_id);
-
-// TODO player null.
-if (is_null($player))
-    die();
+$page = strtok($_SERVER["REQUEST_URI"], '?');
+if (endsWith($page, '/player/')) {
+    if (isset($_GET["id"])) {
+        $player = find_player($_GET["id"]);
+    }
+    if (!isset($_GET["id"]) || is_null($player)) {
+        (new Error404Page($sidebar))->show();
+        die();
+    }
+} else {
+    # TODO Check it it really is a discord id
+    $player_id = $user_data["id"];
+    $player = find_player($player_id);
+    // TODO player null.
+    if (is_null($player))
+        die();
+}
 
 // Quests
 $player_quests = get_player_quests($player);
@@ -59,8 +67,9 @@ $content[] = new WeaponBox();
 
 $page = new StandardLayout($sidebar,$content,$title = "<h2>".htmlspecialchars($player["name"])."</h2>");
 $page->set_css('../css/due-style-tables.css');
+$page->set_script('../js/general.js');
 $page->set_script('../js/logs.js');
-$page->set_script('./layout.js');
+$page->set_script('./dash.js');
 
 $page->show();
 ?>

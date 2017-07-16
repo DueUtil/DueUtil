@@ -371,6 +371,32 @@ class PlayerInfoHeader extends Template
     }
 }
 
+class ErrorPage extends StandardLayout {
+    
+    function __construct($sidebar, $error, $image, $message){
+        parent::__construct($sidebar,
+                            new _ErrorPageMessage($error, $image, $message), 
+                            $title = "<h2>$error</h2>");
+    }
+}
+
+class _ErrorPageMessage extends Template {
+    function __construct($error, $image, $message)
+    {
+        parent::__construct('../templates/errorpage.tpl');
+        $this->set_value('error', $error);
+        $this->set_value('image', $image);
+        $this->set_value('message', $message);
+    }
+}
+
+class Error404Page extends ErrorPage {
+    function __construct($sidebar) {
+        header("HTTP/1.0 404 Not Found");
+        parent::__construct($sidebar, '404', 'olddue.png', 'Just like the old bot your request could not be found!');
+    }
+}
+
 class NoThingsFound extends Template
 {
     function __construct($title, $message)
