@@ -64,6 +64,11 @@ buy_sell_backgrounds = BuySellBackground()
 buy_sell_banners = BuySellBanner()
 
 
+def filter_customizations(customization_items):
+    return [customization for customization in customization_items if
+            not (customization.id == "default" or customization.is_hidden())]
+
+
 def shop_weapons_list(page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
@@ -77,7 +82,7 @@ def shop_weapons_list(page, **details):
 
 def shop_theme_list(page, **details):
     themes = list(customizations.get_themes().values())
-    themes.remove(customizations.get_theme("default"))
+    themes = filter_customizations(themes)
     shop_list = player_cmds.theme_page(themes, page, "DueUtil's Theme Shop!",
                                        footer_more=("But wait there's more! Do "
                                                     + details["cmd_key"] + "shop themes " + str(page + 2)),
@@ -88,8 +93,7 @@ def shop_theme_list(page, **details):
 def shop_background_list(page, **details):
     backgrounds = list(customizations.backgrounds.values())
     # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
-    backgrounds = [background for background in backgrounds if
-                   not (background.id == "default" or background.is_hidden())]
+    backgrounds = filter_customizations(backgrounds)
     shop_list = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
                                             footer_more="But wait there's more! Do " + details[
                                                 "cmd_key"] + "shop bgs " + str(page + 2),

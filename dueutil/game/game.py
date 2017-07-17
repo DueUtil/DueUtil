@@ -85,7 +85,7 @@ async def player_message(message, player, spam_level):
                 await awards.give_award(message.channel, player, "Donor",
                                         "Donate to DueUtil!!! :money_with_wings: :money_with_wings: :money_with_wings:")
             # DueUtil tech award
-            if dbconn.dueutiltechusers.find({"_id": player.id}).count() > 0:
+            if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
                 if "DueUtilTech" not in player.awards:
                     player.inventory["themes"].append("dueutil.tech")
                 await awards.give_award(message.channel, player, "DueUtilTech", "https://dueutil.tech/")

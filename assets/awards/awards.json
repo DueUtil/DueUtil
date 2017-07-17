@@ -217,7 +217,6 @@
      "DueUtilTech":{
          "icon":"dueutiltech.png",
          "name":"dueutil.tech",
-         "special":true,
          "message":"Login to dueutil.tech!"
      }
    }
