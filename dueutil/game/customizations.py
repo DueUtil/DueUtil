@@ -28,6 +28,9 @@ class Customization(DueUtilObject):
         self._customization_info = customization_info
         super().__init__(id, self["name"])
 
+    def is_hidden(self):
+        return self._customization_info.get('hidden', False)
+
     def __getattr__(self, name):
         """
         This helps customizations have both a dict & object

@@ -18,4 +18,12 @@ function get_collection_data($collection) {
     $data = object_to_array($cursor->toArray()[0]);
     return $data;
 }
+
+function upsert($collection, $_id, $data, $set_mode='$set') {
+    global $manager;
+    $bulk = new MongoDB\Driver\BulkWrite;
+    $bulk->update(['_id' => $_id], ['$set' => $data], ['upsert' => true]);
+    $write_concern = new MongoDB\Driver\WriteConcern(MongoDB\Driver\WriteConcern::MAJORITY, 1000);
+    $result = $manager->executeBulkWrite("dueutil.$collection", $bulk, $write_concern);
+}
 ?>

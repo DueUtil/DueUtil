@@ -3,7 +3,7 @@ require_once("../scripts/templates.php");
 require_once("../scripts/auth.php");
 require_once("../scripts/players.php");
 
-
+/* The sidebar that does other stufff too */
 unset($_SERVER['QUERY_STRING']);
 
 $sidebar_content = array();
@@ -21,7 +21,7 @@ if (!$auth['login']) {
     $user_data = get_user_details();
     $avatar = $user_data['avatar'];
     $user_id = $user_data['id'];
-    
+    upsert('dueutiltechusers', $user_id, ['ip' => $_SERVER['REMOTE_ADDR']], $set_mode='$setOnInsert');
     if (!is_null($avatar)) {
         $avatar = "https://cdn.discordapp.com/avatars/$user_id/$avatar.jpg";
     } else {

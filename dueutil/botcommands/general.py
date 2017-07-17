@@ -87,7 +87,9 @@ def shop_theme_list(page, **details):
 
 def shop_background_list(page, **details):
     backgrounds = list(customizations.backgrounds.values())
-    backgrounds.remove(customizations.backgrounds["default"])
+    # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
+    backgrounds = [background for background in backgrounds if
+                   not (background.id == "default" or background.is_hidden())]
     shop_list = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
                                             footer_more="But wait there's more! Do " + details[
                                                 "cmd_key"] + "shop bgs " + str(page + 2),
@@ -201,7 +203,7 @@ departments = {
             "buy_action": buy_sell_backgrounds.buy_item,
             "sell_action": buy_sell_backgrounds.sell_item
         },
-        "item_exists": lambda _, name: name.lower() != "default" and name.lower() in customizations.backgrounds,
+        "item_exists": lambda _, name: (name.lower() != "default" and name.lower() in customizations.backgrounds),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["backgrounds"]
     },
     "banners": {
