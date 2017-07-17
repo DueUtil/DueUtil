@@ -427,7 +427,7 @@ class NotPlayerPage extends ErrorPage {
 
 class ComingSoonPage extends ErrorPage {
     function __construct($sidebar) {
-        parent::__construct($sidebar, 'Coming soon!', 'noplayer.png', 'This page has yet to be completed.');
+        parent::__construct($sidebar, 'Coming soon!', 'comingsoon.png', 'This page has yet to be completed.');
     }
 }
 

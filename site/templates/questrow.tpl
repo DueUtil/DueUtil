@@ -4,7 +4,7 @@
       <img class="cete-avatar" src="[@image]" alt="[@questname] image"></img>
    </td>
    <td style="background-color: "class="log-cell mdl-data-table__cell--non-numeric">
-      <span class="player">[@questname]
+      <span class="player"><div class="thing-name">[@questname]</div>
       </span>
       <br>
       <span class="level">Level [@level]</span>

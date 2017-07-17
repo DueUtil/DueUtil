@@ -3,3 +3,4 @@
     RewriteRule ^player/id/(.*?)/?$ player/?id=$1     
     RewriteRule (.*?)index\.php/*(.*) /$1$2 [R=301,NE,L]
 </IfModule>
+ErrorDocument 404 /404/index.php

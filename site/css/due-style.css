@@ -20,6 +20,15 @@ code{
   margin-bottom: 4px;
 }
 
+.thing-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 106px;
+  white-space: nowrap;
+display: inline-block;
+    vertical-align: top;
+}
+
 #settings{
 text-align: left;
 }
