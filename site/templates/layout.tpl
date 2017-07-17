@@ -27,6 +27,16 @@ That means your now a certified hacker man and have totally hacked me.
       <link rel="stylesheet" href="https://cdn.rawgit.com/CreativeIT/getmdl-select/master/getmdl-select.min.css">
       <script defer src="https://cdn.rawgit.com/CreativeIT/getmdl-select/master/getmdl-select.min.js"></script> -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.0.3/jquery.floatThead.min.js"></script>
+      <!-- Meta -->
+      <meta name="author" content="MacDue">
+      <meta name="description" content="[@pagedesc]" property="og:description">
+      <!-- Open graph meta -->
+      <meta property="og:url" content="http://dueutil.tech/">
+      <meta property="og:type" content="website">
+      <meta property="og:title" content="DueUtil - [@pagename]">
+      <meta content="DueUtil" property="og:site_name">
+      <meta property="og:image" content="http://dueutil.tech/img/logo.png">
+      <meta content='image/png' property='og:image:type'>
    </head>
    <body>
       <div id="overlay"></div>

@@ -53,7 +53,7 @@ foreach ($all_commands_data as $category_name => $command_category){
     $command_list = new CommandList('<i class="material-icons">keyboard_arrow_right</i>'.$category_name,$command_boxes);
     $command_help[] = $command_list;
 }
-(new StandardLayout($sidebar,$command_help, $title = "<h2>Commands</h2>"))->show();
+(new StandardLayout($sidebar,$command_help, $title = "<h2>Commands</h2>", "DueUtil command list and help."))->show();
 
 
 function cmp($command, $other_command) {

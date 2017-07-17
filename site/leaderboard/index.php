@@ -33,7 +33,7 @@ if (sizeof($leaderboard_data) == 0){
     }
 }
  
-$page = new StandardLayout($sidebar,$leaderboard ,$title = "<h2>Global Leaderboard</h2>");
+$page = new StandardLayout($sidebar,$leaderboard ,$title = "<h2>Global Leaderboard</h2>", "DueUtil global leaderboard!");
 
 $page->set_css('../css/due-style-tables.css');
 $page->show();

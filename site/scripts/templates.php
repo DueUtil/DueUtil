@@ -351,8 +351,9 @@ class Weapon extends Template{
 
 class StandardLayout extends Layout
 {
-   function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
-       parent::__construct('The Worst Discord Bot',$sidebar,$title,$content,$header_buttons);
+   function __construct($sidebar,$content = "",$title, $page_desc, $title_override=null, $header_buttons = ""){
+       parent::__construct(is_null($title_override) ? strip_tags($title) : $title_override,
+                           $sidebar, $title, $content, $header_buttons);
        $this->set_base_url("http://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
        $this->set_script("../js/general.js");
        $auth = get_auth();
@@ -361,6 +362,7 @@ class StandardLayout extends Layout
        } else {
           $this->set_value('dropdownoption','<a href="'.htmlspecialchars($auth['authURL']).'" class="mdl-menu__item"><li>Login</li></a>');
        }
+       $this->set_value('pagedesc', $page_desc);
    }
    
    function set_base_url($base) {
@@ -390,7 +392,7 @@ class ErrorPage extends StandardLayout {
     function __construct($sidebar, $error, $image, $message){
         parent::__construct($sidebar,
                             new _ErrorPageMessage($error, $image, $message), 
-                            $title = "<h2>$error</h2>");
+                                                  "<h2>$error</h2>", $error);
     }
 }
 
@@ -420,6 +422,12 @@ class PrivatePage extends ErrorPage {
 class NotPlayerPage extends ErrorPage {
     function __construct($sidebar) {
         parent::__construct($sidebar, 'You\'re not a player!', 'noplayer.png', 'To view you\'re dashboard join a server with DueUtil!');
+    }
+}
+
+class ComingSoonPage extends ErrorPage {
+    function __construct($sidebar) {
+        parent::__construct($sidebar, 'Coming soon!', 'noplayer.png', 'This page has yet to be completed.');
     }
 }
 

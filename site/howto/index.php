@@ -13,7 +13,7 @@ $content[] = new Box($player_help);
 $content[] = new StaticContent('<div style="margin-top: 12px; width:100%"><h3 id="adming"><i class="material-icons">keyboard_arrow_right</i>Server admins\' guide</h3></div>');
 $content[] = new Box($admin_help);
 
-$page = new StandardLayout($sidebar,$content, $title="<h2>How to Due</h2>");
+$page = new StandardLayout($sidebar,$content, $title="<h2>How to Due</h2>", "DueUtil guide for new players and admins!");
 $page->set_css('../css/discord-embeds.css');
 
 $page->show();

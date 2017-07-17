@@ -137,7 +137,9 @@ $content[] = $wagers;
 $content[] = $awards_list;
 
 // Create page
-$page = new StandardLayout($sidebar, $content, $title = '<h2>' . htmlspecialchars($player['name']) . '</h2>');
+$player_name = htmlspecialchars($player['name']);
+$page_desc = $player_page ? 'DueUtil player profile.' : 'DueUtil dashboard';
+$page = new StandardLayout($sidebar, $content, $title = '<h2>'.$player_name.'</h2>', $page_desc);
 
 // Scripts and CSS
 $page->set_css('../css/due-style-tables.css');

@@ -27,5 +27,8 @@ if (sizeof($topdog_data) == 1) {
 // TODO: No topdog
 
 // Show dashboard.
-(new StandardLayout($sidebar,new HomePageContent($top_dog,int_to_ordinal($top_dog_count),SERVER_INVITE,BOT_INVITE)))->show();
+(new StandardLayout($sidebar,new HomePageContent($top_dog,int_to_ordinal($top_dog_count),
+                             SERVER_INVITE,BOT_INVITE), "<h2>DueUtil</h2>",
+                             "DueUtil the questing and fun discord bot!", 
+                             "The Worst Discord Bot"))->show();
 ?>
