@@ -216,7 +216,8 @@
      },
      "DueUtilTech":{
          "icon":"dueutiltech.png",
-         "name":"https://dueutil.tech/",
+         "name":"dueutil.tech",
+         "special":true,
          "message":"Login to dueutil.tech!"
      }
    }

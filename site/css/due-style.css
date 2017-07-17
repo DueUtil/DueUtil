@@ -20,6 +20,10 @@ code{
   margin-bottom: 4px;
 }
 
+#settings{
+text-align: left;
+}
+
 code {
   font-family: Menlo,Consolas,Monaco,monospace;
   font-size: 14px;
@@ -83,6 +87,14 @@ text-align: center;
     top: 17px;
 }
 
+#profile-link{
+    height: 250px;
+    width: 400px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+}
+
 .weapon-icon {
     height: 28px;
     width: 28px;
@@ -112,7 +124,7 @@ text-align: center;
   width: 100%;
 }
 
-#myweapons{
+#myweapons, #myawards{
 min-height:367px; max-width:500px; min-width:500px;
 max-height:420px;
 flex: 0 0 auto;
@@ -130,6 +142,12 @@ flex: 0 0 auto;
 .cete-user-info{
   width: 65%;
 
+}
+
+.error-image{
+  width: 400px;
+  height: auto;
+  flex-shrink: 0;
 }
 
 .weapon-list {

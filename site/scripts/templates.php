@@ -4,10 +4,8 @@ require_once("templatesystem.php");
 require_once("players.php");
 require_once("auth.php");
 require_once("util.php");
-require_once("gamerules.php");
 require_once("weapons.php");
 
-define("DEFAULT_AVATAR","../img/avatardue.png");
 define("DEFAULT_IMAGE","../img/missingimg.png");
 
 
@@ -261,10 +259,7 @@ class LeaderboardRow extends Template {
         $this->set_value('totalexp',intval($player["total_exp"]));
         $this->set_value('rank', $rank);
         $this->set_value('level',$player['level']);
-        $avatar = get_avatar_url($player);
-        if (is_null($avatar))
-            $avatar = DEFAULT_AVATAR;      
-        $this->set_value('avatar',$avatar);
+        $this->set_value('avatar',get_avatar_url($player));
     }  
 }
 
@@ -345,7 +340,7 @@ class StandardLayout extends Layout
 {
    function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
        parent::__construct('The Worst Discord Bot',$sidebar,$title,$content,$header_buttons);
-       $this->set_css("../css/due-style-dash.css");
+       $this->set_script("../js/general.js");
        $auth = get_auth();
        if ($auth['login']) {
           $this->set_value('dropdownoption','<a href="../logout/" class="mdl-menu__item"><li>Logout</li></a>');
@@ -359,6 +354,7 @@ class PlayerInfoHeader extends Template
 {
     function __construct($player){
         parent::__construct('../templates/playerinfoheader.tpl');
+        require_once("gamerules.php");
         $exp_for_next_level = get_exp_for_next_level($player['level']);
         $progess = $player['exp']/$exp_for_next_level * 100;
         $this->set_value('progress', $progess);
@@ -397,6 +393,18 @@ class Error404Page extends ErrorPage {
     }
 }
 
+class PrivatePage extends ErrorPage {
+    function __construct($sidebar) {
+        parent::__construct($sidebar, 'Private', 'private.png', 'This user has their profile set as private!');
+    }
+}
+
+class NotPlayerPage extends ErrorPage {
+    function __construct($sidebar) {
+        parent::__construct($sidebar, 'You\'re not a player!', 'noplayer.png', 'To view you\'re dashboard join a server with DueUtil!');
+    }
+}
+
 class NoThingsFound extends Template
 {
     function __construct($title, $message)
@@ -407,15 +415,42 @@ class NoThingsFound extends Template
     }
 }
 
+class MyAwards extends LogBox
+{
+    function __construct() {
+        parent::__construct('myawards');
+    }
+    
+    public function add_row(...$award_details){
+    }
+  
+}
+
 class MyWagers extends LogBox
 {
-  function __construct() {
-      parent::__construct('mywagers');
-  }
+    function __construct() {
+        parent::__construct('mywagers');
+    }
+    
+    public function add_row(...$wager_details){
+        $this->listitems[] = new WagerRow(...$wager_details);
+        $this->set_value('logrows', $this->listitems);
+    }
   
-  public function add_row(...$weapon_details){
+}
 
-  }
+class WagerRow extends Template
+{
+    function __construct($wager_index, $amount, $sender) {
+        parent::__construct('../templates/wagerrow.tpl');
+        $this->set_value('playername', htmlspecialchars($sender['name']));
+        $this->set_value('avatar', get_avatar_url($sender));
+        $this->set_value('level',$sender['level']);
+        $this->set_value('playerid',$sender['id']);
+        $this->set_value('wagerindex',$wager_index);
+        $this->set_value('amount',$amount);
+
+    }
   
 }
 

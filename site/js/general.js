@@ -95,7 +95,10 @@ $(document).ready(function() {
         }        
     });
     
-
+    $(".mdl-layout").on('click', '#site-settings', function() {
+        openWindow($("#profile-link"));
+    });
+    
     $(document).keyup(function(e) {
         if (e.keyCode == 27) closeWindow();
     });
@@ -118,4 +121,24 @@ $(document).ready(function() {
                 lastSelectedMember.css('background-color','');
             }
     });
+    
+    $(".mdl-layout").on('click', '#settings-submit', (function() {
+   var $inputs = $('#settings-form :input');
+    var values = {};
+    $inputs.each(function() {
+        var checked = $(this).prop('checked');
+        if (checked)
+            values[this.id] = checked;
+    }); 
+           $.ajax({
+            type: 'POST',
+            url: '../scripts/settings.php',
+            dataType: 'json',
+            data:values
+            
+        });
+        closeWindow();
+        return false;
+    }));
+    
 });

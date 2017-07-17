@@ -1,6 +1,13 @@
 <?php
-require_once("../scripts/sidebar.php");
-require_once("../scripts/needsauth.php");
+require_once("../scripts/util.php");
+
+$page = strtok($_SERVER["REQUEST_URI"], '?');
+$player_page = endsWith($page, '/player/'); // /player/ page or /mydash/ page
+
+if (!$player_page)
+    require_once("../scripts/needsauth.php");
+else
+    require_once("../scripts/sidebar.php");
 require_once("../scripts/dbconn.php");
 require_once("../scripts/players.php");
 require_once("../scripts/quests.php");
@@ -8,25 +15,31 @@ require_once("../scripts/weapons.php");
 
 
 /*
- * Player dash
+ * Player dash/profile
  */
 
-$page = strtok($_SERVER["REQUEST_URI"], '?');
-if (endsWith($page, '/player/')) {
+if ($player_page) {
     if (isset($_GET["id"])) {
-        $player = find_player($_GET["id"]);
+        $player_id = $_GET["id"];
+        if (is_numeric($player_id))
+            $player = find_player($_GET["id"]);
+        else
+            $player = null;
     }
     if (!isset($_GET["id"]) || is_null($player)) {
         (new Error404Page($sidebar))->show();
         die();
+    } else if (is_profile_private($player['id'])) {
+        (new PrivatePage($sidebar))->show();
+        die();
     }
 } else {
-    # TODO Check it it really is a discord id
     $player_id = $user_data["id"];
     $player = find_player($player_id);
-    // TODO player null.
-    if (is_null($player))
+    if (is_null($player)) {
+        (new NotPlayerPage($sidebar))->show();
         die();
+    }
 }
 
 // Quests
@@ -44,6 +57,7 @@ if (sizeof($player_quests) > 0) {
                               $quest_count - $index);
     }
 } else {
+    // TODO you don't to X does not for public profile.
     $active_quests = new NoThingsFound("Active quests","quests right now");
 }
 
@@ -56,18 +70,34 @@ for ($placeholder = 0; $placeholder < 7 - sizeof($player_weapons); $placeholder+
     $weapons->add_row();
 }
 
+// Wagers
+$wager_requests = get_player_wagers($player);
+if (sizeof($wager_requests) > 0) {
+    $wagers = new MyWagers();
+    foreach ($wager_requests as $wager_index => $wager_request) {
+        $sender = find_player($wager_request['sender_id']);
+        $wagers->add_row($wager_index + 1, $wager_request['wager_amount'], $sender);
+    }
+  } else{
+    $wagers = new NoThingsFound("Wager requests", "wager requests right now");
+}
+
+// Awards - TODO
+
+// Adding content
 $content = array();
 $content[] = new PlayerInfoHeader($player);
 $content[] = $active_quests;
 $content[] = $weapons;
 $content[] = new StaticContent('<div style="width:100%"></div>');
-$content[] = new MyWagers();
-$content[] = new WeaponBox();
+$content[] = $wagers;
+$content[] = new MyAwards();
 
-
+// Create page
 $page = new StandardLayout($sidebar,$content,$title = "<h2>".htmlspecialchars($player["name"])."</h2>");
+
+// Scripts and CSS
 $page->set_css('../css/due-style-tables.css');
-$page->set_script('../js/general.js');
 $page->set_script('../js/logs.js');
 $page->set_script('./dash.js');
 

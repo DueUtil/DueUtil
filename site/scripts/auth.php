@@ -27,6 +27,7 @@ if (isset($_GET['code']) && !isset($_SESSION['access_token'])){
     check_auth();
 }
 
+
 function check_auth() {
   global $provider;
 
@@ -47,30 +48,50 @@ function check_auth() {
   }
 }
 
+
+function get_user_details(){
+    global $provider;
+    check_auth();
+    if (isset($_SESSION['access_token']))
+        return $provider->getResourceOwner($_SESSION['access_token'])->toArray();
+    else
+        return null;
+}
+
+
+function update_last_page($url = null) {
+    if (isset($_COOKIE["dueutil_tech_redirect"])) {
+        unset($_COOKIE["dueutil_tech_redirect"]);
+        setcookie('dueutil_tech_redirect', '', time() - 3600);
+    }
+    if (is_null($url))
+        $url = $_SERVER['REQUEST_URI'];
+    setcookie('dueutil_tech_redirect', "http://$_SERVER[HTTP_HOST]$url", time()+3600, '/');
+}
+
+
+
 function get_auth() {
   global $provider, $auth_scopes;
   
   check_auth();
   if (!isset($_SESSION['access_token'])) {
       // TODO: Domain
-      if (isset($_COOKIE["dueutil_tech_redirect"])) {
-          unset($_COOKIE["dueutil_tech_redirect"]);
-          setcookie('dueutil_tech_redirect', '', time() - 3600);
-      }
-      setcookie('dueutil_tech_redirect', "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", time()+3600, '/');
       return array('login' => False, 'authURL' => $provider->getAuthorizationUrl(array('scope' => $auth_scopes)));
   } else {
       return array('login' => True, 'token' => $_SESSION['access_token']);
   }
 }
 
+
 function redirect() {
   if (isset($_COOKIE["dueutil_tech_redirect"])) {
     header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
-    //var_dump();
+    //var_dump($_COOKIE["dueutil_tech_redirect"]);
     die();
   }
 }
+
 
 function logout() {
   session_destroy();

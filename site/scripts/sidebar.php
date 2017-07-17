@@ -7,15 +7,18 @@ require_once("../scripts/players.php");
 unset($_SERVER['QUERY_STRING']);
 
 $sidebar_content = array();
-
 $auth = get_auth();
+
+if (!$auth['login'] or !defined("NEEDS_AUTH"))
+    update_last_page();
+else
+    // TODO change
+    update_last_page('/dueutil/home');
 
 if (!$auth['login']) {
     $sidebar_content[] = new User(null, null, $auth['authURL']);
 } else {
-    $token = $auth['token'];
-    $user = $provider->getResourceOwner($token);
-    $user_data = $user->toArray();
+    $user_data = get_user_details();
     $avatar = $user_data['avatar'];
     $user_id = $user_data['id'];
     if (!is_null($avatar))

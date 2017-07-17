@@ -122,12 +122,12 @@ async def info(ctx, player, **details):
     await imagehelper.stats_screen(ctx.channel, player)
 
 
-async def show_awards(ctx, player, page=0):
+async def show_awards(ctx, player, page=0, **options):
 
     if page > len(player.awards) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
 
-    await imagehelper.awards_screen(ctx.channel, player, page)
+    await imagehelper.awards_screen(ctx.channel, player, page, **options)
 
 
 @commands.command(args_pattern='C?')
@@ -140,7 +140,7 @@ async def myawards(ctx, page=1, **details):
     
     """
 
-    await show_awards(ctx, details["author"], page-1)
+    await show_awards(ctx, details["author"], page-1, is_player_sender=True)
 
 
 @commands.command(args_pattern='PC?')
