@@ -302,7 +302,7 @@ class QuestRow extends Template {
         $this->set_value('questname', htmlspecialchars($active_quest['name']));
         $this->set_value('attack', round($active_quest['attack'], 2));
         $this->set_value('strg', round($active_quest['strg'], 2));
-        $this->set_value('weapon', $weapon["name"]);
+        $this->set_value('weapon', htmlspecialchars($weapon["name"]));
         $this->set_value('reward', number_format($reward));
         $this->set_value('accy',round($active_quest['accy'], 2));
         $this->set_value('questindex',$quest_index);
@@ -345,7 +345,7 @@ class Weapon extends Template{
         $this->set_value('name', htmlspecialchars($weapon['name']));
         $this->set_value('damage', $weapon['damage']);
         $this->set_value('accy', $weapon['accy']*100);
-        $this->set_value('hitmessage', $weapon['hit_message']);
+        $this->set_value('hitmessage', htmlspecialchars($weapon['hit_message']));
     }
 }
 
@@ -492,7 +492,7 @@ class WagerRow extends Template
         $this->set_value('playername', htmlspecialchars($sender['name']));
         $this->set_value('avatar', get_avatar_url($sender));
         $this->set_value('level',$sender['level']);
-        $this->set_value('playerid',$sender['id']);
+        $this->set_value('playerid',htmlspecialchars($sender['id']));
         $this->set_value('wagerindex',$wager_index);
         $this->set_value('amount',$amount);
 
