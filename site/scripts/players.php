@@ -52,8 +52,9 @@ function set_profile_privacy($player_id, $private){
     global $manager;
     // TODO upsert
     $bulk = new MongoDB\Driver\BulkWrite;
-    $private_record = ['_id' => $player_id, 'private' => $private];
-    $bulk->insert($private_record);
+    $bulk->update(['_id' => $player_id],
+                  ['$set' => ['private' => $private]],
+                  ['upsert' => true]);
     $write_concern = new MongoDB\Driver\WriteConcern(MongoDB\Driver\WriteConcern::MAJORITY, 1000);
     $result = $manager->executeBulkWrite('dueutil.public_profiles', $bulk, $write_concern);
 }

@@ -165,10 +165,14 @@ abstract class Layout extends Template
 
     function __construct($page_name,$sidebar,$content_title,$content,$header_buttons = array(),$body = array()) {
         parent::__construct('../templates/layout.tpl');
-        $header_buttons[] = new StaticContent("../templates/addtionalheaderactions.tpl");
+        $auth = get_auth();
         if(!is_array($body))
             $body = array($body);
-        $body[] = new StaticContent("../templates/generalpopups.tpl");
+        if ($auth['login']) {
+            $header_buttons[] = new StaticContent("../templates/addtionalheaderactions.tpl");
+            $user_id = get_user_details()['id'];
+            $body[] = new SettingsPopup(is_profile_private($user_id), $user_id);
+        }
         // Add invite menu to layout if blank
         if (isset($_SESSION["userId"]))
         {
@@ -199,6 +203,15 @@ abstract class Layout extends Template
 
     function set_script($script){
         $this->set_header("<script src=\"$script\"></script>");
+    }
+}
+
+class SettingsPopup extends Template 
+{
+    function __construct($private_profile, $player_id) {
+        parent::__construct('../templates/settingspopup.tpl');
+        $this->set_value('checked', $private_profile ? '' : 'checked');
+        $this->set_value('playerid', $player_id);
     }
 }
 
@@ -340,7 +353,7 @@ class StandardLayout extends Layout
 {
    function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
        parent::__construct('The Worst Discord Bot',$sidebar,$title,$content,$header_buttons);
-       $this->set_base_url('http://localhost/dueutil/'.end(explode('/',getcwd())).'/');
+       $this->set_base_url("http://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
        $this->set_script("../js/general.js");
        $auth = get_auth();
        if ($auth['login']) {
@@ -412,11 +425,12 @@ class NotPlayerPage extends ErrorPage {
 
 class NoThingsFound extends Template
 {
-    function __construct($title, $message)
+    function __construct($title, $message, $prefix='You don\'t')
     {
         parent::__construct('../templates/nothings.tpl');
         $this->set_value('title', $title);
         $this->set_value('thing', $message);
+        $this->set_value('prefix', htmlspecialchars($prefix));
     }
 }
 
@@ -427,8 +441,21 @@ class MyAwards extends LogBox
     }
     
     public function add_row(...$award_details){
+        $this->listitems[] = new Award(...$award_details);
+        $this->set_value('logrows', $this->listitems);
     }
   
+}
+
+class Award extends Template 
+{
+    function __construct($image, $name, $message, $special = False) {
+        parent::__construct('../templates/award.tpl');
+        $this->set_value('image', '../awards/'.$image);
+        $this->set_value('name', $name);
+        $this->set_value('message', $message);
+
+    }
 }
 
 class MyWagers extends LogBox

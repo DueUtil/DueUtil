@@ -24,6 +24,35 @@ code{
 text-align: left;
 }
 
+#settings-form{
+  background-color: #575B76;
+  padding: 6px;
+  margin-top: -10px;
+  color:rgba(249,241,223,.87);
+}
+
+#profile-link{
+  color:#95d3bd;
+ background: #6c708b;
+
+}
+
+.greyed-out {
+  opacity: 0.5;
+   pointer-events: none;
+   cursor: default;
+}
+
+#settings-message {
+  color:rgba(249,241,223,.87);
+
+}
+
+.cete-popup__content{
+  margin-top: -8px;
+
+}
+
 code {
   font-family: Menlo,Consolas,Monaco,monospace;
   font-size: 14px;
@@ -510,7 +539,40 @@ position:  relative;
     position:relative;
 }
 
-.command-list{
+.award-card {
+    width: 246px;
+    height: 40px;
+    background: #575B76;
+    margin-right: 6px;
+    margin-top: 6px;
+}
+
+/* #765784 */
+
+#awards-list {
+    margin-top: 12px;
+    max-height: calc(100% - 56px);
+    height: calc(100% - 44px);
+    overflow-x: hidden;
+    position: absolute;
+    width: calc(100% - 12px);
+}
+
+.award-image{
+    float: left;
+    margin: 5px;
+}
+
+.award-message{
+  font-size: 11px;
+}
+
+.award-text {
+  margin-top: 7px;
+    line-height: 12px;
+}
+
+.command-list, .award-list{
    display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;

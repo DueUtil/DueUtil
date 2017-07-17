@@ -1,4 +1,5 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteRule ^player/id/(.*?)/?$ player/?id=$1     
+    RewriteRule (.*?)index\.php/*(.*) /$1$2 [R=301,NE,L]
 </IfModule>

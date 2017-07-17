@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 define("CLIENT_ID","212707063367860225");
 define("CLIENT_SECRET","GoP6T87FuwLltuKrZdbH1eGnEpUbhDG1");
-define("REDIRECT_URL","http://localhost/dueutil/home");
+define("REDIRECT_URL","http://localhost/home");
 
 session_name('dueutil_tech_auth');
 

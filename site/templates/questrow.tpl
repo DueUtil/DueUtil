@@ -10,18 +10,18 @@
       <span class="level">Level [@level]</span>
    </td>
   <td class="log-cell">
-      Attack [@attack]
+      Attack <br> [@attack]
    </td>
   <td class="log-cell">
-      Strg [@strg]
+      Strg  <br> [@strg]
    </td>
   <td class="log-cell">
-      Accy [@accy]
+      Accy <br>  [@accy]
    </td>
   <td class="log-cell">
-      Weapon [@weapon]
+      Weapon  <br> [@weapon]
    </td>
   <td class="log-cell">
-      Reward ¤[@reward]
+      Reward  <br> ¤[@reward]
    </td>
 </tr>

@@ -5,7 +5,7 @@
           <div class="center-img">
           <img  src="../img/macshrug.png" alt="MacDue Strug" draggable="false">
           <br>
-            You don't have any [@thing]!</div>
+            [@prefix] have any [@thing]!</div>
           </div>
        </div>
 </div>

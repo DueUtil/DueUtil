@@ -9,11 +9,11 @@ unset($_SERVER['QUERY_STRING']);
 $sidebar_content = array();
 $auth = get_auth();
 
-if (!$auth['login'] or !defined("NEEDS_AUTH"))
+if (!$auth['login'] or !defined("NEEDS_AUTH")) {
     update_last_page();
-else
-    // TODO change
-    update_last_page('/dueutil/home');
+} else {
+    update_last_page('/home');
+}
 
 if (!$auth['login']) {
     $sidebar_content[] = new User(null, null, $auth['authURL']);
@@ -21,10 +21,12 @@ if (!$auth['login']) {
     $user_data = get_user_details();
     $avatar = $user_data['avatar'];
     $user_id = $user_data['id'];
-    if (!is_null($avatar))
+    
+    if (!is_null($avatar)) {
         $avatar = "https://cdn.discordapp.com/avatars/$user_id/$avatar.jpg";
-    else
+    } else {
         $avatar = DEFAULT_AVATAR;
+    }
         
     $player = find_player($user_id);
     if (is_null($player)) {
@@ -34,6 +36,7 @@ if (!$auth['login']) {
         $sidebar_content[] = new User($player, $avatar);  
     }
 }
+
 $sidebar_content[] = new Navigation('General',
                                     array(
                                       'DueUtil' => '../home',
@@ -49,5 +52,6 @@ $sidebar_content[] = new Navigation('Tools',
                                       'Weapon Builder'=>'#',
                                       'Upgrader'=>'#'
                                     ));
+
 $sidebar = new Sidebar($sidebar_content);
 ?>

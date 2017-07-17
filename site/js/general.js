@@ -83,6 +83,14 @@ function sendSnackBarAlert(message,duration = 3000)
     snackbar.MaterialSnackbar.showSnackbar({message: message, timeout: duration});
 }
 
+function toggleProfileLink(active) {
+    if (active) {
+        $('#profile-url-box').removeClass('greyed-out');
+    } else {
+        $('#profile-url-box').addClass('greyed-out');
+    }
+}
+
 $(document).ready(function() {
     $("#overlay").click(closeWindow);
     
@@ -121,6 +129,10 @@ $(document).ready(function() {
                 lastSelectedMember.css('background-color','');
             }
     });
+    
+    toggleProfileLink($('#public-profile').prop('checked'));
+    
+    $(".mdl-layout").on('click', '#public-profile', (function() { toggleProfileLink($(this).prop('checked')); }));
     
     $(".mdl-layout").on('click', '#settings-submit', (function() {
    var $inputs = $('#settings-form :input');

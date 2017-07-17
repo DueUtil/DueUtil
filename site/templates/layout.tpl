@@ -68,7 +68,7 @@ That means your now a certified hacker man and have totally hacked me.
                <div style="flex-grow: 1;"></div>
                <footer id="due-footer" class="mdl-mini-footer">
                 <div class="mdl-mini-footer__left-section">
-                  <div class="mdl-logo">DueUtil &copy; 2017 MacDue&#x23;4453 (Ben)</div>
+                  <div class="mdl-logo">DueUtil &copy; 2017 MacDue&#x23;4453 (Ben) - <a class="due-link" href="mailto:macdue@dueutil.tech" target="_top">Contact</a></div>
                 </div>
               </footer>   
             </div>
