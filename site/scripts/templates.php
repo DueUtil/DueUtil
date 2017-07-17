@@ -340,6 +340,7 @@ class StandardLayout extends Layout
 {
    function __construct($sidebar,$content = "",$title = '<h2>DueUtil</h2>',$header_buttons = ""){
        parent::__construct('The Worst Discord Bot',$sidebar,$title,$content,$header_buttons);
+       $this->set_base_url('http://localhost/dueutil/'.end(explode('/',getcwd())).'/');
        $this->set_script("../js/general.js");
        $auth = get_auth();
        if ($auth['login']) {
@@ -347,6 +348,10 @@ class StandardLayout extends Layout
        } else {
           $this->set_value('dropdownoption','<a href="'.htmlspecialchars($auth['authURL']).'" class="mdl-menu__item"><li>Login</li></a>');
        }
+   }
+   
+   function set_base_url($base) {
+       $this->set_header("<BASE href=\"$base\">");
    }
 }
 

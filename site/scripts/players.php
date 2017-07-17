@@ -50,7 +50,7 @@ function is_profile_private($player_id){
 
 function set_profile_privacy($player_id, $private){
     global $manager;
-    
+    // TODO upsert
     $bulk = new MongoDB\Driver\BulkWrite;
     $private_record = ['_id' => $player_id, 'private' => $private];
     $bulk->insert($private_record);

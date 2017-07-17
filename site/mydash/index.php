@@ -1,9 +1,8 @@
 <?php
 require_once("../scripts/util.php");
-
 $page = strtok($_SERVER["REQUEST_URI"], '?');
-$player_page = endsWith($page, '/player/'); // /player/ page or /mydash/ page
-
+// TODO Change
+$player_page = startsWith($page, '/dueutil/player/'); // /player/ page or /mydash/ page
 if (!$player_page)
     require_once("../scripts/needsauth.php");
 else

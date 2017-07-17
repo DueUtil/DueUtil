@@ -11,14 +11,15 @@ That means your now a certified hacker man and have totally hacked me.
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=0.9, minimum-scale=0.9">
       <title>DueUtil - [@pagename]</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      [@header]
+      <script src="../js/material.min.js"></script>
       <link rel="icon" type="image/png" href="../img/logo.png" />
       <link rel="stylesheet" type="text/css" href="../css/due-style.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <link rel="stylesheet" href="../css/material.min.css" />
       <link rel="stylesheet" href="../css/dueutil-icons.css" />
-      <script src="../js/material.min.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
       <!-- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
       <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.min.js"></script>
       <script type='text/javascript' src="https://cdn.rawgit.com/SamWM/jQuery-Plugins/master/numeric/jquery.numeric.min.js"></script>
@@ -26,7 +27,6 @@ That means your now a certified hacker man and have totally hacked me.
       <link rel="stylesheet" href="https://cdn.rawgit.com/CreativeIT/getmdl-select/master/getmdl-select.min.css">
       <script defer src="https://cdn.rawgit.com/CreativeIT/getmdl-select/master/getmdl-select.min.js"></script> -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.0.3/jquery.floatThead.min.js"></script>
-      [@header]
    </head>
    <body>
       <div id="overlay"></div>
