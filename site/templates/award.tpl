@@ -1,4 +1,4 @@
-<div class="award-card mdl-shadow--2dp">
+<div class="award-card [@type] mdl-shadow--2dp" title="[@title]">
 <img class="award-image" src="[@image]" alt="[@name]" draggable="false">
 <div class="award-text">
 [@name]

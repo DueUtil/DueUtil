@@ -22,6 +22,7 @@ if (isset($_GET['code']) && !isset($_SESSION['access_token'])){
       'code' => $_GET['code'],
     ]);
     $_SESSION['access_token'] = $token;
+    
     redirect();
 } else if (isset($_SESSION['access_token'])) {
     check_auth();

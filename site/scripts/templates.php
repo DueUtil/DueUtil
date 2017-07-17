@@ -425,9 +425,13 @@ class NotPlayerPage extends ErrorPage {
 
 class NoThingsFound extends Template
 {
-    function __construct($title, $message, $prefix='You don\'t')
+    function __construct($title, $message, $prefix='You don\'t', $template_override=null)
     {
-        parent::__construct('../templates/nothings.tpl');
+        if (is_null($template_override)) {
+            parent::__construct('../templates/nothings.tpl');
+        } else {
+            parent::__construct('../templates/'.$template_override);
+        }
         $this->set_value('title', $title);
         $this->set_value('thing', $message);
         $this->set_value('prefix', htmlspecialchars($prefix));
@@ -449,11 +453,13 @@ class MyAwards extends LogBox
 
 class Award extends Template 
 {
-    function __construct($image, $name, $message, $special = False) {
+    function __construct($image, $name, $message, $special) {
         parent::__construct('../templates/award.tpl');
         $this->set_value('image', '../awards/'.$image);
         $this->set_value('name', $name);
         $this->set_value('message', $message);
+        $this->set_value('type', $special ? 'special-award' : 'normal-award');
+        $this->set_value('title', $special ? 'This is a special award!' : '');
 
     }
 }

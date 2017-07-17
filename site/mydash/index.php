@@ -118,10 +118,13 @@ if (sizeof($player_awards) > 0) {
     $awards_list = new MyAwards();
     foreach(array_reverse($player_awards) as $award_id) {
         $awards_detail = get_award_details($award_id);
-        $awards_list->add_row($awards_detail['icon'], $awards_detail['name'], $awards_detail['message']);
+        $awards_list->add_row($awards_detail['icon'],
+                              $awards_detail['name'],
+                              $awards_detail['message'],
+                              isset($awards_detail['special']) && $awards_detail['special']);
     }
 } else {
-    $awards_list = new StaticContent('noawards.tpl');
+    $awards_list = new NoThingsFound(null, null, $no_items_preix, 'noawards.tpl');
 }
 
 // Adding content

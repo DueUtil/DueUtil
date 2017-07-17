@@ -368,6 +368,7 @@ background-position: 8px 8px;
     margin-right:-24px;
     margin-bottom: 8px;
     padding:12px 24px 4px;
+
 }
 
 #user-info-avatar{
@@ -540,11 +541,19 @@ position:  relative;
 }
 
 .award-card {
-    width: 246px;
+    width: 240px;
     height: 40px;
-    background: #575B76;
     margin-right: 6px;
     margin-top: 6px;
+}
+
+.normal-award {
+    background: #575B76;
+}
+
+.special-award{
+    background: #765784;
+
 }
 
 /* #765784 */
@@ -555,7 +564,8 @@ position:  relative;
     height: calc(100% - 44px);
     overflow-x: hidden;
     position: absolute;
-    width: calc(100% - 12px);
+    width: calc(100% - 24px);
+    background-image: url('../img/pattern.svg');
 }
 
 .award-image{

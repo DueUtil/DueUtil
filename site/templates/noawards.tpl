@@ -4,7 +4,7 @@
         <div class="center-img">
         <img  src="../img/cup.png" alt="Awards Cup" draggable="false">
         <br>
-        [@prefix] does not have any awards!
+        [@prefix] have any awards!
        </div>
        </div>
 
