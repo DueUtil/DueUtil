@@ -21,4 +21,4 @@ DEAD_BOT_ID = "173391791884599297"
 
 BOT_INVITE = "https://dueutil.tech/invite"
 
-VERSION = "Release 2.0"
+VERSION = "Release 2.0.5"

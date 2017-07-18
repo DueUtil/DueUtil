@@ -91,7 +91,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
 
 
 # The 'None'/No weapon weapon
-NO_WEAPON = Weapon('None', None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png")
+NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png", icon="👊")
 NO_WEAPON_ID = NO_WEAPON.id
 
 

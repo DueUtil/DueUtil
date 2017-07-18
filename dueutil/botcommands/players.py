@@ -124,7 +124,7 @@ async def myprofile(ctx, **details):
     if private_record is None or private_record["private"]:
         await util.say(ctx.channel, (":lock: Your profile is currently set to private!\n"
                                      + "If you want a public profile login to <https://dueutil.tech/>"
-                                     + " and make your profile public."))
+                                     + " and make your profile public in the settings."))
     else:
         await util.say(ctx.channel, "Your profile is at https://dueutil.tech/player/id/%s" % player.id)
 
