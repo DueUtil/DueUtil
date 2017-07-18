@@ -104,7 +104,9 @@ async def load_image_url(url, **kwargs):
         return None
     parsed_url = urlparse(url)
     do_not_compress = kwargs.get('raw', False)
-    if 'dueutil.tech' in parsed_url.hostname and parsed_url.path.startswith('/imagecache/'):
+    if (parsed_url.hostname is not None
+        and'dueutil.tech' in parsed_url.hostname
+            and parsed_url.path.startswith('/imagecache/')):
         # We don't want to download imagecache images again.
         file_name = 'assets' + parsed_url.path
     else:
