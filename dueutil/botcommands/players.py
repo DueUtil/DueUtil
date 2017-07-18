@@ -122,7 +122,7 @@ async def myprofile(ctx, **details):
     private_record = dbconn.conn()["public_profiles"].find_one({"_id": player.id})
 
     if private_record is None or private_record["private"]:
-        await util.say(ctx.channel, (":lock: Your profile is currently set to private!"
+        await util.say(ctx.channel, (":lock: Your profile is currently set to private!\n"
                                      + "If you want a public profile login to <https://dueutil.tech/>"
                                      + " and make your profile public."))
     else:
