@@ -6,3 +6,4 @@
     RewriteRule ^(.*)$ http://%1%{REQUEST_URI} [R=301,QSA,NC,L]
 </IfModule>
 ErrorDocument 404 /404/index.php
+
