@@ -302,6 +302,7 @@ def mythemes(player):
             "thing_list": list(player.get_owned_themes().values()),
             "thing_lister": theme_page,
             "my_command": "mythemes",
+            "set_command": "settheme",
             "thing_info": theme_info,
             "thing_getter": customizations.get_theme}
 
@@ -333,6 +334,7 @@ def mybgs(player):
             "thing_list": list(player.get_owned_backgrounds().values()),
             "thing_lister": background_page,
             "my_command": "mybgs",
+            "set_command": "setbg",
             "thing_info": background_info,
             "thing_getter": customizations.get_background}
 
@@ -363,6 +365,7 @@ def mybanners(player):
             "thing_list": list(player.get_owned_banners().values()),
             "thing_lister": banner_page,
             "my_command": "mybanners",
+            "set_command": "setbanner",
             "thing_info": banner_info,
             "thing_getter": customizations.get_banner}
 
