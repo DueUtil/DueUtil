@@ -11,9 +11,7 @@
 <div id="banner">
     <img src="../img/logo.png" alt="DueUtil logo">
 </div>
-<p>
-    <h3>DueUtil</h3>
-</p>
+<h3>DueUtil</h3>
 <div style="width:100%"></div>
 <p class="big-p mdl-layout-title" style="font-size: 18px; margin-left: 10%; margin-right: 10%;">
 DueUtil is a fun Discord bot for your server. 

@@ -127,7 +127,7 @@ class User extends Template
            $this->set_value('avatar', $avatar);
        } else {
            parent::__construct('../templates/userlogin.tpl');
-           $this->set_value('authurl', $auth_url);
+           $this->set_value('authurl', htmlspecialchars($auth_url));
            $this->set_value('avatar', DEFAULT_AVATAR);
        }
    }
