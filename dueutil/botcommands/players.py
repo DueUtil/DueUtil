@@ -6,7 +6,7 @@ import generalconfig as gconf
 from ..game import players, customizations
 from ..game import stats, game
 from ..game.helpers import misc, playersabstract, imagehelper
-from .. import commands, util
+from .. import commands, util, dbconn
 
 DAILY_AMOUNT = 50
 TRAIN_RANGE = (0.1, 0.2)
@@ -107,6 +107,26 @@ async def myinfo(ctx, **details):
     """
 
     await imagehelper.stats_screen(ctx.channel, details["author"])
+
+
+@commands.command(args_pattern=None)
+async def myprofile(ctx, **details):
+    """
+    [CMD_KEY]myprofile
+
+    Gives the link to your dueutil.tech profile
+    """
+
+    player = details["author"]
+
+    private_record = dbconn.conn()["public_profiles"].find_one({"_id": player.id})
+
+    if private_record is None or private_record["private"]:
+        await util.say(ctx.channel, (":lock: Your profile is currently set to private!"
+                                     + "If you want a public profile login to <https://dueutil.tech/>"
+                                     + " and make your profile public."))
+    else:
+        await util.say(ctx.channel, "Your profile is at https://dueutil.tech/player/id/%s" % player.id)
 
 
 @commands.command(args_pattern='P')

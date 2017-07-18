@@ -8,7 +8,7 @@ from . import players as player_cmds
 from . import weapons as weap_cmds
 from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
-from functools import  wraps
+from functools import wraps
 
 ### Fill in the blanks buy/sell functions
 DEPARTMENT_NOT_FOUND = "Department not found"
@@ -64,9 +64,12 @@ buy_sell_backgrounds = BuySellBackground()
 buy_sell_banners = BuySellBanner()
 
 
+def _should_show_in_shop(customization):
+    return customization is not None and not (customization.id == "default" or customization.is_hidden())
+
+
 def filter_customizations(customization_items):
-    return [customization for customization in customization_items if
-            not (customization.id == "default" or customization.is_hidden())]
+    return [customization for customization in customization_items if _should_show_in_shop(customization)]
 
 
 def shop_weapons_list(page, **details):
@@ -190,7 +193,8 @@ departments = {
             "buy_action": buy_sell_themes.buy_item,
             "sell_action": buy_sell_themes.sell_item
         },
-        "item_exists": lambda _, name: name.lower() != "default" and customizations.get_theme(name) is not None,
+        "item_exists": lambda _, name: (name.lower() != "default"
+                                        and _should_show_in_shop(customizations.get_theme(name))),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["themes"]
 
     },
@@ -249,6 +253,7 @@ def try_again(general_command):
                 await general_command(ctx, *args, **details)
             else:
                 raise command_error
+
     return wrapped_command
 
 

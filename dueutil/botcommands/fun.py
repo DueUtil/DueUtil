@@ -3,6 +3,7 @@ from datetime import datetime
 
 import discord
 import repoze.timeago
+import asyncio
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
@@ -16,7 +17,7 @@ async def glitter_text(channel, text):
         await util.get_client(channel).send_file(channel, fp=gif_text,
                                                  filename="glittertext.gif",
                                                  content=":sparkles: Your glitter text!")
-    except ValueError:
+    except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text!")
 
 

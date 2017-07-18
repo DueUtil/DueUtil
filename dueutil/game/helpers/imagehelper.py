@@ -3,8 +3,7 @@ import os
 import random
 import re
 from io import BytesIO
-import aiohttp
-
+from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 
@@ -103,11 +102,16 @@ def paste_alpha(background, image, position):
 async def load_image_url(url, **kwargs):
     if url is None:
         return None
+    parsed_url = urlparse(url)
     do_not_compress = kwargs.get('raw', False)
-    file_name = 'assets/imagecache/' + re.sub(r'\W+', '', url)
-    if len(file_name) > 128:
-        file_name = file_name[:128]
-    file_name = file_name + '.jpg'
+    if 'dueutil.tech' in parsed_url.hostname and parsed_url.path.startswith('/imagecache/'):
+        # We don't want to download imagecache images again.
+        file_name = 'assets' + parsed_url.path
+    else:
+        file_name = 'assets/imagecache/' + re.sub(r'\W+', '', url)
+        if len(file_name) > 128:
+            file_name = file_name[:128]
+        file_name = file_name + '.jpg'
     if not do_not_compress and os.path.isfile(file_name):
         return Image.open(file_name)
     else:

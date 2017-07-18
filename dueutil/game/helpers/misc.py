@@ -265,7 +265,7 @@ async def get_glitter_text(gif_text):
 
     with aiohttp.Timeout(10):
         async with aiohttp.ClientSession() as session:
-            async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.strip("'"))) as page_response:
+            async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.replace("'", ""))) as page_response:
                 html = await page_response.text()
                 soup = BeautifulSoup(html, "html.parser")
                 box = soup.find("textarea", {"id": "dLink"})
