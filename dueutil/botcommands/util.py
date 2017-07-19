@@ -77,8 +77,8 @@ async def help(ctx, *args, **details):
                                                  + "\":x:\": You don't have the required permissions to use the command."))
         help_embed.add_field(name="Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
                                                   + "DueUtil site: https://dueutil.tech/\n"
-                                                  + "Support server: https://discord.gg/n4b94VA\n"
-                                                  + "[MrAwais' guide](http://dueutil.weebly.com/) (currently outdated)"))
+                                                  + "DueUtil guide: https://dueutil.tech/howto\n"
+                                                  + "Support server: https://discord.gg/n4b94VA\n"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
