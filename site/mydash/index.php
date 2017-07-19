@@ -2,8 +2,7 @@
 <?php
 require_once ("../scripts/util.php");
 
-$page = strtok($_SERVER["REQUEST_URI"], '?');
-$player_page = startsWith($page, '/player'); // /player/ page or /mydash/ page
+$player_page = startsWith($_SERVER["REQUEST_URI"], '/player'); // /player/ page or /mydash/ page
 
 if (!$player_page) {
     // We only need auth if this is mydash.

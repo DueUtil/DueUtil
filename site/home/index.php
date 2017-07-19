@@ -3,15 +3,12 @@ require_once("../scripts/sidebar.php");
 require_once("../scripts/dbconn.php");
 require_once("../scripts/players.php");
 require_once("../scripts/util.php");
+require_once("../scripts/constants.php");
 
 /*
  * The home page
  */
  
-define("SERVER_INVITE","https://discord.gg/n4b94VA");
-define("BOT_INVITE","https://discordapp.com/oauth2/authorize?client_id=213271889760616449&scope=bot&permissions=268553280");
-
-
 $find_topdog_query = new MongoDB\Driver\Query(array('award' => 'TopDog'));
 $cursor = $manager->executeQuery('dueutil.award_stats',$find_topdog_query);
 $topdog_data = $cursor->toArray();

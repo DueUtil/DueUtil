@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once('util.php');
 
 define("CLIENT_ID","213271889760616449");
 define("CLIENT_SECRET","jhZ5RQqcq3GfxbMyB7KusBwRE0Vyok9c");
-define("REDIRECT_URL","https://dueutil.tech/home/");
+define("REDIRECT_URL","https://dueutil.tech/callback");
 
 session_name('dueutil_tech_auth');
 
@@ -17,17 +18,24 @@ $provider = new \Discord\OAuth\Discord([
 
 session_start();
 
-if (isset($_GET['code']) && !isset($_SESSION['access_token'])){
-    $token = $provider->getAccessToken('authorization_code', [
-      'code' => $_GET['code'],
-    ]);
-    $_SESSION['access_token'] = $token;
-    
+if (startsWith($_SERVER['REQUEST_URI'], '/callback')){
+    if (!isset($_SESSION['access_token'])) {
+        if (isset($_GET['code'])) {
+            $token = $provider->getAccessToken('authorization_code', [
+              'code' => $_GET['code'],
+            ]);
+            $_SESSION['access_token'] = $token;
+        } else if (!isset($_GET['error'])){
+            header('Location: '.get_auth_url());
+            die(); 
+        }
+    }
     redirect();
-} else if (isset($_SESSION['access_token'])) {
-    check_auth();
 }
 
+if (isset($_SESSION['access_token'])){
+    check_auth();
+}
 
 function check_auth() {
   global $provider;
@@ -73,24 +81,28 @@ function update_last_page($url = null) {
 
 
 function get_auth() {
-  global $provider, $auth_scopes;
-  
-  check_auth();
-  if (!isset($_SESSION['access_token'])) {
-      // TODO: Domain
-      return array('login' => False, 'authURL' => $provider->getAuthorizationUrl(array('scope' => $auth_scopes)));
-  } else {
-      return array('login' => True, 'token' => $_SESSION['access_token']);
-  }
+    check_auth();
+    if (!isset($_SESSION['access_token'])) {
+        // TODO: Domain
+        return array('login' => False, 'authURL' => get_auth_url());
+    } else {
+        return array('login' => True, 'token' => $_SESSION['access_token']);
+    }
+}
+
+
+function get_auth_url() {
+    global $provider, $auth_scopes;
+    return $provider->getAuthorizationUrl(array('scope' => $auth_scopes));
 }
 
 
 function redirect() {
-  if (isset($_COOKIE["dueutil_tech_redirect"])) {
-    header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
-    //var_dump($_COOKIE["dueutil_tech_redirect"]);
-    die();
-  }
+    if (isset($_COOKIE["dueutil_tech_redirect"])) {
+        header('Location: '.$_COOKIE["dueutil_tech_redirect"]);
+        //var_dump($_COOKIE["dueutil_tech_redirect"]);
+        die();
+    }
 }
 
 
