@@ -34,7 +34,7 @@ async def permissions(ctx, **details):
     await util.say(ctx.channel, permissions_report)
 
 
-@commands.command(args_pattern="IIIS", hidden=True)
+@commands.command(args_pattern="SSS", hidden=True)
 async def test(ctx, *args, **details):
     """A test command"""
 
@@ -240,6 +240,12 @@ async def sudo(ctx, victim, command, **details):
         await events.command_event(ctx)
     except util.DueUtilException as command_failed:
         raise util.DueUtilException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
+
+"""
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
+async def say(ctx, **details):
+    pass
+"""
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")

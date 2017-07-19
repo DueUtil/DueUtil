@@ -18,7 +18,14 @@ announcement_channel = None
 
 # Silly things:
 DEAD_BOT_ID = "173391791884599297"
+DISCORD_TEL_ID = "224662505157427200"
+DISCORD_TEL_SERVER = "281815661317980160"
+DISCORD_TEL_CHANNEL = "329013929890283541"
+
+# Misc
 
 BOT_INVITE = "https://dueutil.tech/invite"
 
 VERSION = "Release 2.0.5"
+
+

@@ -214,6 +214,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
     sender = details["author"]
     amount_string = util.format_number(transaction_amount, money=True, full_precision=True)
+    to_discordtel = receiver.id == gconf.DISCORD_TEL_ID
 
     if receiver.id == sender.id:
         raise util.DueUtilException(ctx.channel, "There is no reason to send money to yourself!")
@@ -227,15 +228,15 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
             await util.say(ctx.channel, "You do not have any money to transfer!")
         return
 
-    max_receive = int(receiver.item_value_limit * 10)
-
-    if transaction_amount > max_receive:
-        await util.say(ctx.channel, ("**" + amount_string
-                                     + "** is more than ten times **" + receiver.name_clean
-                                     + "**'s limit!\nThe maximum **" + receiver.name_clean
-                                     + "** can receive is **"
-                                     + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
-        return
+    if not to_discordtel:
+        max_receive = int(receiver.item_value_limit * 10)
+        if transaction_amount > max_receive:
+            await util.say(ctx.channel, ("**" + amount_string
+                                         + "** is more than ten times **" + receiver.name_clean
+                                         + "**'s limit!\nThe maximum **" + receiver.name_clean
+                                         + "** can receive is **"
+                                         + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
+            return
 
     sender.money -= transaction_amount
     receiver.money += transaction_amount
@@ -254,7 +255,17 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     transaction_log.add_field(name="Transaction amount (DUT):", value=amount_string, inline=False)
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
-    transaction_log.set_footer(text="Please keep this receipt for your records.")
+    if not to_discordtel:
+        transaction_log.set_footer(text="Please keep this receipt for your records.")
+    else:
+        transaction_log.set_footer(text="Your cash should now be on your DiscordTel account!")
+        try:
+            tel_shard = util.get_client(gconf.DISCORD_TEL_SERVER)
+            await util.say(tel_shard.get_channel(gconf.DISCORD_TEL_CHANNEL), "DUT Deposit: From %s | Amount %s"
+                           % (sender.id, transaction_amount))
+        except (AttributeError, discord.DiscordException) as exception:
+            util.logger.exception("Failed to send cash to DiscordTel sender %s, amount %d, error %s"
+                                  % (sender.id, transaction_amount, exception))
 
     await util.say(ctx.channel, embed=transaction_log)
 
