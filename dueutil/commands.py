@@ -273,7 +273,7 @@ async def determine_args(pattern, args):
         # A last ditch effort to get some use out of the shit known as input.
         if len(args) > 0 and could_be_string(pattern):
             # Only a pattern that can just be a string is valid
-            return ' '.join(args),
+            return ' '.join(map(str, args)),
         return False
 
     def valid_args_len(args, pattern):

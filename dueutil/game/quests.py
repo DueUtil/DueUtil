@@ -1,6 +1,6 @@
 import json
 import random
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from typing import Dict, List
 import math
 
@@ -34,6 +34,8 @@ class Quest(DueUtilObject, SlotPickleMixin):
                  "channel", "times_beaten"]
 
     DEFAULT_IMAGE = "http://i.imgur.com/zOIJM9T.png"
+
+    _BaseStats = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
     def __init__(self, name, base_attack, base_strg, base_accy, base_hp, **extras):
         message = extras.get('ctx', None)
@@ -86,8 +88,8 @@ class Quest(DueUtilObject, SlotPickleMixin):
             quest_map[self.id] = self
 
     def base_values(self):
-        return (self.base_hp, self.base_attack,
-                self.base_strg, self.base_accy,)
+        return self._BaseStats(self.base_attack, self.base_strg,
+                               self.base_accy, self.base_hp,)
 
     def get_channel_mention(self, server):
         if self.channel in ("ALL", "NONE"):
@@ -174,7 +176,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
     """
 
     def _calculate_stats(self):
-        base_hp, base_attack, base_strg, base_accy = tuple(base_value/1.7 for base_value in
+        base_attack, base_strg, base_accy, base_hp = tuple(base_value/1.7 for base_value in
                                                            self.info.base_values())
         self.attack = self.accy = self.strg = 1
         target_level = self.level

@@ -563,7 +563,7 @@ async def googly_eyes(channel, eye_descriptor):
         size = (32 * 2, 32 * 2)
         border_scale = 0
         pupil_scale = 2.3
-        high_scale = 0.6
+        high_scale = 0.7
     width, height = size
     size = (size[0] + 5, size[1] + 5)
     image = Image.new("RGBA", size)
@@ -613,7 +613,7 @@ async def googly_eyes(channel, eye_descriptor):
         shift_x = min(inner_width // 4, (width - pupil_width) // 2)
         shift_y = min(inner_height // 4, (height - pupil_height) // 2)
 
-        if not any(direction in given_eye_type for direction in ("left", "right", "top", "bottom", "centre", "center")):
+        if not any(direction in given_eye_type for direction in eye_types):
             given_eye_type = random_eyes()
             eye_descriptor = eye_descriptor.replace(given_eye_type, " ") + given_eye_type
         if given_eye_type == "derp":

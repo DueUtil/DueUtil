@@ -7,7 +7,6 @@ from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
 from .. import commands, util
 
-import traceback
 
 @commands.command(args_pattern='M?')
 async def myweapons(ctx, *args, **details):
@@ -82,10 +81,14 @@ async def equip(ctx, weapon_name, **details):
 
     player = details["author"]
     current_weapon = player.weapon
+    weapon_name = weapon_name.lower()
 
-    weapon = player.get_weapon(weapon_name.lower())
+    weapon = player.get_weapon(weapon_name)
     if weapon is None:
-        raise util.DueUtilException(ctx.channel, "You do not have that weapon stored!")
+        if weapon_name != current_weapon.name.lower():
+            raise util.DueUtilException(ctx.channel, "You do not have that weapon stored!")
+        await util.say(ctx.channel, "You already have that weapon equipped!")
+        return
 
     player.discard_stored_weapon(weapon)
     if player.owns_weapon(current_weapon.name):

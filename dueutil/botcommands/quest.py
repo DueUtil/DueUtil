@@ -31,7 +31,10 @@ async def spawnquest(ctx, *args, **details):
 
     player = details["author"]
     if len(args) == 0:
-        quest = quests.get_random_quest_in_channel(ctx.channel)
+        if quests.has_quests(ctx.channel):
+            quest = quests.get_random_quest_in_channel(ctx.channel)
+        else:
+            raise util.DueUtilException(ctx.channel, "Could not find a quest in this channel to spawn!")
     else:
         if len(args) >= 2:
             player = args[1]
@@ -134,7 +137,7 @@ async def acceptquest(ctx, quest_index, **details):
 
         def attr_gain(stat):
             return (max(0.01, (stat / avg_player_stat)
-                    * quest.level * (turns / average_quest_battle_turns)/2 * (quest_scale+0.5)*3))
+                        * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 
         add_strg = min(attr_gain(quest.strg), 100)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
@@ -391,25 +394,28 @@ async def serverquests(ctx, page=1, **details):
             embed.description = "There are no quests on this server!\nHow sad."
 
     else:
+        # TODO: Improve
         quest_name = page
         quest = quests.get_quest_on_server(ctx.server, quest_name)
         if quest is None:
             raise util.DueUtilException(ctx.channel, "Quest not found!")
         embed.title = "Quest information for the %s " % quest.name_clean
-        embed.description = "You can edit these values with ``%seditquest %s (values)``" \
-                            % (details["cmd_key"], quest.name_clean.lower())
-        embed.add_field(name="Base stats", value=(":punch: ``Attack``: %.2g \n" % quest.base_attack
-                                                  + ":muscle: ``STRG``: %.2g\n" % quest.base_strg
-                                                  + ":dart: ``ACCY``: %.2g\n" % quest.base_accy
-                                                  + ":heart: ``HP``: %.2g\n" % quest.base_hp
-                                                  + ":new: ``Spawn %%``: %.2g\n" % (quest.spawn_chance * 100)))
+        embed.description = "You can edit these values with %seditquest %s (values)" \
+                            % (details["cmd_key"], quest.name_command_clean.lower())
+
+        attributes_formatted = tuple(util.format_number(base_value, full_precision=True)
+                                     for base_value in quest.base_values() + (quest.spawn_chance * 100,))
+        embed.add_field(name="Base stats", value=((":punch: ``Attack``: %s \n"
+                                                   + ":muscle: ``STRG``: %s\n"
+                                                   + ":dart: ``ACCY``: %s\n"
+                                                   + ":heart: ``HP``: %s\n"
+                                                   + ":new: ``Spawn %%``: %s\n") % attributes_formatted))
         quest_weapon = weapons.get_weapon_from_id(quest.w_id)
         embed.add_field(name="Other attributes", value=(":frame_photo: ``Image``: %s\n"
                                                         % util.ultra_escape_string(quest.image_url)
                                                         + ':speech_left: ``Task message``: "%s"\n'
                                                         % util.ultra_escape_string(quest.task)
-                                                        + ":gun: ``Weapon``: %s\n"
-                                                        % util.ultra_escape_string(str(quest_weapon))
+                                                        + ":gun: ``Weapon``: %s\n" % quest_weapon
                                                         + ":tv: ``Channel``: %s\n"
                                                         % quest.get_channel_mention(ctx.server)), inline=False)
         embed.set_thumbnail(url=quest.image_url)
