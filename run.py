@@ -105,12 +105,12 @@ class DueUtilClient(discord.Client):
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
         # Message to help out new server admins.
-        cmd_key = dueserverconfig.server_cmd_key(server)
-        yield from self.send_message(server.default_channel, ":wave: __Thanks for adding me!__!\n"
-                                     + " If you would like to customize me to fit your "
-                                     + "server have a look at the ``%shelp util`` commands.\n" % cmd_key
-                                     + " You can set the command prefix for me here and which "
-                                     + "channels I or my commands can be used in.")
+        yield from self.send_message(server.default_channel, ":wave: __Thanks for adding me!__\n"
+                                     + "If you would like to customize me to fit your "
+                                     + "server take a quick look at the admins "
+                                     + "guide at <https://dueutil.tech/howto/#adming>.\n"
+                                     + "It shows how to change the command prefix here, and set which "
+                                     + "channels I or my commands can be used in (along with a bunch of other stuff).")
         # Update carbon stats
         yield from self.carbon_stats_update()
 
