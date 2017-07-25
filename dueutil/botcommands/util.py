@@ -28,7 +28,7 @@ async def help(ctx, *args, **details):
         arg = args[0].lower()
         if arg not in categories:
             chosen_command = events.get_command(arg)
-
+            # Dumb award
             if chosen_command is None:
                 if arg != "dumbledore":
                     command_name = 'Not found'
@@ -49,6 +49,10 @@ async def help(ctx, *args, **details):
 
             help_embed.description = "Showing help for **" + command_name + "**"
             help_embed.add_field(name=command_name, value=command_help)
+            alias_count = len(chosen_command.aliases)
+            if alias_count > 0:
+                help_embed.add_field(name=("Alias" if alias_count == 1 else "Aliases"),
+                                     value=', '.join(chosen_command.aliases), inline=False)
         else:
             category = arg
             help_embed.description = "Showing ``" + category + "`` commands."

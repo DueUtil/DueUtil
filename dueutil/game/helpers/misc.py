@@ -7,8 +7,7 @@ import discord
 from bs4 import BeautifulSoup
 
 import generalconfig as gconf
-from dueutil import dbconn
-from dueutil import util
+from dueutil import dbconn, util
 
 POSITIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
@@ -83,7 +82,6 @@ class DueUtilObject:
 
 
 #### MacDue's wacky data clases (monkey patches)
-
 class DueMap(collections.MutableMapping):
     """
     
@@ -271,6 +269,7 @@ async def get_glitter_text(gif_text):
                 box = soup.find("textarea", {"id": "dLink"})
                 gif_text_area = str(box)
                 gif_url = gif_text_area.replace(
-                    '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">', "",
+                    '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',
+                    "",
                     1).replace('</textarea>', "", 1)
                 return await util.download_file(gif_url)

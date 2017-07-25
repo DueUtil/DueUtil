@@ -14,7 +14,6 @@ async def myweapons(ctx, *args, **details):
     [CMD_KEY]myweapons (page)/(weapon name)
     
     Shows the contents of your weapon inventory.
-    
     """
 
     player = details["author"]
@@ -123,7 +122,6 @@ async def battle(ctx, *args, **details):
     
     Note! You don't again any exp or reward from these battles!
     Please do not spam anyone with unwanted battles.
-    
     """
     # TODO: Handle draws
     player = details["author"]
@@ -156,7 +154,6 @@ async def wagerbattle(ctx, receiver, money, **details):
     Money will not be taken from your account after you use this command.
     If you cannot afford to pay when the wager is accepted you will be forced
     to sell your weapons.
-    
     """
     sender = details["author"]
 
@@ -179,7 +176,6 @@ async def mywagers(ctx, page=1, **details):
     [CMD_KEY]mywagers (page)
     
     Lists your received wagers.
-    
     """
 
     # TODO: Update this command to paginator?
@@ -223,7 +219,6 @@ async def acceptwager(ctx, wager_index, **details):
     [CMD_KEY]acceptwager (wager number)
     
     Accepts a wager!
-    
     """
     # TODO: Handle draws
     player = details["author"]
@@ -311,7 +306,6 @@ async def declinewager(ctx, wager_index, **details):
     [CMD_KEY]declinewager (wager number)
     
     Declines a wager.
-    
     """
 
     player = details["author"]

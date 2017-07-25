@@ -15,6 +15,7 @@ from dueutil.permissions import Permission
 import generalconfig as gconf
 from dueutil import loader
 from dueutil.game import players
+from dueutil.game.helpers import imagehelper
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
@@ -87,7 +88,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_server_join(self, server):
         server_count = util.get_server_count()
-        if server_count % 100 == 0:
+        if server_count % 1000 == 0:
             # Announce every 100 servers (for now)
             yield from util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111" % server_count)
@@ -170,6 +171,15 @@ class DueUtilClient(discord.Client):
                                      dueserverconfig.server_cmd_key(message.server),
                                      message.content)
         yield from events.on_message_event(message)
+
+    @asyncio.coroutine
+    def on_member_update(self, before, after):
+        player = players.find_player(before.id)
+        if player is not None:
+            old_image = player.get_avatar_url(member=before)
+            new_image = player.get_avatar_url(member=after)
+            if old_image != new_image:
+                imagehelper.delete_cached_image(old_image)
 
     @asyncio.coroutine
     def on_server_remove(self, server):

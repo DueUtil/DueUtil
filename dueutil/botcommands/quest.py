@@ -25,8 +25,7 @@ async def spawnquest(ctx, *args, **details):
     
     A command for TESTING only please (awais) do not abuse this power.
     All arguments are optional however the final three must all be entered
-    to use them. 
-    
+    to use them.
     """
 
     player = details["author"]
@@ -76,7 +75,6 @@ async def myquests(ctx, page=1, **details):
     [CMD_KEY]myquests
     
     Shows the list of active quests you have pending.
-    
     """
 
     player = details["author"]
@@ -93,7 +91,6 @@ async def acceptquest(ctx, quest_index, **details):
     [CMD_KEY]acceptquest (quest number)
 
     You know what to do. Spam ``[CMD_KEY]acceptquest 1``!
-    
     """
 
     player = details["author"]
@@ -179,7 +176,6 @@ async def declinequest(ctx, quest_index, **details):
     [CMD_KEY]declinequest index
 
     Declines a quest because you're too wimpy to accept it.
-    
     """
 
     player = details["author"]
@@ -224,7 +220,6 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" http://i.imgur.com/sP8Rnhc.png 21``
         This creates a quest with the same base values as before but with the message "Kill the"
         when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
-        
     """
 
     extras = dict()
@@ -264,7 +259,6 @@ async def editquest(ctx, quest_name, *updates, **details):
         [CMD_KEY]editquest slime hp 43 attack 4.2 task "Kill the monster"
         
         [CMD_KEY]editquest slime channel ``#slime_fields``
-    
     """
 
     editable_props = ("attack", "strg", "hp", "accy", "spawn", "weap", "image", "task", "channel")
@@ -342,7 +336,6 @@ async def removequest(ctx, quest_name, **details):
     
     Systematically exterminates all instances of the quest...
     ...Even those yet to be born
-    
     """
 
     quest_name = quest_name.lower()

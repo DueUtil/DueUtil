@@ -228,9 +228,13 @@ class Player(DueUtilObject, SlotPickleMixin):
     def weapon_hit(self):
         return random.random() < self.weapon_accy
 
-    def get_avatar_url(self, *args):
-        server = args[0]
-        member = server.get_member(self.id)
+    def get_avatar_url(self, server=None, **extras):
+        if server is None:
+            member = extras.get("member")
+        elif server is not None:
+            member = server.get_member(self.id)
+        else:
+            raise ValueError("Invalid arguments")
         if member.avatar_url != "":
             return member.avatar_url
         return member.default_avatar_url

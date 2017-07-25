@@ -65,9 +65,9 @@ class CommandEvent(dict):
         if not ctx.content.startswith(dueserverconfig.server_cmd_key(ctx.server)):
             return
         args = commands.parse(ctx)
-        command = args[1].lower()
-        if command in self:
-            await self[command](ctx, *args)
+        command = get_command(args[1])
+        if command is not None:
+            await command(ctx, *args)
 
     def to_dict(self):
         command_data = dict()
@@ -104,6 +104,8 @@ def remove_message_listener(listener_function):
 
 
 def register_command(command_function):
+    if commands.has_my_variant(command_function.__name__):
+        command_function.__doc__ += "\nNote: [CMD_KEY]{0} is an alias for [CMD_KEY]my{0}".format(command_function.__name__)
     command_event[command_function.__name__] = command_function
 
 
@@ -115,3 +117,7 @@ def get_command(command_name):
     command_name = command_name.lower()
     if command_name in command_event:
         return command_event[command_name]
+    for command in command_event.values():
+        # Sad - need to search
+        if command_name in command.aliases:
+            return command

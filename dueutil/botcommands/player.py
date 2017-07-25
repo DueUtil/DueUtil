@@ -79,7 +79,6 @@ async def battlename(ctx, name="", **details):
     Sets your name in DueUtil.
     To reset your name to your discord name run the
     command with no arguments
-    
     """
 
     player = details["author"]
@@ -103,7 +102,6 @@ async def myinfo(ctx, **details):
     [CMD_KEY]myinfo
     
     Shows your info!
-    
     """
 
     await imagehelper.stats_screen(ctx.channel, details["author"])
@@ -158,7 +156,6 @@ async def info(ctx, player, **details):
     [CMD_KEY]info @player
     
     Shows the info of another player!
-    
     """
 
     await imagehelper.stats_screen(ctx.channel, player)
@@ -179,7 +176,6 @@ async def myawards(ctx, page=1, **details):
     [CMD_KEY]myawards (page number)
     
     Shows your awards!
-    
     """
 
     await show_awards(ctx, details["author"], page-1, is_player_sender=True)
@@ -192,7 +188,6 @@ async def awards(ctx, player, page=1, **details):
     [CMD_KEY]awards @player (page number)
     
     Shows a players awards!
-    
     """
 
     await show_awards(ctx, player, page-1)
@@ -205,7 +200,6 @@ async def resetme(ctx, cnf="", **details):
     
     Resets all your stats & any customization.
     This cannot be reversed!
-    
     """
     if cnf.lower() == "cnf":
         player = details["author"]
@@ -231,7 +225,6 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     or
     
     [CMD_KEY]sendcash @MrAwais 1
-    
     """
 
     sender = details["author"]
@@ -298,7 +291,6 @@ async def benfont(ctx, **details):
     [CMD_KEY]benfont 
     
     Shhhhh...
-    
     """
 
     player = details["author"]
@@ -328,7 +320,6 @@ def mythemes(player):
     
     Shows the amazing themes you can use on your profile.
     If you use this command with a theme name you can get a preview of the theme!
-    
     """
 
     return {"thing_type": "theme",
@@ -347,7 +338,6 @@ def settheme():
     [CMD_KEY]settheme (theme name)
     
     Sets your profile theme
-    
     """
 
     return {"thing_type": "theme", "thing_inventory_slot": "themes"}
@@ -360,7 +350,6 @@ def mybgs(player):
     [CMD_KEY]mybgs (optional background name)
     
     Shows the backgrounds you've bought!
-    
     """
 
     return {"thing_type": "background",
@@ -379,7 +368,6 @@ def setbg():
     [CMD_KEY]setbg (background name)
     
     Sets your profile background
-    
     """
 
     return {"thing_type": "background", "thing_inventory_slot": "backgrounds"}
@@ -392,7 +380,6 @@ def mybanners(player):
     [CMD_KEY]mybanners (optional banner name)
     
     Shows the banners you've bought!
-    
     """
     return {"thing_type": "banner",
             "thing_list": list(player.get_owned_banners().values()),
@@ -410,7 +397,6 @@ def setbanner():
     [CMD_KEY]setbanner (banner name)
     
     Sets your profile banner
-    
     """
 
     return {"thing_type": "banner", "thing_inventory_slot": "banners"}

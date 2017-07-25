@@ -18,8 +18,10 @@ from ..configs import dueserverconfig
 
 """
 Worst code in the bot.
-Images very ugly throwway code.
+Images very ugly throwaway code.
 """
+
+# TODO: Rewrite
 
 # DueUtil fonts
 font = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 12)
@@ -99,6 +101,21 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
+def delete_cached_image(url):
+    try:
+        os.remove(get_cached_filename(url))
+        util.logger.info("Removed %s from image cache (no longer needed)" % url)
+    except IOError as exception:
+        util.logger.warning("Failed to delete cached image %s (%s)" % (url, exception))
+
+
+def get_cached_filename(name):
+    filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
+    if len(filename) > 128:
+        filename = filename[:128]
+    return filename + '.jpg'
+
+
 async def load_image_url(url, **kwargs):
     if url is None:
         return None
@@ -108,24 +125,21 @@ async def load_image_url(url, **kwargs):
         and'dueutil.tech' in parsed_url.hostname
             and parsed_url.path.startswith('/imagecache/')):
         # We don't want to download imagecache images again.
-        file_name = 'assets' + parsed_url.path
+        filename = 'assets' + parsed_url.path
     else:
-        file_name = 'assets/imagecache/' + re.sub(r'\W+', '', url)
-        if len(file_name) > 128:
-            file_name = file_name[:128]
-        file_name = file_name + '.jpg'
-    if not do_not_compress and os.path.isfile(file_name):
-        return Image.open(file_name)
+        filename = get_cached_filename(url)
+    if not do_not_compress and os.path.isfile(filename):
+        return Image.open(filename)
     else:
         try:
             image_data = await util.download_file(url)
             image = Image.open(image_data)
             # cache image
-            image.convert('RGB').save(file_name, optimize=True, quality=20)
+            image.convert('RGB').save(filename, optimize=True, quality=20)
             return image
         except:
-            if os.path.isfile(file_name):
-                os.remove(file_name)
+            if os.path.isfile(filename):
+                os.remove(filename)
             return None
 
 

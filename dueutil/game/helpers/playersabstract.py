@@ -39,7 +39,7 @@ def item_preview(thing_info_preview):
         if type(page) is int:
             page -= 1
             thing_list = things_info["thing_list"]
-            title = player.get_name_possession_clean() + " " + thing_type.title()
+            title = player.get_name_possession_clean() + " " + thing_type.title()+"s"
             thing_embed = things_info["thing_lister"](thing_list, page, title, price_divisor=4 / 3,
                                                       footer_more="But wait there's more! Do " + details["cmd_key"] +
                                                                   things_info["my_command"] + " " + str(page + 2))

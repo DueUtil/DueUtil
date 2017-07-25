@@ -4,8 +4,8 @@ import discord
 
 import generalconfig as gconf
 from .. import commands, util
-from . import players as player_cmds
-from . import weapons as weap_cmds
+from . import player as player_cmds
+from . import weapon as weap_cmds
 from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
 from functools import wraps

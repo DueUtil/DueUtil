@@ -52,14 +52,15 @@ def command(**command_rules):
     def wrap(command_func):
 
         @wraps(command_func)
-        async def wrapped_command(ctx, *args, **kwargs):
-            if args[1].lower() != command_func.__name__:
-                return False
+        async def wrapped_command(ctx, prefix, name, args, **details):
+            name = name.lower()
+            # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
             if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:
                 return True
+            # Blacklist/whitelist
             command_whitelist = dueserverconfig.whitelisted_commands(ctx.channel)
-            if command_whitelist is not None and not is_admin and args[1].lower() not in command_whitelist:
+            if command_whitelist is not None and not is_admin and name not in command_whitelist:
                 if "is_blacklist" not in command_whitelist:
                     await util.say(ctx.channel, (":anger: That command is not whitelisted in this channel!\n"
                                                  + " You can only use the following commands: ``"
@@ -67,30 +68,53 @@ def command(**command_rules):
                 else:
                     await util.say(ctx.channel, ":anger: That command is blacklisted in this channel!")
                 return True
+            # Do they have the perms for the command
             if check(ctx.author, wrapped_command):
+                # Check args
                 args_pattern = command_rules.get('args_pattern', "")
-                command_args = await determine_args(args_pattern, args[2])
+                command_args = await determine_args(args_pattern, args)
                 if command_args is False:
-                    await util.get_client(ctx.server.id).add_reaction(ctx, u"\u2753")
+                    # React ?
+                    if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
+                        # Could not be a mistype for a personal my command
+                        await util.get_client(ctx.server.id).add_reaction(ctx, u"\u2753")
+                    else:
+                        # May have meant to call a personal command
+                        personal_command_name = "my"+name
+                        await events.command_event[personal_command_name](ctx, prefix,
+                                                                          personal_command_name, args, **details)
                 elif not is_spam_command(ctx, wrapped_command, *args):
-                    # await util.say(ctx.channel,str(args))
-                    kwargs["cmd_key"] = args[0]
-                    kwargs["command_name"] = args[1].lower()
-                    await command_func(ctx, *command_args, **get_command_details(ctx, **kwargs))
+                    # Run command
+                    details["cmd_key"] = prefix
+                    details["command_name"] = name
+                    await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
                     raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
+                # React X
                 await util.get_client(ctx.server.id).add_reaction(ctx, u"\u274C")
             return True
 
-        events.register_command(wrapped_command)
-
         wrapped_command.is_hidden = command_rules.get('hidden', False)
         wrapped_command.permission = command_rules.get('permission', Permission.ANYONE)
+        wrapped_command.aliases = command_rules.get('aliases', ())
+        # Add myX to X aliases
+        if command_func.__name__.startswith("my"):
+            wrapped_command.aliases += command_func.__name__[2:],
+
+        events.register_command(wrapped_command)
 
         return wrapped_command
 
     return wrap
+
+
+def has_my_variant(command_name):
+    """
+    Returns if a command has a personal mycommand variant
+    e.g. !info and !myinfo
+    """
+    return "my"+command_name.lower() in events.command_event
 
 
 def imagecommand():
@@ -100,9 +124,7 @@ def imagecommand():
         async def wrapped_command(ctx, *args, **kwargs):
             await util.get_client(ctx).send_typing(ctx.channel)
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
-
         return wrapped_command
-
     return wrap
 
 
@@ -125,9 +147,7 @@ def ratelimit(**command_info):
             else:
                 player.command_rate_limits[command_name] = time.time()
             await command_func(ctx, *args, **details)
-
         return wrapped_command
-
     return wrap
 
 
