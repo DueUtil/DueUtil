@@ -15,10 +15,13 @@ from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
 from . import gamerules
 
+from threading import Lock
+
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
+spelling_lock = Lock()
 
 
 def get_spam_level(player, message_content):
@@ -91,7 +94,8 @@ async def player_message(message, player, spam_level):
                 await awards.give_award(message.channel, player, "DueUtilTech", "<https://dueutil.tech/>")
 
             ### DueUtil - the hidden spelling game!
-
+            # The non-thread safe Apsell calls
+            spelling_lock.acquire()
             lang = guess_language(message.content)
             if lang in enchant.list_languages():
                 spelling_dict = enchant.Dict(lang)
@@ -111,7 +115,9 @@ async def player_message(message, player, spam_level):
                         big_word_spelling_score += 1
                 else:
                     spelling_score -= 1
-
+            spelling_lock.release()
+            # We survived?!
+            
             spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
             spelling_avg = player.misc_stats["average_spelling_correctness"]
             1 - abs(spelling_score - spelling_avg)
