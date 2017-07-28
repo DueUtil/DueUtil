@@ -8,13 +8,10 @@ from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 
 from dueutil import util
-from .. import awards
-from .. import gamerules
-from .. import stats
-from .. import weapons
-from .. import customizations
+from .. import awards, gamerules, stats, weapons, customizations
 from ..customizations import _Themes
 from ..configs import dueserverconfig
+from . import imagecache
 
 """
 Worst code in the bot.
@@ -101,46 +98,23 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
-def delete_cached_image(url):
-    try:
-        os.remove(get_cached_filename(url))
-        util.logger.info("Removed %s from image cache (no longer needed)" % url)
-    except IOError as exception:
-        util.logger.warning("Failed to delete cached image %s (%s)" % (url, exception))
-
-
-def get_cached_filename(name):
-    filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
-    if len(filename) > 128:
-        filename = filename[:128]
-    return filename + '.jpg'
-
-
 async def load_image_url(url, **kwargs):
     if url is None:
         return None
     parsed_url = urlparse(url)
-    do_not_compress = kwargs.get('raw', False)
+    do_not_compress = kwargs.get("raw", False)
     if (parsed_url.hostname is not None
-        and'dueutil.tech' in parsed_url.hostname
-            and parsed_url.path.startswith('/imagecache/')):
+        and "dueutil.tech" in parsed_url.hostname
+            and parsed_url.path.startswith("/imagecache/")):
         # We don't want to download imagecache images again.
-        filename = 'assets' + parsed_url.path
+        filename = "assets" + parsed_url.path
+        url = ""  # We don't want to cache any dueutil.tech stuff
     else:
-        filename = get_cached_filename(url)
+        filename = imagecache.get_cached_filename(url)
     if not do_not_compress and os.path.isfile(filename):
         return Image.open(filename)
     else:
-        try:
-            image_data = await util.download_file(url)
-            image = Image.open(image_data)
-            # cache image
-            image.convert('RGB').save(filename, optimize=True, quality=20)
-            return image
-        except:
-            if os.path.isfile(filename):
-                os.remove(filename)
-            return None
+        return await imagecache.cache_image(url)
 
 
 def resize(image, width, height):

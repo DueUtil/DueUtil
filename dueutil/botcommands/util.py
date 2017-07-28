@@ -58,11 +58,14 @@ async def help(ctx, *args, **details):
             help_embed.description = "Showing ``" + category + "`` commands."
 
             commands_for_all = events.command_event.command_list(
-                lambda command: command.permission == Permission.ANYONE and command.category == category)
+                filter=lambda command:
+                    command.permission == Permission.ANYONE and command.category == category)
             admin_commands = events.command_event.command_list(
-                lambda command: command.permission == Permission.SERVER_ADMIN and command.category == category)
+                filter=lambda command:
+                    command.permission == Permission.SERVER_ADMIN and command.category == category)
             server_op_commands = events.command_event.command_list(
-                lambda command: command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
+                filter=lambda command:
+                    command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
 
             if len(commands_for_all) > 0:
                 help_embed.add_field(name='Commands for everyone', value=', '.join(commands_for_all), inline=False)
@@ -266,11 +269,14 @@ async def whitelist(ctx, *args, **details):
     The whitelist does not effect server admins.
     
     To reset the whitelist run the command with no arguments.
+
+    Note: Whitelisting a command like !info will also whitelist !myinfo
+    (since !info is mapped to !myinfo)
     """
 
     if len(args) > 0:
-        due_commands = events.command_event.command_list()
-        whitelisted_commands = set([command.lower() for command in args])
+        due_commands = events.command_event.command_list(aliases=True)
+        whitelisted_commands = set(commands.replace_aliases([command.lower() for command in args]))
         if whitelisted_commands.issubset(due_commands):
             dueserverconfig.set_command_whitelist(ctx.channel, list(whitelisted_commands))
             await util.say(ctx.channel, (":notepad_spiral: Whitelist in this channel set to the following commands: ``"
@@ -298,11 +304,14 @@ async def blacklist(ctx, *args, **details):
     To reset the blacklist run the command with no arguments.
     
     The blacklist is not independent from the whitelist.
+
+    Note: Blacklisting a command like !info will also blacklist !myinfo
+    (since !info is mapped to !myinfo)
     """
 
     if len(args) > 0:
-        due_commands = events.command_event.command_list()
-        blacklisted_commands = set([command.lower() for command in args])
+        due_commands = events.command_event.command_list(aliases=True)
+        blacklisted_commands = set(commands.replace_aliases([command.lower() for command in args]))
         if blacklisted_commands.issubset(due_commands):
             whitelisted_commands = list(set(due_commands).difference(blacklisted_commands))
             whitelisted_commands.append("is_blacklist")

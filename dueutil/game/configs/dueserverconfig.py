@@ -1,4 +1,4 @@
-from ... import dbconn
+from ... import dbconn, events, commands
 from ..helpers.misc import DueMap
 
 muted_channels = DueMap()
@@ -29,6 +29,7 @@ def whitelisted_commands(channel):
 
 
 def set_command_whitelist(channel, command_list):
+    # Todo fix blacklist
     global command_whitelist
     key = channel.server.id + '/' + channel.id
     if len(command_list) != 0:
@@ -39,7 +40,6 @@ def set_command_whitelist(channel, command_list):
 
 
 def mute_channel(channel, **options):
-    global muted_channels
     key = channel.server.id + '/' + channel.id
     prior_mute_level = mute_level(channel)
     new_level = options.get('mute_all', False)
@@ -51,7 +51,6 @@ def mute_channel(channel, **options):
 
 
 def unmute_channel(channel):
-    global muted_channels
     key = channel.server.id + '/' + channel.id
     if key in muted_channels:
         del muted_channels[key]
@@ -61,7 +60,6 @@ def unmute_channel(channel):
 
 
 def server_cmd_key(server, *args):
-    global server_keys
     if len(args) == 1:
         server_keys[server.id] = args[0]
         update_server_config(server, **{"server_key": args[0]})

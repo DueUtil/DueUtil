@@ -13,3 +13,4 @@ guess_language-spirit
 repoze.timeago
 # Other
 All aspell langs
+validators

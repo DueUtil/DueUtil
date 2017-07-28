@@ -10,15 +10,13 @@ import jsonpickle
 import numpy
 
 from ..util import SlotPickleMixin
-from .. import dbconn
-from .. import util
+from .. import dbconn, util, tasks
 from ..game import awards
 from ..game import weapons
 from ..game import gamerules
 from ..game.helpers.misc import DueUtilObject, Ring
 from . import customizations
 from .customizations import Theme
-
 
 """ Player related classes & functions """
 
@@ -42,18 +40,13 @@ class Players(dict):
                 players_pruned += 1
         util.logger.info("Pruned %d players for inactivity", players_pruned)
 
-    async def prune_task(self):
-
-        """
-        Simple task to auto prune each hour.
-        """
-
-        while True:
-            self.prune()
-            await asyncio.sleep(3600)
-
 
 players = Players()
+
+
+@tasks.task(timeout=3600)
+def prune_task():
+    players.prune()
 
 
 class Player(DueUtilObject, SlotPickleMixin):
@@ -245,7 +238,7 @@ class Player(DueUtilObject, SlotPickleMixin):
     @property
     def item_value_limit(self):
         # Take into account the progress in the current level.
-        precise_level = self.level + self.exp/gamerules.get_exp_for_next_level(self.level)
+        precise_level = self.level + self.exp / gamerules.get_exp_for_next_level(self.level)
         return int(30 * (math.pow(precise_level, 2) / 3
                          + 0.5 * math.pow(precise_level + 1, 2)
                          * precise_level))

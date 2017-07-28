@@ -117,7 +117,7 @@ async def player_message(message, player, spam_level):
                     spelling_score -= 1
             spelling_lock.release()
             # We survived?!
-            
+
             spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
             spelling_avg = player.misc_stats["average_spelling_correctness"]
             1 - abs(spelling_score - spelling_avg)

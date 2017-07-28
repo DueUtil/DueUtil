@@ -15,7 +15,7 @@ from dueutil.permissions import Permission
 import generalconfig as gconf
 from dueutil import loader
 from dueutil.game import players
-from dueutil.game.helpers import imagehelper
+from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
@@ -179,7 +179,7 @@ class DueUtilClient(discord.Client):
             old_image = player.get_avatar_url(member=before)
             new_image = player.get_avatar_url(member=after)
             if old_image != new_image:
-                imagehelper.delete_cached_image(old_image)
+                imagecache.uncache(old_image)
 
     @asyncio.coroutine
     def on_server_remove(self, server):
@@ -293,7 +293,9 @@ def run_due():
         loader.load_modules()
         ### Prune players - task
         loop = asyncio.get_event_loop()
-        asyncio.ensure_future(players.players.prune_task(), loop=loop)
+        from dueutil import tasks
+        for task in tasks.tasks:
+            asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
 
 

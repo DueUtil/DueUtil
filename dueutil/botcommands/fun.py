@@ -155,7 +155,7 @@ async def give_emoji(channel, sender, receiver, emoji):
     await util.say(channel, "**" + receiver.name_clean + "** " + emoji + " :heart: **" + sender.name_clean + "**")
 
 
-@commands.command(args_pattern='PS')
+@commands.command(args_pattern='PS', aliases=("emoji",))
 async def giveemoji(ctx, receiver, emoji, **details):
     """
     [CMD_KEY]giveemoji player emoji
@@ -181,7 +181,7 @@ async def giveemoji(ctx, receiver, emoji, **details):
         await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
 
-@commands.command(args_pattern='P')
+@commands.command(args_pattern='P', aliases=("potato",))
 async def givepotato(ctx, receiver, **details):
     """
     [CMD_KEY]givepotato player

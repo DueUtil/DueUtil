@@ -2,12 +2,14 @@ import collections
 import urllib
 from abc import ABC
 
+import validators
 import aiohttp
 import discord
 from bs4 import BeautifulSoup
 
 import generalconfig as gconf
 from dueutil import dbconn, util
+from . import imagecache
 
 POSITIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
@@ -79,6 +81,26 @@ class DueUtilObject:
     def save(self):
         if not self.no_save:
             dbconn.insert_object(self.id, self)
+
+    def __setattr__(self, name, value):
+        if name == "image_url":
+            if not validators.url(value):
+                # All classes with a image_url attr MUST have a default image too.
+                value = self.DEFAULT_IMAGE
+            imagecache.image_used(value)
+            # Remove the old
+            if hasattr(self, "image_url"):
+                imagecache.uncache(self.image_url)
+        super().__setattr__(name, value)
+
+    def __del__(self):
+        try:
+            if hasattr(self, "image_url"):
+                if dbconn.get_collection_for_object(self.__class__).find_one({"_id": self.id}) is None:
+                    imagecache.uncache(self.image_url)
+                    util.logger.info("%s, (%s) has been deleted" % (self.__class__, self.id))
+        except (TypeError, AttributeError):
+            pass  # del is being called as the script as been stopped.
 
 
 #### MacDue's wacky data clases (monkey patches)

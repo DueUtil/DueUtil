@@ -6,6 +6,7 @@ from discord import Message
 from . import commands
 from .game.configs import dueserverconfig
 from .game.helpers.misc import DueMap
+from itertools import chain
 
 
 class MessageEvent(list):
@@ -34,9 +35,11 @@ class CommandEvent(dict):
         super().__init__()
         self.command_categories = DueMap()
 
-    def command_list(self, *args):
-        filter_func = (lambda command: command) if len(args) == 0 else args[0]
-        return [command.__name__ for command in filter(filter_func, self.values()) if not command.is_hidden]
+    def command_list(self, **options):
+        filter_func = options.get("filter", (lambda command: command))
+        include_aliases = options.get("aliases", False)
+        return list(chain.from_iterable((command.__name__,) + (command.aliases if include_aliases else ())
+                                        for command in filter(filter_func, self.values()) if not command.is_hidden))
 
     def category_list(self):
         return [category for category in self.command_categories.keys()]

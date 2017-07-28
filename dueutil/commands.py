@@ -2,7 +2,6 @@ import asyncio
 import re
 import time
 from functools import wraps
-from datetime import datetime
 
 from . import permissions
 from .game import players
@@ -52,8 +51,8 @@ def command(**command_rules):
     def wrap(command_func):
 
         @wraps(command_func)
-        async def wrapped_command(ctx, prefix, name, args, **details):
-            name = name.lower()
+        async def wrapped_command(ctx, prefix, _, args, **details):
+            name = command_func.__name__
             # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
             if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:
@@ -81,8 +80,7 @@ def command(**command_rules):
                     else:
                         # May have meant to call a personal command
                         personal_command_name = "my"+name
-                        await events.command_event[personal_command_name](ctx, prefix,
-                                                                          personal_command_name, args, **details)
+                        await events.command_event[personal_command_name](ctx, prefix, _, args, **details)
                 elif not is_spam_command(ctx, wrapped_command, *args):
                     # Run command
                     details["cmd_key"] = prefix
@@ -115,6 +113,19 @@ def has_my_variant(command_name):
     e.g. !info and !myinfo
     """
     return "my"+command_name.lower() in events.command_event
+
+
+def replace_aliases(command_list):
+    full_command_list = events.command_event.command_list()
+    for index, command_name in enumerate(command_list):
+        if command_name not in full_command_list:
+            # Fix aliases in whitelist
+            command_func = events.get_command(command_name)
+            if command_func is not None:
+                command_list[index] = command_func.__name__
+        elif has_my_variant(command_name):
+            command_list.append("my" + command_name)  # To avoid confuzzing
+    return command_list
 
 
 def imagecommand():
