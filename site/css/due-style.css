@@ -29,6 +29,12 @@ display: inline-block;
     vertical-align: top;
 }
 
+.aliases {
+  display: inline-block; 
+  margin-top: 12px;
+  margin-bottom: 0px; 
+}
+
 #settings{
 text-align: left;
 }

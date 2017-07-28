@@ -165,9 +165,9 @@ class DueUtilClient(discord.Client):
             or message.author.bot
                 or not loaded()):
             return
-
-        if message.content.startswith(self.user.mention):
-            message.content = re.sub(self.user.mention + "\s*",
+        mentions_self_regex = "<@."+self.user.id+">"
+        if re.match("^"+mentions_self_regex, message.content):
+            message.content = re.sub(mentions_self_regex + "\s*",
                                      dueserverconfig.server_cmd_key(message.server),
                                      message.content)
         yield from events.on_message_event(message)

@@ -34,7 +34,7 @@ foreach ($all_commands_data as $category_name => $command_category){
     foreach ($command_category as $command_info){
         if ($command_info["hidden"] or !in_array($command_info["permission"],$viewable_command_perms))
             continue;
-        $help = due_markdown_to_html($command_info["help"]);
+        $help = due_markdown_to_html(rtrim($command_info["help"]));
         if ($command_info["permission"] == "ANYONE"){
             $perm_icon = "people";
             $perm_colour = "#95d3bd";
@@ -48,6 +48,18 @@ foreach ($all_commands_data as $category_name => $command_category){
             $perm_colour= "#ff6961";
             $perm_message = "This command is only for server admins";
         }
+        $aliases_list = $command_info["aliases"];
+        $aliases_count = sizeof($aliases_list);
+        if ($aliases_count >= 1) {
+            if ($aliases_count == 1) {
+                $aliases_word = "Alias";
+            } else if ($aliases_count > 1) {
+                $aliases_word = "Aliases";
+            }
+            $aliases = implode(", ", $aliases_list);
+            $help = $help."<h6 class=\"aliases\">$aliases_word:</h6> $aliases";
+        }
+        
         $command_boxes[] = new CommandBox($command_info["name"],$help,$perm_icon,$perm_colour,$perm_message);
     }
     $command_list = new CommandList('<i class="material-icons">keyboard_arrow_right</i>'.$category_name,$command_boxes);

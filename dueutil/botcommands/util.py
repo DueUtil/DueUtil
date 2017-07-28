@@ -30,6 +30,7 @@ async def help(ctx, *args, **details):
             chosen_command = events.get_command(arg)
             # Dumb award
             if chosen_command is None:
+                alias_count = 0
                 if arg != "dumbledore":
                     command_name = 'Not found'
                     command_help = 'That command was not found!'
@@ -42,6 +43,7 @@ async def help(ctx, *args, **details):
                                             "I have no memory of this award...")
             else:
                 command_name = chosen_command.__name__
+                alias_count = len(chosen_command.aliases)
                 if chosen_command.__doc__ is not None:
                     command_help = chosen_command.__doc__.replace('[CMD_KEY]', server_key)
                 else:
@@ -49,7 +51,6 @@ async def help(ctx, *args, **details):
 
             help_embed.description = "Showing help for **" + command_name + "**"
             help_embed.add_field(name=command_name, value=command_help)
-            alias_count = len(chosen_command.aliases)
             if alias_count > 0:
                 help_embed.add_field(name=("Alias" if alias_count == 1 else "Aliases"),
                                      value=', '.join(chosen_command.aliases), inline=False)
