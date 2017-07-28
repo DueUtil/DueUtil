@@ -1,6 +1,8 @@
 """
 Global vars
 """
+import sys
+import json
 
 EMBED_COLOUR = 16038978
 
@@ -29,3 +31,12 @@ BOT_INVITE = "https://dueutil.tech/invite"
 VERSION = "Release 2.0.5"
 
 
+def load_config_json():
+    try:
+        with open('dueutil.json') as config_file:
+            return json.load(config_file)
+    except Exception as exception:
+        sys.exit("Config error! %s" % exception)
+
+
+other_configs = load_config_json()

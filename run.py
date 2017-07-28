@@ -13,7 +13,7 @@ import discord
 from dueutil.permissions import Permission
 
 import generalconfig as gconf
-from dueutil import loader
+from dueutil import loader, servercounts
 from dueutil.game import players
 from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
@@ -21,7 +21,6 @@ from dueutil import permissions
 from dueutil import util, events, dbconn
 
 MAX_RECOVERY_ATTEMPTS = 100
-CARBON_BOTDATA = "https://www.carbonitex.net/discord/data/botdata.php"
 
 stopped = False
 start_time = 0
@@ -77,14 +76,6 @@ class DueUtilClient(discord.Client):
         """
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
-    async def carbon_stats_update(self):
-
-        headers = {'content-type': 'application/json'}
-        server_count = util.get_server_count()
-        carbon_payload = {"key": config["carbonKey"], "servercount": server_count}
-        async with self.session.post(CARBON_BOTDATA, data=json.dumps(carbon_payload), headers=headers) as response:
-            util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
-
     @asyncio.coroutine
     def on_server_join(self, server):
         server_count = util.get_server_count()
@@ -112,8 +103,8 @@ class DueUtilClient(discord.Client):
                                      + "guide at <https://dueutil.tech/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
-        # Update carbon stats
-        yield from self.carbon_stats_update()
+        # Update stats
+        yield from servercounts.update_server_count(self)
 
     @staticmethod
     def server_stats(server):
@@ -189,8 +180,8 @@ class DueUtilClient(discord.Client):
                 dbconn.db[collection].delete_many({'_id': server.id})
         yield from util.duelogger.info("DueUtil been removed from the server **%s**"
                                        % util.ultra_escape_string(server.name))
-        # Update carbon stats
-        yield from self.carbon_stats_update()
+        # Update stats
+        yield from servercounts.update_server_count(self)
 
     @asyncio.coroutine
     def change_avatar(self, channel, avatar_name):
@@ -270,14 +261,6 @@ class ShardThread(Thread):
             os._exit(1)
 
 
-def load_config():
-    try:
-        with open('dueutil.json') as config_file:
-            return json.load(config_file)
-    except Exception as exception:
-        sys.exit("Config error! %s" % exception)
-
-
 def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
@@ -304,7 +287,7 @@ def loaded():
 
 
 if __name__ == "__main__":
-    config = load_config()
+    config = gconf.other_configs
     bot_key = config["botToken"]
     shard_count = config["shardCount"]
     shard_names = config["shardNames"]
