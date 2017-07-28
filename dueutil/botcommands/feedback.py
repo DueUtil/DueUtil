@@ -44,7 +44,7 @@ suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="sugges
 
 @commands.command(args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
-async def bugreport(ctx, report, **details):
+async def bugreport(ctx, report, **_):
     """
     [CMD_KEY]bugreport (report)
     
@@ -57,7 +57,7 @@ async def bugreport(ctx, report, **details):
 
 @commands.command(args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":hushed: Please no more suggestions (for a few minutes)!")
-async def suggest(ctx, suggestion, **details):
+async def suggest(ctx, suggestion, **_):
     """
     [CMD_KEY]suggest (suggestion)
     

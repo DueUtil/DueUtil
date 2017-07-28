@@ -93,7 +93,7 @@ async def help(ctx, *args, **details):
 
 
 @commands.command(args_pattern=None)
-async def botinfo(ctx,**details):
+async def botinfo(ctx,**_):
 
     """
     [CMD_KEY]botinfo
@@ -115,7 +115,19 @@ async def botinfo(ctx,**details):
 
 
 @commands.command(args_pattern=None)
-async def dustats(ctx, **details):
+async def prefix(ctx, **details):
+    """
+    ``@DueUtil``prefix
+
+    Tells you what the prefix is on a server.
+    """
+
+    server_prefix = dueserverconfig.server_cmd_key(ctx.server)
+    await util.say(ctx.channel, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
+
+
+@commands.command(args_pattern=None)
+async def dustats(ctx, **_):
     """
     [CMD_KEY]dustats
     
@@ -150,7 +162,7 @@ async def dustats(ctx, **details):
 
 
 @commands.command(args_pattern=None)
-async def duservers(ctx, **details):
+async def duservers(ctx, **_):
     """
     [CMD_KEY]duservers
     
@@ -248,7 +260,7 @@ async def leave(ctx, cnf="", **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
-async def unshutupdue(ctx, **details):
+async def unshutupdue(ctx, **_):
     if dueserverconfig.unmute_channel(ctx.channel):
         await util.say(ctx.channel,
                        ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
@@ -257,7 +269,7 @@ async def unshutupdue(ctx, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
-async def whitelist(ctx, *args, **details):
+async def whitelist(ctx, *args, **_):
     """
     [CMD_KEY]whitelist
     
@@ -291,7 +303,7 @@ async def whitelist(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
-async def blacklist(ctx, *args, **details):
+async def blacklist(ctx, *args, **_):
     """
     [CMD_KEY]blacklist
     
@@ -328,7 +340,7 @@ async def blacklist(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
-async def setuproles(ctx, **details):
+async def setuproles(ctx, **_):
     """
     [CMD_KEY]setuproles
     

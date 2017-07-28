@@ -17,7 +17,7 @@ from ..game import customizations, awards, leaderboards, game
 
 
 @commands.command(args_pattern=None)
-async def permissions(ctx, **details):
+async def permissions(ctx, **_):
     """
     [CMD_KEY]permissions
     
@@ -35,7 +35,7 @@ async def permissions(ctx, **details):
 
 
 @commands.command(args_pattern="SSS", hidden=True)
-async def test(ctx, *args, **details):
+async def test(ctx, *args, **_):
     """A test command"""
 
     # print(args[0].__dict__)
@@ -46,7 +46,7 @@ async def test(ctx, *args, **details):
 
 
 @commands.command(args_pattern="RR", hidden=True)
-async def add(ctx, first_number, second_number, **details):
+async def add(ctx, first_number, second_number, **_):
     """
     [CMD_KEY]add (number) (number)
     
@@ -60,7 +60,7 @@ async def add(ctx, first_number, second_number, **details):
 
 
 @commands.command()
-async def wish(ctx, *args, **details):
+async def wish(*_, **details):
     """
     [CMD_KEY]wish
     
@@ -143,7 +143,7 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S")
-async def testbg(ctx, url, **details):
+async def testbg(ctx, url, **_):
     """
     [CMD_KEY]testbg (image url)
 
@@ -226,7 +226,7 @@ async def dueeval(ctx, statement, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
-async def sudo(ctx, victim, command, **details):
+async def sudo(ctx, victim, command, **_):
     """
     [CMD_KEY]sudo victim command
     
@@ -249,7 +249,7 @@ async def say(ctx, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
-async def setpermlevel(ctx, player, level, **details):
+async def setpermlevel(ctx, player, level, **_):
     member = discord.Member(user={"id": player.id})
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
@@ -273,7 +273,7 @@ async def setpermlevel(ctx, player, level, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def ban(ctx, player, **details):
+async def ban(ctx, player, **_):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.BANNED)
     await util.say(ctx.channel, ":hammer: **" + player.name_clean + "** banned!")
@@ -281,7 +281,7 @@ async def ban(ctx, player, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def unban(ctx, player, **details):
+async def unban(ctx, player, **_):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.ANYONE)
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
@@ -289,7 +289,7 @@ async def unban(ctx, player, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
-async def toggledonor(ctx, player, **details):
+async def toggledonor(ctx, player, **_):
     player.donor = not player.donor
     if player.donor:
         await util.say(ctx.channel, "**" + player.name_clean + "** is now a donor!")
@@ -298,14 +298,14 @@ async def toggledonor(ctx, player, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def duereload(ctx, **details):
+async def duereload(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Reloading DueUtil modules!")
     await util.duelogger.concern("DueUtil Reloading!")
     raise util.DueReloadException(ctx.channel)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
-async def givecash(ctx, player, amount, **details):
+async def givecash(ctx, player, amount, **_):
     player.money += amount
     amount_str = util.format_number(abs(amount), money=True, full_precision=True)
     if amount >= 0:
@@ -318,14 +318,14 @@ async def givecash(ctx, player, amount, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
-async def setcash(ctx, player, amount, **details):
+async def setcash(ctx, player, amount, **_):
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
-async def giveaward(ctx, player, award_id, **details):
+async def giveaward(ctx, player, award_id, **_):
     if awards.get_award(award_id) is not None:
         await awards.give_award(ctx.channel, player, award_id)
     else:
@@ -333,7 +333,7 @@ async def giveaward(ctx, player, award_id, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PR")
-async def giveexp(ctx, player, exp, **details):
+async def giveexp(ctx, player, exp, **_):
     # (attack + strg + accy) * 100
     if exp < 0.1:
         raise util.DueUtilException(ctx.channel, "The minimum exp that can be given is 0.!")
@@ -345,15 +345,15 @@ async def giveexp(ctx, player, exp, **details):
     await game.check_for_level_up(ctx, player)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def updateleaderboard(ctx, **details):
+@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern=None)
+async def updateleaderboard(ctx, **_):
     leaderboards.last_leaderboard_update = 0
     await leaderboards.update_leaderboards(ctx)
     await util.say(ctx.channel, ":ferris_wheel: Updating leaderboard!")
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def updatebot(ctx, **details):
+async def updatebot(ctx, **_):
     """
     [CMD_KEY]updatebot
     
@@ -379,14 +379,14 @@ async def updatebot(ctx, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def stopbot(ctx, **details):
+async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping DueUtil!")
     await util.duelogger.concern("DueUtil shutting down!")
     os._exit(0)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def restartbot(ctx, **details):
+async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting DueUtil!")
     await util.duelogger.concern("DueUtil restarting!!")
     os._exit(1)

@@ -202,7 +202,7 @@ async def givepotato(ctx, receiver, **details):
 
 
 @commands.command(args_pattern=None)
-async def topdog(ctx, **details):
+async def topdog(ctx, **_):
     """
     [CMD_KEY]topdog
 
@@ -219,7 +219,7 @@ async def topdog(ctx, **details):
 
 
 @commands.command(args_pattern=None)
-async def pandemic(ctx, **details):
+async def pandemic(ctx, **_):
     """
     [CMD_KEY]pandemic
 

@@ -198,7 +198,7 @@ async def declinequest(ctx, quest_index, **details):
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?R?')
 async def createquest(ctx, name, attack, strg, accy, hp,
-                      task=None, weapon=None, image_url=None, spawn_chane=25, **details):
+                      task=None, weapon=None, image_url=None, spawn_chane=25, **_):
     """
     [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
     
@@ -241,7 +241,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
-async def editquest(ctx, quest_name, *updates, **details):
+async def editquest(ctx, quest_name, *updates, **_):
     """
     [CMD_KEY]editquest name (property value)+
     
@@ -330,7 +330,7 @@ async def editquest(ctx, quest_name, *updates, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
-async def removequest(ctx, quest_name, **details):
+async def removequest(ctx, quest_name, **_):
     """
     [CMD_KEY]removequest (quest name)
     

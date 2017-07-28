@@ -134,7 +134,7 @@ async def myprofile(ctx, **details):
 
 
 @commands.command(args_pattern='P')
-async def profile(ctx, player, **details):
+async def profile(ctx, player, **_):
     """
     [CMD_KEY]profile @player
 
@@ -151,7 +151,7 @@ async def profile(ctx, player, **details):
 
 @commands.command(args_pattern='P')
 @commands.imagecommand()
-async def info(ctx, player, **details):
+async def info(ctx, player, **_):
     """
     [CMD_KEY]info @player
     
@@ -183,7 +183,7 @@ async def myawards(ctx, page=1, **details):
 
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
-async def awards(ctx, player, page=1, **details):
+async def awards(ctx, player, page=1, **_):
     """
     [CMD_KEY]awards @player (page number)
     

@@ -48,7 +48,7 @@ async def myweapons(ctx, *args, **details):
 
 
 @commands.command(args_pattern="S?")
-async def unequip(ctx, useless_arg=None, **details):
+async def unequip(ctx, _=None, **details):
     """
     [CMD_KEY]unequip
     
@@ -182,7 +182,7 @@ async def mywagers(ctx, page=1, **details):
 
     player = details["author"]
     page_size = 12
-    page -=1
+    page -= 1
     title = player.get_name_possession_clean() + " Received Wagers" + (" : Page " + str(page + 1) if page > 0 else "")
     wagers_embed = discord.Embed(title=title, type="rich", color=gconf.EMBED_COLOUR)
     wager_list = player.received_wagers
@@ -322,7 +322,7 @@ async def declinewager(ctx, wager_index, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSCCB?S?S?')
-async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image=None, **details):
+async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
     
@@ -355,7 +355,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
-async def removeweapon(ctx, weapon_name, **details):
+async def removeweapon(ctx, weapon_name, **_):
     """
     [CMD_KEY]removeweapon (weapon name)
     

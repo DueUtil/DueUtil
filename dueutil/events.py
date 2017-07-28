@@ -80,7 +80,8 @@ class CommandEvent(dict):
                 command_data[category][command_name] = {"name": command_func.__name__,
                                                         "help": command_func.__doc__,
                                                         "hidden": command_func.is_hidden,
-                                                        "permission": command_func.permission.name}
+                                                        "permission": command_func.permission.name,
+                                                        "aliases": command_func.aliases}
         return command_data
 
 

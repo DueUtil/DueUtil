@@ -3,7 +3,6 @@ import re
 import json
 from PIL import Image
 from ... import dbconn, util, tasks
-import traceback
 
 
 class _CacheStats:
@@ -43,7 +42,6 @@ async def cache_image(url):
 
 
 def uncache(url):
-    traceback.print_stack()
     if url in repeated_usages:
         # Don't delete the image while it's still used elsewhere
         repeated_usages[url] -= 1
@@ -66,7 +64,7 @@ def get_cached_filename(name):
     return filename + '.jpg'
 
 
-@tasks.task(timeout=10)
+@tasks.task(timeout=3600)
 def save_cache_info():
     dbconn.insert_object("stats", stats)
 
@@ -79,6 +77,6 @@ def _load():
     else:
         stats_data = json.loads(stats_json["data"])
         repeated_usages.update(stats_data["repeated_usages"])
-        print(repeated_usages)
+
 
 _load()
