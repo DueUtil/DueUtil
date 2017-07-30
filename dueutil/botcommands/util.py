@@ -3,7 +3,7 @@ import discord
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards, game
+from ..game import stats, awards, discoin
 from ..game.stats import Stat
 from .. import commands, events, util
 
@@ -356,3 +356,12 @@ async def setuproles(ctx, **_):
         await util.say(ctx.channel, ":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel, "No roles need to be created!")
+
+
+"""
+@commands.command(args_pattern="CS")
+async def exchange(ctx, amount, currency, **details):
+
+    player = details["author"]
+    await discoin.start_transaction(player, amount, currency)
+"""

@@ -46,7 +46,10 @@ players = Players()
 
 @tasks.task(timeout=3600)
 def prune_task():
-    players.prune()
+    try:
+        players.prune()
+    except RuntimeError as exception:
+        util.logger.warning("Failed to prune players: %s" % exception)
 
 
 class Player(DueUtilObject, SlotPickleMixin):
