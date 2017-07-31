@@ -5,11 +5,15 @@ import sys
 from . import events, util, dbconn
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
-BOT_PACKAGES = ('dueutil.botcommands', 'dueutil.game')
+GAME = 'dueutil.game'
+COMMANDS = 'dueutil.botcommands'
+BOT_PACKAGES = (COMMANDS, GAME)
 loaded_modules = []
 
 
 def loader(action, packages=BOT_PACKAGES):
+    if isinstance(packages, str):
+        packages = (packages,)
     """
     Inefficient - but allows me to load all the modules (needed to register commands & load game stuff)
     and produce a pretty list
@@ -29,8 +33,9 @@ def loader(action, packages=BOT_PACKAGES):
                 # loader(action,packages=subpackages)
     # if packages == BOT_PACKAGES:
     dbconn.drop_and_insert("commands", events.command_event.to_dict())
-    util.logger.info('Bot extensions loaded with %d commands\n%s', len(events.command_event),
-                     ', '.join(events.command_event.command_list()))
+    if COMMANDS in packages:
+        util.logger.info('Bot extensions loaded with %d commands\n%s', len(events.command_event),
+                         ', '.join(events.command_event.command_list()))
 
 
 def load_module(module_name):
@@ -61,17 +66,17 @@ def module_refresh(module_name):
         loaded_modules.append(module_name)
 
 
-def load_modules():
-    loader(load_module)
+def load_modules(packages=BOT_PACKAGES):
+    loader(load_module, packages=packages)
 
 
-def reload_modules():
+def reload_modules(packages=BOT_PACKAGES):
     # loaded_modules = []
-    loader(reload_module)
+    loader(reload_module, packages=packages)
 
 
-def refresh_modules():
-    loader(module_refresh)
+def refresh_modules(packages=BOT_PACKAGES):
+    loader(module_refresh, packages=packages)
 
 
 def get_loaded_modules():

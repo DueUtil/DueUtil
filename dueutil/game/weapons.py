@@ -177,6 +177,7 @@ def _load():
     for weapon in dbconn.get_collection_for_object(Weapon).find():
         loaded_weapon = jsonpickle.decode(weapon['data'])
         weapons[loaded_weapon.id] = util.load_and_update(NO_WEAPON, loaded_weapon)
+    util.logger.info("Loaded %s weapons", len(weapons))
 
 
 _load()

@@ -6,22 +6,22 @@ TRANSACTIONS = "/transaction"
 MAKE_TRANSACTION = TRANSACTIONS+"/%s/%s/%s"
 
 # TODO: Wait till Discoin returns JSON
+headers = {"Authorization": gconf.other_configs["discoinKey"],
+           "json": "true"}
 
 async def start_transaction(sender, amount, to):
 
-    headers = {"Authorization": gconf.other_configs["discoinKey"],
-               "json": "true"}
     transaction = DISCOIN+MAKE_TRANSACTION % (sender.id, amount, to)
 
     async with aiohttp.ClientSession() as session:
         async with session.get(transaction, headers=headers) as response:
             result = await response.text()
-            # print(result, response.status, type(response.status))
+            print(result, response.status, type(response.status))
 
 
 async def process_transactions():
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(DISCOIN+TRANSACTIONS) as response:
+        async with session.get(DISCOIN+TRANSACTIONS, headers=headers) as response:
             result = await response.text()
-            #print(result)
+            print(result)

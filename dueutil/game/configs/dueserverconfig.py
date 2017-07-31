@@ -1,4 +1,4 @@
-from ... import dbconn, events, commands
+from ... import dbconn, util
 from ..helpers.misc import DueMap
 
 muted_channels = DueMap()
@@ -80,6 +80,8 @@ def _load():
             muted_channels[server_id] = config["muted_channels"]
         if "command_whitelist" in config:
             command_whitelist[server_id] = config["command_whitelist"]
+    util.logger.info("%d server keys, %d muted channels, and %d whitelists loaded",
+                     len(server_keys), len(muted_channels), len(command_whitelist))
 
 
 _load()

@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-import json
 import os
 import queue
 import re
@@ -8,6 +7,7 @@ import sys
 import traceback
 from threading import Thread
 import aiohttp
+import time
 
 import discord
 from dueutil.permissions import Permission
@@ -262,8 +262,10 @@ class ShardThread(Thread):
 
 
 def run_due():
+    start_time = time.time()
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
+    loader.load_modules(packages=loader.GAME)
     if not stopped:
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
@@ -273,8 +275,9 @@ def run_due():
                 pass
         while not loaded():
             pass
-        loader.load_modules()
-        ### Prune players - task
+        loader.load_modules(packages=loader.COMMANDS)
+        util.logger.info("Ready after %ds", time.time() - start_time)
+        ### Tasks
         loop = asyncio.get_event_loop()
         from dueutil import tasks
         for task in tasks.tasks:
@@ -287,6 +290,7 @@ def loaded():
 
 
 if __name__ == "__main__":
+    util.logger.info("Starting DueUtil!")
     config = gconf.other_configs
     bot_key = config["botToken"]
     shard_count = config["shardCount"]
@@ -295,5 +299,4 @@ if __name__ == "__main__":
     if not permissions.has_permission(owner, Permission.DUEUTIL_ADMIN):
         permissions.give_permission(owner, Permission.DUEUTIL_ADMIN)
     util.load(shard_clients)
-    util.logger.info("Starting DueUtil!")
     run_due()

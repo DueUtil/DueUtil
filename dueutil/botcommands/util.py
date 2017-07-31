@@ -357,11 +357,11 @@ async def setuproles(ctx, **_):
     else:
         await util.say(ctx.channel, "No roles need to be created!")
 
-
 """
 @commands.command(args_pattern="CS")
 async def exchange(ctx, amount, currency, **details):
 
     player = details["author"]
     await discoin.start_transaction(player, amount, currency)
+
 """

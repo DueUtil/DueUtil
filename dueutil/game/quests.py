@@ -330,6 +330,7 @@ def _load():
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
+    util.logger.info("Loaded %s quests", len(quest_map))
 
 
 _load()
