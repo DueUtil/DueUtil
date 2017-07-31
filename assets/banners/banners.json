@@ -69,5 +69,12 @@
       "description":"Get teal! More green!",
       "image":"dueutiltech.png",
       "price":150	
+   },
+   "fine crystal":{
+      "name":"Fine Crystal",
+      "icon":":wine_glass:",
+      "description":"No... It's just glass.",
+      "image":"glass_banner.png",
+      "price":7201
    }
 }

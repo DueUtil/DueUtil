@@ -176,7 +176,7 @@ async def duservers(ctx, **_):
                                 + ("s" if server_count != 1 else "") + "**")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
 async def setcmdkey(ctx, new_key, **details):
     """
     [CMD_KEY]setcmdkey
