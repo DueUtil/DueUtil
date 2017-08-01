@@ -14,5 +14,5 @@
    </td>
   <td class="log-cell">
       Total EXP [@totalexp]
-   </td>
+   </td></a>
 </tr>

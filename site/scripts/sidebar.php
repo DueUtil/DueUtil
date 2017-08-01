@@ -42,7 +42,8 @@ $sidebar_content[] = new Navigation('General',
                                       'DueUtil' => '../home',
                                       'How To Guide'=>'../howto',
                                       'Commands'=>'../commands',
-                                      'Leaderboard'=>'../leaderboard'
+                                      'Leaderboard'=>'../leaderboard',
+                                      'Partners'=>'../partners'
                                     ));                                  
 $sidebar_content[] = new Navigation('Tools',
                                     array(

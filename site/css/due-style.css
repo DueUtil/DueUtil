@@ -16,6 +16,13 @@ code{
   margin-bottom: 12px;
 }
 
+.edit-box{
+  width: 750px !important;
+  flex-grow: 0.18 !important;
+  flex-shrink: 0.18 !important;
+
+}
+
 #exp-message{
   margin-bottom: 4px;
 }
@@ -270,6 +277,30 @@ background-position: 8px 8px;
     border-radius: 1px;
 }
 
+.partner-type{
+    padding: 2px;
+    white-space:nowrap;
+    display: inline;
+    border-radius: 1px;
+    vertical-align:top; 
+    text-transform: capitalize;
+}
+
+.bot{
+  background: #7289DA;
+  color: #FFFFFF;
+}
+
+.server {
+  background: #43B581;
+  color:  #FFFFFF;
+}
+
+.other{
+  background: #EDA234;
+    color:  #FFFFFF;
+}
+
 .damage{
     background: rgba(255, 105, 97, 0.55);
     /* color: #575c75; */
@@ -344,7 +375,7 @@ background-position: 8px 8px;
     min-width: 260px;
 }
 
-.maccy-tip {
+.maccy-tip, .partner-message {
   background-color: #575B76;
   border: 1px #858aaa;
   padding: 10px;
@@ -639,6 +670,24 @@ right: 16px;
 .home-info{
   padding: 24px;
   width: 260px;
+}
+
+.partner-info{
+
+  padding: 24px;
+  width: 260px;
+  flex-grow: 0.18 !important;
+  min-width: 485px;
+  max-width: 701px;
+      padding-bottom: 1px;
+}
+
+.partner-img {
+  width: 150px;
+  height: 150px;
+    border-style: solid;
+    border-color: #797d98;
+    border-width: 2px;
 }
 
 .home-info-inner{

@@ -354,7 +354,7 @@ class StandardLayout extends Layout
    function __construct($sidebar,$content = "",$title, $page_desc, $title_override=null, $header_buttons = ""){
        parent::__construct(is_null($title_override) ? strip_tags($title) : $title_override,
                            $sidebar, $title, $content, $header_buttons);
-       $this->set_base_url("https://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
+       $this->set_base_url("http://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
        $this->set_script("../js/general.js");
        $auth = get_auth();
        if ($auth['login']) {
@@ -498,6 +498,21 @@ class WagerRow extends Template
 
     }
   
+}
+
+
+class PartnerCard extends Template {
+    
+    function __construct($name, $type, $image, $message, $page, $link_name, $link) {
+        parent::__construct('../templates/partner.tpl');
+        $this->set_value('name', htmlspecialchars($name));
+        $this->set_value('type', $type);
+        $this->set_value('image', htmlspecialchars($image));
+        $this->set_value('message', htmlspecialchars($message));
+        $this->set_value('page', $page);
+        $this->set_value('linkname', htmlspecialchars($link_name));
+        $this->set_value('customlink', htmlspecialchars($link));
+    }
 }
 
 ?>
