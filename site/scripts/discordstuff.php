@@ -86,6 +86,11 @@ function send_webhook($webhook_url, $params) {
         foreach($params["embeds"] as $embed)
             $webhook["embeds"][] = $embed->toArray();
     }
+    
+    unset($params["embeds"]);
+    
+    $webhook = array_merge($webhook, $params);
+    
         
     $options = array(
         'http' => array(
@@ -93,16 +98,12 @@ function send_webhook($webhook_url, $params) {
                         "Accept: application/json\r\n",
             'method'  => 'POST',
             'content' => json_encode($webhook)
-
         )
     );
-    var_dump($options);
     
     $context  = stream_context_create($options);
-    $result = file_get_contents($webhook_url, false, $context);
-    if ($result === FALSE) { /* TODO: Handle error */ }
-
-    var_dump($result);
+    $result = file_get_contents($webhook_url, False, $context);
+    if ($result === False) { /* TODO: Handle error */ }
 
 }
 ?>

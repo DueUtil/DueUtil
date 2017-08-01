@@ -91,6 +91,50 @@ function toggleProfileLink(active) {
     }
 }
 
+function displayFormErrorsFromJSON(formErrors,popUpErrors = false)
+{
+    var form = null;
+    $.each(formErrors, function(field, errorMessage) {
+        if (form == null)
+            form = $(field).closest("form");
+        // Do not replace 'Required.' error
+        var fieldElement = $("#" + field);
+        if (!fieldElement.parent().hasClass('is-invalid')) {
+            $("#" + field + "-error").text(errorMessage);
+            fieldElement.parent().addClass('is-invalid');
+            if(popUpErrors)
+                fieldElement.parent().removeClass('border-light');
+        }
+    });
+    // Remove errors that have since been fixed.
+    form.each(function() {
+        if (formErrors.hasOwnProperty($(this).attr('id')))
+            $(this).removeClass('is-invalid');
+            if(popUpErrors)
+                $(this).addClass('border-light');
+    });
+}
+
+function checkRequiredFields(form,popUpErrors = false){
+    var foundMissing = false;
+    form.each(function() {
+        if ($.trim($(this).val()) == '') {
+            $(this).parent().addClass('is-invalid');
+            //console.log(this);
+            if(popUpErrors)
+                $(this).parent().removeClass('border-light');
+            $(this).parent().find("[id$='error']").text('Required.');
+            foundMissing = true;
+        } else {
+            $(this).parent().removeClass('is-invalid');
+            if(popUpErrors)
+                $(this).parent().addClass('border-light');
+        }
+    }); 
+    return foundMissing;
+}
+
+
 $(document).ready(function() {
     $("#overlay").click(closeWindow);
     
@@ -135,22 +179,24 @@ $(document).ready(function() {
     $(".mdl-layout").on('click', '#public-profile', (function() { toggleProfileLink($(this).prop('checked')); }));
     
     $(".mdl-layout").on('click', '#settings-submit', (function() {
-   var $inputs = $('#settings-form :input');
-    var values = {};
-    $inputs.each(function() {
-        var checked = $(this).prop('checked');
-        if (checked)
-            values[this.id] = checked;
-    }); 
-           $.ajax({
-            type: 'POST',
-            url: '../scripts/settings.php',
-            dataType: 'json',
-            data:values
-            
-        });
-        closeWindow();
-        return false;
-    }));
-    
+       var $inputs = $('#settings-form :input');
+        var values = {};
+        $inputs.each(function() {
+            var checked = $(this).prop('checked');
+            if (checked)
+                values[this.id] = checked;
+        }); 
+               $.ajax({
+                type: 'POST',
+                url: '../scripts/settings.php',
+                dataType: 'json',
+                data:values
+                
+            });
+            closeWindow();
+            return false;
+      }));
+      
+
+      
 });
