@@ -272,7 +272,7 @@ async def setpermlevel(ctx, player, level, **_):
         raise util.DueUtilException(ctx.channel, "Permission not found")
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=("giveban",))
 async def ban(ctx, player, **_):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.BANNED)
