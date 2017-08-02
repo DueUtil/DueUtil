@@ -13,7 +13,7 @@
       <label class="mdl-textfield__label" for="image-url">Image url</label>
       <span id="image-url-error" class="mdl-textfield__error"></span>
     </div><br>
-    Short description of your thing (400 words max).<br>
+    Short description of your thing (100-400 characters).<br>
       <div style="margin-top: -12px;" class="mdl-textfield mdl-js-textfield">
     <textarea class="mdl-textfield__input" maxlength="400" type="text" rows= "3" id="description" name="description">[@description]</textarea>
     <label class="mdl-textfield__label" for="description">Partner description...</label>
@@ -39,9 +39,14 @@
     <label class="mdl-textfield__label" for="page-content">Page contents...</label>
       <span id="page-content-error" class="mdl-textfield__error"></span>
   </div><br>
-    <input type="hidden" name="partner-id" value="[@id]">
-  <button id="edit-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" data-upgraded=",MaterialButton">
+    <input type="hidden" id="partner-id" name="partner-id" value="[@id]">
+    <div>
+  <button id="edit-submit" value="edit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" data-upgraded=",MaterialButton">
     Submit edit
    </button>
+    <button  style="color:rgba(249,241,223,.87); background:#ff6961;float:right" id="delete" value="delete" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" data-upgraded=",MaterialButton">
+    Delete
+   </button>
+   </div>
   </form>
 </div>

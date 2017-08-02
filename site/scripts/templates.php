@@ -162,16 +162,17 @@ class Navigation extends Template
 abstract class Layout extends Template
 {
     private $header;
+    private $body;
 
     function __construct($page_name,$sidebar,$content_title,$content,$header_buttons = array(),$body = array()) {
         parent::__construct('../templates/layout.tpl');
         $auth = get_auth();
         if(!is_array($body))
-            $body = array($body);
+            $this->body = array($body);
         if ($auth['login']) {
             $header_buttons[] = new StaticContent("../templates/addtionalheaderactions.tpl");
             $user_id = get_user_details()['id'];
-            $body[] = new SettingsPopup(is_profile_private($user_id), $user_id);
+            $this->body[] = new SettingsPopup(is_profile_private($user_id), $user_id);
         }
         // Add invite menu to layout if blank
         if (isset($_SESSION["userId"]))
@@ -185,8 +186,9 @@ abstract class Layout extends Template
         $this->set_value('sidebar',$sidebar);
         $this->set_value('contenttitle',$content_title);
         $this->set_value('content',$content);
-        $this->set_value('body',$body);
+        $this->set_value('body',$this->body);
         $this->set_value('header',"");
+        $this->set_value('flexstyle', "page-content");
     }
 
     protected function set_header($value){
@@ -203,6 +205,11 @@ abstract class Layout extends Template
 
     function set_script($script){
         $this->set_header("<script src=\"$script\"></script>");
+    }
+    
+    function body_append($object) {
+        $this->body[] = $object;
+        $this->set_value('body',$this->body);
     }
 }
 

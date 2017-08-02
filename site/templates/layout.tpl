@@ -72,7 +72,7 @@ That means your now a certified hacker man and have totally hacked me.
          [@sidebar]
          <main style="position: relative" class="mdl-layout__content">
             <span id="content-title" class="mdl-layout-title">[@contenttitle]</span>
-            <div class="page-content">
+            <div class="[@flexstyle]">
                [@content]
                <div style="width:100%"></div>
                <div style="flex-grow: 1;"></div>

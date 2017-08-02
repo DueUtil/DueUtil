@@ -32,7 +32,7 @@ if (strcmp($user_data["id"], OWNER) === 0) {
                           'owner_id'=> $owner_id,
                           'type' => $type);
                           
-        $id = strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $project_name));
+        $id = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $project_name));
         
         if (strlen($id) === 0) {
             echo "Invaild project name";

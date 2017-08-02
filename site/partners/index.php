@@ -14,7 +14,7 @@ foreach($partners as $partner) {
     
     foreach($details as $detail) {
         if (is_null($detail))
-            break 2;
+            continue 2;
     }
 
     $partner_cards[] = new PartnerCard($name=$details->name, $type=$details->type, 
@@ -26,5 +26,7 @@ if (sizeof($partner_cards) === 0) {
     $partner_cards[] = new StaticContent("<h4>No partners... How sad ;(</h4>");
 }
 
-(new StandardLayout($sidebar,$partner_cards, $title = "<h2>Partners</h2>", "DueUtil partnered discord bots, servers, and other things!"))->show();
+$page = new StandardLayout($sidebar,$partner_cards, $title = "<h2>Partners</h2>", "DueUtil partnered discord bots, servers, and other things!");
+$page->set_value('flexstyle', "command-list");
+$page->show();
 ?>

@@ -89,6 +89,14 @@ function get_object($object_id, $object_collection)
 }
 
 
+function delete_document($id, $collection, $limit=1) {
+    global $manager;
+    $bulk = new MongoDB\Driver\BulkWrite;
+    $bulk->delete(['_id' => $id], ['limit' => $limit]);
+    $result = $manager->executeBulkWrite("dueutil.$collection", $bulk);
+}
+
+
 function startsWith($haystack, $needle)
 {
      $length = strlen($needle);

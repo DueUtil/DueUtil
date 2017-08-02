@@ -141,13 +141,20 @@ code {
 text-align: center;
 }
 
+.bottom-buttons {
+    position: absolute;
+    bottom: 0px;
+    width: calc(100% - 48px);
+
+}
+
 .due-emoji-th {
     font-size: 18px;
     position: absolute;
     top: 17px;
 }
 
-#profile-link{
+#profile-link, #delete-cnf{
     height: 250px;
     width: 400px;
     z-index: 11;
