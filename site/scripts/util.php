@@ -151,4 +151,21 @@ function due_markdown_to_html($markdown)
     return $markdown;
 }
 
+
+function error_404() {
+    global $sidebar, $_POST;
+    if (sizeof($_POST) === 0) {
+        (new Error404Page($sidebar))->show();
+    } else {
+        echo "404 Not found!";
+        http_response_code(404);
+    }
+    die();
+}
+
+
+function strip($sting, $character=array("\r", "\n")) {
+    return str_replace($character, '', $sting);
+}
+
 ?>

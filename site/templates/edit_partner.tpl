@@ -35,7 +35,7 @@
    <span style="margin-bottom: 12px;" class="mdl-layout-title group-title">Page</span>
    Edit your partner page. You can use custom css and html here but no javascript!<br>
   <div style="margin-top: -12px;" class="mdl-textfield mdl-js-textfield">
-    <textarea class="mdl-textfield__input" maxlength="400" type="text" rows= "3" id="page-content" name="page-content">[@pagecontent]</textarea>
+    <textarea class="mdl-textfield__input" type="text" rows= "3" id="page-content" name="page-content">[@pagecontent]</textarea>
     <label class="mdl-textfield__label" for="page-content">Page contents...</label>
       <span id="page-content-error" class="mdl-textfield__error"></span>
   </div><br>

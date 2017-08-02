@@ -3,6 +3,10 @@
 require_once("../scripts/needsauth.php");
 require_once("../scripts/constants.php");
 require_once("../scripts/util.php");
+require_once("../scripts/partners.php");
+require_once("../scripts/discordstuff.php");
+
+
 
 $TYPES = ["bot","server","other"];
 
@@ -44,6 +48,8 @@ if (strcmp($user_data["id"], OWNER) === 0) {
         
         echo "Done!";
         http_response_code(200);
+        
+        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> Has added **$project_name** by <@$owner_id> as partner!"));
   
     } else {
         $page = new StandardLayout($sidebar, new StaticContent("create_partner.tpl"), 

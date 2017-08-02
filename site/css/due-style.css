@@ -443,6 +443,23 @@ background-position: 8px 8px;
     margin:0 auto;
 }
 
+.img-default{
+	border-radius: 50%;
+	border-style: solid;
+	border-color: #797d98;
+	border-width: 5px;
+  width: 200px;
+  height: 200px;
+  margin: auto;
+  margin-top: 12px;
+}
+
+#partner-page-content {
+  width: 100%;
+  margin-top: 12px;
+  text-align: center;
+}
+
 #user-info-name{
     font-weight: 600;
     color: #476178;

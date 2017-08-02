@@ -2,7 +2,7 @@
     <span style="display:inline" class="mdl-layout-title">[@name]</span> <span class="partner-type [@type]">[@type]</span>
     <div class="home-info-inner">
     <div class="flex-content-row">
-    <img class="partner-img" src="[@image]">
+    <img class="partner-img" alt="[@name]" src="[@image]">
         <div class="extra-info">
         <div class="partner-message">
         [@message]

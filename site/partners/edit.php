@@ -1,12 +1,8 @@
 <?php
 require_once("../scripts/needsauth.php");
 require_once("../scripts/util.php");
-require_once("../scripts/constants.php");
+require_once("../scripts/partners.php");
 require_once("../scripts/discordstuff.php");
-
-
-define("EDIT_WEBHOOK", "https://discordapp.com/api/webhooks/342368899259695107/0-ck4QlEHldInTuaTxdXfs9y-Of3PUHeVrWunnKb9vrFfk_DUwOSnxuKPK0NTK86RA-t");
-define("PARTNER_WEBHOOK", "https://discordapp.com/api/webhooks/342006162192859157/tw2mSV-XFP7cnqziIj0omeYRM7rvI6_3v-kJmzaCUALFqLmCZZiEamJ3HwegOn7UXVFZ");
 
 
 if (!isset($_GET["partner"])) {
@@ -14,8 +10,7 @@ if (!isset($_GET["partner"])) {
 }
 
 $partner_id = $_GET["partner"];
-if (!(is_string($partner_id) 
-      and strcmp(preg_replace("/[^a-z0-9]/", '', $partner_id), $partner_id) === 0)){
+if (!valid_partner_id($partner_id )){
     error_404();
 }
 
@@ -37,10 +32,10 @@ if (!isset($_POST["name"], $_POST["image-url"],
 
         $form->set_value('name', $partner_data->name);
         $form->set_value('imageurl', $partner_data->image_url);
-        $form->set_value('description', $partner_data->description);
+        $form->set_value('description', strip($partner_data->description));
         $form->set_value('customlink', $partner_data->custom_link);
         $form->set_value('linkname', $partner_data->link_name);
-        $form->set_value('pagecontent', $partner_data->page_content);
+        $form->set_value('pagecontent', strip($partner_data->page_content));
         $form->set_value('id', $partner_id);
 
         $page = new StandardLayout($sidebar,$form, $title = "<h2>Partner - Editing</h2>", "Super secret editing page!");
@@ -64,8 +59,9 @@ if (!isset($_POST["name"], $_POST["image-url"],
     $description = $_POST["description"];
     $custom_link = $_POST["custom-link"];
     $link_name = $_POST["link-name"];
-    $page_content = $_POST["page-content"];    
+    $page_content = $_POST["page-content"];
     
+        
     if (validate_string("name", $name, 1, 32) 
             & validate_url("image-url", $image_url, $image=True)
             & validate_string("description", $description, 100, 400)
@@ -93,7 +89,7 @@ if (!isset($_POST["name"], $_POST["image-url"],
                                                       
         var_dump($partner_data);
                                                       
-        if (is_null($partner_data->image_url)) {
+        if (partner_not_setup($partner_data)) {
             send_webhook(PARTNER_WEBHOOK, array("embeds" => [new_partner_embed($partner_id,(object)$partner)]));
         }
         
@@ -103,17 +99,6 @@ if (!isset($_POST["name"], $_POST["image-url"],
         echo json_encode($form_errors);
         die();
     }
-}
-
-function error_404() {
-    global $sidebar, $_POST;
-    if (sizeof($_POST) === 0) {
-        (new Error404Page($sidebar))->show();
-    } else {
-        echo "404 Not found!";
-        http_response_code(404);
-    }
-    die();
 }
 
 
@@ -128,20 +113,6 @@ function new_partner_embed($id, $partner){
     $embed->add_field($name=$partner->link_name, $value=$partner->custom_link, $inline=True);
     $embed->set_footer($text="This post is from $user_data[username].");
     return $embed;
-}
-
-
-function get_partner($partner_id) {
-    global $manager;
-    $find_object_partner_query = new MongoDB\Driver\Query(array('_id' => $partner_id));
-    $cursor = $manager->executeQuery("dueutil.partners", $find_object_partner_query);
-
-    $partner_data = $cursor->toArray();
-    if (sizeof($partner_data) == 1 && is_object($partner_data[0])) {
-        return $partner_data = $partner_data[0]->details;
-    } else {
-        return null;
-    }
 }
 
 
