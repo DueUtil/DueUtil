@@ -515,4 +515,11 @@ class PartnerCard extends Template {
     }
 }
 
+class GenericThing extends Template {
+    
+    function __construct($template) {
+          parent::__construct('../templates/'.$template);
+    }
+}
+
 ?>

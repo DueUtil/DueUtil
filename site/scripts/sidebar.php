@@ -47,10 +47,8 @@ $sidebar_content[] = new Navigation('General',
                                     ));                                  
 $sidebar_content[] = new Navigation('Tools',
                                     array(
-                                      'MyDashboard' => '../mydash',
-                                      'The Shop' => '../soon',
-                                      'Quest Builder'=>'../soon',
-                                      'Weapon Builder'=>'../soon',
+                                      'Personal Dashboard' => '../mydash',
+                                      'Server Dashboard' => '../soon/',
                                       'Upgrader'=>'../soon'
                                     ));
 
