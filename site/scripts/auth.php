@@ -2,9 +2,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once('util.php');
 
-define("CLIENT_ID","212707063367860225");
-define("CLIENT_SECRET","GoP6T87FuwLltuKrZdbH1eGnEpUbhDG1");
-define("REDIRECT_URL","http://localhost/callback");
+define("CLIENT_ID","213271889760616449");
+define("CLIENT_SECRET","jhZ5RQqcq3GfxbMyB7KusBwRE0Vyok9c");
+define("REDIRECT_URL","https://dueutil.tech/callback");
 
 session_name('dueutil_tech_auth');
 
