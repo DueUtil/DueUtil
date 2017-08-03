@@ -4,9 +4,7 @@
     <div class="flex-content-row">
     <img class="partner-img" alt="[@name]" src="[@image]">
         <div class="extra-info">
-        <div class="partner-message">
-        [@message]
-        </div>
+        <div class="partner-message longText">[@message]</div>
         </div>
     </div>
     </div>

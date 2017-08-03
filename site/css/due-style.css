@@ -28,6 +28,16 @@ code{
 
 }
 
+.longText {
+word-break: break-all;
+white-space: -moz-pre-wrap; /* Mozilla */
+white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap;  /* CSS 2.1 */
+white-space: pre-line; /* CSS 3 */
+word-wrap: break-word; /* IE */
+}
+
+
 #create-partner div{
   margin-bottom: 8px;
 }

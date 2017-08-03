@@ -10,7 +10,7 @@
                     url: '/partners/create.php',
                     data: form.serialize(),
                     success: function() {
-                        alert("It is done!");
+                        window.location = "/partners/edit/"+$("#project-name").val().replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
                     },
                     error: function(xhr, status, error) {
                         alert("Could not create partner: "+xhr.responseText);

@@ -2,10 +2,12 @@
     RewriteEngine On
     RewriteRule ^player/id/(.*?)/?$ player/?id=$1
     RewriteRule ^partners/edit/(.*?)/?$ partners/edit.php?partner=$1
+    RewriteRule ^partners/create/?$ partners/create.php
     RewriteRule ^partners/([a-z0-9][a-z0-9]*?)/?$ partners/page.php?partner=$1
     RewriteRule (.*?)index\.php/*(.*) /$1$2 [R=301,NE]
     RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
     RewriteRule ^(.*)$ http://%1%{REQUEST_URI} [R=301,QSA,NC,L]
 </IfModule>
 ErrorDocument 404 /404/
+ErrorDocument 403 /404/
 

@@ -42,7 +42,6 @@ if (!isset($_POST["name"], $_POST["image-url"],
 
         $page = new StandardLayout($sidebar,$form, $title = "<h2>Partner - Editing</h2>", "Super secret editing page!");
         $page->body_append(new StaticContent("delete_partner.tpl"));
-        $page->set_script("edit.js");
         $page->show();
     
     } else {
@@ -81,19 +80,22 @@ if (!isset($_POST["name"], $_POST["image-url"],
                           'owner_id'=> $partner_data->owner_id,
                           'type' => $partner_data->type);
                           
-        upsert('partners', $partner_id, ['details' => $partner]);
+        $partner_obj = (object)$partner;
+        
+        if ($partner_obj != $partner_data) {
+            upsert('partners', $partner_id, ['details' => $partner]);
+            
+            
+            send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> edited partner details for **$name** $type_emoji ($partner_id)\n"
+                                                          ."<https://dueutil.tech/partners/$partner_id>"));
+                                                                                                                
+            if (partner_not_setup($partner_data)) {
+                send_webhook(PARTNER_WEBHOOK, array("embeds" => [new_partner_embed($partner_id,$partner_obj)]));
+            }
+        }
         
         echo "Done!";
         http_response_code(200);
-        
-        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> edited partner details for **$name** $type_emoji\n"
-                                                      ."<https://dueutil.tech/partners/$partner_id>"));
-                                                      
-        var_dump($partner_data);
-                                                      
-        if (partner_not_setup($partner_data)) {
-            send_webhook(PARTNER_WEBHOOK, array("embeds" => [new_partner_embed($partner_id,(object)$partner)]));
-        }
         
     } else {
         http_response_code(400);
@@ -108,7 +110,7 @@ function new_partner_embed($id, $partner){
     global $user_data, $type_emoji;
     
     $embed = new Embed($title=":new: New partner!", $color=9819069);
-    $embed->url = "http://localhost/partners/$id";
+    $embed->url = "https://dueutil.tech/partners/$id";
     $embed->set_thumbnail($url=$partner->image_url);
     $embed->add_field($name=$partner->name.' '.$type_emoji, $value=$partner->description);
     $embed->add_field($name="Partner page", $value='<'.$embed->url.'>', $inline=True);

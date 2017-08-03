@@ -1,3 +1,45 @@
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $(".mdl-layout").on('click', '#edit-submit', (function() {
+            var form = $("#partner-details");
+            checkRequiredFields($("#partner-details :input"));
+                $.ajax({
+                    type: 'POST',
+                    url: '/partners/edit/'+$("#partner-id").val(),
+                    data: form.serialize(),
+                    success: function() {
+                        window.location = "/partners/"+$("#partner-id").val();
+                    },
+                    error: function(xhr) {
+                        displayFormErrorsFromJSON(jQuery.parseJSON(xhr.responseText));
+                    }
+                }); 
+            return false;
+
+
+          }));
+          
+
+        $(".mdl-layout").on('click', '#delete', (function() {
+            openWindow($("#delete-cnf"));
+            return false;
+          }));
+          
+        $(".mdl-layout").on('click', '#delete-this-now', (function() {
+            $.ajax({
+                    type: 'POST',
+                    url: '/partners/edit/'+$("#partner-id").val(),
+                    data: "delete-this=now",
+                    success: function() {
+                        window.location = "/partners/";
+                    }
+                }); 
+            return false;
+          }));
+          
+    });
+</script>
 <div class="edit-box due-command-box mdl-shadow--6dp">
   <form id="partner-details">
    <span style="margin-bottom: 12px;" class="mdl-layout-title group-title">Details</span>
