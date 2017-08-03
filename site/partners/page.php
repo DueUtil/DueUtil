@@ -27,6 +27,6 @@ $partner_page->set_value('linkname', htmlspecialchars($partner_details->link_nam
 $partner_page->set_value('pagecontent', $partner_details->page_content);
 
 
-(new StandardLayout($sidebar,$partner_page, $title = "", "DueUtil partnered $partner_details->type - $name"))->show();
+(new StandardLayout($sidebar,$partner_page, $title = $name, "DueUtil partnered $partner_details->type - $name"))->show();
 
 ?>
