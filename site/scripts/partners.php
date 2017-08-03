@@ -4,6 +4,10 @@ require_once("dbconn.php");
 define("EDIT_WEBHOOK", "https://discordapp.com/api/webhooks/342368899259695107/0-ck4QlEHldInTuaTxdXfs9y-Of3PUHeVrWunnKb9vrFfk_DUwOSnxuKPK0NTK86RA-t");
 define("PARTNER_WEBHOOK", "https://discordapp.com/api/webhooks/342006162192859157/tw2mSV-XFP7cnqziIj0omeYRM7rvI6_3v-kJmzaCUALFqLmCZZiEamJ3HwegOn7UXVFZ");
 
+define("BOT_EMOJI", "<:Bot:342462710715252737>");
+define("SERVER_EMOJI", "<:Server:342462779099185155>");
+define("OTHER_EMOJI", "<:Other:342462826427842560>");
+
 
 function get_partner($partner_id) {
     global $manager;
@@ -26,5 +30,16 @@ function valid_partner_id($partner_id) {
 
 function partner_not_setup($partner) {
     return is_null($partner->image_url);
+}
+
+
+function partner_type_emoji($partner) {
+    $type = $partner->type;
+    if (strcmp($type,"bot") === 0)
+        return BOT_EMOJI;
+    else if (strcmp($type, "server") === 0)
+        return SERVER_EMOJI;
+    else
+        return OTHER_EMOJI;
 }
 ?>

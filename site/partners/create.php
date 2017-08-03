@@ -48,8 +48,8 @@ if (strcmp($user_data["id"], OWNER) === 0) {
         
         echo "Done!";
         http_response_code(200);
-        
-        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> Has added **$project_name** by <@$owner_id> as partner!"));
+        $type_emoji = partner_type_emoji((object)$partner);
+        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> Has added **$project_name** $type_emoji by <@$owner_id> as partner!"));
   
     } else {
         $page = new StandardLayout($sidebar, new StaticContent("create_partner.tpl"), 

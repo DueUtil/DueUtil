@@ -23,6 +23,8 @@ if (!in_array($user_data["id"], [OWNER,$partner_data->owner_id])) {
     error_404();
 }
 
+$type_emoji = partner_type_emoji($partner_data);
+
 if (!isset($_POST["name"], $_POST["image-url"], 
            $_POST["description"], $_POST["custom-link"], 
            $_POST["link-name"], $_POST["page-content"])) {
@@ -46,7 +48,7 @@ if (!isset($_POST["name"], $_POST["image-url"],
     } else {
         echo "Okay, :( but not because you told me to.";
         $name = $partner_data->name;
-        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> deleted **$name** ($partner_id) :cry:"));
+        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> deleted **$name** $type_emoji ($partner_id) :cry:"));
         delete_document($partner_id, 'partners');
     }
     
@@ -84,7 +86,7 @@ if (!isset($_POST["name"], $_POST["image-url"],
         echo "Done!";
         http_response_code(200);
         
-        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> edited partner details for **$name**\n"
+        send_webhook(EDIT_WEBHOOK, array("content" => "<@$user_data[id]> edited partner details for **$name** $type_emoji\n"
                                                       ."<https://dueutil.tech/partners/$partner_id>"));
                                                       
         var_dump($partner_data);
@@ -103,12 +105,12 @@ if (!isset($_POST["name"], $_POST["image-url"],
 
 
 function new_partner_embed($id, $partner){
-    global $user_data;
+    global $user_data, $type_emoji;
     
     $embed = new Embed($title=":new: New partner!", $color=9819069);
     $embed->url = "http://localhost/partners/$id";
     $embed->set_thumbnail($url=$partner->image_url);
-    $embed->add_field($name=$partner->name, $value=$partner->description);
+    $embed->add_field($name=$partner->name.' '.$type_emoji, $value=$partner->description);
     $embed->add_field($name="Partner page", $value='<'.$embed->url.'>', $inline=True);
     $embed->add_field($name=$partner->link_name, $value=$partner->custom_link, $inline=True);
     $embed->set_footer($text="This post is from $user_data[username].");
