@@ -4,7 +4,6 @@
             var form = $("#create-partner");
             console.log(checkRequiredFields($("#create-partner :input")));
             if(!checkRequiredFields($("#create-partner :input"))) {
-                console.log('dds');
                 $.ajax({
                     type: 'POST',
                     url: '/partners/create.php',
