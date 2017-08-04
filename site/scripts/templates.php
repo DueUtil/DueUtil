@@ -361,7 +361,7 @@ class StandardLayout extends Layout
    function __construct($sidebar,$content = "",$title, $page_desc, $title_override=null, $header_buttons = ""){
        parent::__construct(is_null($title_override) ? strip_tags($title) : $title_override,
                            $sidebar, $title, $content, $header_buttons);
-       $this->set_base_url("https://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
+       $this->set_base_url("http://$_SERVER[HTTP_HOST]/".end(explode('/',getcwd())).'/');
        $this->set_script("../js/general.js");
        $auth = get_auth();
        if ($auth['login']) {

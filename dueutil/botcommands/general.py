@@ -64,17 +64,25 @@ buy_sell_backgrounds = BuySellBackground()
 buy_sell_banners = BuySellBanner()
 
 
+def _shop_sort(item):
+    return item["price"], item["name"]
+
+
 def _should_show_in_shop(customization):
     return customization is not None and not (customization.id == "default" or customization.is_hidden())
 
 
 def filter_customizations(customization_items):
-    return [customization for customization in customization_items if _should_show_in_shop(customization)]
+    items_hidden_removed = [customization for customization
+                            in customization_items if _should_show_in_shop(customization)]
+    items_hidden_removed.sort(key=_shop_sort)
+    return items_hidden_removed
 
 
 def shop_weapons_list(page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
+    shop_weapons.sort(key=lambda weapon: weapon.price)
     shop_list = weap_cmds.weapons_page(shop_weapons, page, "DueUtil's Weapon Shop!",
                                        footer_more=("But wait there's more! Do "
                                                     + details["cmd_key"] + "shop weapons " + str(page + 2)),
@@ -95,11 +103,11 @@ def shop_theme_list(page, **details):
 
 def shop_background_list(page, **details):
     backgrounds = list(customizations.backgrounds.values())
-    # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
     backgrounds = filter_customizations(backgrounds)
+    # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
     shop_list = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
-                                            footer_more="But wait there's more! Do " + details[
-                                                "cmd_key"] + "shop bgs " + str(page + 2),
+                                            footer_more="But wait there's more! Do "
+                                                        + details["cmd_key"] + "shop bgs " + str(page + 2),
                                             footer_end='More backgrounds coming soon!')
     return shop_list
 
@@ -107,6 +115,7 @@ def shop_background_list(page, **details):
 def shop_banner_list(page, **details):
     banners = list(customizations.banners.values())
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
+    banners.sort(key=_shop_sort)
     shop_list = player_cmds.banner_page(banners, page, "DueUtil's Banner Shop!",
                                         footer_more="But wait there's more! Do " + details[
                                             "cmd_key"] + "shop banners " + str(page + 2),

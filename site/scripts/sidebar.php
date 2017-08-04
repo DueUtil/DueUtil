@@ -51,6 +51,6 @@ $sidebar_content[] = new Navigation('Tools',
                                       'Server Dashboard' => '../soon/',
                                       'Upgrader'=>'../soon'
                                     ));
-
+                                    
 $sidebar = new Sidebar($sidebar_content);
 ?>

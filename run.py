@@ -171,6 +171,11 @@ class DueUtilClient(discord.Client):
             new_image = player.get_avatar_url(member=after)
             if old_image != new_image:
                 imagecache.uncache(old_image)
+            member = after
+            if (member.server.id == gconf.THE_DEN
+                    and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+                player.donor = True
+                player.save()
 
     @asyncio.coroutine
     def on_server_remove(self, server):

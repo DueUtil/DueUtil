@@ -1,13 +1,13 @@
-<a href="[@botinvite]">
-  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-right: 16px; width: 200px;">
+  <a href="[@botinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-right: 16px; width: 200px;">
     Invite 
-  </button>
-</a>
-<a href="[@serverinvite]">
-  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
+  </a>
+  <a href="[@serverinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
     Support Server
-  </button>
-</a>
+  </a>
+  <div style="width:100%"></div>
+  <a style="margin-top: 16px; width: 200px" href="https://www.patreon.com/macdue" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
+    Donate To Due
+  </a>
 <div id="banner">
     <img src="../img/logo.png" alt="DueUtil logo">
 </div>
