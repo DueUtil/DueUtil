@@ -292,6 +292,8 @@ async def acceptwager(ctx, wager_index, **details):
     if winner is not None:
         await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
         await awards.give_award(ctx.channel, loser, "YouLose", "Lose a wager!")
+        if winner.wagers_won == 2500:
+            await awards.give_award(ctx.channel, winner, "2500Wagers")
     else:
         await  awards.give_award(ctx.channel, player, "InconceivableWager")
         await  awards.give_award(ctx.channel, sender, "InconceivableWager")

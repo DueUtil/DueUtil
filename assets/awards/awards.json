@@ -194,10 +194,10 @@
          "name":"Forgot my cheats!",
          "message":"Defeat MacDue"
       },
-     "500Wagers":{
+     "2500Wagers":{
          "icon":"kingwager.png",
-         "name":"499...500!",
-         "message":"Win 500 wagers!"
+         "name":"2499...2500!",
+         "message":"Win 2500 wagers!"
       },
      "QuestLoser":{
          "icon":"questloser.png",
