@@ -224,8 +224,11 @@ async def check_for_recalls(ctx, player):
 async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
-    if player is not None and (quest_time(player) or progress_time(player)):
-        spam_level = get_spam_level(player, message.content)
+    if player is not None:
+        if not player.is_playing():
+            return
+        if quest_time(player) or progress_time(player):
+            spam_level = get_spam_level(player, message.content)
     await player_message(message, player, spam_level)
     if player is not None:
         await manage_quests(message, player, spam_level)

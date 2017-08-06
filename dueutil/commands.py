@@ -71,7 +71,7 @@ def command(**command_rules):
             if check(ctx.author, wrapped_command):
                 # Check args
                 args_pattern = command_rules.get('args_pattern', "")
-                command_args = await determine_args(args_pattern, args)
+                command_args = await determine_args(args_pattern, args, wrapped_command)
                 if command_args is False:
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
@@ -94,7 +94,7 @@ def command(**command_rules):
             return True
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)
-        wrapped_command.permission = command_rules.get('permission', Permission.ANYONE)
+        wrapped_command.permission = command_rules.get('permission', Permission.PLAYER)
         wrapped_command.aliases = command_rules.get('aliases', ())
         # Add myX to X aliases
         if command_func.__name__.startswith("my"):
@@ -224,7 +224,7 @@ def parse(command_message):
         return key, "", []
 
 
-async def determine_args(pattern, args):
+async def determine_args(pattern, args, called):
     """
     
     Takes the args coming from parse()
@@ -273,6 +273,13 @@ async def determine_args(pattern, args):
             return min(float(string), MAX_NUMBER)
         except ValueError:
             return False
+
+    def represents_player(player_id):
+        player = players.find_player(player_id)
+        if player is None or not player.is_playing() \
+                and called.permission < Permission.DUEUTIL_MOD:
+            return False
+        return player
 
     def remove_optional(pattern):
         pattern_pos = len(pattern) - 1
@@ -371,7 +378,7 @@ async def determine_args(pattern, args):
             'I': represents_int(args[args_index]),
             'C': represents_count(args[args_index]),
             'R': represents_float(args[args_index]),
-            'P': players.find_player(args[args_index]),
+            'P': represents_player(args[args_index]),
             # This one is for page selectors that could be a page number or a string like a weapon name.
             'M': represents_count(args[args_index]) if represents_count(args[args_index]) else args[args_index],
             'B': args[args_index].lower() in misc.POSITIVE_BOOLS,

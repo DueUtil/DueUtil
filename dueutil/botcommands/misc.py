@@ -16,7 +16,7 @@ from ..game import customizations, awards, leaderboards, game
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
 
-@commands.command(args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
     """
     [CMD_KEY]permissions
@@ -283,7 +283,7 @@ async def ban(ctx, player, **_):
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
 async def unban(ctx, player, **_):
     member = discord.Member(user={"id": player.id})
-    dueutil.permissions.give_permission(member, Permission.ANYONE)
+    dueutil.permissions.give_permission(member, Permission.PLAYER)
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 

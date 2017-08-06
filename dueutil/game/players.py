@@ -10,7 +10,8 @@ import jsonpickle
 import numpy
 
 from ..util import SlotPickleMixin
-from .. import dbconn, util, tasks
+from .. import dbconn, util, tasks, permissions
+from ..permissions import Permission
 from ..game import awards
 from ..game import weapons
 from ..game import gamerules
@@ -238,6 +239,12 @@ class Player(DueUtilObject, SlotPickleMixin):
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
 
+    def is_playing(self):
+        # Having the perm DISCORD_USER specially set to override PLAYER
+        # means you have opted out.
+        return not permissions.has_special_permission(self.to_member(),
+                                                      Permission.DISCORD_USER)
+
     @property
     def item_value_limit(self):
         # Take into account the progress in the current level.
@@ -323,6 +330,16 @@ class Player(DueUtilObject, SlotPickleMixin):
             theme = customizations.themes[theme]
         self.equipped["banner"] = theme["banner"]
         self.equipped["background"] = theme["background"]
+
+    def to_member(self):
+        """
+        Returns a fake discord member.
+        This is to cheat the perms system.
+        Will not work with perms that check for roles.
+        """
+        return discord.Member(user={'id': self.id,
+                                    'username': self.name,
+                                    'discriminator': 0000})
 
     def _setter(self, thing, value):
         if isinstance(value, DueUtilObject):

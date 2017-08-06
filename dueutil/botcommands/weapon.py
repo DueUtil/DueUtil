@@ -146,7 +146,7 @@ async def battle(ctx, *args, **details):
     await battles.give_awards_for_battle(ctx.channel, battle_log)
 
 
-@commands.command(args_pattern='PC')
+@commands.command(args_pattern='PC', aliases=("wager",))
 async def wagerbattle(ctx, receiver, money, **details):
     """
     [CMD_KEY]wagerbattle player amount

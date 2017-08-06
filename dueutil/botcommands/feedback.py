@@ -2,7 +2,7 @@ import discord
 
 import generalconfig as gconf
 from .. import util, commands
-
+from ..permissions import Permission
 
 class FeedbackHandler:
     """
@@ -42,7 +42,7 @@ bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", tre
 suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="suggestion", trello_list="suggestions")
 
 
-@commands.command(args_pattern="S")
+@commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
 async def bugreport(ctx, report, **_):
     """
@@ -55,7 +55,7 @@ async def bugreport(ctx, report, **_):
     await bug_reporter.send_report(ctx, report)
 
 
-@commands.command(args_pattern="S")
+@commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
 @commands.ratelimit(cooldown=300, error=":hushed: Please no more suggestions (for a few minutes)!")
 async def suggest(ctx, suggestion, **_):
     """

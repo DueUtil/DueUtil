@@ -3,12 +3,12 @@ import discord
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards, discoin
+from ..game import stats, awards
 from ..game.stats import Stat
-from .. import commands, events, util
+from .. import commands, events, util, permissions
 
 
-@commands.command(args_pattern="S?")
+@commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))
 async def help(ctx, *args, **details):
     """
     [CMD_KEY]help (command name or category)
@@ -60,7 +60,7 @@ async def help(ctx, *args, **details):
 
             commands_for_all = events.command_event.command_list(
                 filter=lambda command:
-                    command.permission == Permission.ANYONE and command.category == category)
+                    command.permission in (Permission.PLAYER, Permission.DISCORD_USER) and command.category == category)
             admin_commands = events.command_event.command_list(
                 filter=lambda command:
                     command.permission == Permission.SERVER_ADMIN and command.category == category)
@@ -93,7 +93,7 @@ async def help(ctx, *args, **details):
     await util.say(ctx.channel, embed=help_embed)
 
 
-@commands.command(args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def botinfo(ctx,**_):
 
     """
@@ -115,7 +115,7 @@ async def botinfo(ctx,**_):
     await util.say(ctx.channel, embed=info_embed)
 
 
-@commands.command(args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def prefix(ctx, **details):
     """
     ``@DueUtil``prefix
@@ -127,7 +127,7 @@ async def prefix(ctx, **details):
     await util.say(ctx.channel, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
 
 
-@commands.command(args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def dustats(ctx, **_):
     """
     [CMD_KEY]dustats
@@ -162,7 +162,7 @@ async def dustats(ctx, **_):
     await util.say(ctx.channel, embed=stats_embed)
 
 
-@commands.command(args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def duservers(ctx, **_):
     """
     [CMD_KEY]duservers
@@ -356,6 +356,58 @@ async def setuproles(ctx, **_):
         await util.say(ctx.channel, ":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel, "No roles need to be created!")
+
+
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
+async def optout(ctx, **details):
+
+    """
+    [CMD_KEY]optout
+
+    Opt out of DueUtil.
+
+    When you opt out:
+        You don't get quests or exp.
+        Other players can't use you in commands.
+        You lose access to all "game" commands.
+
+    Server admins (that opt out) still have access to admin commands.
+
+    (This applies to all servers with DueUtil)
+    """
+
+    player = details["author"]
+    if player.is_playing():
+        current_permission = permissions.get_special_permission(ctx.author)
+        if current_permission >= Permission.DUEUTIL_MOD:
+            raise util.DueUtilException(ctx.channel, "You cannot opt out and stay a dueutil mod or admin!")
+        permissions.give_permission(ctx.author, Permission.DISCORD_USER)
+        await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil.\n"
+                                     + "You won't get exp, quests, and other players can't use you in commands."))
+    else:
+        await util.say(ctx.channel, ("You've already opted out!\n"
+                                     + "You can join the fun again with %soptin." % details["cmd_key"]))
+
+
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
+async def optin(ctx, **details):
+
+    """
+    [CMD_KEY]optin
+
+    Opt in to DueUtil.
+
+    (This applies to all servers with DueUtil)
+    """
+
+    player = details["author"]
+    if player.is_playing():
+        await util.say(ctx.channel, "You've already opted in!")
+    else:
+        permissions.give_permission(ctx.author, Permission.PLAYER)
+        await util.say(ctx.channel, "You've opted in!\n"
+                                    + "Glad to have you back.")
+
 
 """
 @commands.command(args_pattern="CS")

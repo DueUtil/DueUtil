@@ -29,6 +29,9 @@ shard_count = 0
 shard_clients = []
 shard_names = []
 
+# I'm not sure of the root cause of this error & it only happens once in months.
+ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
+
 """ 
 DueUtil: The most 1337 (worst) discord bot ever.     
 This bot is not well structured...
@@ -134,12 +137,20 @@ class DueUtilClient(discord.Client):
             loader.reload_modules()
             yield from util.say(error.channel, loader.get_loaded_modules())
             return
-        elif isinstance(error, discord.Forbidden):
+        elif isinstance(error, discord.errors.Forbidden):
             if ctx_is_message:
-                self.send_message(ctx.channel, ("I'm missing my required permissions in this channel!"
-                                                + "\n If you don't want me in this channel do ``!shutupdue all``"))
+                channel = ctx.channel
+                util.logger.warning("Missing permissions in channel %s (%s)", channel.name, channel.id)
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
+        elif isinstance(error, aiohttp.errors.ClientResponseError):
+            if ctx_is_message:
+                util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
+            else:
+                util.logger.error(error)
+        elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
+            util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
+            os._exit(1)
         elif ctx_is_message:
             yield from self.send_message(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.EMBED_COLOUR)
