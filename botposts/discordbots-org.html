@@ -1,0 +1,356 @@
+<style>
+   @import url('https://fonts.googleapis.com/css?family=Roboto');
+   #dueutil-card {
+   background: #575B76;
+   text-align: center;
+   width: 100%;
+   height: 100%;
+   font-family:"Roboto","Helvetica","Arial",sans-serif;
+   font-weight: 400;
+  overflow: auto;
+  min-width: 1213px;
+   }
+   .dueutil-btn {
+   }
+   #dueutil-about{
+   width: 80%;
+   display: inline-block;
+   margin-bottom: 12px;
+   min-width: 576px;
+   }
+   .dueutil-title {
+   font-size: 40px;
+   line-height: 43px;
+   font-weight: 400;
+   padding: 20px;
+   margin: 0px;
+   }
+   .dueutil-pale-text {
+   color: #e4ded1;
+   }
+   #site-header{
+       display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-height: 64px;
+    max-height: 1000px;
+    z-index: 3;
+    background-color: #95d3bd !important;
+    color: #575c75 !important;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    transition-duration: .2s;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-property: max-height,box-shadow;
+   }
+   #site-header #site-nav a{
+       color: #575c75 !important;
+
+   }
+   .profilebotimage{
+   	   background-color: #95d3bd !important;
+       border-radius: 0% !important;
+       padding: 80px;
+       padding-left: 50%;
+       padding-right: 50%;
+       left: 0px;
+       top: 213px;
+       position: absolute;
+
+   }
+   body{
+   background: #575B76;
+   color: #e4ded1;
+       font-family: "Roboto","Helvetica","Arial",sans-serif !important;
+   margin-bottom: 24px;
+   }
+   .header {
+   width: 100%;
+   background: #95d3bd;
+   }
+   #dueutil-banner{
+   width: 100%;
+   background: rgba(149,211,189,1);
+   padding-top: 5px;
+   padding-bottom: 5px;
+   }
+   #site-header .site-header-toprow {
+       box-shadow: none;
+
+   }
+   #dueutil-mid {
+   display: inline-block;
+   margin:0 auto;
+   margin-left: 5px;
+   margin-right: 5px;
+   }
+   h1{
+   	margin-bottom: 330px;
+           font-family: "Roboto","Helvetica","Arial",sans-serif !important;
+    font-weight: 400;
+
+   }
+
+   .dueutil-mdl-shadow--2dp {
+   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+   }
+   .dueutil-mdl-button--raised.dueutil-mdl-button--colored, .ui.button {
+   background: #95d3bd !important;
+   color: #575c75 !important;
+   width: 150px; 
+   }
+   .dueutil-mdl-button--raised , .ui.button{
+   background: rgba(173,177,204,.2);
+   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12) !important;
+   }
+   .dueutil-mdl-button, .dueutil-mdl-narrow-button, .ui.button {
+   border: none !important;
+   border-radius: 2px !important;
+   position: relative !important;
+   min-width: 64px !important;
+   padding: 0 16px !important;
+   display: inline-block;
+   font-family: "Roboto","Helvetica","Arial",sans-serif !important;
+   font-size: 14px !important;
+   font-weight: 500 !important;
+   text-transform: uppercase;
+   letter-spacing: 0;
+   overflow: hidden;
+   will-change: box-shadow;
+   transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+   outline: none;
+   cursor: pointer;
+   text-decoration: none;
+   text-align: center;
+   vertical-align: middle;
+   }
+   #createdby{
+   
+   }
+   .ui.labeled.icon.button + .ui.labeled.icon.button, .ui.google.plus.button{
+   	margin: 16px !important;
+   }
+.due-link{
+    color:#95d3bd !important;
+}
+   .dueutil-mdl-button, .ui.button {
+   height: 36px !important;
+   margin: 0 !important;
+   line-height: 36px !important;
+   }
+   a, .dueutil-mdl-button, .dueutil-mdl-narrow-button {
+   -webkit-tap-highlight-color: transparent;
+   -webkit-tap-highlight-color: rgba(255,255,255,0);
+   }
+   a {
+   color: #6c7088;
+   font-weight: 500;
+   }
+   a, .dueutil-mdl-button, .dueutil-mdl-narrow-button {
+   -webkit-tap-highlight-color: transparent;
+   -webkit-tap-highlight-color: rgba(255,255,255,0);
+   }
+   .mdl-shadow--6dp {
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12), 0 3px 5px -1px rgba(0,0,0,.2);
+}
+.home-info {
+    padding: 24px;
+    width: 260px;
+}
+.flex-content {
+    flex-basis: auto;
+    flex-grow: 1;
+    background-color: #6c708b;
+    margin-top: 12px;
+    margin-right: 12px;
+}
+
+.mdl-layout__title, .mdl-layout-title {
+    display: block;
+    position: relative;
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: .02em;
+    font-weight: 400;
+    box-sizing: border-box;
+}
+.home-info-inner {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.mdl-button.mdl-button--colored, .mdl-button--colored.mdl-narrow-button {
+    color: #95d3bd;
+}
+
+.mdl-button, .mdl-narrow-button {
+    background: 0 0;
+    border: none;
+    border-radius: 2px;
+    color: #f9f1df;
+    position: relative;
+    min-width: 64px;
+    padding: 0 16px;
+    display: inline-block;
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    overflow: hidden;
+    will-change: box-shadow;
+    transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+    outline: none;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+}
+.mdl-button {
+    height: 36px;
+    margin: 0;
+    line-height: 36px;
+}
+a, .mdl-accordion, .mdl-button, .mdl-narrow-button, .mdl-card, .due-command-box, .mdl-checkbox, .mdl-dropdown-menu, .mdl-icon-toggle, .mdl-item, .mdl-radio, .mdl-slider, .mdl-switch, .mdl-tabs__tab {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(255,255,255,0);
+}
+a {
+    color: #6c7088;
+    font-weight: 500;
+}
+
+
+.mdl-card__actions {
+    font-size: 16px;
+    line-height: normal;
+    width: 100%;
+    background-color: transparent;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.mdl-button__ripple-container {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.mdl-button.mdl-button--colored, .mdl-button--colored.mdl-narrow-button {
+    color: #95d3bd;
+}
+
+.command-list, .award-list {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+</style>
+<div style="       position: absolute; top: 172px; left: calc(50% - 210px)">
+      <div style="display:inline-block">
+         <a href="https://discord.gg/n4b94VA">
+         <button class="dueutil-mdl-button mdl-js-button dueutil-mdl-button--raised dueutil-mdl-button--colored" style="width: 200px;" data-upgraded=",MaterialButton">
+         Support Server
+         </button>
+         </a>
+      </div>
+      <div style="display:inline-block; margin-left: 16px">
+         <a href="https://dueutil.tech/home/">
+         <button class="dueutil-mdl-button mdl-js-button dueutil-mdl-button--raised dueutil-mdl-button--colored" style="width: 200px;" data-upgraded=",MaterialButton">
+         dueutil.tech
+         </button>
+         </a>
+      </div><br>
+            <div style="display:inline-block; margin-top: 16px;">
+         <a href="patreon.com/macdue">
+         <button class="dueutil-mdl-button mdl-js-button dueutil-mdl-button--raised dueutil-mdl-button--colored" style="width: 200px;" data-upgraded=",MaterialButton">
+         Donate to Due
+         </button>
+         </a>
+      </div>
+</div>
+      <img style="position: absolute; top: 298px; left: calc(50% - 125px); height: 150px;" alt="DueUtil" src="https://dueutil.tech/img/logo.png" style=" width: 200px; height: auto">
+      
+<img class="dueutil-mdl-shadow--2dp" src="https://dueutil.tech/img/myinfocustom.png" style="opacity: 0.4; vertical-align: top;float: left; width: 172px; height: auto; position: absolute; left: 20%; top:500px; z-index: -10"> 
+
+<img class="dueutil-mdl-shadow--2dp" src="https://dueutil.tech/img/myquests.png" style="opacity: 0.4; vertical-align: top;float: left; width: 172px; height: auto; position: absolute; right: 20%; top:500px; z-index: -10"> 
+
+<div style="margin-top: 16px;  display: table; margin: 0 auto;">
+<p class="big-p mdl-layout-title" style="text-align: left; font-size: 18px; margin-left: 10%; margin-right: 10%;">
+DueUtil is a fun Discord bot for your server.
+<br>It does not promise to provide you anything useful but you may be able to have some fun with it.<br>
+DueUtil adds quests, battles and wagers that you can create and customize.<br>
+For more information look at the "<a class="due-link" href="https://dueutil.tech/howto">how to</a>" guide!
+</p>
+<div>
+     
+<div class="command-list" style="width: 100%; margin-bottom: 24px; margin-left: 16px; padding-right: 16px;">
+    
+
+     <div style="  
+text-align: left; margin-top: 24px; background-color: #6c708b;" class="home-info flex-content mdl-shadow--6dp">
+<span class="mdl-layout-title">Commands</span>
+<div class="home-info-inner">
+DueUtil has a bunch of commands that you can mess around with!<br>
+Some commands require you to be a <code>due commander</code> or to have manage server permissions.<br>
+You can see the full list by following the link below!<br>
+</div>
+<div class="mdl-card__actions mdl-card--border">
+<a href="https://dueutil.tech/commands/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" data-upgraded=",MaterialButton,MaterialRipple">
+View commands
+<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+</div>
+
+</div>
+
+<div style="  
+text-align: left; margin-top: 24px; background-color: #6c708b;" class="home-info flex-content mdl-shadow--6dp" class="home-info flex-content mdl-shadow--6dp">
+<span class="mdl-layout-title">Leaderboard</span>
+<div class="home-info-inner">
+The leaderboard ranks all players (starting with the top players) active in the last hour across all servers with the bot!<br>
+It's ranked on total player exp that you gain from chatting, completing quests and training.
+</div>
+<div class="mdl-card__actions mdl-card--border">
+<a href="https://dueutil.tech/leaderboard/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" data-upgraded=",MaterialButton,MaterialRipple">
+See leaderboard
+<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+</div>
+</div>
+
+<div style="  
+text-align: left; margin-top: 24px; background-color: #6c708b;" class="home-info flex-content mdl-shadow--6dp" class="home-info flex-content mdl-shadow--6dp">
+<span class="mdl-layout-title">About Due</span>
+<div class="home-info-inner">
+DueUtil is written in <a style="color:#95d3bd" href="https://discordpy.readthedocs.io/en/latest/">discord.py</a>
+and hopes to be at least kinda fun to mess around with. It has lots features and more can suggested via the <code>suggest</code>
+command!
+</div>
+</div>
+
+<div>

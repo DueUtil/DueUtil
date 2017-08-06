@@ -379,6 +379,10 @@ async def optout(ctx, **details):
     player = details["author"]
     if player.is_playing():
         current_permission = permissions.get_special_permission(ctx.author)
+        if "TopDog" in player.awards:
+            await util.say(ctx.channel, (":dog: You cannot opt out while you're top dog!\n"
+                                         + "Pass on the title before you leave us!"))
+            return
         if current_permission >= Permission.DUEUTIL_MOD:
             raise util.DueUtilException(ctx.channel, "You cannot opt out and stay a dueutil mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
