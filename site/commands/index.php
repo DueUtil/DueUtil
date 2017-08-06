@@ -14,7 +14,7 @@ require_once("../scripts/util.php");
 
 // Show dashboard.
 
-$viewable_command_perms = array("ANYONE","SERVER_ADMIN","REAL_SERVER_ADMIN");
+$viewable_command_perms = array("PLAYER","DISCORD_USER","SERVER_ADMIN","REAL_SERVER_ADMIN");
 
 
 $all_commands_data = get_collection_data('commands');
@@ -35,7 +35,7 @@ foreach ($all_commands_data as $category_name => $command_category){
         if ($command_info["hidden"] or !in_array($command_info["permission"],$viewable_command_perms))
             continue;
         $help = due_markdown_to_html(rtrim($command_info["help"]));
-        if ($command_info["permission"] == "ANYONE"){
+        if ($command_info["permission"] == "PLAYER" || $command_info["permission"] == "DISCORD_USER"){
             $perm_icon = "people";
             $perm_colour = "#95d3bd";
             $perm_message = "This command can be used by anyone!";
