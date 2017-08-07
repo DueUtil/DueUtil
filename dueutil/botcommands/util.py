@@ -465,7 +465,7 @@ async def exchange(ctx, amount, currency, **details):
             # Declined
             limit = transaction.get("limit", transaction.get("limitTotal"))
             limit_type = "total" if "limitTotal" in transaction else "daily"
-            await util.say(ctx.channel, ":no_entry: Your transaction exceeds your %s limit of ``Đ%s`` for **%s**"
+            await util.say(ctx.channel, ":no_entry: Your transaction exceeds your %s limit of **Đ%s** for **%s**"
                                         % (limit_type, util.format_number(limit, full_precision=True), currency))
         elif status == "approved":
             # Success
