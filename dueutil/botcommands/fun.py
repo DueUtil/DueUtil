@@ -246,8 +246,11 @@ async def pandemic(ctx, **_):
     pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
     pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
     pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
-                                                           + ":biohazard: **%s** are infected.\n"
-                                                           + ":pill: **%s** are uninfected.\n\n"
+                                                           + ":biohazard: **%s** "
+                                                           + ("is" if total_infected == 1 else "are") + " infected.\n"
+                                                           + ":pill: **%s** "
+                                                           + ("is" if total_uninfected == 1 else "are")
+                                                           + " uninfected.\n\n"
                                                            + "This means **%.2g**%% of all players are infected!")
                                                           % (total_players, total_infected,
                                                              total_uninfected, percent_infected))
