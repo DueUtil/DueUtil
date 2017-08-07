@@ -46,8 +46,11 @@ async def start_transaction(sender_id, amount, to):
 
                     can_still = 0
                     if "can still" in result:
-                        can_still = float(result.split("a total of")[1].split("Discoins into")[0].strip())
-
+                        can_still = result.split("a total of")[1].split("Discoins into")[0].strip()
+                        if can_still != "undefined":
+                            can_still = float(can_still)
+                        else:
+                            can_still = 0
                     return {"status": "declined",
                             "currency": currency_code,
                             "limit" + ("Total" if limit_msg_end == "Discoins." else ""): limit,
@@ -64,7 +67,7 @@ async def unprocessed_transactions():
                 return json.loads(result)
 
 
-@tasks.task(timeout=120)
+@tasks.task(timeout=300)
 async def process_transactions():
     util.logger.info("Processing Discoin transactions.")
     try:
