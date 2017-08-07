@@ -238,6 +238,7 @@ async def sudo(ctx, victim, command, **_):
         if ctx.author is None:
             # This may not fix all places where author is used.
             ctx.author = victim.to_member()
+            ctx.author.server = ctx.server # Lie about what server they're on.
         ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
