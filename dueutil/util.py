@@ -107,7 +107,11 @@ async def download_file(url):
 
 
 async def say(channel, *args, **kwargs):
-    client = get_client(channel.server.id)
+    if "client" in kwargs:
+        client = kwargs["client"]
+        del kwargs["client"]
+    else:
+        client = get_client(channel.server.id)
     if asyncio.get_event_loop() != client.loop:
         # Allows it to speak across shards
         client.run_task(say, *((channel,) + args), **kwargs)

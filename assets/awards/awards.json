@@ -218,6 +218,11 @@
          "icon":"dueutiltech.png",
          "name":"dueutil.tech",
          "message":"Login to dueutil.tech!"
+     },
+      "Discoin":{
+         "icon":"discoin.png",
+         "name":"Mr. Worldwide",
+         "message":"Exchange to another bot with Discoin!"
      }
    }
 }

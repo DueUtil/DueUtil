@@ -445,8 +445,8 @@ async def exchange(ctx, amount, currency, **details):
 
     try:
         result = await discoin.start_transaction(player.id, amount, currency)
-    except (aiohttp.errors.ClientOSError, asyncio.TimeoutError) as discoin_error:
-        util.logger.warning("Discoin exchange failed %s", discoin_error)
+    except Exception as discoin_error:
+        util.logger.error("Discoin exchange failed %s", discoin_error)
         raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
 
     if "error" in result:
@@ -469,6 +469,7 @@ async def exchange(ctx, amount, currency, **details):
                                         % (limit_type, util.format_number(limit, full_precision=True), currency))
         elif status == "approved":
             # Success
+            await awards.give_award(ctx.channel, player, "Discoin")
             player.money -= amount
             player.save()
             limit_now = int(transaction["limitNow"])
