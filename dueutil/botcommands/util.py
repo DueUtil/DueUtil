@@ -437,10 +437,13 @@ async def exchange(ctx, amount, currency, **details):
         raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUT for DUT!")
 
     if player.money - amount < 0:
-        await util.say(ctx.channel, "You do not have **%s**!\n"
-                                    % util.format_number(amount, full_precision=True, money=True)
-                                    + "The maximum you can exchange is **%s**"
-                                    % util.format_number(player.money, full_precision=True, money=True))
+        if player.money - amount > 0:
+            await util.say(ctx.channel, "You do not have **%s**!\n"
+                                        % util.format_number(amount, full_precision=True, money=True)
+                                        + "The maximum you can exchange is **%s**"
+                                        % util.format_number(player.money, full_precision=True, money=True))
+        else:
+            await util.say(ctx.channel, "You don't have any money to exchange!")
         return
 
     try:

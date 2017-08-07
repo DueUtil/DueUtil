@@ -11,7 +11,7 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
-from ..game import customizations, awards, leaderboards, game
+from ..game import customizations, awards, leaderboards, game, players
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
@@ -235,6 +235,9 @@ async def sudo(ctx, victim, command, **_):
 
     try:
         ctx.author = ctx.server.get_member(victim.id)
+        if ctx.author is None:
+            # This may not fix all places where author is used.
+            ctx.author = victim.to_member()
         ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
