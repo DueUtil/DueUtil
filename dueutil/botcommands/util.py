@@ -1,9 +1,11 @@
 import discord
+import aiohttp
+import asyncio
 
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards
+from ..game import stats, awards, discoin
 from ..game.stats import Stat
 from .. import commands, events, util, permissions
 
@@ -157,6 +159,8 @@ async def dustats(ctx, **_):
     stats_embed.add_field(name=":new: New Players",
                           value=util.format_number(game_stats.get(Stat.NEW_PLAYERS_JOINED.value, 0),
                                                    full_precision=True))
+    stats_embed.add_field(name=":money_with_wings: Discoin Received",
+                          value=util.format_number(game_stats.get(Stat.DISCOIN_RECEIVED.value, 0), full_precision=True))
     stats_embed.set_footer(text="DueUtil Shard \"" + str(util.get_client(ctx.server.id).name) + "\"")
 
     await util.say(ctx.channel, embed=stats_embed)
@@ -413,11 +417,70 @@ async def optin(ctx, **details):
                                     + "Glad to have you back.")
 
 
-"""
 @commands.command(args_pattern="CS")
 async def exchange(ctx, amount, currency, **details):
 
-    player = details["author"]
-    await discoin.start_transaction(player, amount, currency)
+    """
+    [CMD_KEY]exchange (amount) (currency)
 
-"""
+    Exchange your DUT (DueUtil Tokens) for other bot currencies!
+
+    For more information go to: https://discoin.disnodeteam.com/
+
+    Note: Exchanges can take a few minutes to process!
+    """
+
+    player = details["author"]
+    currency = currency.upper()
+
+    if currency == "DUT":
+        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUT for DUT!")
+
+    if player.money - amount < 0:
+        await util.say(ctx.channel, "You do not have **%s**!\n"
+                                    % util.format_number(amount, full_precision=True, money=True)
+                                    + "The maximum you can exchange is **%s**"
+                                    % util.format_number(player.money, full_precision=True, money=True))
+        return
+
+    try:
+        result = await discoin.start_transaction(player.id, amount, currency)
+    except (aiohttp.errors.ClientOSError, asyncio.TimeoutError) as discoin_error:
+        util.logger.warning("Discoin exchange failed %s", discoin_error)
+        raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
+
+    if "error" in result:
+        # Error
+        error = result
+        if "verify" in error:
+            await util.say(ctx.channel, ":no_entry: You must verify at <%s> to use Discoin!" % error["verify"])
+        elif error.get("error") == "currency_not_found":
+            await util.say(ctx.channel, ":question: The currency you tried exchange to does not exist!")
+        else:
+            raise util.DueUtilException(ctx.channel, "An unexpected error occurred!")
+    else:
+        transaction = result
+        status = transaction.get("status").lower().strip()
+        if status == "declined":
+            # Declined
+            limit = transaction.get("limit", transaction.get("limitTotal"))
+            limit_type = "total" if "limitTotal" in transaction else "daily"
+            await util.say(ctx.channel, ":no_entry: Your transaction exceeds your %s limit of ``Đ%s`` for **%s**"
+                                        % (limit_type, util.format_number(limit, full_precision=True), currency))
+        elif status == "approved":
+            # Success
+            player.money -= amount
+            player.save()
+            limit_now = int(transaction["limitNow"])
+            receipt = transaction["receipt"]
+            exchange_embed = discord.Embed(title=":money_with_wings: Exchange complete!",
+                                           type="rich", color=gconf.EMBED_COLOUR)
+            exchange_embed.add_field(name="Exchange amount (DUT):",
+                                     value=util.format_number(amount, money=True, full_precision=True))
+            exchange_embed.add_field(name="Receipt:", value=receipt)
+            exchange_embed.add_field(name="Daily exchange limit to %s left:" % currency,
+                                     value="Đ"+util.format_number(limit_now, full_precision=True), inline=False)
+            exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
+            await util.say(ctx.channel, embed=exchange_embed)
+        else:
+            raise util.DueUtilException(ctx.channel, "Something unexpected happened!")

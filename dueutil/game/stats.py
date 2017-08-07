@@ -16,6 +16,7 @@ class Stat(Enum):
     QUESTS_GIVEN = "questsgiven"
     QUESTS_ATTEMPTED = "questsattempted"
     IMAGES_SERVED = "imagesserved"
+    DISCOIN_RECEIVED = "discoinreceived"
 
 
 def increment_stat(dueutil_stat: Stat, increment=1):

@@ -1,5 +1,6 @@
 # DueUtil Async tasks.
 import asyncio
+import inspect
 from functools import wraps
 
 tasks = []
@@ -12,7 +13,10 @@ def task(timeout):
         @wraps(routine)
         async def wrapped_task():
             while True:
-                routine()
+                if inspect.iscoroutinefunction(routine):
+                    await routine()
+                else:
+                    routine()
                 await asyncio.sleep(timeout)
         tasks.append(wrapped_task)
         return wrapped_task

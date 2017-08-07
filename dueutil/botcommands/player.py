@@ -263,7 +263,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
-    transaction_log = discord.Embed(title=":money_with_wings: Transaction complete!", type="rich",
+    transaction_log = discord.Embed(title=":moneybag: Transaction complete!", type="rich",
                                     color=gconf.EMBED_COLOUR)
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
