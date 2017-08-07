@@ -453,9 +453,9 @@ async def exchange(ctx, amount, currency, **details):
         # Error
         error = result
         if "verify" in error:
-            await util.say(ctx.channel, ":no_entry: You must verify at <%s> to use Discoin!" % error["verify"])
+            await util.say(ctx.channel, "You must verify at <%s> to use Discoin!" % error["verify"])
         elif error.get("error") == "currency_not_found":
-            await util.say(ctx.channel, ":question: The currency you tried exchange to does not exist!")
+            await util.say(ctx.channel, "The currency you tried exchange to does not exist!")
         else:
             raise util.DueUtilException(ctx.channel, "An unexpected error occurred!")
     else:
@@ -465,7 +465,7 @@ async def exchange(ctx, amount, currency, **details):
             # Declined
             limit = transaction.get("limit", transaction.get("limitTotal"))
             limit_type = "total" if "limitTotal" in transaction else "daily"
-            await util.say(ctx.channel, ":no_entry: Your transaction exceeds your %s limit of **Đ%s** for **%s**"
+            await util.say(ctx.channel, "Your transaction exceeds your %s limit of **Đ%s** for **%s**"
                                         % (limit_type, util.format_number(limit, full_precision=True), currency))
         elif status == "approved":
             # Success
