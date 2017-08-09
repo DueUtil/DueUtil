@@ -52,6 +52,7 @@ class DueUtilClient(discord.Client):
         self.name = shard_names[self.shard_id]
         self.loaded = False
         self.session = aiohttp.ClientSession()
+        self.start_time = time.time()
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -90,7 +91,7 @@ class DueUtilClient(discord.Client):
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
 
         if not any(role.name == "Due Commander" for role in server.roles):
-            yield from self.create_role(server, name="Due Commander", color=discord.Color(16038978))
+            yield from self.create_role(server, name="Due Commander", color=discord.Color(gconf.DUE_COLOUR))
 
         server_stats = self.server_stats(server)
         yield from util.duelogger.info(("DueUtil has joined the server **"
@@ -153,7 +154,7 @@ class DueUtilClient(discord.Client):
             os._exit(1)
         elif ctx_is_message:
             yield from self.send_message(ctx.channel, (":bangbang: **Something went wrong...**"))
-            trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.EMBED_COLOUR)
+            trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
             yield from util.duelogger.error(("**Message/command triggred error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),

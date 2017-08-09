@@ -82,7 +82,7 @@ async def leaderboard(ctx, page=1, **details):
     # Subtract one as the count arg type starts at 1 not zero.
     page -= 1
 
-    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard", type="rich", color=gconf.EMBED_COLOUR)
+    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard", type="rich", color=gconf.DUE_COLOUR)
 
     player_leaderboard = leaderboards.get_leaderboard("levels")
     if player_leaderboard is not None:
@@ -113,7 +113,7 @@ async def leaderboard(ctx, page=1, **details):
                                         value=(name + " " + player_id + " ``Level " + level + "``"
                                                + " ``Total Exp: " + str(math.trunc(player.total_exp))) + "``",
                                         inline=False)
-            last_updated = datetime.utcfromtimestamp(leaderboards.last_leaderboard_update)
+            last_updated = datetime.fromtimestamp(leaderboards.last_leaderboard_update)
             leaderboard_embed.set_footer(text="Leaderboard calculated " + repoze.timeago.get_elapsed(last_updated))
         if index < len(leaderboard_data) - 1:
             leaderboard_embed.add_field(name="+" + str(len(leaderboard_data) - (page_size * (page + 1))) + " more!",
@@ -242,7 +242,7 @@ async def pandemic(ctx, **_):
     percent_infected = (total_infected / total_players) * 100
     pandemic_level = percent_infected // 33
     pandemic_embed = discord.Embed(title=":biohazard: DueUtil Pandemic :biohazard:", type="rich",
-                                   color=gconf.EMBED_COLOUR)
+                                   color=gconf.DUE_COLOUR)
     pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
     pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
     pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"

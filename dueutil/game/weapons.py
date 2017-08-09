@@ -10,6 +10,9 @@ from .. import dbconn
 from .. import util
 from ..game.helpers.misc import DueUtilObject, DueMap
 
+from . import emojis
+
+
 stock_weapons = ["none"]
 
 weapons = DueMap()
@@ -25,11 +28,12 @@ class Weapon(DueUtilObject, SlotPickleMixin):
     DEFAULT_IMAGE = "http://i.imgur.com/QFyiU6O.png"
 
     __slots__ = ["damage", "accy", "price",
-                 "icon", "hit_message", "melee", "image_url",
-                 "weapon_sum"]
+                 "_icon", "hit_message", "melee", "image_url",
+                 "weapon_sum", "server_id"]
 
     def __init__(self, name, hit_message, damage, accy, **extras):
         message = extras.get('ctx', None)
+
         if message is not None:
             if does_weapon_exist(message.server.id, name):
                 raise util.DueUtilException(message.channel, "A weapon with that name already exists on this server!")
@@ -46,8 +50,10 @@ class Weapon(DueUtilObject, SlotPickleMixin):
             if accy > 86 or accy < 1:
                 raise util.DueUtilException(message.channel, "Accuracy must be between 1% and 86%!")
 
-            if not util.char_is_emoji(extras.get('icon', "🗡️")):
-                raise util.DueUtilException(message.channel, ":eyes: Weapon icons must be emojis! :ok_hand:")
+            icon = extras.get('icon', emojis.DAGGER)
+            if not (util.char_is_emoji(icon) or util.is_server_emoji(message.server, icon)):
+                raise util.DueUtilException(message.channel, (":eyes: Weapon icons must be emojis! :ok_hand:**"
+                                                              + "(custom emojis must be on this server)**​"))
 
             self.server_id = message.server.id
 
@@ -61,7 +67,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
 
         super().__init__(self._weapon_id(), **extras)
 
-        self.icon = extras.get('icon', "🗡️")
+        self._icon = extras.get('icon', emojis.DAGGER)
         self.hit_message = util.ultra_escape_string(hit_message)
         self.melee = extras.get('melee', True)
         self.image_url = extras.get('image_url', Weapon.DEFAULT_IMAGE)
@@ -89,6 +95,39 @@ class Weapon(DueUtilObject, SlotPickleMixin):
     def get_summary(self) -> Summary:
         return get_weapon_summary_from_id(self.id)
 
+    @property
+    def icon(self):
+        # Handles custom emojis for weapons being removed.
+        # Not the best place for it but it has to go somewhere.
+        if self.server_id != "STOCK" and not util.char_is_emoji(self._icon):
+            server = util.get_server(self.server_id)
+            if not util.is_server_emoji(server, self._icon):
+                self.icon = emojis.MISSING_ICON
+                self.save()
+        return self._icon
+
+    @icon.setter
+    def icon(self, icon):
+        self._icon = icon
+
+    def __setstate__(self, object_state):
+        updated = False
+        if "icon" in object_state:
+            # Update weapons icon -> _icon
+            object_state["_icon"] = object_state["icon"]
+            del object_state["icon"]
+            updated = True
+
+        SlotPickleMixin.__setstate__(self, object_state)
+
+        if not hasattr(self, "server_id"):
+            # Fix an old bug. Weapons missing server_id.
+            # Get the proper server_id from the first part of the id.
+            self.server_id = self.id.split('+')[0]
+            updated = True
+
+        if updated:
+            self.save()
 
 # The 'None'/No weapon weapon
 NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png", icon="👊")

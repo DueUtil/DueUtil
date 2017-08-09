@@ -158,6 +158,10 @@ def get_client(source):
         return None
 
 
+def get_server(server_id):
+    return get_client(server_id).get_server(server_id)
+
+
 def ultra_escape_string(string):
 
     """
@@ -209,6 +213,14 @@ def format_number(number, **kwargs):
     else:
         formatted = small_format()
     return formatted if not kwargs.get('money', False) else '¤' + formatted
+
+
+def format_money(amount):
+    return format_number(amount, money=True, full_precision=True)
+
+
+def format_number_precise(number):
+    return format_number(number, full_precision=True)
 
 
 def char_is_emoji(character):

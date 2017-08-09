@@ -18,8 +18,11 @@ from ..game import gamerules
 from ..game.helpers.misc import DueUtilObject, Ring
 from . import customizations
 from .customizations import Theme
+from . import emojis as e
 
 """ Player related classes & functions """
+
+STAT_GAIN_FORMAT = (e.ATK + "+%.2f" + e.STRG + "+%.2f" + e.ACCY + "+%.2f")
 
 
 class Players(dict):

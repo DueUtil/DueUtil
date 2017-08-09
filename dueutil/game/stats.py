@@ -1,4 +1,5 @@
 from enum import Enum
+from collections import defaultdict
 from typing import Dict
 
 from .. import dbconn
@@ -24,6 +25,7 @@ def increment_stat(dueutil_stat: Stat, increment=1):
                                   {"$inc": {"count": increment}}, upsert=True)
 
 
-def get_stats() -> Dict[str, int]:
+def get_stats() -> Dict[Stat, int]:
     stats_response = dbconn.conn()["stats"].find()
-    return dict((stat["stat"], stat["count"]) for stat in stats_response)
+    stats = dict((Stat(stat["stat"]), stat["count"]) for stat in stats_response)
+    return defaultdict(int, stats)

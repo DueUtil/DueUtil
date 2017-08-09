@@ -78,7 +78,7 @@ def get_battle_log(**battleargs):
     battle_moves = list(battle_result.moves.values())
     battle_embed = discord.Embed(title=(battleargs.get('player_one').name_clean
                                         + " :vs: " + battleargs.get('player_two').name_clean), type="rich",
-                                 color=gconf.EMBED_COLOUR)
+                                 color=gconf.DUE_COLOUR)
     battle_log = ""
     for move in battle_moves:
         move_repetition = move.repetitions

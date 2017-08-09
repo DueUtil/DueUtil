@@ -283,7 +283,7 @@ async def shop(ctx, *args, **details):
     [CMD_KEY]buy command!
     """
 
-    shop_embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
+    shop_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
     details["embed"] = shop_embed
 
     if len(args) == 0:

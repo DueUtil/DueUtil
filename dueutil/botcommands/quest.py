@@ -14,8 +14,11 @@ from ..game import (
     battles,
     weapons,
     stats,
-    awards)
+    awards,
+    players)
 from .. import commands, util
+
+from ..game import emojis as e
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?", hidden=True)
@@ -142,7 +145,7 @@ async def acceptquest(ctx, quest_index, **details):
         add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
         add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
 
-        stats_reward = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f" % (add_attack, add_strg, add_accy)
+        stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
         player.progress(add_attack, add_strg, add_accy, max_attr=100, max_exp=10000)
@@ -360,13 +363,14 @@ async def serverquests(ctx, page=1, **details):
     """
     # TODO Rewrite at some point to use paginator
 
-    embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
+    embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
     if type(page) is int:
         page -= 1
-        embed.title = (":crossed_swords: Quests on " + details["server_name_clean"]
+        embed.title = (e.QUEST+" Quests on " + details["server_name_clean"]
                        + (" : Page " + str(page + 1) if page > 0 else ""))
         page_size = 12
         quests_list = list(quests.get_server_quest_list(ctx.server).values())
+        quests_list.sort(key=lambda server_quest: server_quest.times_beaten, reverse=True)
         if page * page_size >= len(quests_list):
             raise util.DueUtilException(None, "Page not found")
         if len(quests_list) > 0:
@@ -398,18 +402,18 @@ async def serverquests(ctx, page=1, **details):
 
         attributes_formatted = tuple(util.format_number(base_value, full_precision=True)
                                      for base_value in quest.base_values() + (quest.spawn_chance * 100,))
-        embed.add_field(name="Base stats", value=((":punch: ``Attack``: %s \n"
-                                                   + ":muscle: ``STRG``: %s\n"
-                                                   + ":dart: ``ACCY``: %s\n"
-                                                   + ":heart: ``HP``: %s\n"
-                                                   + ":new: ``Spawn %%``: %s\n") % attributes_formatted))
+        embed.add_field(name="Base stats", value=((e.ATK+" ``Attack``: %s \n"
+                                                   + e.STRG+" ``STRG``: %s\n"
+                                                   + e.ACCY+"``ACCY``: %s\n"
+                                                   + e.HP+" ``HP``: %s\n"
+                                                   + e.QUEST+" ``Spawn %%``: %s\n") % attributes_formatted))
         quest_weapon = weapons.get_weapon_from_id(quest.w_id)
-        embed.add_field(name="Other attributes", value=(":frame_photo: ``Image``: %s\n"
+        embed.add_field(name="Other attributes", value=(e.QUESTINFO+" ``Image``: %s\n"
                                                         % util.ultra_escape_string(quest.image_url)
                                                         + ':speech_left: ``Task message``: "%s"\n'
                                                         % util.ultra_escape_string(quest.task)
-                                                        + ":gun: ``Weapon``: %s\n" % quest_weapon
-                                                        + ":tv: ``Channel``: %s\n"
+                                                        + e.WPN+" ``Weapon``: %s\n" % quest_weapon
+                                                        + e.CHANNEL+" ``Channel``: %s\n"
                                                         % quest.get_channel_mention(ctx.server)), inline=False)
         embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)

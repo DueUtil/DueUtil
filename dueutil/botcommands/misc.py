@@ -11,7 +11,7 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
-from ..game import customizations, awards, leaderboards, game, players
+from ..game import customizations, awards, leaderboards, game
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
@@ -34,7 +34,7 @@ async def permissions(ctx, **_):
     await util.say(ctx.channel, permissions_report)
 
 
-@commands.command(args_pattern="SSS", hidden=True)
+@commands.command(args_pattern="S*", hidden=True)
 async def test(ctx, *args, **_):
     """A test command"""
 
@@ -95,8 +95,8 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     
     """
 
-    if not util.char_is_emoji(icon):
-        raise util.DueUtilException(ctx.channel, "Icon must be emoji!")
+    if not (util.char_is_emoji(icon) or util.is_server_emoji(ctx.server, icon)):
+        raise util.DueUtilException(ctx.channel, "Icon must be emoji available on this server!")
 
     if name != util.filter_string(name):
         raise util.DueUtilException(ctx.channel, "Invalid background name!")
@@ -372,7 +372,7 @@ async def updatebot(ctx, **_):
     update_result = update_result.decode("utf-8")
     if len(update_result.strip()) == 0:
         update_result = "No output."
-    update_embed = discord.Embed(title=":gear: Updating DueUtil!", type="rich", color=gconf.EMBED_COLOUR)
+    update_embed = discord.Embed(title=":gear: Updating DueUtil!", type="rich", color=gconf.DUE_COLOUR)
     update_embed.description = "Pulling lastest version from **GitLab**!"
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.say(ctx.channel, embed=update_embed)

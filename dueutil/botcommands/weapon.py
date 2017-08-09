@@ -28,7 +28,7 @@ async def myweapons(ctx, *args, **details):
         if len(player_weapons) > 0:
             weapon_store = weapons_page(player_weapons, page, title, price_divisor=4 / 3)
         else:
-            weapon_store = discord.Embed(title=title, type="rich", color=gconf.EMBED_COLOUR)
+            weapon_store = discord.Embed(title=title, type="rich", color=gconf.DUE_COLOUR)
             weapon_store.add_field(name="No weapons stored!",
                                    value="You can buy up to 6 more weapons from the shop and store them here!")
         weapon_store.description = "Currently equipped: " + str(player.weapon)
@@ -40,7 +40,7 @@ async def myweapons(ctx, *args, **details):
             player_weapons.append(player.weapon)
         weapon = next((weapon for weapon in player_weapons if weapon.name.lower() == weapon_name.lower()), None)
         if weapon is not None:
-            embed = discord.Embed(type="rich", color=gconf.EMBED_COLOUR)
+            embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
             info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
             await util.say(ctx.channel, embed=info)
         else:
@@ -184,7 +184,7 @@ async def mywagers(ctx, page=1, **details):
     page_size = 12
     page -= 1
     title = player.get_name_possession_clean() + " Received Wagers" + (" : Page " + str(page + 1) if page > 0 else "")
-    wagers_embed = discord.Embed(title=title, type="rich", color=gconf.EMBED_COLOUR)
+    wagers_embed = discord.Embed(title=title, type="rich", color=gconf.DUE_COLOUR)
     wager_list = player.received_wagers
     if len(wager_list) > 0:
         if page * page_size >= len(wager_list):

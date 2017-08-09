@@ -27,7 +27,7 @@ class FeedbackHandler:
         author_icon_url = author.avatar_url
         if author_icon_url == "":
             author_icon_url = author.default_avatar_url
-        report = discord.Embed(color=gconf.EMBED_COLOUR)
+        report = discord.Embed(color=gconf.DUE_COLOUR)
         report.set_author(name=author_name, icon_url=author_icon_url)
         report.add_field(name=self.type.title(), value="%s\n\n[Trello card](%s)" % (message, trello_link), inline=False)
         report.add_field(name=ctx.server.name, value=ctx.server.id)

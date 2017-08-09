@@ -1,6 +1,9 @@
 import discord
-import aiohttp
-import asyncio
+
+import time
+from datetime import datetime
+
+import repoze.timeago
 
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
@@ -8,6 +11,9 @@ from ..permissions import Permission
 from ..game import stats, awards, discoin
 from ..game.stats import Stat
 from .. import commands, events, util, permissions
+
+# Shorthand for emoji as I use gconf to hold emoji constants
+from ..game import emojis as e
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))
@@ -20,7 +26,7 @@ async def help(ctx, *args, **details):
 
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
 
-    help_embed = discord.Embed(title="DueUtil's Help", type="rich", color=gconf.EMBED_COLOUR)
+    help_embed = discord.Embed(title="DueUtil's Help", type="rich", color=gconf.DUE_COLOUR)
     server_key = details["cmd_key"]
     categories = events.command_event.category_list()
 
@@ -52,9 +58,9 @@ async def help(ctx, *args, **details):
                     command_help = 'Sorry there is no help for that command!'
 
             help_embed.description = "Showing help for **" + command_name + "**"
-            help_embed.add_field(name=command_name, value=command_help)
+            help_embed.add_field(name=":gear: "+command_name, value=command_help)
             if alias_count > 0:
-                help_embed.add_field(name=("Alias" if alias_count == 1 else "Aliases"),
+                help_embed.add_field(name=":performing_arts: "+("Alias" if alias_count == 1 else "Aliases"),
                                      value=', '.join(chosen_command.aliases), inline=False)
         else:
             category = arg
@@ -62,13 +68,13 @@ async def help(ctx, *args, **details):
 
             commands_for_all = events.command_event.command_list(
                 filter=lambda command:
-                    command.permission in (Permission.PLAYER, Permission.DISCORD_USER) and command.category == category)
+                command.permission in (Permission.PLAYER, Permission.DISCORD_USER) and command.category == category)
             admin_commands = events.command_event.command_list(
                 filter=lambda command:
-                    command.permission == Permission.SERVER_ADMIN and command.category == category)
+                command.permission == Permission.SERVER_ADMIN and command.category == category)
             server_op_commands = events.command_event.command_list(
                 filter=lambda command:
-                    command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
+                command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
 
             if len(commands_for_all) > 0:
                 help_embed.add_field(name='Commands for everyone', value=', '.join(commands_for_all), inline=False)
@@ -81,14 +87,15 @@ async def help(ctx, *args, **details):
         help_embed.set_thumbnail(url=util.get_client(ctx.server.id).user.avatar_url)
 
         help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
-        help_embed.add_field(name='Command categories', value=', '.join(categories))
-        help_embed.add_field(name="Tips", value=("If DueUtil reacts to your command it means something is wrong!\n"
-                                                 + "\":question:\": Something is wrong with the commands syntax.\n"
-                                                 + "\":x:\": You don't have the required permissions to use the command."))
-        help_embed.add_field(name="Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                  + "DueUtil site: https://dueutil.tech/\n"
-                                                  + "DueUtil guide: https://dueutil.tech/howto\n"
-                                                  + "Support server: https://discord.gg/n4b94VA\n"))
+        help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
+        help_embed.add_field(name=e.THINKY_FONK + " Tips",
+                             value=("If DueUtil reacts to your command it means something is wrong!\n"
+                                    + ":question: - Something is wrong with the commands syntax.\n"
+                                    + ":x: - You don't have the required permissions to use the command."))
+        help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
+                                                         + "DueUtil site: https://dueutil.tech/\n"
+                                                         + "DueUtil guide: https://dueutil.tech/howto\n"
+                                                         + "Support server: https://discord.gg/n4b94VA\n"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
@@ -96,15 +103,14 @@ async def help(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
-async def botinfo(ctx,**_):
-
+async def botinfo(ctx, **_):
     """
     [CMD_KEY]botinfo
 
     General information about DueUtil.
     """
 
-    info_embed = discord.Embed(title="DueUtil's Information", type="rich", color=gconf.EMBED_COLOUR)
+    info_embed = discord.Embed(title="DueUtil's Information", type="rich", color=gconf.DUE_COLOUR)
     info_embed.description = "DueUtil is customizable bot to add fun commands, quests and battles to your server."
     info_embed.add_field(name="Created by", value="[MacDue#4453](https://dueutil.tech/)")
     info_embed.add_field(name="Framework",
@@ -138,30 +144,43 @@ async def dustats(ctx, **_):
     """
 
     game_stats = stats.get_stats()
+    stats_embed = discord.Embed(title="DueUtil's Statistics!", type="rich", color=gconf.DUE_COLOUR)
 
-    stats_embed = discord.Embed(title="DueUtil's Stats", type="rich", color=gconf.EMBED_COLOUR)
+    stats_embed.description = ("The numbers and stuff of DueUtil right now!\n"
+                               + "The **worst** Discord bot since %s, %s!"
+                               % (gconf.DUE_START_DATE.strftime("%d/%m/%Y"),
+                                  repoze.timeago.get_elapsed(gconf.DUE_START_DATE)))
 
-    stats_embed.description = "DueUtil's global stats since the dawn of time"
-    stats_embed.add_field(name=":frame_photo: Images Served",
-                          value=util.format_number(game_stats.get(Stat.IMAGES_SERVED.value, 0), full_precision=True))
-    stats_embed.add_field(name=":moneybag: Awarded",
-                          value=util.format_number(game_stats.get(Stat.MONEY_CREATED.value, 0), full_precision=True,
-                                                   money=True))
-    stats_embed.add_field(name=":left_right_arrow: Players have transferred",
-                          value=util.format_number(game_stats.get(Stat.MONEY_TRANSFERRED.value, 0), full_precision=True,
-                                                   money=True))
-    stats_embed.add_field(name=":crossed_swords: Quests Given",
-                          value=util.format_number(game_stats.get(Stat.QUESTS_GIVEN.value, 0), full_precision=True))
-    stats_embed.add_field(name=":fist: Quests Attempted",
-                          value=util.format_number(game_stats.get(Stat.QUESTS_ATTEMPTED.value, 0), full_precision=True))
-    stats_embed.add_field(name=":up: Level Ups",
-                          value=util.format_number(game_stats.get(Stat.PLAYERS_LEVELED.value, 0), full_precision=True))
-    stats_embed.add_field(name=":new: New Players",
-                          value=util.format_number(game_stats.get(Stat.NEW_PLAYERS_JOINED.value, 0),
-                                                   full_precision=True))
-    stats_embed.add_field(name=":money_with_wings: Discoin Received",
-                          value=util.format_number(game_stats.get(Stat.DISCOIN_RECEIVED.value, 0), full_precision=True))
-    stats_embed.set_footer(text="DueUtil Shard \"" + str(util.get_client(ctx.server.id).name) + "\"")
+    # General
+    stats_embed.add_field(name="General",
+                          value=(e.MYINFO + " **%s** images served.\n"
+                                 % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
+                                 + e.DISCOIN + " **Đ%s** Discoin received.\n"
+                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED])))
+    # Game
+    stats_embed.add_field(name="Game",
+                          value=(e.QUESTER + " **%s** players.\n"
+                                 % util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])
+                                 + e.QUEST + " **%s** quests given.\n"
+                                 % util.format_number_precise(game_stats[Stat.QUESTS_GIVEN])
+                                 + e.FIST + " **%s** quests attempted.\n"
+                                 % util.format_number_precise(game_stats[Stat.QUESTS_ATTEMPTED])
+                                 + e.LEVEL_UP + " **%s** level ups.\n"
+                                 % util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED])
+                                 + e.DUT + " **%s** awarded.\n"
+                                 % util.format_money(game_stats[Stat.MONEY_CREATED])
+                                 + e.DUT_WITH_WINGS + " **%s** transferred between players."
+                                 % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])),
+                          inline=False)
+    # Sharding
+    shards = util.shard_clients
+    current_shard = util.get_client(ctx.server.id)
+    stats_embed.add_field(name="Shards",
+                          value=("You're connected to shard **%d**/**%d** (that is named %s).\n"
+                                 % (current_shard.shard_id + 1, len(shards), current_shard.name)
+                                 + "Current uptime (shard) is %s."
+                                 % util.display_time(time.time() - current_shard.start_time, granularity=4)),
+                          inline=False)
 
     await util.say(ctx.channel, embed=stats_embed)
 
@@ -177,7 +196,7 @@ async def duservers(ctx, **_):
 
     server_count = util.get_server_count()
     await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server"
-                                + ("s" if server_count != 1 else "") + "**")
+                   + ("s" if server_count != 1 else "") + "**")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
@@ -251,7 +270,7 @@ async def leave(ctx, cnf="", **details):
 
     if cnf.lower() == "cnf":
 
-        bye_embed = discord.Embed(title="Goodbye!", color=gconf.EMBED_COLOUR)
+        bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
         bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
         await util.say(ctx.channel, embed=bye_embed)
         try:
@@ -356,7 +375,7 @@ async def setuproles(ctx, **_):
     """
     server = ctx.server
     if not any(role.name == "Due Commander" for role in server.roles):
-        await util.get_client(ctx).create_role(server, name="Due Commander", color=discord.Color(gconf.EMBED_COLOUR))
+        await util.get_client(ctx).create_role(server, name="Due Commander", color=discord.Color(gconf.DUE_COLOUR))
         await util.say(ctx.channel, ":white_check_mark: Created ``Due Commander`` role!")
     else:
         await util.say(ctx.channel, "No roles need to be created!")
@@ -364,7 +383,6 @@ async def setuproles(ctx, **_):
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optout(ctx, **details):
-
     """
     [CMD_KEY]optout
 
@@ -399,7 +417,6 @@ async def optout(ctx, **details):
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optin(ctx, **details):
-
     """
     [CMD_KEY]optin
 
@@ -414,12 +431,11 @@ async def optin(ctx, **details):
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
         await util.say(ctx.channel, "You've opted in!\n"
-                                    + "Glad to have you back.")
+                       + "Glad to have you back.")
 
 
 @commands.command(args_pattern="CS")
 async def exchange(ctx, amount, currency, **details):
-
     """
     [CMD_KEY]exchange (amount) (currency)
 
@@ -439,9 +455,9 @@ async def exchange(ctx, amount, currency, **details):
     if player.money - amount < 0:
         if player.money - amount > 0:
             await util.say(ctx.channel, "You do not have **%s**!\n"
-                                        % util.format_number(amount, full_precision=True, money=True)
-                                        + "The maximum you can exchange is **%s**"
-                                        % util.format_number(player.money, full_precision=True, money=True))
+                           % util.format_number(amount, full_precision=True, money=True)
+                           + "The maximum you can exchange is **%s**"
+                           % util.format_number(player.money, full_precision=True, money=True))
         else:
             await util.say(ctx.channel, "You don't have any money to exchange!")
         return
@@ -469,7 +485,7 @@ async def exchange(ctx, amount, currency, **details):
             limit = transaction.get("limit", transaction.get("limitTotal"))
             limit_type = "total" if "limitTotal" in transaction else "daily"
             await util.say(ctx.channel, "Your transaction exceeds your %s limit of **Đ%s** for **%s**"
-                                        % (limit_type, util.format_number(limit, full_precision=True), currency))
+                           % (limit_type, util.format_number(limit, full_precision=True), currency))
         elif status == "approved":
             # Success
             await awards.give_award(ctx.channel, player, "Discoin")
@@ -477,13 +493,13 @@ async def exchange(ctx, amount, currency, **details):
             player.save()
             limit_now = int(transaction["limitNow"])
             receipt = transaction["receipt"]
-            exchange_embed = discord.Embed(title=":money_with_wings: Exchange complete!",
-                                           type="rich", color=gconf.EMBED_COLOUR)
+            exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!",
+                                           type="rich", color=gconf.DUE_COLOUR)
             exchange_embed.add_field(name="Exchange amount (DUT):",
                                      value=util.format_number(amount, money=True, full_precision=True))
             exchange_embed.add_field(name="Receipt:", value=receipt)
             exchange_embed.add_field(name="Daily exchange limit to %s left:" % currency,
-                                     value="Đ"+util.format_number(limit_now, full_precision=True), inline=False)
+                                     value="Đ" + util.format_number(limit_now, full_precision=True), inline=False)
             exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
             await util.say(ctx.channel, embed=exchange_embed)
         else:

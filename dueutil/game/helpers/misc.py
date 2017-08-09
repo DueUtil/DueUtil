@@ -262,7 +262,7 @@ def paginator(item_add):
     def page_getter(item_list, page, title, **extras):
         page_size = 12
         page_embed = discord.Embed(title=title + (" : Page " + str(page + 1) if page > 0 else ""), type="rich",
-                                   color=gconf.EMBED_COLOUR)
+                                   color=gconf.DUE_COLOUR)
         if page * page_size >= len(item_list):
             raise util.DueUtilException(None, "Page not found")
         for item_index in range(page_size * page, page_size * page + page_size):

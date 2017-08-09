@@ -12,6 +12,7 @@ from .. import awards, gamerules, stats, weapons, customizations
 from ..customizations import _Themes
 from ..configs import dueserverconfig
 from . import imagecache
+from .. import emojis as e
 
 """
 Worst code in the bot.
@@ -98,6 +99,10 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
+async def url_not_image(url):
+    pass
+
+
 async def load_image_url(url, **kwargs):
     if url is None:
         return None
@@ -165,7 +170,7 @@ async def level_up_screen(channel, player, cash):
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
     await send_image(channel, image, file_name="level_up.png",
-                     content=":point_up_2: **" + player.name_clean + "** Level Up!")
+                     content=e.LEVEL_UP+" **" + player.name_clean + "** Level Up!")
 
 
 async def new_quest_screen(channel, quest, player):
@@ -183,7 +188,7 @@ async def new_quest_screen(channel, quest, player):
     draw.text((71, 39), get_text_limit_len(draw, quest.name,
                                            font_big, 168 - width) + level_text, "white", font=font_big)
     await send_image(channel, image, file_name="new_quest.png",
-                     content=":crossed_swords: **" + player.name_clean + "** New Quest!")
+                     content=e.QUEST+" **" + player.name_clean + "** New Quest!")
 
 
 async def awards_screen(channel, player, page, **kwargs):

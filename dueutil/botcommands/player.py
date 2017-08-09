@@ -7,6 +7,7 @@ from ..game import players, customizations
 from ..game import stats, game
 from ..game.helpers import misc, playersabstract, imagehelper
 from .. import commands, util, dbconn
+from ..game import emojis as e
 
 DAILY_AMOUNT = 50
 TRAIN_RANGE = (0.1, 0.2)
@@ -26,7 +27,7 @@ async def daily(ctx, **details):
     player = details["author"]
     player.money += DAILY_AMOUNT
     player.save()
-    await util.say(ctx.channel, ":moneybag: **%s** collected their daily ¤%d!" % (player, DAILY_AMOUNT))
+    await util.say(ctx.channel, e.DUT + " **%s** collected their daily ¤%d!" % (player, DAILY_AMOUNT))
 
 
 @commands.command(args_pattern=None)
@@ -51,8 +52,7 @@ async def train(ctx, **details):
     accy_increase = random.uniform(*TRAIN_RANGE)
     player.progress(attack_increase, strg_increase, accy_increase,
                     max_exp=100, max_attr=0.3)
-    progress_message = ":crossed_swords:+%.2f:muscle:+%.2f:dart:+%.2f"\
-                       % (attack_increase, strg_increase, accy_increase)
+    progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
     await game.check_for_level_up(ctx, player)
     player.save()
     await util.say(ctx.channel, "**%s** training complete!\n%s" % (player, progress_message))
@@ -68,7 +68,7 @@ async def mylimit(ctx, **details):
 
     player = details["author"]
     await util.say(ctx.channel, "You're currently limited to weapons with a value up to **%s**!"
-                                % util.format_number(player.item_value_limit, money=True, full_precision=True))
+                   % util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
 @commands.command(args_pattern="S?")
@@ -87,7 +87,7 @@ async def battlename(ctx, name="", **details):
         if len(name) not in name_len_range:
             raise util.DueUtilException(ctx.channel, ("Battle name must be between **"
                                                       + str(min(name_len_range)) + "-" + str(
-                                                        max(name_len_range)) + "** characters long!"))
+                max(name_len_range)) + "** characters long!"))
         player.name = name
     else:
         player.name = details["author_name"]
@@ -162,7 +162,6 @@ async def info(ctx, player, **_):
 
 
 async def show_awards(ctx, player, page=0, **options):
-
     if page > len(player.awards) // 5:
         raise util.DueUtilException(ctx.channel, "Page not found")
 
@@ -178,7 +177,7 @@ async def myawards(ctx, page=1, **details):
     Shows your awards!
     """
 
-    await show_awards(ctx, details["author"], page-1, is_player_sender=True)
+    await show_awards(ctx, details["author"], page - 1, is_player_sender=True)
 
 
 @commands.command(args_pattern='PC?')
@@ -190,7 +189,7 @@ async def awards(ctx, player, page=1, **_):
     Shows a players awards!
     """
 
-    await show_awards(ctx, player, page-1)
+    await show_awards(ctx, player, page - 1)
 
 
 @commands.command(args_pattern="S?")
@@ -261,8 +260,8 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
-    transaction_log = discord.Embed(title=":moneybag: Transaction complete!", type="rich",
-                                    color=gconf.EMBED_COLOUR)
+    transaction_log = discord.Embed(title=e.DUT_WITH_WINGS + " Transaction complete!", type="rich",
+                                    color=gconf.DUE_COLOUR)
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
     transaction_log.add_field(name="Transaction amount (DUT):", value=amount_string, inline=False)
@@ -413,8 +412,8 @@ def banner_page(banners_embed, banner, **extras):
     price_divisor = extras.get('price_divisor', 1)
     banners_embed.add_field(name=banner.icon + " | " + banner.name,
                             value=(banner.description + "\n ``"
-                                                      + util.format_number(banner.price // price_divisor,
-                                                                           money=True, full_precision=True) + "``"))
+                                   + util.format_number(banner.price // price_divisor,
+                                                        money=True, full_precision=True) + "``"))
 
 
 def theme_info(theme_name, **details):
