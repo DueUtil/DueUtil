@@ -254,7 +254,7 @@ async def editquest(ctx, quest_name, *updates, **_):
     This is also how you set quest channels!
     
     Properties:
-        __attack__, __hp__, __accy__, __spawn__, __weap__,
+        __attack__, __hp__, __accy__, __spawn__, __weapon__,
         __image__, __task__, __strg__ and __channel__
         
     Example usage:
@@ -264,7 +264,7 @@ async def editquest(ctx, quest_name, *updates, **_):
         [CMD_KEY]editquest slime channel ``#slime_fields``
     """
 
-    editable_props = ("attack", "strg", "hp", "accy", "spawn", "weap", "image", "task", "channel")
+    editable_props = ("attack", "strg", "hp", "accy", "spawn", "weapon", "image", "task", "channel")
     changes = OrderedDict()
     quest = quests.get_quest_on_server(ctx.server, quest_name)
 
@@ -274,6 +274,8 @@ async def editquest(ctx, quest_name, *updates, **_):
     next_prop = 0
     while next_prop < len(updates) - 1:
         quest_property = updates[next_prop].lower()
+        if quest_property == "weap":
+            quest_property = "weapon"
         if quest_property in editable_props:
             if editable_props.index(quest_property) <= 4:
                 try:
@@ -293,7 +295,7 @@ async def editquest(ctx, quest_name, *updates, **_):
                 quest.spawn_chance = value / 100
             elif quest_property == "strg" and value >= 1:
                 quest.base_strg = value
-            elif quest_property == "weap" and weapons.find_weapon(ctx.server, value) is not None:
+            elif quest_property == "weapon" and weapons.find_weapon(ctx.server, value) is not None:
                 weapon = weapons.find_weapon(ctx.server, value)
                 quest.w_id = weapon.w_id
                 value = str(weapon)
@@ -315,7 +317,7 @@ async def editquest(ctx, quest_name, *updates, **_):
             else:
                 changed = False
             if changed:
-                if quest_property != "channel":
+                if quest_property not in ("channel", "weapon"):
                     changes[quest_property] = util.ultra_escape_string(str(value))
                 else:
                     changes[quest_property] = value
@@ -402,18 +404,18 @@ async def serverquests(ctx, page=1, **details):
 
         attributes_formatted = tuple(util.format_number(base_value, full_precision=True)
                                      for base_value in quest.base_values() + (quest.spawn_chance * 100,))
-        embed.add_field(name="Base stats", value=((e.ATK+" ``Attack``: %s \n"
-                                                   + e.STRG+" ``STRG``: %s\n"
-                                                   + e.ACCY+"``ACCY``: %s\n"
-                                                   + e.HP+" ``HP``: %s\n"
-                                                   + e.QUEST+" ``Spawn %%``: %s\n") % attributes_formatted))
+        embed.add_field(name="Base stats", value=((e.ATK+" **ATK** - %s \n"
+                                                   + e.STRG+" **STRG** - %s\n"
+                                                   + e.ACCY+" **ACCY** - %s\n"
+                                                   + e.HP+" **HP** - %s\n"
+                                                   + e.QUEST+" **Spawn %%** - %s\n") % attributes_formatted))
         quest_weapon = weapons.get_weapon_from_id(quest.w_id)
-        embed.add_field(name="Other attributes", value=(e.QUESTINFO+" ``Image``: %s\n"
+        embed.add_field(name="Other attributes", value=(e.QUESTINFO+" **Image** - [Click to view](%s)\n"
                                                         % util.ultra_escape_string(quest.image_url)
-                                                        + ':speech_left: ``Task message``: "%s"\n'
+                                                        + ':speech_left: **Task message** - "%s"\n'
                                                         % util.ultra_escape_string(quest.task)
-                                                        + e.WPN+" ``Weapon``: %s\n" % quest_weapon
-                                                        + e.CHANNEL+" ``Channel``: %s\n"
+                                                        + e.WPN+" **Weapon** - %s\n" % quest_weapon
+                                                        + e.CHANNEL+" **Channel** - %s\n"
                                                         % quest.get_channel_mention(ctx.server)), inline=False)
         embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)

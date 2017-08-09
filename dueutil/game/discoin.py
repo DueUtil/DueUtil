@@ -69,7 +69,7 @@ async def unprocessed_transactions():
                 return json.loads(result)
 
 
-@tasks.task(timeout=10000000)
+@tasks.task(timeout=300)
 async def process_transactions():
     util.logger.info("Processing Discoin transactions.")
     try:

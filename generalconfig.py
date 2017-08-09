@@ -29,7 +29,7 @@ DONOR_ROLE_ID = "343059674054262814"
 
 BOT_INVITE = "https://dueutil.tech/invite"
 
-VERSION = "Release 2.0.5"
+VERSION = "Release 2.0.6"
 
 
 def load_config_json():
