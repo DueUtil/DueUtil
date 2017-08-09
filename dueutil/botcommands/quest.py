@@ -327,7 +327,7 @@ async def editquest(ctx, quest_name, *updates, **_):
     for quest_property, value in changes.items():
         changes_message += "``%s`` → %s\n" % (quest_property, value)
     if len(changes_message):
-        await util.say(ctx.channel, (":white_check_mark: Quest **" + quest_name + "** edited:\n"
+        await util.say(ctx.channel, (":white_check_mark: Quest **" + quest.name_clean + "** edited:\n"
                                      + changes_message))
     else:
         await util.say(ctx.channel, (":x: **No changes made!**\n"
