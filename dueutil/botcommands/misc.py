@@ -12,6 +12,7 @@ from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
 from ..game import customizations, awards, leaderboards, game
+from ..game import emojis
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
@@ -280,7 +281,7 @@ async def setpermlevel(ctx, player, level, **_):
 async def ban(ctx, player, **_):
     member = discord.Member(user={"id": player.id})
     dueutil.permissions.give_permission(member, Permission.BANNED)
-    await util.say(ctx.channel, ":hammer: **" + player.name_clean + "** banned!")
+    await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 

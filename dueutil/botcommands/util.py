@@ -176,7 +176,7 @@ async def dustats(ctx, **_):
     shards = util.shard_clients
     current_shard = util.get_client(ctx.server.id)
     stats_embed.add_field(name="Shards",
-                          value=("You're connected to shard **%d**/**%d** (that is named %s).\n"
+                          value=("You're connected to shard **%d/%d** (that is named %s).\n"
                                  % (current_shard.shard_id + 1, len(shards), current_shard.name)
                                  + "Current uptime (shard) is %s."
                                  % util.display_time(time.time() - current_shard.start_time, granularity=4)),
