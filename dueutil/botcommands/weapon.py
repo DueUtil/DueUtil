@@ -163,6 +163,9 @@ async def wagerbattle(ctx, receiver, money, **details):
     if sender.money - money < 0:
         raise util.DueUtilException(ctx.channel, "You can't afford this wager!")
 
+    if len(receiver.received_wagers) >= gconf.THING_AMOUNT_CAP:
+        raise util.DueUtilException(ctx.channel, "**%s** wager inbox is full!" % receiver.get_name_possession_clean())
+
     battles.BattleRequest(sender, receiver, money)
 
     await util.say(ctx.channel, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
@@ -324,7 +327,7 @@ async def declinewager(ctx, wager_index, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSCCB?S?S?')
-async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image=None, **_):
+async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image_url=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
     
@@ -345,15 +348,20 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
     """
 
+    if len(weapons.get_weapons_for_server(ctx.server)) >= gconf.THING_AMOUNT_CAP:
+        raise util.DueUtilException(ctx.channel, "Sorry you've used all %s slots in your shop!"
+                                                 % gconf.THING_AMOUNT_CAP)
+
     extras = dict()
     extras['melee'] = not ranged
     extras['icon'] = icon
-    if image is not None:
-        extras['image_url'] = image
+    if image_url is not None:
+        extras['image_url'] = image_url
 
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
     await util.say(ctx.channel, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
                                  + util.format_number(weapon.price, money=True) + "!"))
+    await imagehelper.warn_on_invalid_image(ctx.channel, url=image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')

@@ -28,6 +28,7 @@ trello_client = TrelloClient(api_key=gconf.trello_api_key,
 
 
 class DueLog:
+
     @staticmethod
     async def bot(message, **kwargs):
         await say(gconf.log_channel, ":robot: %s" % message, **kwargs)
@@ -107,6 +108,10 @@ async def download_file(url):
 
 
 async def say(channel, *args, **kwargs):
+    if type(channel) is str:
+        # Server/Channel id
+        server_id, channel_id = channel.split("/")
+        channel = get_server(server_id).get_channel(channel_id)
     if "client" in kwargs:
         client = kwargs["client"]
         del kwargs["client"]

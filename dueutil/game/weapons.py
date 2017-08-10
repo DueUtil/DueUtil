@@ -146,9 +146,7 @@ def get_weapon_from_id(weapon_id: str) -> Weapon:
 
 
 def does_weapon_exist(server_id: str, weapon_name: str) -> bool:
-    if get_weapon_for_server(server_id, weapon_name) is not None:
-        return True
-    return False
+    return get_weapon_for_server(server_id, weapon_name) is not None
 
 
 def get_weapon_for_server(server_id: str, weapon_name: str) -> Weapon:

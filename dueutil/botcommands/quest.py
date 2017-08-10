@@ -224,6 +224,9 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         This creates a quest with the same base values as before but with the message "Kill the"
         when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
     """
+    if len(quests.get_server_quest_list(ctx.server)) >= gconf.THING_AMOUNT_CAP:
+        raise util.DueUtilException(ctx.server, "Whoa, you've reached the limit of %d quests!"
+                                                % gconf.THING_AMOUNT_CAP)
 
     extras = dict()
     if task is not None:
@@ -241,6 +244,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
+    await imagehelper.warn_on_invalid_image(ctx.channel, url=image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')

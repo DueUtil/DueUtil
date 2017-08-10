@@ -6,6 +6,8 @@ from io import BytesIO
 from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
+import aiohttp
+import asyncio
 
 from dueutil import util
 from .. import awards, gamerules, stats, weapons, customizations
@@ -99,8 +101,27 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
-async def url_not_image(url):
-    pass
+async def url_image(url):
+    # Checks headers only
+    try:
+        with aiohttp.Timeout(3):
+            async with aiohttp.ClientSession() as session:
+                async with session.head(url=url, allow_redirects=True) as response:
+                    return "Content-Type" in response.headers and \
+                           response.headers["Content-Type"].lower().startswith("image")
+    except Exception as exception:
+        util.logger.error("Got %s while checking image url.", exception)
+        # Do not care about any of the network errors that could occur.
+        pass
+    return False
+
+
+async def warn_on_invalid_image(channel, url):
+    # A generic warning.
+    if not await url_image(url):
+        await util.say(channel,
+                       (":warning: The URL you used does not seem to be an image!\n"
+                        + "The URL must point directly to an image file such as <https://dueutil.tech/img/logo.png>."))
 
 
 async def load_image_url(url, **kwargs):
@@ -295,7 +316,7 @@ async def quests_screen(channel, player, page):
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
     await send_image(channel, image, file_name="myquests.png",
-                     content=":crossed_swords: **" + player.get_name_possession_clean() + "** Quests!")
+                     content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
 
 
 async def stats_screen(channel, player):

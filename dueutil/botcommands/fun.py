@@ -1,4 +1,3 @@
-import math
 from datetime import datetime
 
 import discord
@@ -9,6 +8,7 @@ import generalconfig as gconf
 from .. import commands, util, dbconn
 from ..game import awards, players, leaderboards
 from ..game.helpers import misc, imagehelper
+from ..game import emojis
 
 
 async def glitter_text(channel, text):
@@ -64,87 +64,152 @@ async def eyes(ctx, eye_description="", **details):
     await imagehelper.googly_eyes(ctx.channel, eye_description)
 
 
-@commands.command(args_pattern="C?")
-async def leaderboard(ctx, page=1, **details):
+@commands.command(args_pattern="C?", aliases=("globalrankings", "globalleaderboard", "gleaderboard"))
+async def globalranks(ctx, page=1, **details):
+    """
+    [CMD_KEY]globalranks (page)
+
+    Global DueUtil leaderboard
+    """
+
+    await leaderboard.__wrapped__(ctx, mixed="global", page_alt=page, **details)
+
+
+@commands.command(args_pattern="M?C?", aliases=("ranks", "rankings"))
+async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     """
     [CMD_KEY]leaderboard (page)
+    or for global ranks
+    [CMD_KEY]leaderboard global (page)
+    [CMD_KEY]globalranks (page)
     
     The global leaderboard of DueUtil!
     
-    The leaderboard updated every hour.
+    The leaderboard updated every hour*.
     
-    Bet someone's gonna whine about there not being a server leaderboard now.
-    Don't worry I'll add one if there is demand.
+    **Now with local**
+
+    *May be longer.
     
     """
 
     page_size = 10
-    # Subtract one as the count arg type starts at 1 not zero.
-    page -= 1
 
-    leaderboard_embed = discord.Embed(title="DueUtil Leaderboard", type="rich", color=gconf.DUE_COLOUR)
-
-    player_leaderboard = leaderboards.get_leaderboard("levels")
-    if player_leaderboard is not None:
-
-        leaderboard_data = player_leaderboard[0]
-
-        if page > 0:
-            leaderboard_embed.title += ": Page " + str(page + 1)
-        if page * page_size >= len(leaderboard_data):
-            raise util.DueUtilException(ctx.channel, "Page not found")
-
-        index = 0
-        for index in range(page_size * page, page_size * page + page_size):
-            if index >= len(leaderboard_data):
-                break
-            bonus = ""
-            if index == 0:
-                bonus = "     :first_place:"
-            elif index == 1:
-                bonus = "     :second_place:"
-            elif index == 2:
-                bonus = "     :third_place:"
-            player = leaderboard_data[index]
-            name = player.name_clean
-            player_id = "<@" + player.id + ">"
-            level = str(math.trunc(player.level))
-            leaderboard_embed.add_field(name="#" + str(index + 1) + bonus,
-                                        value=(name + " " + player_id + " ``Level " + level + "``"
-                                               + " ``Total Exp: " + str(math.trunc(player.total_exp))) + "``",
-                                        inline=False)
-            last_updated = datetime.fromtimestamp(leaderboards.last_leaderboard_update)
-            leaderboard_embed.set_footer(text="Leaderboard calculated " + repoze.timeago.get_elapsed(last_updated))
-        if index < len(leaderboard_data) - 1:
-            leaderboard_embed.add_field(name="+" + str(len(leaderboard_data) - (page_size * (page + 1))) + " more!",
-                                        value="Do ``" + details["cmd_key"] + "leaderboard " + str(
-                                            page + 2) + "`` for the next page!", inline=False)
+    # Handle weird page args
+    if type(mixed) is int:
+        page = mixed - 1
+        local = True
     else:
-        leaderboard_embed.set_image(url="http://i.imgur.com/KQd9EJ9.gif")
-        leaderboard_embed.add_field(name="Sorry", value=("The leaderboard has yet to be calculated!\n"
-                                                         + "Check again soon!"))
+        local = mixed.lower() != "global"
+        page = page_alt - 1
+
+    # Local/Global
+    if local:
+        title = "DueUtil Leaderboard on %s" % details["server_name_clean"]
+        # Cached.
+        local_leaderboard = leaderboards.get_local_leaderboard(ctx.server, "levels")
+        leaderboard_data = local_leaderboard.data
+        last_updated = local_leaderboard.updated
+    else:
+        title = "DueUtil Global Leaderboard"
+        leaderboard_data = leaderboards.get_leaderboard("levels")
+        last_updated = leaderboards.last_leaderboard_update
+
+    if leaderboard_data is None:
+        await util.say(ctx.channel, "The leaderboard has yet to be calculated!\n"
+                       + "Check again soon!")
+        return
+
+    leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title),
+                                      type="rich", color=gconf.DUE_COLOUR)
+
+    if page > 0:
+        leaderboard_embed.title += ": Page %d" % (page + 1)
+    if page * page_size >= len(leaderboard_data):
+        raise util.DueUtilException(ctx.channel, "Page not found")
+
+    index = 0
+    for index in range(page_size * page, page_size * page + page_size):
+        if index >= len(leaderboard_data):
+            break
+        bonus = ""
+        if index == 0:
+            bonus = "     :first_place:"
+        elif index == 1:
+            bonus = "     :second_place:"
+        elif index == 2:
+            bonus = "     :third_place:"
+        player = leaderboard_data[index]
+        user_info = ctx.server.get_member(player.id)
+        if user_info is None:
+            user_info = player.id
+        leaderboard_embed \
+            .add_field(name="#%s" % (index + 1) + bonus,
+                       value="[%s **``Level %s``**](https://dueutil.tech/player/id/%s) (%s) | **Total EXP** %d"
+                             % (player.name_clean, player.level, player.id,
+                                util.ultra_escape_string(user_info), player.total_exp), inline=False)
+        leaderboard_embed.set_footer(text="Leaderboard calculated "
+                                          + repoze.timeago.get_elapsed(datetime.fromtimestamp(last_updated)))
+    if index < len(leaderboard_data) - 1:
+        remaining_players = len(leaderboard_data) - page_size * (page + 1)
+        leaderboard_embed.add_field(name="+%d more!" % remaining_players,
+                                    value="Do ``%sleaderboard %d`` for the next page!"
+                                          % (details["cmd_key"], page + 2), inline=False)
+
     await util.say(ctx.channel, embed=leaderboard_embed)
 
 
-@commands.command(args_pattern=None)
-async def myrank(ctx, **details):
+async def rank_command(ctx, player, ranks="", **details):
+    ranks = ranks.lower()
+    local = ranks != "global"
+
+    if local:
+        position = leaderboards.get_rank(player, "levels", ctx.server)
+        padding = ""
+    else:
+        position = leaderboards.get_rank(player, "levels")
+        padding = " "
+
+    player_is_author = ctx.author.id == player.id
+    player_name = "**%s**" % player.name_clean
+
+    if position != -1:
+        page = position // 10
+        await util.say(ctx.channel, (":sparkles: "+("You're" if player_is_author else player_name)
+                                     + " **{0}** on the{4}{3} leaderboard!\n"
+                                     + "That's on page {1} (``{2}leaderboard{4}{3} {1}``)!")
+                                    .format(util.int_to_ordinal(position), page+1, details["cmd_key"], ranks, padding))
+    else:
+        await util.say(ctx.channel, (":confounded: I can't find "
+                                     + ("you" if player_is_author else player_name)
+                                     + " on the {0}{1}leaderboard!?\n".format(ranks, padding)
+                                     + "You'll need to wait till it next updates!" * player_is_author))
+
+
+@commands.command(args_pattern="S?")
+async def myrank(ctx, ranks="", **details):
     """
     [CMD_KEY]myrank
+    or for your global rank
+    [CMD_KEY]myrank global
     
-    Tells you where you are in the [CMD_KEY]leaderboard. 
+    Tells you where you are on the [CMD_KEY]leaderboard.
     """
 
-    player = details["author"]
-    try:
-        leaderboard_data = leaderboards.get_leaderboard("levels")[0]
-        position = leaderboard_data.index(player)
-        page = position // 10
-        await util.say(ctx.channel, (":sparkles: You're position **" + str(position + 1) + "** on the leaderboard!\n"
-                                     + "That's on ``" + details["cmd_key"]
-                                     + "leaderboard`` page " + str(page + 1) + "!"))
-    except (IndexError, ValueError):
-        await util.say(ctx.channel, (":confounded: I can't find you in the leaderboard!?\n"
-                                     + "This probably means you're new and leaderboard has not updated yet!"))
+    await rank_command(ctx, details["author"], ranks, **details)
+
+
+@commands.command(args_pattern="PS?")
+async def rank(ctx, player, ranks="", **details):
+    """
+    [CMD_KEY]rank @player
+    or for the global rank
+    [CMD_KEY]rank @player global
+
+    Tells you where a player is on the [CMD_KEY]leaderboard.
+    """
+
+    await rank_command(ctx, player, ranks, **details)
 
 
 async def give_emoji(channel, sender, receiver, emoji):

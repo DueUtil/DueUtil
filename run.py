@@ -142,6 +142,7 @@ class DueUtilClient(discord.Client):
             if ctx_is_message:
                 channel = ctx.channel
                 util.logger.warning("Missing permissions in channel %s (%s)", channel.name, channel.id)
+                return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
         elif isinstance(error, aiohttp.errors.ClientResponseError):
@@ -218,33 +219,10 @@ class DueUtilClient(discord.Client):
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
-        self.__set_log_channels()
         self.loaded = True
         if loaded():
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
-
-    def __set_log_channels(self):
-
-        """
-        Setup the logging channels as the bot loads
-        """
-
-        channel = self.get_channel(config["logChannel"])
-        if channel is not None:
-            gconf.log_channel = channel
-        channel = self.get_channel(config["errorChannel"])
-        if channel is not None:
-            gconf.error_channel = channel
-        channel = self.get_channel(config["feedbackChannel"])
-        if channel is not None:
-            gconf.feedback_channel = channel
-        channel = self.get_channel(config["bugChannel"])
-        if channel is not None:
-            gconf.bug_channel = channel
-        channel = self.get_channel(config["announcementsChannel"])
-        if channel is not None:
-            gconf.announcement_channel = channel
 
 
 class ShardThread(Thread):
@@ -303,7 +281,7 @@ def run_due():
 
 
 def loaded():
-    return all(client.loaded for client in shard_clients)
+    return len(shard_clients) == shard_count and all(client.loaded for client in shard_clients)
 
 
 if __name__ == "__main__":
