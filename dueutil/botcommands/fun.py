@@ -147,7 +147,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
             .add_field(name="#%s" % (index + 1) + bonus,
                        value="[%s **``Level %s``**](https://dueutil.tech/player/id/%s) (%s) | **Total EXP** %d"
                              % (player.name_clean, player.level, player.id,
-                                util.ultra_escape_string(user_info), player.total_exp), inline=False)
+                                util.ultra_escape_string(str(user_info)), player.total_exp), inline=False)
         leaderboard_embed.set_footer(text="Leaderboard calculated "
                                           + repoze.timeago.get_elapsed(datetime.fromtimestamp(last_updated)))
     if index < len(leaderboard_data) - 1:

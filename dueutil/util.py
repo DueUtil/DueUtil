@@ -174,7 +174,7 @@ def ultra_escape_string(string):
     """
 
     if not isinstance(string, str):
-        return string
+        return string  # Dick move not to raise a ValueError here.
     escaped_string = string
     escaped = []
     for character in string:
