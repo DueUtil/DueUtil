@@ -115,9 +115,9 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         leaderboard_data = leaderboards.get_leaderboard("levels")
         last_updated = leaderboards.last_leaderboard_update
 
-    if leaderboard_data is None:
+    if leaderboard_data is None or len(leaderboard_data) == 0:
         await util.say(ctx.channel, "The leaderboard has yet to be calculated!\n"
-                       + "Check again soon!")
+                                    + "Check again soon!")
         return
 
     leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title),
