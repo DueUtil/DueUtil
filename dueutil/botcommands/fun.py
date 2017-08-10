@@ -177,8 +177,9 @@ async def rank_command(ctx, player, ranks="", **details):
         page = position // 10
         await util.say(ctx.channel, (":sparkles: "+("You're" if player_is_author else player_name+" is")
                                      + " **{0}** on the{4}{3} leaderboard!\n"
-                                     + "That's on page {1} (``{2}leaderboard{4}{3} {1}``)!")
-                                    .format(util.int_to_ordinal(position), page+1, details["cmd_key"], ranks, padding))
+                                     + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
+                                    .format(util.int_to_ordinal(position), page+1,
+                                            details["cmd_key"], ranks, padding, page if page > 1 else ""))
     else:
         await util.say(ctx.channel, (":confounded: I can't find "
                                      + ("you" if player_is_author else player_name)
@@ -192,7 +193,7 @@ async def myrank(ctx, ranks="", **details):
     [CMD_KEY]myrank
     or for your global rank
     [CMD_KEY]myrank global
-    
+
     Tells you where you are on the [CMD_KEY]leaderboard.
     """
 
@@ -210,6 +211,20 @@ async def rank(ctx, player, ranks="", **details):
     """
 
     await rank_command(ctx, player, ranks, **details)
+
+
+@commands.command(args_pattern="P?", aliases=("grank",))
+async def globalrank(ctx, player=None, **details):
+    """
+    [CMD_KEY]globalrank
+    or [CMD_KEY]globalrank @player
+
+    Find your or another player's global rank.
+    """
+
+    if player is None:
+        player = details["author"]
+    await rank_command(ctx, player, "global", **details)
 
 
 async def give_emoji(channel, sender, receiver, emoji):
