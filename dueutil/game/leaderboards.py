@@ -3,9 +3,8 @@ import time
 
 from .. import events, util, dbconn
 from ..game import players
-from functools import lru_cache
 from collections import namedtuple
-
+from cachetools.func import ttl_cache
 
 leaderboards = dict()
 last_leaderboard_update = 0
@@ -33,7 +32,7 @@ def get_leaderboard(rank_name):
         return leaderboards[rank_name][0]
 
 
-@lru_cache(maxsize=32)
+@ttl_cache(maxsize=32, ttl=3600)
 def get_local_leaderboard(server, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:

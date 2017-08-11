@@ -17,7 +17,7 @@ trello_board = "https://trello.com/b/1ykaASKj/dueutil"
 
 # Silly things:
 DEAD_BOT_ID = "173391791884599297"
-DUE_START_DATE = datetime.fromtimestamp(1498820132)
+DUE_START_DATE = datetime.utcfromtimestamp(1498820132)
 
 # Misc
 THE_DEN = "213007664005775360"

@@ -193,6 +193,11 @@ def stock_weapon(weapon_name: str) -> str:
     return NO_WEAPON_ID
 
 
+def remove_all_weapons(server):
+    dbconn.delete_objects(Weapon, '%s\+.*' % server.id)
+    del weapons[server]
+
+
 def _load():
     def load_stock_weapons():
         with open('dueutil/game/configs/defaultweapons.json') as defaults_file:

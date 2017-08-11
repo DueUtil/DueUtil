@@ -255,6 +255,7 @@ async def shutupdue(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
+@commands.require_cnf(warning="The bot will leave your server and __**everything**__ will be reset!")
 async def leave(ctx, cnf="", **details):
     """
     [CMD_KEY]leave
@@ -268,19 +269,13 @@ async def leave(ctx, cnf="", **details):
     
     """
 
-    if cnf.lower() == "cnf":
-
-        bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
-        bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
-        await util.say(ctx.channel, embed=bye_embed)
-        try:
-            await util.get_client(ctx.server.id).leave_server(ctx.server)
-        except:
-            raise util.DueUtilException(ctx.channel, "Could not leave server!")
-    else:
-        await util.say(ctx.channel,
-                       (":cry: You sure? The bot will leave your server and __**everything**__ will be reset!\n"
-                        + "\nDo ``" + details["cmd_key"] + "leave cnf`` if you're sure!"))
+    bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
+    bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
+    await util.say(ctx.channel, embed=bye_embed)
+    try:
+        await util.get_client(ctx.server.id).leave_server(ctx.server)
+    except:
+        raise util.DueUtilException(ctx.channel, "Could not leave server!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)

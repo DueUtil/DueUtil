@@ -194,6 +194,7 @@ async def awards(ctx, player, page=1, **_):
 
 
 @commands.command(args_pattern="S?")
+@commands.require_cnf(warning="This will **__permanently__** reset your user!")
 async def resetme(ctx, cnf="", **details):
     """
     [CMD_KEY]resetme
@@ -201,13 +202,10 @@ async def resetme(ctx, cnf="", **details):
     Resets all your stats & any customization.
     This cannot be reversed!
     """
-    if cnf.lower() == "cnf":
-        player = details["author"]
-        player.reset(ctx.author)
-        await util.say(ctx.channel, "Your user has been reset.")
-    else:
-        await util.say(ctx.channel, ("Are you sure?! This will **__permanently__** reset your user!"
-                                     + "\nDo ``" + details["cmd_key"] + "resetme cnf`` if you're sure!"))
+
+    player = details["author"]
+    player.reset(ctx.author)
+    await util.say(ctx.channel, "Your user has been reset.")
 
 
 @commands.command(args_pattern='PCS?')

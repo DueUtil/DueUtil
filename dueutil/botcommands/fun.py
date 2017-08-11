@@ -150,14 +150,14 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
                        value="[%s **``Level %s``**](https://dueutil.tech/player/id/%s) (%s) | **Total EXP** %d"
                              % (player.name_clean, player.level, player.id,
                                 util.ultra_escape_string(str(user_info)), player.total_exp), inline=False)
-        leaderboard_embed.set_footer(text="Leaderboard calculated "
-                                          + repoze.timeago.get_elapsed(datetime.fromtimestamp(last_updated)))
+
     if index < len(leaderboard_data) - 1:
         remaining_players = len(leaderboard_data) - page_size * (page + 1)
         leaderboard_embed.add_field(name="+%d more!" % remaining_players,
                                     value="Do ``%sleaderboard%s %d`` for the next page!"
                                           % (details["cmd_key"], "" if local else " global", page + 2), inline=False)
-
+    leaderboard_embed.set_footer(text="Leaderboard calculated "
+                                      + repoze.timeago.get_elapsed(datetime.utcfromtimestamp(last_updated)))
     await util.say(ctx.channel, embed=leaderboard_embed)
 
 

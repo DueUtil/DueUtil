@@ -297,6 +297,11 @@ def add_default_quest_to_server(server):
           no_save=True)
 
 
+def remove_all_quests(server):
+    dbconn.delete_objects(Quest, '%s/.*' % server.id)
+    del quest_map[server]
+
+
 def has_quests(place):
     if isinstance(place, discord.Server):
         return place in quest_map and len(quest_map[place]) > 0

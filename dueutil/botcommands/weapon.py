@@ -382,6 +382,20 @@ async def removeweapon(ctx, weapon_name, **_):
     await util.say(ctx.channel, "**" + weapon.name_clean + "** has been removed from the shop!")
 
 
+@commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
+@commands.require_cnf(warning="This will **__permanently__** delete all weapons from your shop!")
+async def resetweapons(ctx, **_):
+    """
+    [CMD_KEY]resetweapons
+
+    Screw over everyone on your server!
+    This command **deletes all weapons** on your server.
+    """
+
+    weapons.remove_all_weapons(ctx.server)
+    await util.say(ctx.channel, "All weapons have been deleted.")
+
+
 # Part of the shop buy command
 async def buy_weapon(weapon_name, **details):
     customer = details["author"]

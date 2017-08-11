@@ -1,19 +1,16 @@
 import asyncio
-import re
 import time
 from functools import wraps
 
 from . import permissions
 from .game import players
 from .game.configs import dueserverconfig
-from .game.helpers import misc
-from . import events, util
+from . import events, util, commandtypes
 from .permissions import Permission
+from . import commandextras
 
+extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 5
-# The max number the bot will accept. To avoid issues with crazy big numbers.
-MAX_NUMBER = 99999999999999999999999999999999999999999999
-STRING_TYPES = ('S', 'M')
 
 """
 DueUtils random command system.
@@ -79,7 +76,7 @@ def command(**command_rules):
                         await util.get_client(ctx.server.id).add_reaction(ctx, u"\u2753")
                     else:
                         # May have meant to call a personal command
-                        personal_command_name = "my"+name
+                        personal_command_name = "my" + name
                         await events.command_event[personal_command_name](ctx, prefix, _, args, **details)
                 elif not is_spam_command(ctx, wrapped_command, *args):
                     # Run command
@@ -112,7 +109,7 @@ def has_my_variant(command_name):
     Returns if a command has a personal mycommand variant
     e.g. !info and !myinfo
     """
-    return "my"+command_name.lower() in events.command_event
+    return "my" + command_name.lower() in events.command_event
 
 
 def replace_aliases(command_list):
@@ -135,7 +132,9 @@ def imagecommand():
         async def wrapped_command(ctx, *args, **kwargs):
             await util.get_client(ctx).send_typing(ctx.channel)
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
+
         return wrapped_command
+
     return wrap
 
 
@@ -158,7 +157,27 @@ def ratelimit(**command_info):
             else:
                 player.command_rate_limits[command_name] = time.time()
             await command_func(ctx, *args, **details)
+
         return wrapped_command
+
+    return wrap
+
+
+def require_cnf(warning):
+    # Checks the user confirms the command.
+    # Only from commands with no args.
+    def wrap(command_func):
+        @wraps(command_func)
+        async def wrapped_command(ctx, cnf="", **details):
+            if cnf.lower() != "cnf":
+                await util.say(ctx.channel, ("Are you sure?! %s\n"
+                                             + "Do ``%s%s cnf`` if you're sure!")
+                               % (warning, details["cmd_key"], command_func.__name__))
+                return
+            await command_func(ctx, **details)
+
+        return wrapped_command
+
     return wrap
 
 
@@ -253,90 +272,48 @@ async def determine_args(pattern, args, called):
 
     original_pattern = pattern
 
-    def represents_int(string):
-        try:
-            return min(int(string), MAX_NUMBER)
-        except ValueError:
-            return False
-
-    def represents_count(string):
-        # The counting numbers.
-        # Natural numbers starting from 1
-        int_value = represents_int(string)
-        if not int_value:
-            return False
-        elif int_value - 1 >= 0:
-            return int_value
-
-    def represents_float(string):
-        try:
-            return min(float(string), MAX_NUMBER)
-        except ValueError:
-            return False
-
-    def represents_player(player_id):
-        player = players.find_player(player_id)
-        if player is None or not player.is_playing() \
-                and called.permission < Permission.DUEUTIL_MOD:
-            return False
-        return player
-
-    def remove_optional(pattern):
-        pattern_pos = len(pattern) - 1
+    # Internal helpers.
+    def remove_optional(args_pattern):
+        pattern_pos = len(args_pattern) - 1
         while pattern_pos >= 0:
-            if len(pattern.replace('?', '')) == len(args):
+            if len(args_pattern.replace('?', '')) == len(args):
                 break
             elif pattern_pos == 0:
                 return False
-            if pattern[pattern_pos] == '?':
-                pattern = pattern[:pattern_pos - 1]
-                pattern_pos = len(pattern) - 1
+            if args_pattern[pattern_pos] == '?':
+                args_pattern = args_pattern[:pattern_pos - 1]
+                pattern_pos = len(args_pattern) - 1
                 continue
             pattern_pos -= 1
-        return pattern.replace('?', '')
+        return args_pattern.replace('?', '')
 
-    def could_be_string(pattern):
-        if pattern[0] in STRING_TYPES:
-            if len(pattern) > 1:
-                pattern_pos = len(pattern) - 1
+    def could_be_string(args_pattern):
+        if args_pattern[0] in commandtypes.STRING_TYPES:
+            if len(args_pattern) > 1:
+                pattern_pos = len(args_pattern) - 1
                 while pattern_pos > 0:
-                    if pattern[pattern_pos] == '?':
+                    if args_pattern[pattern_pos] == '?':
                         pattern_pos -= 2
                         continue
                     return False
-            return pattern in STRING_TYPES or len(pattern) > 1
+            return args_pattern in commandtypes.STRING_TYPES or len(args_pattern) > 1
         return False
 
-    def attempt_args_as_string(args, pattern):
+    def attempt_args_as_string(crappy_args, args_pattern):
         # A last ditch effort to get some use out of the shit known as input.
-        if len(args) > 0 and could_be_string(pattern):
+        if len(crappy_args) > 0 and could_be_string(args_pattern):
             # Only a pattern that can just be a string is valid
-            return ' '.join(map(str, args)),
+            return ' '.join(map(str, crappy_args)),
         return False
 
-    def valid_args_len(args, pattern):
+    def valid_args_len(test_args, args_pattern):
         # Length - zero or more types (as they are not needed)
-        pattern_type_count = len(pattern) - pattern.count('*') * 2
-        if '*' in pattern:
-            return len(args) >= pattern_type_count
-        return len(args) == pattern_type_count
+        pattern_type_count = len(args_pattern) - args_pattern.count('*') * 2
+        if '*' in args_pattern:
+            return len(test_args) >= pattern_type_count
+        return len(test_args) == pattern_type_count
 
-    def represents_string(string):
-        # When is a string not a string?
-        """
-        This may seem dumb. But not all strings are strings in my
-        world. Fuck zerowidth bullshittery & stuff like that.
-        
-        -xoxo MacDue
-        """
-        # Remove zero width bullshit & extra spaces
-        string = re.sub(r'[\u200B-\u200D\uFEFF]', '', string.strip())
-        # Remove extra spaces/tabs/new lines ect.
-        string = " ".join(string.split())
-        if len(string) > 0:
-            return string
-        return False
-
+    # Initial pattern checks
     guessing_arguments = False
     if pattern is None and len(args) > 0:
         return False
@@ -360,6 +337,8 @@ async def determine_args(pattern, args, called):
             pattern = pattern_optional_removed
         else:
             pattern = pattern.replace('?', '')
+
+    # Checking the command args match the given pattern.
     pos = 0
     args_index = 0
     current_rule = ''
@@ -373,18 +352,8 @@ async def determine_args(pattern, args, called):
             # if the rule is a Kleene star
             pos += 1
             pos_change = False
-        switch = {
-            'S': represents_string(args[args_index]),
-            'I': represents_int(args[args_index]),
-            'C': represents_count(args[args_index]),
-            'R': represents_float(args[args_index]),
-            'P': represents_player(args[args_index]),
-            # This one is for page selectors that could be a page number or a string like a weapon name.
-            'M': represents_count(args[args_index]) if represents_count(args[args_index]) else args[args_index],
-            'B': args[args_index].lower() in misc.POSITIVE_BOOLS,
-        }
         # Get the value as the type it should be (if possible). Will return False or None if it fails.
-        value = switch.get(current_rule)
+        value = commandtypes.represents_type(current_rule, args[args_index], called)
         if (value is False and current_rule != 'B') or value is None:
             # We've got a incorrect value and are not expecting multiple (*)
             if pattern[pos] != '*':
@@ -406,6 +375,8 @@ async def determine_args(pattern, args, called):
         args_index += 1
         if pos_change:
             pos += 1
+
+    # Final checks
     if (checks_satisfied == len(args) and not guessing_arguments
             and valid_args_len(args, pattern)):
         return args
@@ -420,7 +391,7 @@ async def determine_args(pattern, args, called):
             last_string = -1
             # Find the last type that could be a string in the pattern.
             # Use a simple loop as the regex (re) kinda sucks for this
-            for string_type in STRING_TYPES:
+            for string_type in commandtypes.STRING_TYPES:
                 last_string_type = pattern.rfind(string_type)
                 if last_string_type > last_string:
                     last_string = last_string_type
