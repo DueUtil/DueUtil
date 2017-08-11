@@ -99,8 +99,10 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     if type(mixed) is int:
         page = mixed - 1
         local = True
+        ranks = "local"
     else:
         local = mixed.lower() != "global"
+        ranks = "local" if local else "global"
         page = page_alt - 1
 
     # Local/Global
@@ -116,7 +118,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         last_updated = leaderboards.last_leaderboard_update
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
-        await util.say(ctx.channel, "The leaderboard has yet to be calculated!\n"
+        await util.say(ctx.channel, "The %s leaderboard has yet to be calculated!\n" % ranks
                                     + "Check again soon!")
         return
 
@@ -153,8 +155,8 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     if index < len(leaderboard_data) - 1:
         remaining_players = len(leaderboard_data) - page_size * (page + 1)
         leaderboard_embed.add_field(name="+%d more!" % remaining_players,
-                                    value="Do ``%sleaderboard %d`` for the next page!"
-                                          % (details["cmd_key"], page + 2), inline=False)
+                                    value="Do ``%sleaderboard%s %d`` for the next page!"
+                                          % (details["cmd_key"], "" if local else " global", page + 2), inline=False)
 
     await util.say(ctx.channel, embed=leaderboard_embed)
 
