@@ -174,11 +174,11 @@ async def rank_command(ctx, player, ranks="", **details):
     player_name = "**%s**" % player.name_clean
 
     if position != -1:
-        page = position // 10
+        page = position // 10 + 1
         await util.say(ctx.channel, (":sparkles: "+("You're" if player_is_author else player_name+" is")
                                      + " **{0}** on the{4}{3} leaderboard!\n"
                                      + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
-                                    .format(util.int_to_ordinal(position), page+1,
+                                    .format(util.int_to_ordinal(position), page,
                                             details["cmd_key"], ranks, padding, page if page > 1 else ""))
     else:
         await util.say(ctx.channel, (":confounded: I can't find "
