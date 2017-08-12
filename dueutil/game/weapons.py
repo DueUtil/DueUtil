@@ -95,6 +95,9 @@ class Weapon(DueUtilObject, SlotPickleMixin):
     def get_summary(self) -> Summary:
         return get_weapon_summary_from_id(self.id)
 
+    def is_stock(self):
+        return self.server_id == "STOCK"
+
     @property
     def icon(self):
         # Handles custom emojis for weapons being removed.

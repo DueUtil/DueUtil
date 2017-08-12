@@ -329,7 +329,7 @@ def settheme():
     return {"thing_type": "theme", "thing_inventory_slot": "themes"}
 
 
-@commands.command(args_pattern='M?')
+@commands.command(args_pattern='M?', aliases=("mybackgrounds", "backgrounds"))
 @playersabstract.item_preview
 def mybgs(player):
     """

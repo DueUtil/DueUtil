@@ -305,7 +305,7 @@ async def pandemic(ctx, **_):
     """
     [CMD_KEY]pandemic
 
-    Tracks the current DueUtil pandemic.
+    Tracked the passed DueUtil pandemic.
     """
     virus_stats = awards.get_award_stat("Duerus")
 
@@ -325,8 +325,10 @@ async def pandemic(ctx, **_):
     pandemic_level = percent_infected // 33
     pandemic_embed = discord.Embed(title=":biohazard: DueUtil Pandemic :biohazard:", type="rich",
                                    color=gconf.DUE_COLOUR)
+    pandemic_embed.description = ("The pandemic has now ended!\n"
+                                  + "This was the final result.")
     pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
-    pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
+    # pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
     pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
                                                            + ":biohazard: **%s** "
                                                            + ("is" if total_infected == 1 else "are") + " infected.\n"

@@ -241,6 +241,10 @@ def is_server_emoji(server, possible_emoji):
     return len(possible_emojis) == 1 and possible_emojis[0] == possible_emoji
 
 
+def is_discord_emoji(server, possible_emoji):
+    return char_is_emoji(possible_emoji) or is_server_emoji(server, possible_emoji)
+
+
 def get_server_name(server, user_id):
     try:
         return server.get_member(user_id).name

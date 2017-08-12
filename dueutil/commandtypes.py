@@ -5,21 +5,29 @@ from .game import players
 from .permissions import Permission
 from . import util
 
+
 # The max number the bot will accept. To avoid issues with crazy big numbers.
 MAX_NUMBER = 99999999999999999999999999999999999999999999
 MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
+THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
 
 
-def represents_int(value):
+def strip_thousands_separators(value):
+    # Will strip 1000s without crazy 1,,,,,,,,,,000
+    # Allowed will also allow incorrect formatting.
+    return re.sub(THOUSANDS_REGEX, r'\2', value)
+
+
+def parse_int(value):
     # An int limited between min and max number
     try:
-        return util.clamp(int(value), MIN_NUMBER, MAX_NUMBER)
+        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
     except ValueError:
         return False
 
 
-def represents_string(value):
+def parse_string(value):
     # When is a string not a string?
     """
     This may seem dumb. But not all strings are strings in my
@@ -36,25 +44,25 @@ def represents_string(value):
     return False
 
 
-def represents_count(value):
+def parse_count(value):
     # The counting numbers.
     # Natural numbers starting from 1
-    int_value = represents_int(value)
+    int_value = parse_int(value)
     if not int_value:
         return False
     elif int_value - 1 >= 0:
         return int_value
 
 
-def represents_float(value):
+def parse_float(value):
     # Float between min and max number
     try:
-        return util.clamp(float(value), MIN_NUMBER, MAX_NUMBER)
+        return util.clamp(float(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
     except ValueError:
         return False
 
 
-def represents_player(player_id, called):
+def parse_player(player_id, called):
     # A DueUtil Player
     player = players.find_player(player_id)
     if player is None or not player.is_playing() \
@@ -63,14 +71,15 @@ def represents_player(player_id, called):
     return player
 
 
-def represents_type(arg_type, value, called=None):
+def parse_type(arg_type, value, called=None):
     return {
-        'S': represents_string(value),
-        'I': represents_int(value),
-        'C': represents_count(value),
-        'R': represents_float(value),
-        'P': represents_player(value, called),
+        'S': parse_string(value),
+        'I': parse_int(value),
+        'C': parse_count(value),
+        'R': parse_float(value),
+        'P': parse_player(value, called),
         # This one is for page selectors that could be a page number or a string like a weapon name.
-        'M': represents_count(value) if represents_count(value) else value,
+        'M': parse_count(value) if parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,
+        '%': parse_float(value.rstrip("%"))
     }.get(arg_type)

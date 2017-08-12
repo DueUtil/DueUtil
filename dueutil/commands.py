@@ -353,7 +353,7 @@ async def determine_args(pattern, args, called):
             pos += 1
             pos_change = False
         # Get the value as the type it should be (if possible). Will return False or None if it fails.
-        value = commandtypes.represents_type(current_rule, args[args_index], called)
+        value = commandtypes.parse_type(current_rule, args[args_index], called)
         if (value is False and current_rule != 'B') or value is None:
             # We've got a incorrect value and are not expecting multiple (*)
             if pattern[pos] != '*':

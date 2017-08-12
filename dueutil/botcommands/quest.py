@@ -199,7 +199,7 @@ async def declinequest(ctx, quest_index, **details):
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?R?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chane=25, **_):
     """
@@ -244,106 +244,94 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
-    await imagehelper.warn_on_invalid_image(ctx.channel, url=image_url)
+    await imagehelper.warn_on_invalid_image(ctx.channel, url=new_quest.image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
-@commands.extras.dict_command(min_expect={}, optional={"attack": "R", "strg": "R", "hp": "R",
-                                                       "accy": "R", "spawn": "R", "weapon": "S",
-                                                       "image": "S", "task": "S", "channel": "S"})
-async def editquest(ctx, quest_name, updates, **details):
-    await util.say(ctx.channel, "%s updates=%s" % (quest_name, updates))
-
-
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
-async def editquest_(ctx, quest_name, *updates, **_):
+@commands.extras.dict_command(optional={"attack/atk": "R", "strg/strength": "R", "hp": "R",
+                                        "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
+                                        "image/img": "S", "task": "S", "channel": "S"})
+async def editquest(ctx, quest_name, updates, **_):
     """
     [CMD_KEY]editquest name (property value)+
-    
+
     Any number of properties can be set at once.
-    Invalid values will just be ignored!
-    
     This is also how you set quest channels!
-    
+
     Properties:
         __attack__, __hp__, __accy__, __spawn__, __weapon__,
-        __image__, __task__, __strg__ and __channel__
-        
+        __image__, __task__, __strg__, and __channel__
+
     Example usage:
-    
-        [CMD_KEY]editquest slime hp 43 attack 4.2 task "Kill the monster"
-        
+
+        [CMD_KEY]editquest "snek man" hp 43 attack 4.2 task "Kill the monster"
+
         [CMD_KEY]editquest slime channel ``#slime_fields``
     """
 
-    editable_props = ("attack", "strg", "hp", "accy", "spawn", "weapon", "image", "task", "channel")
-    changes = OrderedDict()
     quest = quests.get_quest_on_server(ctx.server, quest_name)
-
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
-    next_prop = 0
-    while next_prop < len(updates) - 1:
-        quest_property = updates[next_prop].lower()
-        if quest_property == "weap":
-            quest_property = "weapon"
-        if quest_property in editable_props:
-            if editable_props.index(quest_property) <= 4:
-                try:
-                    value = min(float(updates[next_prop + 1]), commands.MAX_NUMBER)
-                except ValueError:
-                    value = -1
+    for quest_property, value in updates.items():
+        # Validate and set updates.
+        if quest_property in ("attack", "atk", "accy", "accuracy", "strg", "strength"):
+            if value >= 1:
+                if quest_property in ("attack", "atk"):
+                    quest.base_attack = value
+                elif quest_property in ("accy", "accuracy"):
+                    quest.base_accy = value
+                else:
+                    quest.base_strg = value
             else:
-                value = updates[next_prop + 1]
-            changed = True
-            if quest_property == "attack" and value >= 1:
-                quest.base_attack = value
-            elif quest_property == "hp" and value >= 30:
+                updates[quest_property] = "Must be at least 1!"
+            continue
+        elif quest_property == "spawn":
+            if 25 >= value >= 1:
+                quest.spawn_chance = value/100
+            else:
+                updates[quest_property] = "Must be 1-25%!"
+        elif quest_property == "hp":
+            if value >= 30:
                 quest.base_hp = value
-            elif quest_property == "accy" and value >= 1:
-                quest.base_accy = value
-            elif quest_property == "spawn" and 25 >= value >= 1:
-                quest.spawn_chance = value / 100
-            elif quest_property == "strg" and value >= 1:
-                quest.base_strg = value
-            elif quest_property == "weapon" and weapons.find_weapon(ctx.server, value) is not None:
-                weapon = weapons.find_weapon(ctx.server, value)
-                quest.w_id = weapon.w_id
-                value = str(weapon)
-            elif quest_property == "image":
-                quest.image_url = value
-            elif quest_property == "task":
-                quest.task = value
-            elif quest_property == "channel":
-                if value.upper() not in ("ALL", "NONE"):
-                    channel_id = value.replace("<#", "").replace(">", "")
-                    channel = util.get_client(ctx.server.id).get_channel(channel_id)
-                    if channel is None:
-                        next_prop += 2
-                        continue
-                else:
-                    channel_id = value.upper()
-                    value = value.title()
-                quest.channel = channel_id
             else:
-                changed = False
-            if changed:
-                if quest_property not in ("channel", "weapon"):
-                    changes[quest_property] = util.ultra_escape_string(str(value))
+                updates[quest_property] = "Must be at least 30!"
+        elif quest_property in ("weap", "weapon"):
+            weapon = weapons.get_weapon_for_server(ctx.server.id, value)
+            if weapon is not None:
+                quest.w_id = weapon.w_id
+                updates[quest_property] = weapon
+            else:
+                updates[quest_property] = "Weapon not found!"
+        elif quest_property == "channel":
+            if value.upper() in ("ALL", "NONE"):
+                quest.channel = value.upper()
+                updates[quest_property] = value.title()
+            else:
+                channel_id = value.replace("<#", "").replace(">", "")
+                channel = util.get_client(ctx.server.id).get_channel(channel_id)
+                if channel is not None:
+                    quest.channel = channel.id
                 else:
-                    changes[quest_property] = value
-        next_prop += 2
-    quest.save()
-    changes_message = ""
-    for quest_property, value in changes.items():
-        changes_message += "``%s`` → %s\n" % (quest_property, value)
-    if len(changes_message):
-        await util.say(ctx.channel, (":white_check_mark: Quest **" + quest.name_clean + "** edited:\n"
-                                     + changes_message))
+                    updates[quest_property] = "Channel not found!"
+        else:
+            updates[quest_property] = util.ultra_escape_string(value)
+            if quest_property in ("img", "image"):
+                quest.image_url = value
+            else:
+                # Task
+                quest.task = value
+                updates[quest_property] = '"%s"' % updates[quest_property]
+
+    # Format result.
+    if len(updates) == 0:
+        await util.say(ctx.channel, "You need to provide a valid list of changes for the quest!")
     else:
-        await util.say(ctx.channel, (":x: **No changes made!**\n"
-                                     + "__Note:__ Values that are out of range or incorrect will be ignored!"))
+        quest.save()
+        result = e.QUEST+" **%s** updates!\n" % quest.name_clean
+        for quest_property, update_result in updates.items():
+            result += ("``%s`` → %s\n" % (quest_property, update_result))
+        await util.say(ctx.channel, result)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')

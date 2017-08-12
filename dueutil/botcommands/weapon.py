@@ -6,6 +6,7 @@ from ..permissions import Permission
 from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
 from .. import commands, util
+from ..game import emojis
 
 
 @commands.command(args_pattern='M?')
@@ -361,7 +362,61 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
     await util.say(ctx.channel, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
                                  + util.format_number(weapon.price, money=True) + "!"))
-    await imagehelper.warn_on_invalid_image(ctx.channel, url=image_url)
+    await imagehelper.warn_on_invalid_image(ctx.channel, url=weapon.image_url)
+
+
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
+@commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B",
+                                        "icon": "S", "image/img": "S"})
+async def editweapon(ctx, weapon_name, updates, **_):
+
+    """
+    [CMD_KEY]editweapon name (property value)+
+
+    Any number of properties can be set at once.
+
+    Properties:
+        __message__, __icon__, __ranged__, and __image__
+
+    Example usage:
+
+        [CMD_KEY]editweapon laser message "pews at" icon :gun:
+
+        [CMD_KEY]editquest "banana" image http://i.imgur.com/QuZQm4D.png
+    """
+
+    weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
+    if weapon is None:
+        raise util.DueUtilException(ctx.channel, "Weapon not found!")
+    if weapon.is_stock():
+        raise util.DueUtilException(ctx.channel, "You cannot edit stock weapons!")
+
+    for weapon_property, value in updates.items():
+        if weapon_property == "icon":
+            if util.is_discord_emoji(ctx.server, value):
+                weapon.icon = value
+            else:
+                updates[weapon_property] = "Must be an emoji! (custom emojis must be on this server)"
+        elif weapon_property == "ranged":
+            weapon.melee = not value
+            updates[weapon_property] = str(value).lower()
+        else:
+            updates[weapon_property] = util.ultra_escape_string(value)
+            if weapon_property in ("img", "image"):
+                weapon.image_url = value
+            else:
+                # Message
+                weapon.hit_message = value
+                updates[weapon_property] = '"%s"' % updates[weapon_property]
+
+    if len(updates) == 0:
+        await util.say(ctx.channel, "You need to provide a list of valid changes for the weapon!")
+    else:
+        weapon.save()
+        result = weapon.icon+" **%s** updates!\n" % weapon.name_clean
+        for weapon_property, update_result in updates.items():
+            result += "``%s`` → %s\n" % (weapon_property, update_result)
+        await util.say(ctx.channel, result)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
