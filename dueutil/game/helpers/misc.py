@@ -263,16 +263,19 @@ def paginator(item_add):
         page_size = 12
         page_embed = discord.Embed(title=title + (" : Page " + str(page + 1) if page > 0 else ""), type="rich",
                                    color=gconf.DUE_COLOUR)
-        if page * page_size >= len(item_list):
-            raise util.DueUtilException(None, "Page not found")
-        for item_index in range(page_size * page, page_size * page + page_size):
-            if item_index >= len(item_list):
-                break
-            item_add(page_embed, item_list[item_index], **extras)
-        if page_size * page + page_size < len(item_list):
-            page_embed.set_footer(text=extras.get('footer_more', "There's more on the next page!"))
+        if len(item_list) > 0 or page != 0:
+            if page * page_size >= len(item_list):
+                raise util.DueUtilException(None, "Page not found")
+            for item_index in range(page_size * page, page_size * page + page_size):
+                if item_index >= len(item_list):
+                    break
+                item_add(page_embed, item_list[item_index], **extras)
+            if page_size * page + page_size < len(item_list):
+                page_embed.set_footer(text=extras.get("footer_more", "There's more on the next page!"))
+            else:
+                page_embed.set_footer(text=extras.get("footer_end", "That's all!"))
         else:
-            page_embed.set_footer(text=extras.get('footer_end', "That's all!"))
+            page_embed.description = extras.get("empty_list", "There's nothing here!")
         return page_embed
 
     return page_getter

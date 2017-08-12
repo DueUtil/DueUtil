@@ -1,6 +1,5 @@
 import math
 import time
-from collections import OrderedDict
 import random
 
 import discord
@@ -17,6 +16,7 @@ from ..game import (
     awards,
     players)
 from .. import commands, util
+from ..game.helpers import misc
 
 from ..game import emojis as e
 
@@ -288,7 +288,7 @@ async def editquest(ctx, quest_name, updates, **_):
             continue
         elif quest_property == "spawn":
             if 25 >= value >= 1:
-                quest.spawn_chance = value/100
+                quest.spawn_chance = value / 100
             else:
                 updates[quest_property] = "Must be 1-25%!"
         elif quest_property == "hp":
@@ -328,7 +328,7 @@ async def editquest(ctx, quest_name, updates, **_):
         await util.say(ctx.channel, "You need to provide a valid list of changes for the quest!")
     else:
         quest.save()
-        result = e.QUEST+" **%s** updates!\n" % quest.name_clean
+        result = e.QUEST + " **%s** updates!\n" % quest.name_clean
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
         await util.say(ctx.channel, result)
@@ -377,59 +377,54 @@ async def serverquests(ctx, page=1, **details):
 
     Remember you can edit any of the quests on your server with [CMD_KEY]editquest
     """
-    # TODO Rewrite at some point to use paginator
 
-    embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
+    @misc.paginator
+    def quest_list(quests_embed, current_quest, **_):
+        quests_embed.add_field(name=current_quest.name_clean,
+                               value="Completed %s time" % current_quest.times_beaten
+                                     + ("s" if current_quest.times_beaten != 1 else "") + "\n"
+                                     + "Active channel: %s"
+                                       % current_quest.get_channel_mention(ctx.server))
+
     if type(page) is int:
         page -= 1
-        embed.title = (e.QUEST + " Quests on " + details["server_name_clean"]
-                       + (" : Page " + str(page + 1) if page > 0 else ""))
-        page_size = 12
+
         quests_list = list(quests.get_server_quest_list(ctx.server).values())
         quests_list.sort(key=lambda server_quest: server_quest.times_beaten, reverse=True)
-        if page * page_size >= len(quests_list):
-            raise util.DueUtilException(None, "Page not found")
-        if len(quests_list) > 0:
-            quest_index = 0
-            for quest_index in range(page_size * page, page_size * page + page_size):
-                if quest_index >= len(quests_list):
-                    break
-                quest = quests_list[quest_index]
-                embed.add_field(name=quest.name_clean, value="Completed " + str(quest.times_beaten) + " time"
-                                                             + ("s" if quest.times_beaten != 1 else "") + "\n"
-                                                             + "Active channel: %s"
-                                                               % quest.get_channel_mention(ctx.server))
-            if quest_index < len(quests_list) - 1:
-                embed.set_footer(text="But wait there more! Do " + details["cmd_key"] + "serverquests " + str(page + 2))
-            else:
-                embed.set_footer(text="That's all!")
-        else:
-            embed.description = "There are no quests on this server!\nHow sad."
 
+        # misc.paginator handles all the messy checks.
+        quest_list_embed = quest_list(quests_list, page, e.QUEST+" Quests on " + details["server_name_clean"],
+                                      footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page+2),
+                                      empty_list="There are no quests on this server!\nHow sad.")
+
+        await util.say(ctx.channel, embed=quest_list_embed)
     else:
         # TODO: Improve
+        quest_info_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
         quest_name = page
         quest = quests.get_quest_on_server(ctx.server, quest_name)
         if quest is None:
             raise util.DueUtilException(ctx.channel, "Quest not found!")
-        embed.title = "Quest information for the %s " % quest.name_clean
-        embed.description = "You can edit these values with %seditquest %s (values)" \
-                            % (details["cmd_key"], quest.name_command_clean.lower())
+        quest_info_embed.title = "Quest information for the %s " % quest.name_clean
+        quest_info_embed.description = "You can edit these values with %seditquest %s (values)" \
+                                       % (details["cmd_key"], quest.name_command_clean.lower())
 
         attributes_formatted = tuple(util.format_number(base_value, full_precision=True)
                                      for base_value in quest.base_values() + (quest.spawn_chance * 100,))
-        embed.add_field(name="Base stats", value=((e.ATK + " **ATK** - %s \n"
-                                                   + e.STRG + " **STRG** - %s\n"
-                                                   + e.ACCY + " **ACCY** - %s\n"
-                                                   + e.HP + " **HP** - %s\n"
-                                                   + e.QUEST + " **Spawn %%** - %s\n") % attributes_formatted))
+        quest_info_embed.add_field(name="Base stats", value=((e.ATK + " **ATK** - %s \n"
+                                                              + e.STRG + " **STRG** - %s\n"
+                                                              + e.ACCY + " **ACCY** - %s\n"
+                                                              + e.HP + " **HP** - %s\n"
+                                                              + e.QUEST + " **Spawn %%** - %s\n")
+                                                             % attributes_formatted))
         quest_weapon = weapons.get_weapon_from_id(quest.w_id)
-        embed.add_field(name="Other attributes", value=(e.QUESTINFO + " **Image** - [Click to view](%s)\n"
-                                                        % util.ultra_escape_string(quest.image_url)
-                                                        + ':speech_left: **Task message** - "%s"\n'
-                                                        % util.ultra_escape_string(quest.task)
-                                                        + e.WPN + " **Weapon** - %s\n" % quest_weapon
-                                                        + e.CHANNEL + " **Channel** - %s\n"
-                                                        % quest.get_channel_mention(ctx.server)), inline=False)
-        embed.set_thumbnail(url=quest.image_url)
-    await util.say(ctx.channel, embed=embed)
+        quest_info_embed.add_field(name="Other attributes", value=(e.QUESTINFO + " **Image** - [Click to view](%s)\n"
+                                                                   % util.ultra_escape_string(quest.image_url)
+                                                                   + ':speech_left: **Task message** - "%s"\n'
+                                                                   % util.ultra_escape_string(quest.task)
+                                                                   + e.WPN + " **Weapon** - %s\n" % quest_weapon
+                                                                   + e.CHANNEL + " **Channel** - %s\n"
+                                                                   % quest.get_channel_mention(ctx.server)),
+                                   inline=False)
+        quest_info_embed.set_thumbnail(url=quest.image_url)
+        await util.say(ctx.channel, embed=quest_info_embed)
