@@ -226,7 +226,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     """
     if len(quests.get_server_quest_list(ctx.server)) >= gconf.THING_AMOUNT_CAP:
         raise util.DueUtilException(ctx.server, "Whoa, you've reached the limit of %d quests!"
-                                                % gconf.THING_AMOUNT_CAP)
+                                    % gconf.THING_AMOUNT_CAP)
 
     extras = dict()
     if task is not None:
@@ -247,8 +247,16 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     await imagehelper.warn_on_invalid_image(ctx.channel, url=image_url)
 
 
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
+@commands.extras.dict_command(min_expect={}, optional={"attack": "R", "strg": "R", "hp": "R",
+                                                       "accy": "R", "spawn": "R", "weapon": "S",
+                                                       "image": "S", "task": "S", "channel": "S"})
+async def editquest(ctx, quest_name, updates, **details):
+    await util.say(ctx.channel, "%s updates=%s" % (quest_name, updates))
+
+
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSSS*')
-async def editquest(ctx, quest_name, *updates, **_):
+async def editquest_(ctx, quest_name, *updates, **_):
     """
     [CMD_KEY]editquest name (property value)+
     
@@ -386,7 +394,7 @@ async def serverquests(ctx, page=1, **details):
     embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
     if type(page) is int:
         page -= 1
-        embed.title = (e.QUEST+" Quests on " + details["server_name_clean"]
+        embed.title = (e.QUEST + " Quests on " + details["server_name_clean"]
                        + (" : Page " + str(page + 1) if page > 0 else ""))
         page_size = 12
         quests_list = list(quests.get_server_quest_list(ctx.server).values())
@@ -422,18 +430,18 @@ async def serverquests(ctx, page=1, **details):
 
         attributes_formatted = tuple(util.format_number(base_value, full_precision=True)
                                      for base_value in quest.base_values() + (quest.spawn_chance * 100,))
-        embed.add_field(name="Base stats", value=((e.ATK+" **ATK** - %s \n"
-                                                   + e.STRG+" **STRG** - %s\n"
-                                                   + e.ACCY+" **ACCY** - %s\n"
-                                                   + e.HP+" **HP** - %s\n"
-                                                   + e.QUEST+" **Spawn %%** - %s\n") % attributes_formatted))
+        embed.add_field(name="Base stats", value=((e.ATK + " **ATK** - %s \n"
+                                                   + e.STRG + " **STRG** - %s\n"
+                                                   + e.ACCY + " **ACCY** - %s\n"
+                                                   + e.HP + " **HP** - %s\n"
+                                                   + e.QUEST + " **Spawn %%** - %s\n") % attributes_formatted))
         quest_weapon = weapons.get_weapon_from_id(quest.w_id)
-        embed.add_field(name="Other attributes", value=(e.QUESTINFO+" **Image** - [Click to view](%s)\n"
+        embed.add_field(name="Other attributes", value=(e.QUESTINFO + " **Image** - [Click to view](%s)\n"
                                                         % util.ultra_escape_string(quest.image_url)
                                                         + ':speech_left: **Task message** - "%s"\n'
                                                         % util.ultra_escape_string(quest.task)
-                                                        + e.WPN+" **Weapon** - %s\n" % quest_weapon
-                                                        + e.CHANNEL+" **Channel** - %s\n"
+                                                        + e.WPN + " **Weapon** - %s\n" % quest_weapon
+                                                        + e.CHANNEL + " **Channel** - %s\n"
                                                         % quest.get_channel_mention(ctx.server)), inline=False)
         embed.set_thumbnail(url=quest.image_url)
     await util.say(ctx.channel, embed=embed)
