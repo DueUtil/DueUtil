@@ -6,7 +6,6 @@ from ..permissions import Permission
 from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
 from .. import commands, util
-from ..game import emojis
 
 
 @commands.command(args_pattern='M?')
@@ -24,12 +23,10 @@ async def myweapons(ctx, *args, **details):
         page = args[0]
 
     if type(page) is int:
-        page -= 1
-        title = player.get_name_possession_clean() + " Weapons" + (" : Page " + str(page + 1) if page > 0 else "")
-        if len(player_weapons) > 0:
-            weapon_store = weapons_page(player_weapons, page, title, price_divisor=4 / 3)
-        else:
-            weapon_store = discord.Embed(title=title, type="rich", color=gconf.DUE_COLOUR)
+        weapon_store = weapons_page(player_weapons, page-1,
+                                    title=player.get_name_possession_clean() + " Weapons", price_divisor=4/3,
+                                    empty_list="")
+        if len(player_weapons) == 0:
             weapon_store.add_field(name="No weapons stored!",
                                    value="You can buy up to 6 more weapons from the shop and store them here!")
         weapon_store.description = "Currently equipped: " + str(player.weapon)
@@ -182,38 +179,28 @@ async def mywagers(ctx, page=1, **details):
     Lists your received wagers.
     """
 
-    # TODO: Update this command to paginator?
+    @misc.paginator
+    def wager_page(wagers_embed, current_wager, **extras):
+        sender = players.find_player(current_wager.sender_id)
+        wagers_embed.add_field(name="%d. Request from %s" % (extras["index"]+1, sender.name_clean),
+                               value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)))
 
     player = details["author"]
-    page_size = 12
-    page -= 1
-    title = player.get_name_possession_clean() + " Received Wagers" + (" : Page " + str(page + 1) if page > 0 else "")
-    wagers_embed = discord.Embed(title=title, type="rich", color=gconf.DUE_COLOUR)
-    wager_list = player.received_wagers
-    if len(wager_list) > 0:
-        if page * page_size >= len(wager_list):
-            raise util.DueUtilException(ctx.channel, "Page not found")
-        for wager_index in range(page_size * page, page_size * page + page_size):
-            if wager_index >= len(wager_list):
-                break
-            wager = wager_list[wager_index]
-            sender = players.find_player(wager.sender_id)
-            wagers_embed.add_field(name=str(wager_index + 1) + ". Request from " + sender.name_clean,
-                                   value="<@" + sender.id + "> ``" + util.format_number(wager.wager_amount,
-                                                                                        full_precision=True,
-                                                                                        money=True) + "``")
-        wagers_embed.add_field(name="Actions",
-                               value=("Do ``" + details["cmd_key"] + "acceptwager (number)`` to accept a wager \nor ``"
-                                      + details["cmd_key"] + "declinewager (number)`` to decline"), inline=False)
-        if page_size * page + page_size < len(wager_list):
-            footer = "But wait there's more! Do " + details["cmd_key"] + "mywagers " + str(page + 2)
-        else:
-            footer = 'That is all!'
-        wagers_embed.set_footer(text=footer)
+    wager_list_embed = wager_page(player.received_wagers, page-1,
+                                  title=player.get_name_possession_clean() + " Received Wagers",
+                                  footer_more="But wait there's more! Do %smywagers %d" % (details["cmd_key"], page+1),
+                                  empty_list="")
+
+    if len(player.received_wagers) != 0:
+        wager_list_embed.add_field(name="Actions",
+                                   value=("Do ``{0}acceptwager (number)`` to accept a wager \nor ``"
+                                          + "{0}declinewager (number)`` to decline").format(details["cmd_key"]),
+                                   inline=False)
     else:
-        wagers_embed.add_field(name="No wagers received!",
-                               value="Wager requests you get from other players will appear here.")
-    await util.say(ctx.channel, embed=wagers_embed)
+        wager_list_embed.add_field(name="No wagers received!",
+                                   value="Wager requests you get from other players will appear here.")
+
+    await util.say(ctx.channel, embed=wager_list_embed)
 
 
 @commands.command(args_pattern='C')
@@ -382,7 +369,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
 
         [CMD_KEY]editweapon laser message "pews at" icon :gun:
 
-        [CMD_KEY]editquest "banana" image http://i.imgur.com/QuZQm4D.png
+        [CMD_KEY]editweapon "banana" image http://i.imgur.com/QuZQm4D.png
     """
 
     weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
@@ -405,9 +392,11 @@ async def editweapon(ctx, weapon_name, updates, **_):
             if weapon_property in ("img", "image"):
                 weapon.image_url = value
             else:
-                # Message
-                weapon.hit_message = value
-                updates[weapon_property] = '"%s"' % updates[weapon_property]
+                if weapon.acceptable_string(value, 32):
+                    weapon.hit_message = value
+                    updates[weapon_property] = '"%s"' % updates[weapon_property]
+                else:
+                    updates[weapon_property] = "Cannot be over 32 characters!"
 
     if len(updates) == 0:
         await util.say(ctx.channel, "You need to provide a list of valid changes for the weapon!")

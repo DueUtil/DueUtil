@@ -10,7 +10,8 @@ from ..game import weapons, awards
 from ..game.players import Player
 
 # Some tuples for use within this module.
-_BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner", "loser"])
+_BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner",
+                                              "loser", "opponents", "p1_hits", "p2_hits"])
 _BattleLog = namedtuple("BattleLog", ["embed", "turn_count", "winner", "loser"])
 _Move = namedtuple("Move", ["message", "repetitions"])
 _OpponentInfo = namedtuple("OpponentInfo", ["prefix", "player"])
@@ -26,6 +27,7 @@ _Opponents = namedtuple("Opponents", ["p1", "p2"])
 
 # Some default attack messages (if the player does not have a weapon)
 BABY_MOVES = ("slapped", "scratched", "hit", "punched", "licked", "bit", "kicked", "tickled")
+MAX_BATTLE_LOG_LEN = 1642
 
 
 class BattleRequest:
@@ -86,9 +88,26 @@ def get_battle_log(**battleargs):
             battle_log += move.message + '\n'
         else:
             battle_log += "(%s) × %d\n" % (move.message, move.repetitions)
-    battle_embed.add_field(name='Battle log', value=battle_log)
+    if len(battle_log) > MAX_BATTLE_LOG_LEN:
+        # Too long battle.
+        # Mini summary.
+        player_one = battle_result.opponents.p1
+        player_two = battle_result.opponents.p2
+        battle_embed.description = ("Oh no! The battle was too long!\n"
+                                    + "Here's a mini summary!")
+        battle_embed.add_field(name="Mini summary",
+                               value="%s**%s** hit %d %s and %s**%s** hit **%d** %s!\n"
+                                     % (player_one.prefix.title(), player_one.player.name_clean, battle_result.p1_hits,
+                                        util.s_suffix("time", battle_result.p1_hits),
+                                        player_two.prefix, player_two.player.name_clean, battle_result.p2_hits,
+                                        util.s_suffix("time", battle_result.p2_hits))
+                                     + battle_moves[-1].message)
+    else:
+        battle_embed.add_field(name='Battle log', value=battle_log)
     battle_info = battle_result._asdict()
-    del battle_info["moves"]
+    # Deleted unneeded keys
+    del battle_info["moves"], battle_info["opponents"], \
+        battle_info["p1_hits"], battle_info["p2_hits"]
     return _BattleLog(embed=battle_embed, **battle_info)
 
 
@@ -109,6 +128,7 @@ def battle(**battleargs):
 
     hp = [opponents.p1.player.hp * util.clamp(5 - opponents.p1.player.level, 1, 5),
           opponents.p2.player.hp * util.clamp(5 - opponents.p2.player.level, 1, 5)]
+    hit_count = [0, 0]  # p1 and p2 hit counter
 
     moves = OrderedDict()
 
@@ -121,7 +141,8 @@ def battle(**battleargs):
             else:
                 message = weapon.hit_message
 
-        moves['%d/%d' % (opponents.index(attacker),
+        player_num = opponents.index(attacker)
+        moves['%d/%d' % (player_num,
                          current_move)] = _Move(message=("%s**%s** %s %s**%s**"
                                                          % (attacker.prefix.title(),
                                                             attacker.player.name_clean,
@@ -129,7 +150,7 @@ def battle(**battleargs):
                                                             other.prefix,
                                                             other.player.name_clean)
                                                          ), repetitions=1)
-
+        hit_count[player_num] += 1
         current_move += 1
         damage_modifier += 0.5
 
@@ -228,11 +249,12 @@ def battle(**battleargs):
         # Inconceivable
         winner = loser = None
     turns = current_move - 1
-    moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** turn%s!"
+    moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** %s!"
                                      % (winner.prefix.title(),
                                         winner.player.name_clean,
                                         turns,
-                                        "s" if turns != 1 else "")
+                                        util.s_suffix("turn", turns))
                                      ), repetitions=1)
     # Results as a simple namedturple
-    return _BattleResults(moves=moves, turn_count=turns, winner=winner.player, loser=loser.player)
+    return _BattleResults(moves=moves, turn_count=turns, winner=winner.player,
+                          loser=loser.player, opponents=opponents, p1_hits=hit_count[0], p2_hits=hit_count[1])

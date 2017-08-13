@@ -4,6 +4,7 @@ import generalconfig as gconf
 from .. import util, commands
 from ..permissions import Permission
 
+
 class FeedbackHandler:
     """
     Another weird class to make something easier.
@@ -16,7 +17,7 @@ class FeedbackHandler:
 
     async def send_report(self, ctx, message):
         author = ctx.author
-        author_name = "%s#%s" % (author.name, str(author.discriminator))
+        author_name = str(author)
 
         trello_link = await util.trello_client.add_card(board_url=gconf.trello_board,
                                                         name=message,

@@ -269,7 +269,7 @@ def paginator(item_add):
             for item_index in range(page_size * page, page_size * page + page_size):
                 if item_index >= len(item_list):
                     break
-                item_add(page_embed, item_list[item_index], **extras)
+                item_add(page_embed, item_list[item_index], index=item_index, **extras)
             if page_size * page + page_size < len(item_list):
                 page_embed.set_footer(text=extras.get("footer_more", "There's more on the next page!"))
             else:

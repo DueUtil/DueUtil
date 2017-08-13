@@ -270,11 +270,6 @@ def filter_string(string: str) -> str:
     return new
 
 
-def load(shards):
-    global shard_clients
-    shard_clients = shards
-
-
 SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}
 
 
@@ -306,3 +301,12 @@ def display_time(seconds, granularity=2):
                 name = name.rstrip('s')
             result.append("{:d} {}".format(int(value), name))
     return ', '.join(result[:granularity])
+
+
+def s_suffix(word, count):
+    return word if count == 1 else word+"s"
+
+
+def load(shards):
+    global shard_clients
+    shard_clients = shards
