@@ -68,7 +68,7 @@ def command(**command_rules):
             if check(ctx.author, wrapped_command):
                 # Check args
                 args_pattern = command_rules.get('args_pattern', "")
-                command_args = await determine_args(args_pattern, args, wrapped_command)
+                command_args = await determine_args(args_pattern, args, wrapped_command, ctx)
                 if command_args is False:
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
@@ -243,7 +243,7 @@ def parse(command_message):
         return key, "", []
 
 
-async def determine_args(pattern, args, called):
+async def determine_args(pattern, args, called, ctx):
     """
     
     Takes the args coming from parse()
@@ -353,7 +353,7 @@ async def determine_args(pattern, args, called):
             pos += 1
             pos_change = False
         # Get the value as the type it should be (if possible). Will return False or None if it fails.
-        value = commandtypes.parse_type(current_rule, args[args_index], called)
+        value = commandtypes.parse_type(current_rule, args[args_index], called=called, ctx=ctx)
         if (value is False and current_rule != 'B') or value is None:
             # We've got a incorrect value and are not expecting multiple (*)
             if pattern[pos] != '*':

@@ -58,9 +58,9 @@ async def help(ctx, *args, **details):
                     command_help = 'Sorry there is no help for that command!'
 
             help_embed.description = "Showing help for **" + command_name + "**"
-            help_embed.add_field(name=":gear: "+command_name, value=command_help)
+            help_embed.add_field(name=":gear: " + command_name, value=command_help)
             if alias_count > 0:
-                help_embed.add_field(name=":performing_arts: "+("Alias" if alias_count == 1 else "Aliases"),
+                help_embed.add_field(name=":performing_arts: " + ("Alias" if alias_count == 1 else "Aliases"),
                                      value=', '.join(chosen_command.aliases), inline=False)
         else:
             category = arg
@@ -358,7 +358,7 @@ async def blacklist(ctx, *args, **_):
         await util.say(ctx.channel, ":pencil: Command blacklist removed.")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
+@commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern=None)
 async def setuproles(ctx, **_):
     """
     [CMD_KEY]setuproles
@@ -368,12 +368,23 @@ async def setuproles(ctx, **_):
     want to run this command.
     
     """
-    server = ctx.server
-    if not any(role.name == "Due Commander" for role in server.roles):
-        await util.get_client(ctx).create_role(server, name="Due Commander", color=discord.Color(gconf.DUE_COLOUR))
-        await util.say(ctx.channel, ":white_check_mark: Created ``Due Commander`` role!")
+    roles_made = await util.set_up_roles(ctx.server)
+    roles_count = len(roles_made)
+    if roles_count > 0:
+        result = ":white_check_mark: Created **%d %s**!\n" % (roles_count, util.s_suffix("role", roles_count))
+        for role_name in roles_made:
+            result += "→ ``%s``\n" % role_name
+        await util.say(ctx.channel, result)
     else:
         await util.say(ctx.channel, "No roles need to be created!")
+
+
+async def optout_is_topdog_check(channel, player):
+    topdog = "TopDog" in player.awards
+    if topdog:
+        await util.say(channel, (":dog: You cannot opt out while you're top dog!\n"
+                                 + "Pass on the title before you leave us!"))
+    return topdog
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -396,17 +407,15 @@ async def optout(ctx, **details):
     player = details["author"]
     if player.is_playing():
         current_permission = permissions.get_special_permission(ctx.author)
-        if "TopDog" in player.awards:
-            await util.say(ctx.channel, (":dog: You cannot opt out while you're top dog!\n"
-                                         + "Pass on the title before you leave us!"))
+        if await optout_is_topdog_check(ctx.channel, player):
             return
         if current_permission >= Permission.DUEUTIL_MOD:
             raise util.DueUtilException(ctx.channel, "You cannot opt out and stay a dueutil mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
-        await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil.\n"
+        await util.say(ctx.channel, (":ok_hand: You've globally opted out of DueUtil.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
     else:
-        await util.say(ctx.channel, ("You've already opted out!\n"
+        await util.say(ctx.channel, ("You've already globally opted out!\n"
                                      + "You can join the fun again with %soptin." % details["cmd_key"]))
 
 
@@ -419,14 +428,58 @@ async def optin(ctx, **details):
 
     (This applies to all servers with DueUtil)
     """
-
     player = details["author"]
+    # Global optout
     if player.is_playing():
-        await util.say(ctx.channel, "You've already opted in!")
+        await util.say(ctx.channel, "You've already globally opted in!")
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
-        await util.say(ctx.channel, "You've opted in!\n"
-                       + "Glad to have you back.")
+        await util.say(ctx.channel, ("You've globally opted in (does not override server level optout)!\n"
+                                     + "Glad to have you back."))
+
+
+@commands.command(permission=Permission.DISCORD_USER)
+async def optouthere(ctx, **details):
+    """
+    [CMD_KEY]optouthere
+
+    Optout of DueUtil on the server you run the command.
+    This has the same effect as [CMD_KEY]optout but is local.
+    """
+
+    player = details["author"]
+    optout_role = util.get_role_by_name(ctx.server, gconf.DUE_OPTOUT_ROLE)
+    if not util.has_role_name(ctx.author, gconf.DUE_OPTOUT_ROLE):
+        if optout_role is None:
+            await util.say(ctx.channel, ("There is no optout role on this server!\n"
+                                         + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
+        else:
+            if await optout_is_topdog_check(ctx.channel, player):
+                return
+            client = util.get_client(ctx.server.id)
+            await client.add_roles(ctx.author, optout_role)
+            await util.say(ctx.channel, ("You've opted out of DueUtil on this server!\n"
+                                         + "You won't exp, quests, or be usable in commands here."))
+    else:
+        await util.say(ctx.channel, ("You've already sever!\n"
+                                     + "To optin here do ``%soptinhere``" % details["cmd_key"]))
+
+
+@commands.command(permission=Permission.DISCORD_USER)
+async def optinhere(ctx, **_):
+    """
+    [CMD_KEY]optinhere
+
+    Optin to DueUtil a server.
+    """
+
+    optout_role = util.get_role_by_name(ctx.server, gconf.DUE_OPTOUT_ROLE)
+    if optout_role is not None and util.has_role_name(ctx.author, gconf.DUE_OPTOUT_ROLE):
+        client = util.get_client(ctx.server.id)
+        await client.remove_roles(ctx.author, optout_role)
+        await util.say(ctx.channel, "You've opted in on this server!")
+    else:
+        await util.say(ctx.channel, "You've not opted out on this server.")
 
 
 @commands.command(args_pattern="CS")

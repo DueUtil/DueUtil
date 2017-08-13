@@ -62,22 +62,24 @@ def parse_float(value):
         return False
 
 
-def parse_player(player_id, called):
+def parse_player(player_id, called, ctx):
     # A DueUtil Player
     player = players.find_player(player_id)
-    if player is None or not player.is_playing() \
+    if player is None or not player.is_playing(ctx.server) \
             and called.permission < Permission.DUEUTIL_MOD:
         return False
     return player
 
 
-def parse_type(arg_type, value, called=None):
+def parse_type(arg_type, value, **extras):
+    called = extras.get("called")
+    ctx = extras.get("ctx")
     return {
         'S': parse_string(value),
         'I': parse_int(value),
         'C': parse_count(value),
         'R': parse_float(value),
-        'P': parse_player(value, called),
+        'P': parse_player(value, called, ctx),
         # This one is for page selectors that could be a page number or a string like a weapon name.
         'M': parse_count(value) if parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,

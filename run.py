@@ -90,8 +90,7 @@ class DueUtilClient(discord.Client):
 
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
 
-        if not any(role.name == "Due Commander" for role in server.roles):
-            yield from self.create_role(server, name="Due Commander", color=discord.Color(gconf.DUE_COLOUR))
+        yield from util.set_up_roles(server)
 
         server_stats = self.server_stats(server)
         yield from util.duelogger.info(("DueUtil has joined the server **"
@@ -141,7 +140,10 @@ class DueUtilClient(discord.Client):
         elif isinstance(error, discord.errors.Forbidden):
             if ctx_is_message:
                 channel = ctx.channel
-                util.logger.warning("Missing permissions in channel %s (%s)", channel.name, channel.id)
+                if isinstance(error, util.SendMessagePermMissing):
+                    util.logger.warning("Missing send permissions in channel %s (%s)", channel.name, channel.id)
+                else:
+                    yield from util.say(channel, "The action could not be performed as I'm **missing permissions**!")
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)

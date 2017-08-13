@@ -72,6 +72,11 @@ class DueReloadException(BotException):
         self.channel = result_channel
 
 
+class SendMessagePermMissing(discord.Forbidden):
+    def __init__(self, cause):
+        self.cause = cause
+
+
 class SlotPickleMixin:
     """
     Mixin for pickling slots
@@ -121,7 +126,10 @@ async def say(channel, *args, **kwargs):
         # Allows it to speak across shards
         client.run_task(say, *((channel,) + args), **kwargs)
     else:
-        await client.send_message(channel, *args, **kwargs)
+        try:
+            await client.send_message(channel, *args, **kwargs)
+        except discord.Forbidden as send_error:
+            raise SendMessagePermMissing(send_error)
 
 
 async def typing(channel):
@@ -258,6 +266,23 @@ def clamp(number, min_val, max_val):
 
 def normalize(number, min_val, max_val):
     return (number - min_val)/(max_val - min_val)
+
+
+async def set_up_roles(server):
+    # Due roles that need making.
+    role_names = [role_name for role_name in gconf.DUE_ROLES if
+                  not any(role.name == role_name for role in server.roles)]
+    for role_name in role_names:
+        await get_client(server.id).create_role(server, name=role_name, color=discord.Color(gconf.DUE_COLOUR))
+    return role_names
+
+
+def has_role_name(member, role_name):
+    return next((role for role in member.roles if role.name == role_name), False)
+
+
+def get_role_by_name(server, role_name):
+    return next((role for role in server.roles if role.name == role_name), None)
 
 
 def filter_string(string: str) -> str:

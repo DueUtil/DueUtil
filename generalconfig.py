@@ -9,7 +9,9 @@ from datetime import datetime
 
 
 DUE_COLOUR = 9819069
-
+DUE_COMMANDER_ROLE = "Due Commander"
+DUE_OPTOUT_ROLE = "Due Optout"
+DUE_ROLES = (DUE_COMMANDER_ROLE, DUE_OPTOUT_ROLE)
 
 trello_api_key = "a37e7838639da4b8e7e2d0da652cb40a"
 trello_api_token = "3ef525e21139f7ad9bff80e9353bd9e9c38fc316dc70bb3b4122e937a4c9d97f"

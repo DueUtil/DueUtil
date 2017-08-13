@@ -1,8 +1,9 @@
 from enum import Enum
 
 import discord
+import generalconfig as gconf
 
-from . import dbconn
+from . import dbconn, util
 from functools import total_ordering
 
 special_permissions = dict()
@@ -19,10 +20,11 @@ class Permission(Enum):
         return permissions.index(self) < permissions.index(other)
 
     BANNED = (lambda member: has_special_permission(member, permissions[0]), "banned", "NoInherit")
-    DISCORD_USER = (lambda member: has_special_permission(member, permissions[1]), "discord_user")
+    DISCORD_USER = (lambda member: (has_special_permission(member, permissions[1])
+                                    or util.has_role_name(member, gconf.DUE_OPTOUT_ROLE)), "discord_user")
     PLAYER = (lambda _: True, "player",)
     SERVER_ADMIN = (lambda member: (member.server_permissions.manage_server
-                                    or next((role for role in member.roles if role.name == "Due Commander"), False)),
+                                    or util.has_role_name(member, gconf.DUE_COMMANDER_ROLE)),
                     "server_admin",)
     REAL_SERVER_ADMIN = (lambda member: member.server_permissions.manage_server, "real_server_admin")
     DUEUTIL_MOD = (lambda member: has_special_permission(member, permissions[5]), "dueutil_mod",)
@@ -34,7 +36,7 @@ permissions = [permission for permission in Permission]
 
 def has_permission(member: discord.Member, permission):
     if permission != Permission.BANNED and not has_special_permission(member, Permission.BANNED):
-        if permission == Permission.PLAYER and has_special_permission(member, Permission.DISCORD_USER):
+        if permission == Permission.PLAYER and Permission.DISCORD_USER.value[0](member):
             # If a user has the perm DISCORD_USER specially set to overwrite PLAYER they have opted out.
             return False
         if permission.value[0](member) or has_special_permission(member, permission):

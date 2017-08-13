@@ -242,11 +242,11 @@ class Player(DueUtilObject, SlotPickleMixin):
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
 
-    def is_playing(self):
+    def is_playing(self, server=None):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
-        return not permissions.has_special_permission(self.to_member(),
-                                                      Permission.DISCORD_USER)
+        member = server.get_member(self.id) if server is not None else self.to_member()
+        return not permissions.has_special_permission(member, Permission.DISCORD_USER)
 
     @property
     def item_value_limit(self):

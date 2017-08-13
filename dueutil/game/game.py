@@ -225,7 +225,7 @@ async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
     if player is not None:
-        if not player.is_playing():
+        if not player.is_playing(message.server):
             return
         if quest_time(player) or progress_time(player):
             spam_level = get_spam_level(player, message.content)
