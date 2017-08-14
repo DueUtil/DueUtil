@@ -245,7 +245,14 @@ class Player(DueUtilObject, SlotPickleMixin):
     def is_playing(self, server=None, **extras):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
-        member = server.get_member(self.id) if server is not None else self.to_member()
+        if server is not None:
+            member = server.get_member(self.id)
+            if member is None:
+                # Member not on server.
+                member = self.to_member()
+        else:
+            # Server not passed.
+            member = self.to_member()
         if not extras.get("local", False):
             return permissions.has_permission(member, Permission.PLAYER)
         return not util.has_role_name(member, gconf.DUE_OPTOUT_ROLE)
