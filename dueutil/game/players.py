@@ -1,4 +1,3 @@
-import asyncio
 import math
 import random
 import time
@@ -9,6 +8,7 @@ import discord
 import jsonpickle
 import numpy
 
+import generalconfig as gconf
 from ..util import SlotPickleMixin
 from .. import dbconn, util, tasks, permissions
 from ..permissions import Permission
@@ -242,11 +242,13 @@ class Player(DueUtilObject, SlotPickleMixin):
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
 
-    def is_playing(self, server=None):
+    def is_playing(self, server=None, **extras):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
         member = server.get_member(self.id) if server is not None else self.to_member()
-        return not permissions.has_special_permission(member, Permission.DISCORD_USER)
+        if not extras.get("local", False):
+            return permissions.has_permission(member, Permission.PLAYER)
+        return not util.has_role_name(member, gconf.DUE_OPTOUT_ROLE)
 
     @property
     def item_value_limit(self):
