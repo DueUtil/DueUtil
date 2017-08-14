@@ -272,11 +272,12 @@ def normalize(number, min_val, max_val):
 
 async def set_up_roles(server):
     # Due roles that need making.
-    role_names = [role_name for role_name in gconf.DUE_ROLES if
-                  not any(role.name == role_name for role in server.roles)]
-    for role_name in role_names:
-        await get_client(server.id).create_role(server, name=role_name, color=discord.Color(gconf.DUE_COLOUR))
-    return role_names
+    roles = [role_name for role_name in gconf.DUE_ROLES if
+             not any(role.name == role_name["name"] for role in server.roles)]
+    for role in roles:
+        await get_client(server.id).create_role(server, name=role["name"],
+                                                color=discord.Color(role.get("colour", gconf.DUE_COLOUR)))
+    return roles
 
 
 def has_role_name(member, role_name):
@@ -309,7 +310,7 @@ def int_to_ordinal(number: int) -> str:
 
 
 # Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
-intervals = (
+INTERVALS = (
     ('weeks', 604800),  # 60 * 60 * 24 * 7
     ('days', 86400),  # 60 * 60 * 24
     ('hours', 3600),  # 60 * 60
@@ -321,7 +322,7 @@ intervals = (
 def display_time(seconds, granularity=2):
     result = []
 
-    for name, count in intervals:
+    for name, count in INTERVALS:
         value = seconds // count
         if value:
             seconds -= value * count

@@ -2,7 +2,6 @@
 Global vars
 """
 # General "Config"
-
 import sys
 import json
 from datetime import datetime
@@ -11,7 +10,9 @@ from datetime import datetime
 DUE_COLOUR = 9819069
 DUE_COMMANDER_ROLE = "Due Commander"
 DUE_OPTOUT_ROLE = "Due Optout"
-DUE_ROLES = (DUE_COMMANDER_ROLE, DUE_OPTOUT_ROLE)
+
+# Colour defaults to colour
+DUE_ROLES = ({"name": DUE_COMMANDER_ROLE}, {"name": DUE_OPTOUT_ROLE, "colour": 0})
 
 trello_api_key = "a37e7838639da4b8e7e2d0da652cb40a"
 trello_api_token = "3ef525e21139f7ad9bff80e9353bd9e9c38fc316dc70bb3b4122e937a4c9d97f"
@@ -29,7 +30,7 @@ THING_AMOUNT_CAP = 120
 
 BOT_INVITE = "https://dueutil.tech/invite"
 
-VERSION = "Release 2.0.6"
+VERSION = "Release 2.0.6.1"
 
 
 def load_config_json():

@@ -371,8 +371,8 @@ async def setuproles(ctx, **_):
     roles_count = len(roles_made)
     if roles_count > 0:
         result = ":white_check_mark: Created **%d %s**!\n" % (roles_count, util.s_suffix("role", roles_count))
-        for role_name in roles_made:
-            result += "→ ``%s``\n" % role_name
+        for role in roles_made:
+            result += "→ ``%s``\n" % role["name"]
         await util.say(ctx.channel, result)
     else:
         await util.say(ctx.channel, "No roles need to be created!")
@@ -391,7 +391,7 @@ async def optout(ctx, **details):
     """
     [CMD_KEY]optout
 
-    Opt out of DueUtil.
+    Optout of DueUtil.
 
     When you opt out:
         You don't get quests or exp.
@@ -409,7 +409,7 @@ async def optout(ctx, **details):
         if await optout_is_topdog_check(ctx.channel, player):
             return
         if current_permission >= Permission.DUEUTIL_MOD:
-            raise util.DueUtilException(ctx.channel, "You cannot opt out and stay a dueutil mod or admin!")
+            raise util.DueUtilException(ctx.channel, "You cannot optout everywhere and stay a dueutil mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
         await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil everywhere.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
@@ -423,7 +423,7 @@ async def optin(ctx, **details):
     """
     [CMD_KEY]optin
 
-    Opt in to DueUtil.
+    Optin to DueUtil.
 
     (This applies to all servers with DueUtil)
     """

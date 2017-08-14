@@ -85,14 +85,13 @@ async def battlename(ctx, name="", **details):
     if name != "":
         name_len_range = players.Player.NAME_LENGTH_RANGE
         if len(name) not in name_len_range:
-            raise util.DueUtilException(ctx.channel, ("Battle name must be between **"
-                                                      + str(min(name_len_range)) + "-" + str(
-                max(name_len_range)) + "** characters long!"))
+            raise util.DueUtilException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
+                                                     % (min(name_len_range), max(name_len_range)))
         player.name = name
     else:
         player.name = details["author_name"]
     player.save()
-    await util.say(ctx.channel, "Your battle name has been set to **" + player.name_clean + "**!")
+    await util.say(ctx.channel, "Your battle name has been set to **%s**!" % player.name_clean)
 
 
 @commands.command(args_pattern=None)
