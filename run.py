@@ -162,6 +162,8 @@ class DueUtilClient(discord.Client):
             yield from util.duelogger.error(("**Message/command triggred error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
                                             embed=trigger_message)
+        # Log exception on sentry.
+        util.sentry_client.captureException()
         traceback.print_exc()
 
     @asyncio.coroutine

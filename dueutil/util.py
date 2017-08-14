@@ -8,6 +8,7 @@ from itertools import chain
 import aiohttp
 import discord
 import emoji  # The emoji list in this is outdated/not complete.
+from raven import Client
 
 import generalconfig as gconf
 from .trello import TrelloClient
@@ -23,12 +24,15 @@ shard_clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('dueutil')
 
+sentry_client = Client(gconf.other_configs["sentryAuth"],
+                       ignore_exceptions=["KeyboardInterrupt"],
+                       release=gconf.VERSION)
+
 trello_client = TrelloClient(api_key=gconf.trello_api_key,
                              api_token=gconf.trello_api_token)
 
 
 class DueLog:
-
     @staticmethod
     async def bot(message, **kwargs):
         await say(gconf.log_channel, ":robot: %s" % message, **kwargs)
@@ -176,7 +180,6 @@ def get_server(server_id):
 
 
 def ultra_escape_string(string):
-
     """
     A simple function to escape all discord crap!
     """
@@ -192,14 +195,13 @@ def ultra_escape_string(string):
 
     # Escape the ultra annoying mentions that \@everyone does not block
     # Why? Idk
-    escaped_string = escaped_string.replace("@everyone", u"@\u200Beveryone")\
-                                   .replace("@here", u"@\u200Bhere")
+    escaped_string = escaped_string.replace("@everyone", u"@\u200Beveryone") \
+        .replace("@here", u"@\u200Bhere")
 
     return escaped_string
 
 
 def format_number(number, **kwargs):
-
     def small_format():
         nonlocal number
         full_number = '{:,f}'.format(number).rstrip('0').rstrip('.')
@@ -265,7 +267,7 @@ def clamp(number, min_val, max_val):
 
 
 def normalize(number, min_val, max_val):
-    return (number - min_val)/(max_val - min_val)
+    return (number - min_val) / (max_val - min_val)
 
 
 async def set_up_roles(server):
@@ -305,14 +307,15 @@ def int_to_ordinal(number: int) -> str:
         suffix = SUFFIXES.get(number % 10, "th")
     return str(number) + suffix
 
+
 # Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
 intervals = (
     ('weeks', 604800),  # 60 * 60 * 24 * 7
-    ('days', 86400),    # 60 * 60 * 24
-    ('hours', 3600),    # 60 * 60
+    ('days', 86400),  # 60 * 60 * 24
+    ('hours', 3600),  # 60 * 60
     ('minutes', 60),
     ('seconds', 1),
-    )
+)
 
 
 def display_time(seconds, granularity=2):
@@ -329,7 +332,7 @@ def display_time(seconds, granularity=2):
 
 
 def s_suffix(word, count):
-    return word if count == 1 else word+"s"
+    return word if count == 1 else word + "s"
 
 
 def load(shards):

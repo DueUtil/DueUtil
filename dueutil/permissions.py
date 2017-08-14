@@ -24,8 +24,7 @@ class Permission(Enum):
                                     or util.has_role_name(member, gconf.DUE_OPTOUT_ROLE)), "discord_user")
     PLAYER = (lambda _: True, "player",)
     SERVER_ADMIN = (lambda member: (member.server_permissions.manage_server
-                                    or util.has_role_name(member, gconf.DUE_COMMANDER_ROLE)),
-                    "server_admin",)
+                                    or util.has_role_name(member, gconf.DUE_COMMANDER_ROLE)), "server_admin",)
     REAL_SERVER_ADMIN = (lambda member: member.server_permissions.manage_server, "real_server_admin")
     DUEUTIL_MOD = (lambda member: has_special_permission(member, permissions[5]), "dueutil_mod",)
     DUEUTIL_ADMIN = (lambda member: has_special_permission(member, permissions[6]), "dueutil_admin",)
