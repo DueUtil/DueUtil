@@ -3,7 +3,7 @@ import time
 from functools import wraps
 
 from . import permissions
-from .game import players
+from .game import players, emojis
 from .game.configs import dueserverconfig
 from . import events, util, commandtypes
 from .permissions import Permission
@@ -22,11 +22,11 @@ def command(**command_rules):
 
     # TODO: Include sender, timesent, etc in details
 
-    def check(user, command):
-        return permissions.has_permission(user, command.permission)
+    def check(user, called):
+        return permissions.has_permission(user, called.permission)
 
-    def is_spam_command(ctx, command, *args):
-        if command.permission < Permission.SERVER_ADMIN:
+    def is_spam_command(ctx, called, *args):
+        if called.permission < Permission.SERVER_ADMIN:
             return (sum(isinstance(arg, players.Player) for arg in args)
                     < len(ctx.raw_mentions) or ctx.mention_everyone
                     or '@here' in ctx.content or '@everyone' in ctx.content)
@@ -73,7 +73,7 @@ def command(**command_rules):
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
                         # Could not be a mistype for a personal my command
-                        await util.get_client(ctx.server.id).add_reaction(ctx, u"\u2753")
+                        await util.get_client(ctx.server.id).add_reaction(ctx, emojis.QUESTION_REACT)
                     else:
                         # May have meant to call a personal command
                         personal_command_name = "my" + name
@@ -87,7 +87,7 @@ def command(**command_rules):
                     raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
                 # React X
-                await util.get_client(ctx.server.id).add_reaction(ctx, u"\u274C")
+                await util.get_client(ctx.server.id).add_reaction(ctx, emojis.CROSS_REACT)
             return True
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)

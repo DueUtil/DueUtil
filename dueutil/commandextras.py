@@ -1,5 +1,6 @@
 import inspect
 from inspect import Parameter
+from .game import emojis
 from . import commandtypes, util
 from functools import wraps
 import itertools
@@ -28,7 +29,7 @@ def dict_command(**spec):
 
             if dict_args is False:
                 # Invalid
-                await util.say(ctx.channel, "<:TardQuester:345595519671992320> Trash args kys")
+                await util.get_client(ctx.server.id).add_reaction(ctx, emojis.QUESTION_REACT)
             else:
                 # Run command.
                 kwargs = details

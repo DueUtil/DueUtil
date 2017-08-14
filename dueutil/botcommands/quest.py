@@ -228,7 +228,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         raise util.DueUtilException(ctx.server, "Whoa, you've reached the limit of %d quests!"
                                     % gconf.THING_AMOUNT_CAP)
 
-    extras = dict()
+    extras = {"spawn_chance": spawn_chane}
     if task is not None:
         extras['task'] = task
     if weapon is not None:
@@ -239,18 +239,17 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         extras['weapon_id'] = weapon.w_id
     if image_url is not None:
         extras['image_url'] = image_url
-    extras['spawn_chance'] = spawn_chane
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
-    await imagehelper.warn_on_invalid_image(ctx.channel, url=new_quest.image_url)
+    await imagehelper.warn_on_invalid_image(ctx.channel, url=extras.get("image_url", new_quest.image_url))
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
 @commands.extras.dict_command(optional={"attack/atk": "R", "strg/strength": "R", "hp": "R",
                                         "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
-                                        "image/img": "S", "task": "S", "channel": "S"})
+                                        "image": "S", "task": "S", "channel": "S"})
 async def editquest(ctx, quest_name, updates, **_):
     """
     [CMD_KEY]editquest name (property value)+
@@ -332,6 +331,8 @@ async def editquest(ctx, quest_name, updates, **_):
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
         await util.say(ctx.channel, result)
+        if "image" in updates:
+            await imagehelper.warn_on_invalid_image(ctx.channel, updates["image"])
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
