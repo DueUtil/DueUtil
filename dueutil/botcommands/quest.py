@@ -243,7 +243,8 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
-    await imagehelper.warn_on_invalid_image(ctx.channel, url=extras.get("image_url", new_quest.image_url))
+    if "image_url" in extras:
+        await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
@@ -315,7 +316,7 @@ async def editquest(ctx, quest_name, updates, **_):
                     updates[quest_property] = "Channel not found!"
         else:
             updates[quest_property] = util.ultra_escape_string(value)
-            if quest_property in ("img", "image"):
+            if quest_property == "image":
                 quest.image_url = value
             else:
                 # Task

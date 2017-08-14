@@ -14,8 +14,9 @@ from . import emojis
 
 
 stock_weapons = ["none"]
-
 weapons = DueMap()
+
+MAX_STORED_WEAPONS = 6
 
 # Simple namedtuple for weapon sums
 Summary = namedtuple("Summary", ["price", "damage", "accy"])

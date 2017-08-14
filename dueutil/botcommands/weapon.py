@@ -457,7 +457,7 @@ async def buy_weapon(weapon_name, **details):
                                  + util.format_number(customer.item_value_limit, money=True,
                                                       full_precision=True) + "**"))
     elif customer.equipped["weapon"] != weapons.NO_WEAPON_ID:
-        if len(customer.inventory["weapons"]) < 6:
+        if len(customer.inventory["weapons"]) < weapons.MAX_STORED_WEAPONS:
             if weapon.w_id not in customer.inventory["weapons"]:
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
