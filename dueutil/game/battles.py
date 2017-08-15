@@ -27,7 +27,7 @@ _Opponents = namedtuple("Opponents", ["p1", "p2"])
 
 # Some default attack messages (if the player does not have a weapon)
 BABY_MOVES = ("slapped", "scratched", "hit", "punched", "licked", "bit", "kicked", "tickled")
-MAX_BATTLE_LOG_LEN = 1642
+MAX_BATTLE_LOG_LEN = 1024
 
 
 class BattleRequest:
