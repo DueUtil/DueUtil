@@ -377,6 +377,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
     if weapon.is_stock():
         raise util.DueUtilException(ctx.channel, "You cannot edit stock weapons!")
 
+    new_image_url = None
     for weapon_property, value in updates.items():
         if weapon_property == "icon":
             if util.is_discord_emoji(ctx.server, value):
@@ -389,7 +390,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
         else:
             updates[weapon_property] = util.ultra_escape_string(value)
             if weapon_property == "image":
-                weapon.image_url = value
+                new_image_url = weapon.image_url = value
             else:
                 if weapon.acceptable_string(value, 32):
                     weapon.hit_message = value
@@ -405,8 +406,8 @@ async def editweapon(ctx, weapon_name, updates, **_):
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
         await util.say(ctx.channel, result)
-        if "image" in updates:
-            await imagehelper.warn_on_invalid_image(ctx.channel, updates["image"])
+        if new_image_url is not None:
+            await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')

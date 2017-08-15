@@ -273,6 +273,7 @@ async def editquest(ctx, quest_name, updates, **_):
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
+    new_image_url = None
     for quest_property, value in updates.items():
         # Validate and set updates.
         if quest_property in ("attack", "atk", "accy", "accuracy", "strg", "strength"):
@@ -317,7 +318,7 @@ async def editquest(ctx, quest_name, updates, **_):
         else:
             updates[quest_property] = util.ultra_escape_string(value)
             if quest_property == "image":
-                quest.image_url = value
+                new_image_url = quest.image_url = value
             else:
                 # Task
                 quest.task = value
@@ -332,8 +333,8 @@ async def editquest(ctx, quest_name, updates, **_):
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
         await util.say(ctx.channel, result)
-        if "image" in updates:
-            await imagehelper.warn_on_invalid_image(ctx.channel, updates["image"])
+        if new_image_url is not None:
+            await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')

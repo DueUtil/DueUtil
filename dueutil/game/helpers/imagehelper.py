@@ -121,7 +121,7 @@ async def warn_on_invalid_image(channel, url):
     if not await url_image(url):
         await util.say(channel,
                        (":warning: The image url provided does not seem to be correct!\n"
-                        + "The url must point directly to an image file such as <https://dueutil.tech/img/logo.png>."))
+                        + "The url must point directly to an image file such as <https://dueutil.tech/img/slime.png>."))
 
 
 async def load_image_url(url, **kwargs):
