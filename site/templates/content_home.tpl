@@ -8,6 +8,7 @@
   <a style="margin-top: 16px; width: 200px" href="https://www.patreon.com/macdue" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
     Donate To Due
   </a>
+<div id="banner-under"></div>
 <div id="banner">
     <img src="../img/logo.png" alt="DueUtil logo">
 </div>
@@ -17,7 +18,7 @@
 DueUtil is a fun Discord bot for your server. 
 <br>It does not promise to provide you anything useful but you may be able to have some fun with it.<br>
 DueUtil adds quests, battles and wagers that you can create and customize.<br>
-For more information look at the "how to" guide!
+For more information look at the "<a class="due-link" href="../howto/">how to</a>" guide!
 </p>
 <div style="width:100%"></div>
 <div class="command-list">

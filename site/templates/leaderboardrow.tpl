@@ -6,8 +6,9 @@
       <img class="cete-avatar" src="[@avatar]" alt="[@playername] Avatar"></img>
    </td>
    <td style="background-color: "class="log-cell mdl-data-table__cell--non-numeric">
-      <span class="player"><div class="thing-name">[@playername]</div>
-      (<code>[@playerid]</code>)
+      <a class="due-link" style="text-decoration: none" href="../player/id/[@playerid]">
+      <span class="player"><div class="thing-name"><strong>[@playername]</strong></div>
+      (<code>[@playerid]</code>)</a>
       </span>
             <br>
       <span class="level">Level [@level]</span>

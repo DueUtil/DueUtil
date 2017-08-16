@@ -390,8 +390,14 @@ background-position: 8px 8px;
     flex-flow: row wrap;
     -webkit-align-content: flex-end;
     align-content: flex-end;
+    margin: 0 auto;
+    max-width: 100em;
 }
 
+.width-limit{
+    margin: 0 auto;
+    max-width: 100em;
+}
 
 .member-li:hover{
     cursor:pointer;
@@ -717,6 +723,20 @@ right: 16px;
   background: rgba(149,211,189, 1);
   margin-left: -12px;
   margin-right: -12px;
+}
+
+#banner-under{
+  width: 100%;
+  position: absolute;
+  height: 258px;
+  top: 240px;
+  z-index: -5;
+background: #575b76;
+background: -moz-linear-gradient(left, #575b76 0%, #95d3bd 22%, #95d3bd 25%, #95d3bd 35%, #95d3bd 78%, #575b76 100%);
+background: -webkit-linear-gradient(left, #575b76 0%,#95d3bd 22%,#95d3bd 25%,#95d3bd 35%,#95d3bd 78%,#575b76 100%);
+background: linear-gradient(to right, #575b76 0%,#95d3bd 22%,#95d3bd 25%,#95d3bd 35%,#95d3bd 78%,#575b76 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#575b76', endColorstr='#575b76',GradientType=1 );
+
 }
 
 .home-info{

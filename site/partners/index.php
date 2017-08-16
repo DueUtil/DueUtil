@@ -27,6 +27,6 @@ if (sizeof($partner_cards) === 0) {
 }
 
 $page = new StandardLayout($sidebar,$partner_cards, $title = "<h2>Partners</h2>", "DueUtil partnered discord bots, servers, and other things (all classy)!");
-$page->set_value('flexstyle', "command-list");
+$page->set_value('flexstyle', "command-list width-limit");
 $page->show();
 ?>
