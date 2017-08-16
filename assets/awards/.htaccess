@@ -1,2 +1,5 @@
 Options -Indexes
-
+<Files "awards.json">
+Order Allow,Deny
+Deny from all
+</Files>
