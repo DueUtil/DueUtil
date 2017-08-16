@@ -207,6 +207,13 @@ abstract class Layout extends Template
         $this->set_header("<script src=\"$script\"></script>");
     }
     
+    function set_meta($properties){
+        $tags = "";
+        foreach($properties as $name => $value)
+            $tags .= " $name=\"$value\"";
+        $this->set_header("<meta$tags/>");
+    }
+    
     function body_append($object) {
         $this->body[] = $object;
         $this->set_value('body',$this->body);
