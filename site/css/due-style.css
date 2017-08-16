@@ -736,7 +736,7 @@ background: -moz-linear-gradient(left, #575b76 0%, #95d3bd 22%, #95d3bd 25%, #95
 background: -webkit-linear-gradient(left, #575b76 0%,#95d3bd 22%,#95d3bd 25%,#95d3bd 35%,#95d3bd 78%,#575b76 100%);
 background: linear-gradient(to right, #575b76 0%,#95d3bd 22%,#95d3bd 25%,#95d3bd 35%,#95d3bd 78%,#575b76 100%);
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#575b76', endColorstr='#575b76',GradientType=1 );
-
+left: 0px;
 }
 
 .home-info{
