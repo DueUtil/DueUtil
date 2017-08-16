@@ -357,7 +357,7 @@ async def removequest(ctx, quest_name, **_):
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** delete all your quests!")
-async def resetquests(ctx, cnf="", **details):
+async def resetquests(ctx, **_):
     """
     [CMD_KEY]resetquests
 
@@ -365,8 +365,12 @@ async def resetquests(ctx, cnf="", **details):
     This command will **delete all quests** on your server.
     """
 
-    quests.remove_all_quests(ctx.server)
-    await util.say(ctx.channel, "All quests have been deleted.")
+    quests_deleted = quests.remove_all_quests(ctx.server)
+    if quests_deleted > 0:
+        await util.say(ctx.channel, ":wastebasket: Your quests have been reset—**%d %s** deleted."
+                                    % (quests_deleted, util.s_suffix("quest", quests_deleted)))
+    else:
+        await util.say(ctx.channel, "There's no quests to delete!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='M?')

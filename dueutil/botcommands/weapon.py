@@ -438,8 +438,12 @@ async def resetweapons(ctx, **_):
     This command **deletes all weapons** on your server.
     """
 
-    weapons.remove_all_weapons(ctx.server)
-    await util.say(ctx.channel, "All weapons have been deleted.")
+    weapons_deleted = weapons.remove_all_weapons(ctx.server)
+    if weapons_deleted > 0:
+        await util.say(ctx.channel, ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
+                                    % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)))
+    else:
+        await util.say(ctx.channel, "There's no weapons to delete!")
 
 
 # Part of the shop buy command

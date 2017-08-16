@@ -298,8 +298,11 @@ def add_default_quest_to_server(server):
 
 
 def remove_all_quests(server):
-    dbconn.delete_objects(Quest, '%s/.*' % server.id)
-    del quest_map[server]
+    if server in quest_map:
+        result = dbconn.delete_objects(Quest, '%s/.*' % server.id)
+        del quest_map[server]
+        return result.deleted_count
+    return 0
 
 
 def has_quests(place):

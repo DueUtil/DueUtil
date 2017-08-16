@@ -242,9 +242,14 @@ class Player(DueUtilObject, SlotPickleMixin):
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
 
+    def is_top_dog(self):
+        return "TopDog" in self.awards
+
     def is_playing(self, server=None, **extras):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
+        if self.is_top_dog():
+            return True  # Topdog is ALWAYS playing.
         if server is not None:
             member = server.get_member(self.id)
             if member is None:

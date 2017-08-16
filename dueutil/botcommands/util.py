@@ -379,7 +379,7 @@ async def setuproles(ctx, **_):
 
 
 async def optout_is_topdog_check(channel, player):
-    topdog = "TopDog" in player.awards
+    topdog = player.is_top_dog()
     if topdog:
         await util.say(channel, (":dog: You cannot opt out while you're top dog!\n"
                                  + "Pass on the title before you leave us!"))

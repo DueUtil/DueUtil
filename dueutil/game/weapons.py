@@ -198,8 +198,11 @@ def stock_weapon(weapon_name: str) -> str:
 
 
 def remove_all_weapons(server):
-    dbconn.delete_objects(Weapon, '%s\+.*' % server.id)
-    del weapons[server]
+    if server in weapons:
+        result = dbconn.delete_objects(Weapon, '%s\+.*' % server.id)
+        del weapons[server]
+        return result.deleted_count
+    return 0
 
 
 def _load():
@@ -219,7 +222,7 @@ def _load():
 
     load_stock_weapons()
 
-    # Load from db    
+    # Load from db
     for weapon in dbconn.get_collection_for_object(Weapon).find():
         loaded_weapon = jsonpickle.decode(weapon['data'])
         weapons[loaded_weapon.id] = util.load_and_update(NO_WEAPON, loaded_weapon)
