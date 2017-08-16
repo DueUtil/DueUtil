@@ -12,6 +12,10 @@ code{
     padding-right:2px;
 }
 **/
+a{
+  text-decoration: none;
+}
+
 #player-exp {
   margin-bottom: 12px;
 }
@@ -104,10 +108,14 @@ text-align: left;
 }
 
 code {
-  font-family: Menlo,Consolas,Monaco,monospace;
-  font-size: 14px;
-  line-height: 16px;
-  background-color: #575B76;
+    font-family: Menlo,Consolas,Monaco,monospace;
+    font-size: 14px;
+    line-height: 16px;
+    background-color: #575B76;
+    padding: 1px;
+    border-radius: 1px;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .discord-message{

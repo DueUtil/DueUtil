@@ -26,7 +26,7 @@ For more information look at the "<a class="due-link" href="../howto/">how to</a
         <span class="mdl-layout-title">Commands</span>
         <div class="home-info-inner">
             DueUtil has a bunch of commands that you can mess around with!<br>
-            Some commands require you to be a <code>due commander</code> or to have manage server permissions.<br>
+            Some commands require you to be a <code>Due Commander</code> or to have manage server permissions.<br>
             You can see the full list by following the link below!<br>
         </div>
         <div class="mdl-card__actions mdl-card--border">
