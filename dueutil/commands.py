@@ -146,7 +146,8 @@ def ratelimit(**command_info):
             command_name = details["command_name"]
             if command_info.get('save', False):
                 command_name += "_saved_cooldown"
-            time_since_last_used = time.time() - player.command_rate_limits.get(command_name, 0)
+            now = int(time.time())
+            time_since_last_used = now - player.command_rate_limits.get(command_name, 0)
             if time_since_last_used < command_info["cooldown"]:
                 error = command_info["error"]
                 if "[COOLDOWN]" in error:
@@ -155,7 +156,7 @@ def ratelimit(**command_info):
                 await util.say(ctx.channel, error)
                 return
             else:
-                player.command_rate_limits[command_name] = time.time()
+                player.command_rate_limits[command_name] = now
             await command_func(ctx, *args, **details)
 
         return wrapped_command
