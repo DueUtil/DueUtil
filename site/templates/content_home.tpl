@@ -69,7 +69,7 @@ For more information look at the "<a class="due-link" href="../howto/">how to</a
         <div class="home-info-inner">
             The top dog is player that currenly has the &quot;top dog&quot; award.<br>
             If you want to keep the award you have to battle for it!<br>
-            The current top dog is: <div class="thing-name"><a class="due-link" href="../player/id/[@topdogid]"><b>[@topdog]</b></div> ([@topdogid])</a> and they are the <b>[@topdogcount]</b> to be top dog!
+            The current top dog is: <a class="due-link" href="../player/id/[@topdogid]"><div class="thing-name"><b>[@topdog]</b></div> ([@topdogid])</a> and they are the <b>[@topdogcount]</b> to be top dog!
         </div>
     </div>
     <div class="home-info flex-content mdl-shadow--6dp">
