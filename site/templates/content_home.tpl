@@ -1,13 +1,15 @@
-  <a href="[@botinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-right: 16px; width: 200px;">
+ <div id="home-buttons"> 
+  <a href="[@botinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-right: 16px;">
     Invite 
   </a>
-  <a href="[@serverinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
+  <a href="[@serverinvite]" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" >
     Support Server
   </a>
   <div style="width:100%"></div>
-  <a style="margin-top: 16px; width: 200px" href="https://www.patreon.com/macdue" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
+  <a style="margin-top: 16px;" href="https://www.patreon.com/macdue" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="width: 200px">
     Donate To Due
   </a>
+</div>
 <div id="banner-under"></div>
 <div id="banner">
     <img src="../img/logo.png" alt="DueUtil logo">
@@ -67,7 +69,7 @@ For more information look at the "<a class="due-link" href="../howto/">how to</a
         <div class="home-info-inner">
             The top dog is player that currenly has the &quot;top dog&quot; award.<br>
             If you want to keep the award you have to battle for it!<br>
-            The current top dog is: <div class="thing-name"><b>[@topdog]</b></div> ([@topdogid]) and they are the <b>[@topdogcount]</b> to be top dog!
+            The current top dog is: <div class="thing-name"><a class="due-link" href="../player/id/[@topdogid]"><b>[@topdog]</b></div> ([@topdogid])</a> and they are the <b>[@topdogcount]</b> to be top dog!
         </div>
     </div>
     <div class="home-info flex-content mdl-shadow--6dp">
