@@ -711,7 +711,7 @@ position:  relative;
 }
 
 #page-header{
-  overflow: hidden;
+   text-overflow: ellipsis;
 }
 
 .command-list, .award-list{

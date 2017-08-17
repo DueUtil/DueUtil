@@ -47,7 +47,7 @@ That means your now a certified hacker man and have totally hacked me.
       <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
          [@body]
          <header class="mdl-layout__header">
-            <div id="page-header" class="mdl-layout__header-row">
+            <div class="mdl-layout__header-row">
                <a href="../home/" style="height:100%">
                  <img src="../img/logo.png" class="cete-logo" alt="DueUtil logo">
                </a>
