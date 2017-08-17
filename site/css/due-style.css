@@ -710,6 +710,10 @@ position:  relative;
     line-height: 12px;
 }
 
+#page-header{
+  overflow: hidden;
+}
+
 .command-list, .award-list{
    display: -webkit-flex;
     display: -ms-flexbox;
