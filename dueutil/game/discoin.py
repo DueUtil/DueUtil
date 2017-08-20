@@ -8,68 +8,37 @@ from dueutil import util, tasks
 
 import traceback
 
-DISCOIN = "https://discoin.disnodeteam.com"
-TRANSACTIONS = "/transaction"
-MAKE_TRANSACTION = TRANSACTIONS + "/%s/%s/%s"
+# A quick discoin implementation.
 
-headers = {"Authorization": gconf.other_configs["discoinKey"],
-           "json": "true"}
+DISCOIN = "http://discoin.sidetrip.xyz"
+TRANSACTION = "/transaction"
+VERIFY = DISCOIN+"/verify"
+headers = {"Authorization": gconf.other_configs["discoinKey"]}
 
 
 async def start_transaction(sender_id, amount, to):
-    transaction = DISCOIN + MAKE_TRANSACTION % (sender_id, amount, to)
+
+    transaction_data = {
+        "user": sender_id,
+        "amount": amount,
+        "exchangeTo": to
+    }
 
     with aiohttp.Timeout(10):
         async with aiohttp.ClientSession() as session:
-            async with session.get(transaction, headers=headers) as response:
-                result = await response.text()
-                status = response.status
-
-                if status == 200:
-                    return json.loads(result)
-                elif status == 401:
-                    return {"error": "unauthorized"}
-                elif status == 403:
-                    return {"error": "unverified", "verify": DISCOIN + "/verify"}
-                elif status == 400:
-                    if "negative" in result:
-                        return {"error": "negative_amount"}
-                    elif "currency" in result:
-                        return {"error": "currency_not_found"}
-                    else:
-                        return {"error": "NaN"}
-                elif status == 429:
-                    # Parse crappy text errors.
-                    currency_code = result.split("The currency")[1].split("has a daily")[0].strip()
-                    limit_msg_end = "Discoins per user"
-                    if "daily total" in result:
-                        limit_msg_end = "Discoins."
-                    limit = float(result.split("limit of")[1].split(limit_msg_end)[0].strip())
-
-                    can_still = 0
-                    if "can still" in result:
-                        can_still = result.split("a total of")[1].split("Discoins into")[0].strip()
-                        if can_still != "undefined":
-                            can_still = float(can_still)
-                        else:
-                            can_still = 0
-                    return {"status": "declined",
-                            "currency": currency_code,
-                            "limit" + ("Total" if limit_msg_end == "Discoins." else ""): limit,
-                            "stillExchangeable": can_still}
+            async with session.post(DISCOIN + TRANSACTION,
+                                    data=json.dumps(transaction_data), headers=headers) as response:
+                return await response.json()
 
 
 async def unprocessed_transactions():
     async with aiohttp.ClientSession() as session:
-        async with session.get(DISCOIN + TRANSACTIONS, headers=headers) as response:
-            result = await response.text()
-            if "[ERROR]" in result:
-                return None
-            else:
-                return json.loads(result)
+        # Get transactions
+        async with session.get(DISCOIN + TRANSACTION + "s", headers=headers) as response:
+            return await response.json()
 
 
-@tasks.task(timeout=300)
+@tasks.task(timeout=120)
 async def process_transactions():
     util.logger.info("Processing Discoin transactions.")
     try:
@@ -86,20 +55,14 @@ async def process_transactions():
     for transaction in unprocessed:
 
         user_id = transaction.get('user')
-        receipt = transaction.get('id')
-        source_bot = transaction.get('from')
+        receipt = transaction.get('receipt')
+        source_bot = transaction.get('source')
         amount = transaction.get('amount')
 
         player = players.find_player(user_id)
         if player is None or amount < 1:
-            # This does not really work but it's the best I can do.
-            refund = await start_transaction(user_id, amount, source_bot)
-            if "error" not in refund:
-                util.logger.warning("Discoin transaction failed! receipt %s (refund attempted)", receipt)
-                await util.duelogger.concern(("Failed to process discoin transaction from %s with receipt ``%s``\n"
-                                              + "Refund attempted.") % (user_id, receipt))
-            else:
-                util.logger.warning("Discoin transaction %s failed! Refund failed (%s)", receipt, refund["error"])
+            # Wait till I implement refunds.
+            # TODO: Implement refunds
             client.run_task(notify_complete, user_id, transaction, failed=True)
             return
 
@@ -125,10 +88,10 @@ async def notify_complete(user_id, transaction, failed=False):
             amount = int(transaction["amount"])
             await util.say(user,
                            (":white_check_mark: You've received ``%s`` from Discoin (receipt %s)!\n"
-                            % (util.format_number(amount, full_precision=True, money=True), transaction["id"])
-                            + "You can see your full exchange record at <"+DISCOIN+"/record>."), client=client)
+                            % (util.format_number(amount, full_precision=True, money=True), transaction["receipt"])
+                            + "You can see your full exchange record at <%s/record>." % DISCOIN), client=client)
         else:
-            await util.say(user, ":warning: Your Discoin exchange failed (receipt %s)!\n" % transaction["id"]
+            await util.say(user, ":warning: Your Discoin exchange failed (receipt %s)!\n" % transaction["receipt"]
                            + "To exchange to DueUtil you must be a player "
                            + "and the amount has to be worth at least 1 DUT.", client=client)
     except Exception as error:

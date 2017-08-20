@@ -532,29 +532,30 @@ async def exchange(ctx, amount, currency, **details):
         return
 
     try:
-        result = await discoin.start_transaction(player.id, amount, currency)
+        response = await discoin.start_transaction(player.id, amount, currency)
     except Exception as discoin_error:
         util.logger.error("Discoin exchange failed %s", discoin_error)
         raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
 
-    if "error" in result:
+    status = response["status"]
+
+    if status == "error":
         # Error
-        error = result
-        if "verify" in error:
-            await util.say(ctx.channel, "You must verify at <%s> to use Discoin!" % error["verify"])
-        elif error.get("error") == "currency_not_found":
+        if response["reason"] == "invalid destination currency":
             await util.say(ctx.channel, "The currency you tried exchange to does not exist!")
         else:
             raise util.DueUtilException(ctx.channel, "An unexpected error occurred!")
     else:
-        transaction = result
-        status = transaction.get("status").lower().strip()
+        transaction = response
         if status == "declined":
             # Declined
-            limit = transaction.get("limit", transaction.get("limitTotal"))
-            limit_type = "total" if "limitTotal" in transaction else "daily"
-            await util.say(ctx.channel, "Your transaction exceeds your %s limit of **Đ%s** for **%s**"
-                           % (limit_type, util.format_number(limit, full_precision=True), currency))
+            if response["reason"] == "verify required":
+                await util.say(ctx.channel, "You must verify at <%s> to use Discoin!" % discoin.VERIFY)
+            else:
+                limit = transaction["limit"]
+                limit_type = "total" if "total" in transaction["reason"] else "daily"
+                await util.say(ctx.channel, "Your transaction exceeds your %s limit of **Đ%s** for **%s**"
+                               % (limit_type, util.format_number(limit, full_precision=True), currency))
         elif status == "approved":
             # Success
             await awards.give_award(ctx.channel, player, "Discoin")
@@ -562,13 +563,18 @@ async def exchange(ctx, amount, currency, **details):
             player.save()
             limit_now = int(transaction["limitNow"])
             receipt = transaction["receipt"]
+            result_amount = transaction["resultAmount"]
+
             exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!",
                                            type="rich", color=gconf.DUE_COLOUR)
             exchange_embed.add_field(name="Exchange amount (DUT):",
                                      value=util.format_number(amount, money=True, full_precision=True))
-            exchange_embed.add_field(name="Receipt:", value=receipt)
+            exchange_embed.add_field(name="Result amount (%s):" % currency,
+                                     value="$"+util.format_number_precise(result_amount))
             exchange_embed.add_field(name="Daily exchange limit to %s left:" % currency,
-                                     value="Đ" + util.format_number(limit_now, full_precision=True), inline=False)
+                                     value="Đ%s (in Discoin)" % util.format_number(limit_now, full_precision=True),
+                                     inline=False)
+            exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
             exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
             await util.say(ctx.channel, embed=exchange_embed)
         else:
