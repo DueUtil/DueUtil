@@ -510,7 +510,7 @@ async def exchange(ctx, amount, currency, **details):
 
     Exchange your DUT (DueUtil Tokens) for other bot currencies!
 
-    For more information go to: https://discoin.disnodeteam.com/
+    For more information go to: https://discoin.sidetrip.xyz/
 
     Note: Exchanges can take a few minutes to process!
     """
