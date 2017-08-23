@@ -89,7 +89,7 @@ async def help(ctx, *args, **details):
         help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
         help_embed.add_field(name=e.THINKY_FONK + " Tips",
                              value=("If DueUtil reacts to your command it means something is wrong!\n"
-                                    + ":question: - Something is wrong with the commands syntax.\n"
+                                    + ":question: - Something is wrong with the command's syntax.\n"
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
                                                          + "DueUtil site: https://dueutil.tech/\n"
@@ -532,7 +532,7 @@ async def exchange(ctx, amount, currency, **details):
         return
 
     try:
-        response = await discoin.start_transaction(player.id, amount, currency)
+        response = await discoin.make_transaction(player.id, amount, currency)
     except Exception as discoin_error:
         util.logger.error("Discoin exchange failed %s", discoin_error)
         raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
@@ -544,6 +544,7 @@ async def exchange(ctx, amount, currency, **details):
         if response["reason"] == "invalid destination currency":
             await util.say(ctx.channel, "The currency you tried exchange to does not exist!")
         else:
+            print(response)
             raise util.DueUtilException(ctx.channel, "An unexpected error occurred!")
     else:
         transaction = response

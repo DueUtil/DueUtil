@@ -139,5 +139,12 @@
       "image":"geometric_red.png",
       "price":150,
       "donor": true
+   },
+   "city night": {
+      "name":"City Night",
+      "icon":":city_dusk:",
+      "description":"Sleep well little city.",
+      "image":"CityNight.png",
+      "price":20000
    }
 }

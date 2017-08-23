@@ -23,7 +23,6 @@ from dueutil import util, events, dbconn
 MAX_RECOVERY_ATTEMPTS = 100
 
 stopped = False
-start_time = 0
 bot_key = ""
 shard_count = 0
 shard_clients = []
@@ -51,7 +50,7 @@ class DueUtilClient(discord.Client):
         self.queue_tasks = queue.Queue()
         self.name = shard_names[self.shard_id]
         self.loaded = False
-        self.session = aiohttp.ClientSession()
+        self.http = aiohttp.ClientSession()
         self.start_time = time.time()
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
@@ -218,8 +217,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        help_status = discord.Game()
-        help_status.name = "dueutil.tech | shard " + str(shard_number) + "/" + str(shard_count)
+        help_status = discord.Game(name="dueutil.tech | shard %d/%d" % (shard_number, shard_count))
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)

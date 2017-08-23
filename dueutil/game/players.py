@@ -4,7 +4,6 @@ import time
 from collections import defaultdict
 from copy import copy
 
-import discord
 import jsonpickle
 import numpy
 

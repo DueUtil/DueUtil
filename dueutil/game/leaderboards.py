@@ -14,13 +14,12 @@ _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    global leaderboards
-    leaderboards[rank_name] = (sorted(players.players.values(),
-                                      key=sort_function, reverse=reverse), sort_function, reverse)
+    ranked_players = sorted(players.players.values(), key=sort_function, reverse=reverse)
+    leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
     db = dbconn.conn()
     db.drop_collection(rank_name)
-    for rank, player in enumerate(leaderboards[rank_name][0]):
-        db[rank_name].insert({"rank": rank+1, "player_id": player.id})
+    for rank, player_id in enumerate(leaderboards[rank_name][0]):
+        db[rank_name].insert({"rank": rank+1, "player_id": player_id})
 
 
 def calculate_level_leaderboard():
@@ -36,7 +35,7 @@ def get_leaderboard(rank_name):
 def get_local_leaderboard(server, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:
-        rankings = list(filter(lambda player: server.get_member(player.id) is not None, rankings))
+        rankings = list(filter(lambda player_id: server.get_member(player_id) is not None, rankings))
         return _LocalLeaderboard(updated=last_leaderboard_update, data=rankings)
 
 
@@ -47,7 +46,7 @@ def get_rank(player, rank_name, server=None):
     else:
         rankings = get_leaderboard(rank_name)
     try:
-        return rankings.index(player) + 1
+        return rankings.index(player.id) + 1
     except (ValueError, IndexError):
         return -1
 

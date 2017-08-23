@@ -11,12 +11,15 @@ import traceback
 # A quick discoin implementation.
 
 DISCOIN = "http://discoin.sidetrip.xyz"
-TRANSACTION = "/transaction"
 VERIFY = DISCOIN+"/verify"
+# Endpoints
+TRANSACTION = "/transaction"
+TRANSACTIONS = "/transactions"
+REVERSE = TRANSACTION+"/reverse"
 headers = {"Authorization": gconf.other_configs["discoinKey"]}
 
 
-async def start_transaction(sender_id, amount, to):
+async def make_transaction(sender_id, amount, to):
 
     transaction_data = {
         "user": sender_id,
@@ -25,15 +28,25 @@ async def start_transaction(sender_id, amount, to):
     }
 
     with aiohttp.Timeout(10):
-        async with aiohttp.ClientSession() as session:
+        with aiohttp.ClientSession() as session:
             async with session.post(DISCOIN + TRANSACTION,
                                     data=json.dumps(transaction_data), headers=headers) as response:
                 return await response.json()
 
 
+async def reverse_transaction(receipt):
+
+    reverse_data = {"receipt": receipt}
+
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession() as session:
+            async with session.post(DISCOIN + REVERSE,
+                                    data=json.dumps(reverse_data), headers=headers) as response:
+                return await response.json()
+
+
 async def unprocessed_transactions():
-    async with aiohttp.ClientSession() as session:
-        # Get transactions
+    with aiohttp.ClientSession() as session:
         async with session.get(DISCOIN + TRANSACTION + "s", headers=headers) as response:
             return await response.json()
 
@@ -53,23 +66,19 @@ async def process_transactions():
     client = util.shard_clients[0]
 
     for transaction in unprocessed:
-
         user_id = transaction.get('user')
         receipt = transaction.get('receipt')
         source_bot = transaction.get('source')
         amount = transaction.get('amount')
+        amount = int(amount)
 
         player = players.find_player(user_id)
         if player is None or amount < 1:
-            # Wait till I implement refunds.
-            # TODO: Implement refunds
+            await reverse_transaction(receipt)
             client.run_task(notify_complete, user_id, transaction, failed=True)
             return
 
-        amount = int(amount)
-
         client.run_task(notify_complete, user_id, transaction)
-
         player.money += amount
         stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
         player.save()
@@ -91,7 +100,8 @@ async def notify_complete(user_id, transaction, failed=False):
                             % (util.format_number(amount, full_precision=True, money=True), transaction["receipt"])
                             + "You can see your full exchange record at <%s/record>." % DISCOIN), client=client)
         else:
-            await util.say(user, ":warning: Your Discoin exchange failed (receipt %s)!\n" % transaction["receipt"]
+            await util.say(user, ":warning: Your Discoin exchange has been reversed (receipt %s)!\n"
+                           % transaction["receipt"]
                            + "To exchange to DueUtil you must be a player "
                            + "and the amount has to be worth at least 1 DUT.", client=client)
     except Exception as error:

@@ -141,7 +141,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
             bonus = "     :second_place:"
         elif index == 2:
             bonus = "     :third_place:"
-        player = leaderboard_data[index]
+        player = players.find_player(leaderboard_data[index])
         user_info = ctx.server.get_member(player.id)
         if user_info is None:
             user_info = player.id
@@ -176,7 +176,7 @@ async def rank_command(ctx, player, ranks="", **details):
     player_name = "**%s**" % player.name_clean
 
     if position != -1:
-        page = position // 10 + 1
+        page = position // 10 + (1 * position % 10 != 0)
         await util.say(ctx.channel, (":sparkles: "+("You're" if player_is_author else player_name+" is")
                                      + " **{0}** on the{4}{3} leaderboard!\n"
                                      + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
