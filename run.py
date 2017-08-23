@@ -50,7 +50,7 @@ class DueUtilClient(discord.Client):
         self.queue_tasks = queue.Queue()
         self.name = shard_names[self.shard_id]
         self.loaded = False
-        self.http = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession()
         self.start_time = time.time()
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)

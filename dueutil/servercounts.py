@@ -24,7 +24,7 @@ async def _carbon_server(shard):
     headers = {"content-type": "application/json"}
     total_server_count = util.get_server_count()
     carbon_payload = {"key": config["carbonKey"], "servercount": total_server_count}
-    async with shard.http.post(CARBON_BOT_DATA, data=json.dumps(carbon_payload), headers=headers) as response:
+    async with shard.session.post(CARBON_BOT_DATA, data=json.dumps(carbon_payload), headers=headers) as response:
         util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
 
 
@@ -36,5 +36,5 @@ async def _shard_count_update(shard, site, key):
     payload = {"server_count": len(shard.servers),
                "shard_id": shard.shard_id,
                "shard_count": len(util.shard_clients)}
-    async with shard.http.post(site+DISCORD_BOTS, data=json.dumps(payload), headers=headers) as response:
+    async with shard.session.post(site+DISCORD_BOTS, data=json.dumps(payload), headers=headers) as response:
         util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
