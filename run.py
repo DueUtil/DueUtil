@@ -127,6 +127,7 @@ class DueUtilClient(discord.Client):
                                              + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.DueUtilException):
+            # A normal dueutil user error
             if error.channel is not None:
                 yield from self.send_message(error.channel, error.get_message())
             else:
@@ -142,7 +143,12 @@ class DueUtilClient(discord.Client):
                 if isinstance(error, util.SendMessagePermMissing):
                     util.logger.warning("Missing send permissions in channel %s (%s)", channel.name, channel.id)
                 else:
-                    yield from util.say(channel, "The action could not be performed as I'm **missing permissions**!")
+                    try:
+                        # Attempt to warn user
+                        yield from util.say(channel,
+                                            "The action could not be performed as I'm **missing permissions**!")
+                    except util.SendMessagePermMissing:
+                        pass  # They've block sending messages too.
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)

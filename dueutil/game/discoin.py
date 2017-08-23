@@ -28,7 +28,7 @@ async def make_transaction(sender_id, amount, to):
     }
 
     with aiohttp.Timeout(10):
-        with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.post(DISCOIN + TRANSACTION,
                                     data=json.dumps(transaction_data), headers=headers) as response:
                 return await response.json()
@@ -39,14 +39,14 @@ async def reverse_transaction(receipt):
     reverse_data = {"receipt": receipt}
 
     with aiohttp.Timeout(10):
-        with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.post(DISCOIN + REVERSE,
                                     data=json.dumps(reverse_data), headers=headers) as response:
                 return await response.json()
 
 
 async def unprocessed_transactions():
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         async with session.get(DISCOIN + TRANSACTION + "s", headers=headers) as response:
             return await response.json()
 
