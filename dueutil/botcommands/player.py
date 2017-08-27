@@ -1,5 +1,6 @@
 import discord
 import random
+import math
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
@@ -161,7 +162,7 @@ async def info(ctx, player, **_):
 
 
 async def show_awards(ctx, player, page=0):
-    if page > len(player.awards) // 5:
+    if page * 5 >= len(player.awards):
         raise util.DueUtilException(ctx.channel, "Page not found")
 
     await imagehelper.awards_screen(ctx.channel, player, page,

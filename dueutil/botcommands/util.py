@@ -444,7 +444,7 @@ async def optin(ctx, **details):
                                      + "Glad to have you back."))
 
 
-@commands.command(permission=Permission.DISCORD_USER)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optouthere(ctx, **details):
     """
     [CMD_KEY]optouthere
@@ -476,7 +476,7 @@ async def optouthere(ctx, **details):
                                      + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
 
 
-@commands.command(permission=Permission.DISCORD_USER)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optinhere(ctx, **details):
     """
     [CMD_KEY]optinhere

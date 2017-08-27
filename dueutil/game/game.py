@@ -2,9 +2,9 @@ import random
 import re
 import time
 
-import enchant
+# import enchant
 import ssdeep
-from guess_language import guess_language
+# from guess_language import guess_language
 
 import generalconfig as gconf
 from .. import events
@@ -15,13 +15,13 @@ from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
 from . import gamerules
 
-from threading import Lock
+# from threading import Lock
 
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
-spelling_lock = Lock()
+# spelling_lock = Lock()
 
 
 def get_spam_level(player, message_content):
@@ -95,12 +95,14 @@ async def player_message(message, player, spam_level):
 
             ### DueUtil - the hidden spelling game!
             # The non-thread safe Apsell calls
-            spelling_lock.acquire()
-            lang = guess_language(message.content)
+            # spelling_lock.acquire()
+            # DISABLED: Spell checking due to random seg faults (even with locks).
+            """lang = guess_language(message.content)
             if lang in enchant.list_languages():
                 spelling_dict = enchant.Dict(lang)
             else:
                 spelling_dict = enchant.Dict("en_GB")
+            """
 
             spelling_score = 0
             big_word_count = 1
@@ -109,13 +111,13 @@ async def player_message(message, player, spam_level):
             for word in message_words:
                 if len(word) > 4:
                     big_word_count += 1
-                if spelling_dict.check(word):
+                if random.getrandbits(1):  # spelling_dict.check(word):
                     spelling_score += 3
                     if len(word) > 4:
                         big_word_spelling_score += 1
                 else:
                     spelling_score -= 1
-            spelling_lock.release()
+            # spelling_lock.release()
             # We survived?!
 
             spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
