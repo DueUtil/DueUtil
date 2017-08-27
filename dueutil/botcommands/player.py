@@ -1,6 +1,5 @@
 import discord
 import random
-import math
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
