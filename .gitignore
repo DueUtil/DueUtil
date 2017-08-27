@@ -7,4 +7,5 @@ botstuff/__pycache__/
 update_script.sh
 assets/backgrounds/backgrounds.json
 imagecache/
+guide/
 dueutil.json

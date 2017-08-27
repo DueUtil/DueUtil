@@ -1,0 +1,3 @@
+[submodule "guide"]
+	path = guide
+	url = https://github.com/MacDue/DueUtil-Guide.git
