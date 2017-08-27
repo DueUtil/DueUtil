@@ -161,7 +161,8 @@ async def info(ctx, player, **_):
 
 
 async def show_awards(ctx, player, page=0):
-    if page * 5 >= len(player.awards):
+    # Always show page 1 (0)
+    if page != 0 and page * 5 >= len(player.awards):
         raise util.DueUtilException(ctx.channel, "Page not found")
 
     await imagehelper.awards_screen(ctx.channel, player, page,

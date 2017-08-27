@@ -82,7 +82,8 @@ async def myquests(ctx, page=1, **details):
 
     player = details["author"]
     page -= 1
-    if page * 5 >= len(player.quests):
+    # Always show page 1 (0)
+    if page != 0 and page * 5 >= len(player.quests):
         raise util.DueUtilException(ctx.channel, "Page not found")
     await imagehelper.quests_screen(ctx.channel, player, page)
 
