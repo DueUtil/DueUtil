@@ -2,7 +2,7 @@
 require_once("dbconn.php");
 require_once("templates.php");
 
-
+const FIND_IMAGE_TIMEOUT = 5;
 $SUFFIXES = array("st","nd","rd","th");
 
 
@@ -41,8 +41,10 @@ function is_valid_image_url($url)
 
 
 function get_cached_image($image_name){
-    foreach (glob($image_name) as $image_found) {
-        return $image_found;
+    // Quick fix due to how dumb this was.
+    // Need to redo it all + the terrible/useless and misleading names.
+    if (file_exists($image_name)) {
+        return $image_name;
     }
     return null;
 }
