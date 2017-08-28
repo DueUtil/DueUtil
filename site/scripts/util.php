@@ -41,11 +41,11 @@ function is_valid_image_url($url)
 
 
 function get_cached_image($image_name){
-    // Quick fix due to how dumb this was.
-    // Need to redo it all + the terrible/useless and misleading names.
-    if (file_exists($image_name)) {
+    // Terrible.
+    if (file_exists($image_name))
         return $image_name;
-    }
+    foreach (glob($image_name) as $image_found) 
+        return $image_found;
     return null;
 }
 
