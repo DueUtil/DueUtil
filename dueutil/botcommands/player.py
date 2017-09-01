@@ -267,6 +267,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
     transaction_log.set_footer(text="Please keep this receipt for your records.")
+    util.logger.info("%s (%s) sent %s to %s (%s)", sender.name, sender.id, amount_string, receiver.name, receiver.id)
 
     await util.say(ctx.channel, embed=transaction_log)
 

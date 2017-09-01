@@ -167,7 +167,7 @@ async def rank_command(ctx, player, ranks="", **details):
 
     if local:
         position = leaderboards.get_rank(player, "levels", ctx.server)
-        padding = ""
+        ranks = padding = ""
     else:
         position = leaderboards.get_rank(player, "levels")
         padding = " "
