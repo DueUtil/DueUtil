@@ -119,7 +119,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
         await util.say(ctx.channel, "The %s leaderboard has yet to be calculated!\n" % ranks
-                                    + "Check again soon!")
+                       + "Check again soon!")
         return
 
     leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title),
@@ -177,15 +177,15 @@ async def rank_command(ctx, player, ranks="", **details):
 
     if position != -1:
         page = position // 10 + (1 * position % 10 != 0)
-        await util.say(ctx.channel, (":sparkles: "+("You're" if player_is_author else player_name+" is")
-                                     + " **{0}** on the{4}{3} leaderboard!\n"
-                                     + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
-                                    .format(util.int_to_ordinal(position), page,
-                                            details["cmd_key"], ranks, padding, page if page > 1 else ""))
+        await util.say(ctx.channel, (":sparkles: " + ("You're" if player_is_author else player_name + " is")
+                                     + (" **{0}** on the{4}{3} leaderboard!\n"
+                                        + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
+                                     .format(util.int_to_ordinal(position), page,
+                                             details["cmd_key"], ranks, padding, page if page > 1 else "")))
     else:
         await util.say(ctx.channel, (":confounded: I can't find "
                                      + ("you" if player_is_author else player_name)
-                                     + " on the {0}{1}leaderboard!?\n".format(ranks, padding)
+                                     + " on the {}{}leaderboard!?\n".format(ranks, padding)
                                      + "You'll need to wait till it next updates!" * player_is_author))
 
 
