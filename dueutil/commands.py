@@ -92,7 +92,7 @@ def command(**command_rules):
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)
         wrapped_command.permission = command_rules.get('permission', Permission.PLAYER)
-        wrapped_command.aliases = command_rules.get('aliases', ())
+        wrapped_command.aliases = tuple(command_rules.get('aliases', ()))
         # Add myX to X aliases
         if command_func.__name__.startswith("my"):
             wrapped_command.aliases += command_func.__name__[2:],
@@ -113,14 +113,15 @@ def has_my_variant(command_name):
 
 
 def replace_aliases(command_list):
-    full_command_list = events.command_event.command_list()
-    for index, command_name in enumerate(command_list):
-        if command_name not in full_command_list:
+    for index, given_command_name in enumerate(command_list):
+        command_func = events.get_command(given_command_name)
+        if command_func is None:
+            continue
+        command_name = command_func.__name__
+        if command_name != given_command_name:
             # Fix aliases in whitelist
-            command_func = events.get_command(command_name)
-            if command_func is not None:
-                command_list[index] = command_func.__name__
-        elif has_my_variant(command_name):
+            command_list[index] = command_name
+        if has_my_variant(command_name):
             command_list.append("my" + command_name)  # To avoid confuzzing
     return command_list
 

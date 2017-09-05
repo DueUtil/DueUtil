@@ -148,7 +148,7 @@ async def profile(ctx, player, **_):
         await util.say(ctx.channel, "**%s** profile is at %s" % (player.get_name_possession_clean(), profile_url))
 
 
-@commands.command(args_pattern='P')
+@commands.command(args_pattern='P', aliases=["in"])
 @commands.imagecommand()
 async def info(ctx, player, **_):
     """
