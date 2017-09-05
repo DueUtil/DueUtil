@@ -293,7 +293,7 @@ async def acceptwager(ctx, wager_index, **details):
     player.save()
 
 
-@commands.command(args_pattern='C')
+@commands.command(args_pattern='C', aliases=["dw"])
 async def declinewager(ctx, wager_index, **details):
     """
     [CMD_KEY]declinewager (wager number)

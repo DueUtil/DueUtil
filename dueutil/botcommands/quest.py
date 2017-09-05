@@ -174,7 +174,7 @@ async def acceptquest(ctx, quest_index, **details):
     player.save()
 
 
-@commands.command(args_pattern='C')
+@commands.command(args_pattern='C', aliases=["dq"])
 async def declinequest(ctx, quest_index, **details):
     """
     [CMD_KEY]declinequest index

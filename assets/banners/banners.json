@@ -146,5 +146,24 @@
       "description":"Sleep well little city.",
       "image":"CityNight.png",
       "price":20000
+   },
+   "cubed blue": {
+      "name": "Cubed Blue",
+      "icon": "<:CubedBlue:354748171198660608>",
+      "description": "It's squares but more!",
+      "image": "cubed_blue.png",
+      "price": 1250
+   }, "cubed black": {
+      "name": "Cubed Black",
+      "icon": "<:CubedBlack:354748102969655306>",
+      "description": "...with a hint of transparency.",
+      "image": "cubed_black.png",
+      "price": 4500
+   }, "cubed red": {
+      "name": "Cubed Red",
+      "icon": "<:CubedRed:354748141817561088>",
+      "description": "Imagine cubed blue in red!",
+      "image": "cubed_red.png",
+      "price": 1250
    }
 }
