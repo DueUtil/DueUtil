@@ -68,7 +68,8 @@ def command(**command_rules):
             if check(ctx.author, wrapped_command):
                 # Check args
                 args_pattern = command_rules.get('args_pattern', "")
-                command_args = await determine_args(args_pattern, args, wrapped_command, ctx)
+                # Send a copy of args to avoid possible issues.
+                command_args = await determine_args(args_pattern, args.copy(), wrapped_command, ctx)
                 if command_args is False:
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
