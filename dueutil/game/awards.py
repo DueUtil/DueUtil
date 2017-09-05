@@ -34,7 +34,7 @@ def get_award(award_id: str) -> Award:
 
 
 def _load():
-    with open('assets/awards/awards.json') as awards_file:
+    with open('assets/awards/awards.json', encoding='utf-8') as awards_file:
         awards_json = json.load(awards_file)
         for award_id, award in awards_json["awards"].items():
             awards[award_id] = Award(award["icon"],

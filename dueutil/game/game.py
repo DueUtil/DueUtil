@@ -186,7 +186,7 @@ async def manage_quests(message, player, spam_level):
             player.last_quest = time.time()
             quest = quests.get_random_quest_in_channel(channel)
             if random.random() <= quest.spawn_chance * player.quest_spawn_build_up:
-                new_quest = quests.ActiveQuest(quest.q_id, player)
+                new_quest = await quests.ActiveQuest.create(quest.q_id, player)
                 stats.increment_stat(stats.Stat.QUESTS_GIVEN)
                 player.quest_spawn_build_up = 1
                 if dueserverconfig.mute_level(message.channel) < 0:

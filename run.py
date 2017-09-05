@@ -3,11 +3,11 @@ import inspect
 import os
 import queue
 import re
-import sys
 import traceback
 from threading import Thread
 import aiohttp
 import time
+import sys
 
 import discord
 from dueutil.permissions import Permission

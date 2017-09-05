@@ -3,6 +3,7 @@ import random
 from collections import defaultdict, namedtuple
 from typing import Dict, List
 import math
+import asyncio
 
 import discord
 import jsonpickle
@@ -89,7 +90,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
 
     def base_values(self):
         return self._BaseStats(self.base_attack, self.base_strg,
-                               self.base_accy, self.base_hp,)
+                               self.base_accy, self.base_hp, )
 
     def get_channel_mention(self, server):
         if self.channel in ("ALL", "NONE"):
@@ -130,61 +131,46 @@ class ActiveQuest(Player, util.SlotPickleMixin):
                  "equipped", "q_id", "quester_id", "cash_iv",
                  "quester", "accy", "exp", "total_exp"]
 
-    def __init__(self, q_id, quester: Player):
+    def __init__(self):
+        pass  # Use async factory method create instead
+
+    @staticmethod
+    async def create(q_id: str, quester: Player):
         # The base quest (holds the quest information)
-        self.q_id = q_id
-        base_quest = self.info
+        active_quest = ActiveQuest()
+        active_quest.q_id = q_id
+        base_quest = active_quest.info
 
-        self.name = base_quest.name
+        active_quest.name = base_quest.name
 
-        self.quester_id = quester.id
-        self.quester = quester
+        active_quest.quester_id = quester.id
+        active_quest.quester = quester
 
         """ The quests equipped items.
         Quests only have weapons but I may add more things a quest
         can have so a default dict will help with that """
-        self.equipped = defaultdict(lambda: "default",
-                                    weapon=base_quest.w_id)
+        active_quest.equipped = defaultdict(lambda: "default",
+                                            weapon=base_quest.w_id)
 
-        self.level = random.randint(quester.level, int(quester.level * 1.3))
-        self.total_exp = self.exp = 0
-        self._calculate_stats()
-        quester.quests.append(self)
+        active_quest.level = random.randint(quester.level, int(quester.level * 1.3))
+        active_quest.total_exp = active_quest.exp = 0
+        await active_quest._calculate_stats()
+        quester.quests.append(active_quest)
         quester.save()
+        return active_quest
 
-    """
-    def __calculate_stats(self, **spoof_values):
-        # HP is not the same! Don't treat it as such
-        base_values = self.info.base_values()
-        stats = []
-        # For testing purposes only
-        avg_quester_stat = spoof_values.get('q_stats', self.quester.get_avg_stat())
-        weapon_damage = spoof_values.get('w_damage', self.weapon.damage)
-        weapon_accy = spoof_values.get('w_accy', self.weapon.accy)
-        avg_base_value = sum(base_values[1:]) / 4
-        quester_stat_per_level = avg_quester_stat / self.quester.level
-        quester_hp_per_level = self.quester.hp / self.quester.level
-        for stat_calculation in range(1, 4):
-            iv = random.uniform(MIN_QUEST_IV, avg_base_value)
-            stat = (base_values[stat_calculation] + iv + quester_stat_per_level) / 3 * self.level + self.level
-            stats.append(stat)
-        hp_iv = random.uniform(30, base_values[0])
-        self.hp = (base_values[0] + hp_iv + quester_hp_per_level) / 3 * self.level + self.level
-        self.attack = stats[0]
-        self.strg = stats[1]
-        self.accy = stats[2]
-    """
-
-    def _calculate_stats(self):
-        base_attack, base_strg, base_accy, base_hp = tuple(base_value/1.7 for base_value in
+    async def _calculate_stats(self):
+        base_attack, base_strg, base_accy, base_hp = tuple(base_value / 1.7 for base_value in
                                                            self.info.base_values())
         self.attack = self.accy = self.strg = 1
         target_level = self.level
         self.level = 0
-        increment = random.randrange(400, 1000)/300
-        self.hp = (base_hp * target_level * random.uniform(0.6, 1))
+        self.hp = base_hp * target_level * random.uniform(0.6, 1)
+        increment_scale = random.uniform(0.4, 1)
         while self.level < target_level:
-            if self.exp >= gamerules.get_exp_for_next_level(self.level):
+            exp_next_level = gamerules.get_exp_for_next_level(self.level)
+            increment = max(exp_next_level, 1000) * increment_scale / 600
+            if self.exp >= exp_next_level:
                 self.level += 1
                 self.exp = 0
             self.progress(increment * random.uniform(0.6, 1),
@@ -192,9 +178,10 @@ class ActiveQuest(Player, util.SlotPickleMixin):
                           increment * random.uniform(0.6, 1),
                           max_attr=math.inf,
                           max_exp=math.inf)
-            self.attack += -increment + increment*base_attack
-            self.strg += -increment + increment*base_strg
-            self.accy += -increment + increment*base_accy
+            self.attack += -increment + increment * base_attack
+            self.strg += -increment + increment * base_strg
+            self.accy += -increment + increment * base_accy
+            await asyncio.sleep(1 / 1000)
         self.cash_iv = min(self.info.base_values()) * 3 * random.uniform(0.8, 1.6)
 
     def get_avatar_url(self, *args):
@@ -204,7 +191,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     def get_reward(self):
         base_reward = self.cash_iv * self.level
-        return max(1, int(base_reward + base_reward * (self.get_quest_scale()+1)*10))
+        return max(1, int(base_reward + base_reward * (self.get_quest_scale() + 1) * 10))
 
     def get_quest_scale(self):
         avg_stats = self.get_avg_stat()
@@ -214,7 +201,8 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         stat_difference = (avg_stats - self.quester.get_avg_stat()) / avg_stats
         weapon_damage_difference = (quest_weapon.damage - quester_weapon.damage) / quest_weapon.damage
         weapon_accy_difference = (quest_weapon.accy - quester_weapon.accy) / quest_weapon.accy
-        return (stat_difference * 10 + weapon_damage_difference/3 + weapon_accy_difference * 5 + hp_difference * 5)/20
+        return (
+               stat_difference * 10 + weapon_damage_difference / 3 + weapon_accy_difference * 5 + hp_difference * 5) / 20
 
     def get_threat_level(self, player):
         return [

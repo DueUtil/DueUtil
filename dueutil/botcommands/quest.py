@@ -43,10 +43,10 @@ async def spawnquest(ctx, *args, **details):
         quest_name = args[0].lower()
         quest = quests.get_quest_from_id(ctx.server.id + "/" + quest_name)
     try:
-        active_quest = quests.ActiveQuest(quest.q_id, player)
+        active_quest = await quests.ActiveQuest.create(quest.q_id, player)
         if len(args) == 3:
             active_quest.level = args[2]
-            active_quest._calculate_stats()
+            await active_quest._calculate_stats()
         player.save()
         await util.say(ctx.channel,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")

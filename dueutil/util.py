@@ -246,6 +246,8 @@ def char_is_emoji(character):
 
 
 def is_server_emoji(server, possible_emoji):
+    if server is None:
+        return False
     possible_emojis = [str(custom_emoji) for custom_emoji in server.emojis if str(custom_emoji) in possible_emoji]
     return len(possible_emojis) == 1 and possible_emojis[0] == possible_emoji
 
