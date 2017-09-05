@@ -208,7 +208,7 @@ async def resetme(ctx, cnf="", **details):
     await util.say(ctx.channel, "Your user has been reset.")
 
 
-@commands.command(args_pattern='PCS?', aliases=["s$"])
+@commands.command(args_pattern='PCS?', aliases=["sc"])
 async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     """
     [CMD_KEY]sendcash @player amount (optional message)
