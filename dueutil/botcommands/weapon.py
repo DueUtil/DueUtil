@@ -8,7 +8,7 @@ from ..game.helpers import imagehelper, misc
 from .. import commands, util
 
 
-@commands.command(args_pattern='M?')
+@commands.command(args_pattern="M?", aliases=["mw"])
 async def myweapons(ctx, *args, **details):
     """
     [CMD_KEY]myweapons (page)/(weapon name)
@@ -45,7 +45,7 @@ async def myweapons(ctx, *args, **details):
             raise util.DueUtilException(ctx.channel, "You don't have a weapon with that name!")
 
 
-@commands.command(args_pattern="S?")
+@commands.command(args_pattern="S?", aliases=["uq"])
 async def unequip(ctx, _=None, **details):
     """
     [CMD_KEY]unequip
@@ -68,7 +68,7 @@ async def unequip(ctx, _=None, **details):
     await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** unequipped!")
 
 
-@commands.command(args_pattern='S')
+@commands.command(args_pattern='S', aliases=["eq"])
 async def equip(ctx, weapon_name, **details):
     """
     [CMD_KEY]equip (weapon name)
@@ -110,7 +110,7 @@ def weapons_page(weapons_embed, weapon, **extras):
                                                             money=True) + '``')
 
 
-@commands.command(args_pattern='PP?')
+@commands.command(args_pattern='PP?', aliases=["bt"])
 @commands.imagecommand()
 async def battle(ctx, *args, **details):
     """
@@ -144,7 +144,7 @@ async def battle(ctx, *args, **details):
     await battles.give_awards_for_battle(ctx.channel, battle_log)
 
 
-@commands.command(args_pattern='PC', aliases=("wager",))
+@commands.command(args_pattern='PC', aliases=("wager", "wb"))
 async def wagerbattle(ctx, receiver, money, **details):
     """
     [CMD_KEY]wagerbattle player amount
@@ -171,7 +171,7 @@ async def wagerbattle(ctx, receiver, money, **details):
                                                       money=True) + "`` that they will win in a battle!"))
 
 
-@commands.command(args_pattern='C?')
+@commands.command(args_pattern='C?', aliases=["vw"])
 async def mywagers(ctx, page=1, **details):
     """
     [CMD_KEY]mywagers (page)
@@ -203,7 +203,7 @@ async def mywagers(ctx, page=1, **details):
     await util.say(ctx.channel, embed=wager_list_embed)
 
 
-@commands.command(args_pattern='C')
+@commands.command(args_pattern='C', aliases=["aw"])
 @commands.imagecommand()
 async def acceptwager(ctx, wager_index, **details):
     """

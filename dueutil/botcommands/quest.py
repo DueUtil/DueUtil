@@ -54,7 +54,7 @@ async def spawnquest(ctx, *args, **details):
         raise util.DueUtilException(ctx.channel, "Failed to spawn quest!")
 
 
-@commands.command(args_pattern='C')
+@commands.command(args_pattern='C', aliases=['qi'])
 @commands.imagecommand()
 async def questinfo(ctx, quest_index, **details):
     """
@@ -71,7 +71,7 @@ async def questinfo(ctx, quest_index, **details):
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
 
-@commands.command(args_pattern='C?')
+@commands.command(args_pattern='C?', aliases=['mq'])
 @commands.imagecommand()
 async def myquests(ctx, page=1, **details):
     """
@@ -88,7 +88,7 @@ async def myquests(ctx, page=1, **details):
     await imagehelper.quests_screen(ctx.channel, player, page)
 
 
-@commands.command(args_pattern='C')
+@commands.command(args_pattern='C', aliases=['aq'])
 @commands.imagecommand()
 async def acceptquest(ctx, quest_index, **details):
     """

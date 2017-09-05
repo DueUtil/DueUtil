@@ -94,7 +94,7 @@ async def battlename(ctx, name="", **details):
     await util.say(ctx.channel, "Your battle name has been set to **%s**!" % player.name_clean)
 
 
-@commands.command(args_pattern=None)
+@commands.command(args_pattern=None, aliases=["mi"])
 @commands.imagecommand()
 async def myinfo(ctx, **details):
     """
@@ -208,7 +208,7 @@ async def resetme(ctx, cnf="", **details):
     await util.say(ctx.channel, "Your user has been reset.")
 
 
-@commands.command(args_pattern='PCS?')
+@commands.command(args_pattern='PCS?', aliases=["s$"])
 async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     """
     [CMD_KEY]sendcash @player amount (optional message)
