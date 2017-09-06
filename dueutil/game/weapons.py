@@ -48,7 +48,7 @@ class Weapon(DueUtilObject, SlotPickleMixin):
             if accy == 0 or damage == 0:
                 raise util.DueUtilException(message.channel, "No weapon stats can be zero!")
 
-            if accy > 86 or accy < 1:
+            if accy < 1 or accy > 86:
                 raise util.DueUtilException(message.channel, "Accuracy must be between 1% and 86%!")
 
             icon = extras.get('icon', emojis.DAGGER)

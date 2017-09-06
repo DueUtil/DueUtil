@@ -203,7 +203,7 @@ def ultra_escape_string(string):
 def format_number(number, **kwargs):
     def small_format():
         nonlocal number
-        full_number = '{:,f}'.format(number).rstrip('0').rstrip('.')
+        full_number = '{:,.2f}'.format(number).rstrip('0').rstrip('.')
         return full_number if len(full_number) < 27 else '{:,g}'.format(number)
 
     def really_large_format():

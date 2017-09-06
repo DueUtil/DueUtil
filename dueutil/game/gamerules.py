@@ -31,4 +31,18 @@ def get_exp_for_next_level(level):
     return -1
 
 
+def get_exp_for_level(level):
+    return sum([get_exp_for_next_level(level) for level in range(1, level)])
+
+
+def get_level_from_exp(exp):
+    level = 1
+    while 1:
+        exp -= get_exp_for_next_level(level)
+        if exp < 0:
+            break
+        level += 1
+    return level
+
+
 _load_game_rules()

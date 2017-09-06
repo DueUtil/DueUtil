@@ -56,8 +56,8 @@ class Quest(DueUtilObject, SlotPickleMixin):
             if len(name) > 30 or len(name) == 0 or name.strip == "":
                 raise util.DueUtilException(message.channel, "Quest names must be between 1 and 30 characters!")
 
-            if given_spawn_chance > 25:
-                raise util.DueUtilException(message.channel, "Spawn chance cannot be greater than 25%")
+            if given_spawn_chance < 1 or given_spawn_chance > 25:
+                raise util.DueUtilException(message.channel, "Spawn chance must be between 1 and 25%!")
 
             self.server_id = message.server.id
             self.created_by = message.author.id
@@ -147,12 +147,13 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         active_quest.quester = quester
 
         """ The quests equipped items.
-        Quests only have weapons but I may add more things a quest
-        can have so a default dict will help with that """
+           Quests only have weapons but I may add more things a quest
+           can have so a default dict will help with that """
         active_quest.equipped = defaultdict(lambda: "default",
                                             weapon=base_quest.w_id)
 
-        active_quest.level = random.randint(quester.level, int(quester.level * 1.3))
+        target_exp = random.uniform(quester.total_exp, quester.total_exp*1.8)
+        active_quest.level = gamerules.get_level_from_exp(target_exp)
         active_quest.total_exp = active_quest.exp = 0
         await active_quest._calculate_stats()
         quester.quests.append(active_quest)
@@ -201,8 +202,8 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         stat_difference = (avg_stats - self.quester.get_avg_stat()) / avg_stats
         weapon_damage_difference = (quest_weapon.damage - quester_weapon.damage) / quest_weapon.damage
         weapon_accy_difference = (quest_weapon.accy - quester_weapon.accy) / quest_weapon.accy
-        return (
-               stat_difference * 10 + weapon_damage_difference / 3 + weapon_accy_difference * 5 + hp_difference * 5) / 20
+        return (stat_difference * 10 + weapon_damage_difference
+                / 3 + weapon_accy_difference * 5 + hp_difference * 5) / 20
 
     def get_threat_level(self, player):
         return [
