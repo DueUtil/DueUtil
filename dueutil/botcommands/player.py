@@ -348,7 +348,7 @@ def mybgs(player):
             "thing_getter": customizations.get_background}
 
 
-@commands.command(args_pattern='S')
+@commands.command(args_pattern='S', aliases=["setbackground"])
 @playersabstract.item_setter
 def setbg():
     """

@@ -96,7 +96,7 @@ def get_battle_log(**battleargs):
         battle_embed.description = ("Oh no! The battle was too long!\n"
                                     + "Here's a mini summary!")
         battle_embed.add_field(name="Mini summary",
-                               value="%s**%s** hit %d %s and %s**%s** hit **%d** %s!\n"
+                               value="%s**%s** hit **%d** %s and %s**%s** hit **%d** %s!\n"
                                      % (player_one.prefix.title(), player_one.player.name_clean, battle_result.p1_hits,
                                         util.s_suffix("time", battle_result.p1_hits),
                                         player_two.prefix, player_two.player.name_clean, battle_result.p2_hits,

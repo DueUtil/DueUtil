@@ -30,7 +30,7 @@ THING_AMOUNT_CAP = 120
 
 BOT_INVITE = "https://dueutil.tech/invite"
 
-VERSION = "Release 2.0.6.1"
+VERSION = "Release 2.0.6.2"
 
 
 def load_config_json():
