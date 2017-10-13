@@ -165,5 +165,11 @@
       "description": "Imagine cubed blue in red!",
       "image": "cubed_red.png",
       "price": 1250
+   }, "2017 spooky night": {
+      "name": "2017 Spooky Night",
+      "icon": ":jack_o_lantern:",
+      "description": ":runner: :ghost: :ghost:",
+      "image": "2017_spooky_night.png",
+      "price": 666
    }
 }

@@ -23,6 +23,8 @@ def conn():
 def insert_object(id, pickleable_object):
     if id.strip() == "":
         return
+    #todo
+    # jsonpickle_data = json.loads(jsonpickle.encode(pickleable_object))
     conn()[type(pickleable_object).__name__].update({'_id': id},
                                                     {"$set": {'data': jsonpickle.encode(pickleable_object)}},
                                                     upsert=True)
