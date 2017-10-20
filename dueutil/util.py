@@ -217,7 +217,7 @@ def format_number(number, **kwargs):
         try:
             string = " " + units[math.floor(reg / 3) - 1]
         except IndexError:
-            string = " Fucktonillion"
+            string = " Bazillion"
         number = int(number * 100) / float(100)
         formatted_number = '{0:g}'.format(number)
         return formatted_number + string if len(formatted_number) < 17 else str(math.trunc(number)) + string

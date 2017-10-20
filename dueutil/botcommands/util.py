@@ -139,7 +139,7 @@ async def dustats(ctx, **_):
     """
     [CMD_KEY]dustats
     
-    DueUtil's stats since the dawn of fucking time!
+    DueUtil's stats since the dawn of time!
     """
 
     game_stats = stats.get_stats()
@@ -279,6 +279,13 @@ async def leave(ctx, **_):
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
 async def unshutupdue(ctx, **_):
+    """
+    [CMD_KEY]unshutupdue
+
+    Reverts ``[CMD_KEY]shutupdue`` or ``[CMD_KEY]shutupdue all``
+    (allowing DueUtil to give alerts and be used again).
+
+    """
     if dueserverconfig.unmute_channel(ctx.channel):
         await util.say(ctx.channel,
                        ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
