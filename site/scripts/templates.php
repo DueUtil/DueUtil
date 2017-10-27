@@ -435,7 +435,7 @@ class PrivatePage extends ErrorPage {
 
 class NotPlayerPage extends ErrorPage {
     function __construct($sidebar) {
-        parent::__construct($sidebar, 'You\'re not a player!', 'noplayer.png', 'To view you\'re dashboard join a server with DueUtil!');
+        parent::__construct($sidebar, 'You\'re not a player!', 'noplayer.png', 'To view your dashboard join a server with DueUtil!');
     }
 }
 
