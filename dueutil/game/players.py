@@ -27,13 +27,13 @@ STAT_GAIN_FORMAT = (e.ATK + "+%.2f" + e.STRG + "+%.2f" + e.ACCY + "+%.2f")
 
 class Players(dict):
     # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 3600  # (1 Hour)
+    PRUNE_INACTIVITY_TIME = 300  # (5 mins)
 
     def prune(self):
 
         """
         Removes player that the bot has not seen 
-        for over an hour. If anyone metions these
+        for over an hour. If anyone mentions these
         players (in a command) their data will be
         fetched directly from the database
         """
@@ -42,13 +42,13 @@ class Players(dict):
             if time.time() - player.last_progress >= Players.PRUNE_INACTIVITY_TIME:
                 del self[id]
                 players_pruned += 1
-        util.logger.info("Pruned %d players for inactivity", players_pruned)
+        util.logger.info("Pruned %d players for inactivity (5 minutes)", players_pruned)
 
 
 players = Players()
 
 
-@tasks.task(timeout=3600)
+@tasks.task(timeout=Players.PRUNE_INACTIVITY_TIME)
 def prune_task():
     try:
         players.prune()
