@@ -1,0 +1,32 @@
+{
+   "theme":{
+      "name":"Western",
+      "icon":"<:aStarOrSomething:384779321459605504>",
+      "description":"Just like the hollywood this theme is 2D.",
+      "banner":"old wood",
+      "background":"desert view",
+      "headerColour":"#C9A21B",
+      "mainColour":"#181425",
+      "bannerColour":"#262b44",
+      "sideColour":"#743f39",
+      "expColour":"#59776d",
+      "expBarColour":[
+         "#743f39",
+         "#E8C038"
+      ],
+      "rankColours":[
+         "#262B44",
+         "#262B44",
+         "#BA9E31",
+         "#BA7831",
+         "#29BB44",
+         "#8C2AC1",
+         "#2958C1",
+         "#845755",
+         "#B22419",
+         "#15161C"
+      ],
+      "preview":"https://i.imgur.com/fv54EOE.png",
+      "price":14352
+   }
+}

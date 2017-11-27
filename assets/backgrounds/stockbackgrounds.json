@@ -62,6 +62,12 @@
         "description": "",
         "icon": "",
         "price": -1,
-	"hidden": true
+	    "hidden": true
+    }, "desert view": {
+        "image": "western.png",
+        "name": "Desert View",
+        "icon":"<:aBabySunSet:384779309233078285>",
+        "price": 1191,
+        "description": "Westworld was alright."
     }
 }

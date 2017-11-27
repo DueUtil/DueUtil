@@ -118,7 +118,7 @@ async def battle(ctx, *args, **details):
     
     Battle someone!
     
-    Note! You don't again any exp or reward from these battles!
+    Note! You don't gain any exp or reward from these battles!
     Please do not spam anyone with unwanted battles.
     """
     # TODO: Handle draws

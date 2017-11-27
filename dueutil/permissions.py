@@ -62,7 +62,8 @@ def give_permission(member: discord.Member, permission):
 
 def strip_permissions(member: discord.Member):
     dbconn.conn()["permissions"].remove({'_id': member.id})
-    del special_permissions[member.id]
+    if member.id in special_permissions:
+        del special_permissions[member.id]
 
 
 def load_dueutil_roles():

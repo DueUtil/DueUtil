@@ -108,7 +108,8 @@
       "image":"geometric_blue.png",
       "price":150,
       "donor": true
-   },"geometric grey": {
+   },
+   "geometric grey": {
       "name":"Geometric Grey",
       "icon":":older_woman:",
       "description":"<insert funny desc>",
@@ -153,24 +154,34 @@
       "description": "It's squares but more!",
       "image": "cubed_blue.png",
       "price": 1250
-   }, "cubed black": {
+   },
+   "cubed black": {
       "name": "Cubed Black",
       "icon": "<:CubedBlack:354748102969655306>",
       "description": "...with a hint of transparency.",
       "image": "cubed_black.png",
       "price": 4500
-   }, "cubed red": {
+   },
+   "cubed red": {
       "name": "Cubed Red",
       "icon": "<:CubedRed:354748141817561088>",
       "description": "Imagine cubed blue in red!",
       "image": "cubed_red.png",
       "price": 1250
-   }, "2017 spooky night": {
+   },
+   "2017 spooky night": {
       "name": "2017 Spooky Night",
       "icon": ":jack_o_lantern:",
       "description": ":runner: :ghost: :ghost:",
       "image": "2017_spooky_night.png",
       "price": 666,
       "admin_only": true
+   },
+   "old wood": {
+      "name": "Old Wood",
+      "icon": "<:aVeryWoodyWood:384773540270047234>",
+      "description": "'tis a fine bit of timber.",
+      "price": 1650,
+      "image": "wood_banner.png"
    }
 }

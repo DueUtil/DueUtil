@@ -277,17 +277,19 @@ async def setpermlevel(ctx, player, level, **_):
         raise util.DueUtilException(ctx.channel, "Permission not found")
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=("giveban",))
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
-    member = discord.Member(user={"id": player.id})
-    dueutil.permissions.give_permission(member, Permission.BANNED)
+    dueutil.permissions.give_permission(player.to_member(), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["pardon"])
 async def unban(ctx, player, **_):
-    member = discord.Member(user={"id": player.id})
+    member = player.to_member()
+    if not dueutil.permissions.has_special_permission(member, Permission.BANNED):
+        await util.say(ctx.channel, "**%s** is not banned..." % player.name_clean)
+        return
     dueutil.permissions.give_permission(member, Permission.PLAYER)
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
@@ -297,9 +299,9 @@ async def unban(ctx, player, **_):
 async def toggledonor(ctx, player, **_):
     player.donor = not player.donor
     if player.donor:
-        await util.say(ctx.channel, "**" + player.name_clean + "** is now a donor!")
+        await util.say(ctx.channel, "**%s** is now a donor!" % player.name_clean)
     else:
-        await util.say(ctx.channel, "**" + player.name_clean + "** is nolonger donor")
+        await util.say(ctx.channel, "**%s** is no longer donor" % player.name_clean)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
