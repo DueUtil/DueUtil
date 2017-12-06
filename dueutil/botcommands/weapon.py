@@ -241,8 +241,6 @@ async def acceptwager(ctx, wager_index, **details):
             player.money += wager.wager_amount
             sender.money -= wager.wager_amount
         else:
-            payback = "something went wrong!"
-            """
             weapons_sold = 0
             if sender.equipped["weapon"] != weapons.NO_WEAPON_ID:
                 weapons_sold += 1
@@ -251,6 +249,7 @@ async def acceptwager(ctx, wager_index, **details):
             if sender.money - wager.wager_amount < 0:
                 for weapon in sender.get_owned_weapons():
                     weapon_price = weapon.get_summary().price
+                    sender.discard_stored_weapon(weapon)
                     sender.money += weapon_price // (4 / 3)
                     weapons_sold += 1
                     if sender.money - wager.wager_amount >= 0:
@@ -272,7 +271,6 @@ async def acceptwager(ctx, wager_index, **details):
             sender.money -= amount_paid
             player.money += amount_paid
             total_transferred = amount_paid
-            """
         wager_results = (":sparkles: **"
                          + player.name_clean
                          + "** won against **"

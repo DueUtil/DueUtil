@@ -3,8 +3,10 @@ import os
 import re
 import subprocess
 import math
+from io import StringIO
 
 import discord
+import objgraph
 
 import generalconfig as gconf
 import dueutil.permissions
@@ -397,3 +399,13 @@ async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting DueUtil!")
     await util.duelogger.concern("DueUtil restarting!!")
     os._exit(1)
+
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
+async def meminfo(ctx, **_):
+    mem_info = StringIO()
+    objgraph.show_most_common_types(file=mem_info)
+    await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
+    mem_info = StringIO()
+    objgraph.show_growth(file=mem_info)
+    await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
