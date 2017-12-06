@@ -3,6 +3,7 @@ import random
 import time
 from collections import defaultdict
 from copy import copy
+import gc
 
 import discord
 import jsonpickle
@@ -42,6 +43,7 @@ class Players(dict):
             if time.time() - player.last_progress >= Players.PRUNE_INACTIVITY_TIME:
                 del self[id]
                 players_pruned += 1
+        gc.collect()
         util.logger.info("Pruned %d players for inactivity (5 minutes)", players_pruned)
 
 
