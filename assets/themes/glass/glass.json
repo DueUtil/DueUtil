@@ -1,0 +1,32 @@
+{
+   "theme":{
+      "name":"Glass",
+      "icon":":tumbler_glass:",
+      "description":"Throwing stones: Not recommended.",
+      "banner":"fine crystal",
+      "background":"dystopia",
+      "headerColour":"#235D50",
+      "mainColour":"#59776d",
+      "bannerColour":"#235D50",
+      "sideColour":"#59776d",
+      "expColour":"#59776d",
+      "expBarColour":[
+         "#769C8E",
+         "#CBD9D9"
+      ],
+      "rankColours":[
+         "#235D50",
+         "#235D50",
+         "#637E4E",
+         "#63714E",
+         "#338755",
+         "#54577E",
+         "#33667E",
+         "#51665A",
+         "#605546",
+         "#193630"
+      ],
+      "preview":"http://i.imgur.com/MbIMvjX.png",
+      "price":14352
+   }
+}

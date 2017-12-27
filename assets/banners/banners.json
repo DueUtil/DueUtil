@@ -1,0 +1,187 @@
+{
+   "discord blue":{
+      "name":"Discord Blue",
+      "icon":":cd:",
+      "description":"The default banner",
+      "image":"info_banner.png",
+      "price":0
+   },
+   "deep blue":{
+      "name":"Deep Blue",
+      "icon":":large_blue_diamond:",
+      "description":"A dark blue banner",
+      "image":"deepblue.png",
+      "price":450
+   },
+   "orange":{
+      "name":"Orange",
+      "icon":":large_orange_diamond:",
+      "description":"An orange banner",
+      "image":"orange.png",
+      "price":450
+   },
+   "teal":{
+      "name":"Teal",
+      "icon":":tea:",
+      "description":"Is it green or blue? Who knows.",
+      "image":"teal.png",
+      "price":450
+   },
+   "translucent black":{
+      "name":"Translucent Black",
+      "icon":":black_large_square:",
+      "description":"It's like sorta see-through!",
+      "image":"classicbanner.png",
+      "price":25
+   },
+   "quest red":{
+      "name":"Quest Red",
+      "icon":":red_circle:",
+      "description":"Roleplay being a quest!",
+      "image":"quest_red.png",
+      "price":50
+   },
+   "totally pink":{
+      "name":"Totally Pink",
+      "icon":":peach:",
+      "description":"Manly banner for real men.",
+      "image":"totally_pink.png",
+      "price":50
+   },
+   "zombie green":{
+      "name":"Zombie Green",
+      "icon":":nauseated_face:",
+      "description":"BRAINS!!!",
+      "image":"zombie_green.png",
+      "price":50
+   },
+   "pastel green":{
+      "name":"Pastel Green",
+      "icon":":melon:",
+      "description":"Get teal! More green!",
+      "image":"dueutiltech.png",
+      "price":150	
+   },
+   "fine crystal":{
+      "name":"Fine Crystal",
+      "icon":":wine_glass:",
+      "description":"No... It's just glass.",
+      "image":"glass_banner.png",
+      "price":7201
+   },
+   "donor black": {
+      "name":"Donor Black",
+      "icon":":black_heart:",
+      "description":"<insert funny desc>",
+      "image":"donor_black.png",
+      "price":50,
+      "donor": true
+   },
+   "donor green": {
+      "name": "Donor Green",
+      "icon": ":green_heart:",
+      "description": "<insert funny desc>",
+      "image": "donor_green.png",
+      "price": 50,
+      "donor": true
+   },
+   "donor purple": {
+      "name":"Donor Purple",
+      "icon":":purple_heart:",
+      "description":"<insert funny desc>",
+      "image":"donor_purple.png",
+      "price":50,
+      "donor": true
+   },
+   "donor red": {
+      "name":"Donor Red",
+      "icon":":heart:",
+      "description":"<insert funny desc>",
+      "image":"donor_red.png",
+      "price":50,
+      "donor": true
+   },
+   "geometric blue": {
+      "name":"Geometric Blue",
+      "icon":":large_blue_diamond:",
+      "description":"<insert funny desc>",
+      "image":"geometric_blue.png",
+      "price":150,
+      "donor": true
+   },
+   "geometric grey": {
+      "name":"Geometric Grey",
+      "icon":":older_woman:",
+      "description":"<insert funny desc>",
+      "image":"geometric_gray.png",
+      "price":150,
+      "donor": true
+   },
+   "geometric green": {
+      "name":"Geometric Green",
+      "icon":":green_book:",
+      "description":"<insert funny desc>",
+      "image":"geometric_green.png",
+      "price":150,
+      "donor": true
+   },
+   "geometric pink": {
+      "name":"Geometric Pink",
+      "icon":":pig_nose:",
+      "description":"<insert funny desc>",
+      "image":"geometric_pink.png",
+      "price":150,
+      "donor": true
+   },
+   "geometric red": {
+      "name":"Geometric Red",
+      "icon":":small_red_triangle:",
+      "description":"<insert funny desc>",
+      "image":"geometric_red.png",
+      "price":150,
+      "donor": true
+   },
+   "city night": {
+      "name":"City Night",
+      "icon":":city_dusk:",
+      "description":"Sleep well little city.",
+      "image":"CityNight.png",
+      "price":20000
+   },
+   "cubed blue": {
+      "name": "Cubed Blue",
+      "icon": "<:CubedBlue:354748171198660608>",
+      "description": "It's squares but more!",
+      "image": "cubed_blue.png",
+      "price": 1250
+   },
+   "cubed black": {
+      "name": "Cubed Black",
+      "icon": "<:CubedBlack:354748102969655306>",
+      "description": "...with a hint of transparency.",
+      "image": "cubed_black.png",
+      "price": 4500
+   },
+   "cubed red": {
+      "name": "Cubed Red",
+      "icon": "<:CubedRed:354748141817561088>",
+      "description": "Imagine cubed blue in red!",
+      "image": "cubed_red.png",
+      "price": 1250
+   },
+   "2017 spooky night": {
+      "name": "2017 Spooky Night",
+      "icon": ":jack_o_lantern:",
+      "description": ":runner: :ghost: :ghost:",
+      "image": "2017_spooky_night.png",
+      "price": 666,
+      "admin_only": true
+   },
+   "old wood": {
+      "name": "Old Wood",
+      "icon": "<:aVeryWoodyWood:384773540270047234>",
+      "description": "'tis a fine bit of timber.",
+      "price": 1650,
+      "image": "wood_banner.png"
+   }
+}

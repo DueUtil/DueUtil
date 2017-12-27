@@ -1,0 +1,73 @@
+{
+    "simple blue": {
+        "image": "simpleblue.png",
+        "name": "Simple Blue",
+        "deletable": false,
+        "description": "It's both blue and simple!",
+        "icon": ":large_blue_diamond:",
+        "price": 525
+    },
+    "simple teal": {
+        "image": "simpleteal.png",
+        "name": "Simple Teal",
+        "deletable": false,
+        "description": "It's both **__teal__** and simple!",
+        "icon": ":tea:",
+        "price": 525
+    },
+    "classic": {
+        "image": "classic.png",
+        "name": "Classic",
+        "deletable": false,
+        "description": "The background of prerelease DueUtil",
+        "icon": ":spider_web:",
+        "price": 50
+    },
+    "green": {
+        "image": "green.png",
+        "name": "Green",
+        "deletable": false,
+        "description": "I was meant to be the default :cry:",
+        "icon": ":green_heart:",
+        "price": 200
+    },
+    "geometric": {
+        "image": "geometric.png",
+        "name": "Geometric",
+        "deletable": false,
+        "description": "Fancy polygonal colours!",
+        "icon": "\ud83d\ude04",
+        "price": 700
+    },
+    "default": {
+        "image": "default.png",
+        "name": "Default",
+        "deletable": false,
+        "description": "The clean default DueUtil background",
+        "icon": ":cd:",
+        "price": 0
+    },
+    "simple grey": {
+        "image": "simplegrey.png",
+        "name": "Simple Grey",
+        "deletable": false,
+        "description": "It's both *grey* and simple!",
+        "icon": ":full_moon:",
+        "price": 525
+    },
+    "dueutiltech": {
+        "image": "dueutiltech.png",
+        "name": "",
+        "deletable": false,
+        "description": "",
+        "icon": "",
+        "price": -1,
+	    "hidden": true
+    }, "desert view": {
+        "image": "western.png",
+        "name": "Desert View",
+        "icon":"<:aBabySunSet:384779309233078285>",
+        "price": 1191,
+        "description": "Westworld was alright."
+    }
+}

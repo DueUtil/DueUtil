@@ -1,0 +1,32 @@
+DU Guide:
+
+Playing:
+
+    Game:
+      Quests
+      Battles
+      Wagers
+      Shopping
+      profile
+      awards
+      daily
+      train
+      customization
+      
+
+Admin:    
+
+
+    
+    
+    Create weapons & remove them
+    + quests
+  
+  due commandar
+  white list + black list
+  
+  
+Misc:
+    
+    Bugs
+    Features

@@ -1,0 +1,11 @@
+{
+  "dagger": {
+    "name": "Dagger",
+    "useText": "stabs",
+    "damage": 10,
+    "accy": 28.5,
+    "melee": true,
+    "icon": "<:Dagger:330422677317877760>",
+    "image": "http://i.imgur.com/QFyiU6O.png"
+  }
+}

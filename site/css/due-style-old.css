@@ -1,0 +1,306 @@
+@import url('https://fonts.googleapis.com/css?family=Comfortaa');
+
+body{
+    /**background-image: url("login_bg.png");*/
+    background-color: #575B76;
+}
+
+code{
+    background-color: #575B76;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.centre-vert-content{
+    display: table-cell; vertical-align: middle;
+}
+
+#content-title{
+    text-align: center; 
+}
+
+.center{
+  -webkit-transform: translate(-50%,-0%);
+  transform: translate(-50%,-0%);
+      position: absolute !important;
+  left: 50%;
+}
+
+.selectfield{
+    text-align: left !important;
+}
+
+.member-list{
+    margin-top: 24px;
+    margin-left: 12px;
+    margin-right: 12px;
+    background: #1a344b;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.page-content{
+    display: -webkit-flex;
+    display: flex;
+    flex-shrink: 0;
+    flex-grow: 0;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    -webkit-align-content: flex-end;
+    align-content: flex-end;
+}
+
+.member-li:hover{
+    cursor:pointer;
+}
+
+.flex-content{
+    flex-basis: auto; 
+    flex-grow: 1;
+    background-color: #6c708b;
+    margin-top: 12px;
+    margin-right:12px;
+}
+
+#user-info-header{
+    background: url(../img/pattern.svg); 
+    background-size: 140px 140px;
+    background-color: #CDDAF2;
+    margin-top:-24px;
+    margin-left:-24px;
+    margin-right:-24px;
+    margin-bottom: 8px;
+    padding:12px 24px 4px;
+}
+
+#user-info-avatar{
+    float: none;
+    width: 80px;
+    height: auto;
+    margin-bottom: 4px;
+    border-width: 3px;
+    border-color: #7B96AB;
+    margin:0 auto;
+}
+
+#user-info-name{
+    font-weight: 600;
+    color: #476178;
+}
+
+#sidebar-info{
+    height: 206px;
+    width: 200px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+    left: 10px;
+    right: 10px;
+    text-align: center;
+    top: 0px;
+    left: 0;
+    right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    -webkit-transform: translateY(0%);
+    transform: translateY(0%);
+    -ms-transform: translateY(0%);
+    webkit-transform: translateY(0%);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.member-list > .mdl-layout-title{
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-bottom: -12px;
+}
+
+.center-all{
+    height: 100%;
+    display: table !important;
+}
+
+.mdl-dialog__actions{
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+}
+
+.center-all-inner{
+    height: 100%;
+    width: 100%;
+    display:table-cell;
+    vertical-align: middle;
+    text-align: center;
+    overflow:hidden;
+}
+
+.text-center{
+    text-align: center;
+}
+
+.cete-logo-text{
+    font-family: 'Comfortaa', cursive;
+}
+
+.cete-logo{
+    height:80%;
+    width:auto;
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.cete-id{
+    font-size: 11px;
+    background: #254663;
+    padding: 2px;
+}
+
+.h1-catch-phrase{
+    color: #f1f1f1;
+    font-size: 50px;
+}
+
+#invite-badge{
+    left:22px;
+}
+
+#add-user{
+    height: 250px;
+    width: 400px;
+    z-index: 11;
+    visibility:visible;
+    display: none;
+}
+
+.mdl-layout__content {
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+.page-content{
+    padding-bottom: 24px;
+}
+
+.mdl-button--fit-card{
+    width:95%;
+    margin:9px;
+}
+
+#invite-list{
+    width: 340px;
+    max-height: 500px;
+    overflow: hidden;
+    overflow-y: auto; 
+}
+
+.invite-name {
+  display: block;
+  width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.invites-title{
+  color: rgba(249,241,223,.87);
+  margin-top: 4px;
+  margin-left: 16px;
+}
+
+.accept-decline-invite{
+    margin-left: auto;
+}
+
+#override-font{
+    font-size: inherit;
+}
+
+#cete-header-buttons{
+position:  relative;
+   margin-left: auto;
+}
+
+.login-register{
+    font-size: 12px;
+    padding-top:7px;
+
+}
+
+.member-list{
+    position:relative;
+}
+
+.command-list{
+   display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+ 
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+
+}
+
+.admin-command{
+right: 16px;
+    z-index:6;
+}
+
+#banner{
+  margin-top: 32px;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  background: rgba(149,211,189, 1);
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.home-info{
+  padding: 24px;
+  width: 260px;
+}
+
+.home-info-inner{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.big-p{
+  line-height: 130% !important;
+
+}
+
+#due-footer{
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-bottom: -24px;
+  height: 10px;
+  background: #575B76;
+
+}
+
+#overlay{
+    display: none;
+    background-color:rgba(0,0,0,.5);
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0px;
+    left:0px;
+    z-index:10;
+}

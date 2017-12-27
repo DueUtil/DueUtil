@@ -1,0 +1,20 @@
+{
+   "theme":{
+      "name":"Material Blue",
+      "icon":":large_blue_diamond:",
+      "description":"Material Design: Blue",
+      "banner":"deep blue",
+      "background":"simple blue",
+      "headerColour":"#758187",
+      "mainColour":"#82888c",
+      "bannerColour":"#FFFFFF",
+      "sideColour":"#FFFFFF",
+      "expColour":"#82888c",
+      "expBarColour":[
+         "#FFFFFF",
+         "#82888c"
+      ],
+      "preview":"http://i.imgur.com/mz60xvT.png",
+      "price": 1000
+   }
+}
