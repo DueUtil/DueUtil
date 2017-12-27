@@ -52,7 +52,7 @@ The logging channels are currenly needed (the bot may not work properly without 
 DueUtil can be ran with: `python3 run.py`
 
 ### Can't run the bot?!
-I expect it will be fiddly to get this bot running, but please don't ask me to set it up for you I'm not gonning to help.
+I expect it will be fiddly to get this bot running, but please don't ask me to set it up for you I'm not going to help.
 
 ### Contribute
 If you want to fix up this repo simply create a pull request (with a detailed commit message of your changes). If your making changes based on a [trello](https://trello.com/b/1ykaASKj/dueutil) card please link to it.
