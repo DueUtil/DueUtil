@@ -47,6 +47,22 @@ Create a file `dueutil.json` in the same folder as `run.py` (the root).
 ```
 The logging channels are currenly needed (the bot may not work properly without them), the bot probably can run without the other keys.
 
+##### Restoring the database
+
+1. Download the database dump from the last release
+2. Extract that zip into folder called `database`
+    ```
+    database
+    `-- dueutil
+        |-- award_stats.bson
+        |-- award_stats.metadata.json
+        |-- _CacheStats.bson
+        ...
+    ```
+    Your file tree should look like this
+ 3. Use mongorestore
+    ``mongorestore  --username your_use --password "your_pass" --authenticationDatabase admin ./database``
+
 ##### Run DueUtil!
 
 DueUtil can be ran with: `python3 run.py`
