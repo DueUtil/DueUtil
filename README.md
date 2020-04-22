@@ -1,3 +1,5 @@
+# This project is outdated! There's a new DueUtil at https://dueutil.tech/
+
 # DueUtil
 ### The questing and fun discord bot!
 
